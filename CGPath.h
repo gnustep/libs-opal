@@ -1,0 +1,183 @@
+/** <title>CGPath</title>
+
+   <abstract>C Interface to graphics drawing library</abstract>
+
+   Copyright (C) 2006 BALATON Zoltan <balaton@eik.bme.hu>
+
+   This library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
+   
+   This library is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Lesser General Public License for more details.
+   
+   You should have received a copy of the GNU Lesser General Public
+   License along with this library; if not, write to the Free Software
+   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+   */
+
+#ifndef OPAL_CGPath_h
+#define OPAL_CGPath_h
+
+/* Constants */
+
+typedef enum CGPathElementType {
+  kCGPathElementMoveToPoint = 0,
+  kCGPathElementAddLineToPoint = 1,
+  kCGPathElementAddQuadCurveToPoint = 2,
+  kCGPathElementAddCurveToPoint = 3,
+  kCGPathElementCloseSubpath = 4
+} CGPathElementType;
+
+typedef enum CGPathDrawingMode
+{
+  kCGPathFill = 0,
+  kCGPathEOFill = 1,
+  kCGPathStroke = 2,
+  kCGPathFillStroke = 3,
+  kCGPathEOFillStroke = 4
+} CGPathDrawingMode;
+
+/* Data Types */
+
+typedef const struct CGPath * CGPathRef;
+
+typedef struct CGPath * CGMutablePathRef;
+
+typedef struct CGPathElement {
+  CGPathElementType type;
+  CGPoint *points;
+} CGPathElement;
+
+/* Callbacks */
+
+typedef void (*CGPathApplierFunction)(void *info, const CGPathElement *element);
+
+/* Functions */
+
+CGPathRef CGPathCreateCopy(CGPathRef path);
+
+CGMutablePathRef CGPathCreateMutable(void);
+
+CGMutablePathRef CGPathCreateMutableCopy(CGPathRef path);
+
+CGPathRef CGPathRetain(CGPathRef path);
+
+void CGPathRelease(CGPathRef path);
+
+int CGPathIsEmpty(CGPathRef path);
+
+int CGPathEqualToPath(CGPathRef path1, CGPathRef path2);
+
+int CGPathIsRect(CGPathRef path, CGRect *rect);
+
+CGRect CGPathGetBoundingBox(CGPathRef path);
+
+CGPoint CGPathGetCurrentPoint(CGPathRef path);
+
+int CGPathContainsPoint(
+  CGPathRef path, 
+  const CGAffineTransform *m, 
+  CGPoint point, 
+  int eoFill
+);
+
+void CGPathAddArc(
+  CGMutablePathRef path,
+  const CGAffineTransform *m,
+  float x,
+  float y,
+  float r,
+  float startAngle,
+  float endAngle,
+  int clockwise
+);
+
+void CGPathAddArcToPoint(
+  CGMutablePathRef path,
+  const CGAffineTransform *m,
+  float x1,
+  float y1,
+  float x2,
+  float y2,
+  float r
+);
+
+void CGPathAddCurveToPoint(
+  CGMutablePathRef path,
+  const CGAffineTransform *m,
+  float cx1,
+  float cy1,
+  float cx2,
+  float cy2,
+  float x,
+  float y
+);
+
+void CGPathAddLines(
+  CGMutablePathRef path,
+  const CGAffineTransform *m,
+  const CGPoint points[],
+  size_t count
+);
+
+void CGPathAddLineToPoint (
+  CGMutablePathRef path,
+  const CGAffineTransform *m,
+  float x,
+  float y
+);
+
+void CGPathAddPath(
+  CGMutablePathRef path1,
+  const CGAffineTransform *m,
+  CGPathRef path2
+);
+
+void CGPathAddQuadCurveToPoint(
+  CGMutablePathRef path,
+  const CGAffineTransform *m,
+  float cx,
+  float cy,
+  float x,
+  float y
+);
+
+void CGPathAddRect(
+  CGMutablePathRef path,
+  const CGAffineTransform *m,
+  CGRect rect
+);
+
+void CGPathAddRects(
+  CGMutablePathRef path,
+  const CGAffineTransform *m,
+  const CGRect rects[],
+  size_t count
+);
+
+void CGPathApply(
+  CGPathRef path,
+  void *info,
+  CGPathApplierFunction function
+);
+
+void CGPathMoveToPoint(
+  CGMutablePathRef path,
+  const CGAffineTransform *m,
+  float x,
+  float y
+);
+
+void CGPathCloseSubpath(CGMutablePathRef path);
+
+void CGPathAddEllipseInRect(
+  CGMutablePathRef path, 
+  const CGAffineTransform *m, 
+  CGRect rect
+);
+
+#endif /* OPAL_CGPath_h */

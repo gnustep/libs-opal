@@ -1,0 +1,28 @@
+There's a lot to do, really.
+
+- Add proper build system
+- Port to other platforms (Windows anyone?)
+- Try different Cairo surfaces (ps, pdf, png, OpenGL, etc.)
+
+- Implement TextMatrix in CGContext (may need to use internal Cairo APIs)
+- Implement missing glyph drawing functions and finish ShowText
+- Implement Image drawing
+- Implement Patterns and Shading
+- Implement Path handling functions
+- Implement color management (could use lcms?)
+
+- Fix device transform in Cairo and get rid of CTM patching hacks
+
+
+Design principles to follow:
+============================
+- Build on public Cairo APIs as much as possible, use private APIs only if
+  there is no appropriate public one or would simplifiy implementation a lot
+- Avoid duplicate representatation of the same thing (should not store a copy
+  of what Cairo already stores to avoid getting out of sync or too many
+  conversions). Choose between Quartz or Cairo representation and convert to
+  that and then stick to it.
+- Keep performance in mind. This is a low level part of the system that
+  should be fast, small and stable so follow K.I.S.S.
+- Keep dependencies clean, only #include what you need and put functions
+  that depend on the same thing in one file.

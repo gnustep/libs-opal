@@ -1,0 +1,24 @@
+====
+Opal
+====
+
+What is Opal?
+-------------
+
+Opal is a vector drawing library with an API similar to
+Quartz 2D <http://www.cocoadev.com/index.pl?CoreGraphics>.
+Opal is built on top of Cairo <http://www.cairographics.org>.
+
+Opal is also a gemstone consisting of amorphous hydrated
+silicon dioxide (SiO2 · nH2O) which is sometimes included
+in the quartz group of minerals.
+
+There is a homepage (which may not be updated too frequently) at
+<http://goliat.eik.bme.hu/~balaton/gnustep/opal>
+
+The sources are available from the Étoile project repository at
+<http://gna.org/projects/etoile/>
+
+*** Warning! *** This version is not yet suitable for general use.
+It may be interesting for developers only, contributions are much welcome!
+For more information see the TODO file.
