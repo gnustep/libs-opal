@@ -22,8 +22,6 @@
 #ifndef OPAL_CGBase_h
 #define OPAL_CGBase_h
 
-#include <float.h>
-
 #define CGFLOAT_DEFINED 1
 #define CGFLOAT_TYPE double
 #define CGFLOAT_IS_DOUBLE 1

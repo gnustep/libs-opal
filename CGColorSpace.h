@@ -22,6 +22,7 @@
 #ifndef OPAL_CGColorSpace_h
 #define OPAL_CGColorSpace_h
 
+#include <CGBase.h>
 #include <CGDataProvider.h>
 
 /* Data Types */
@@ -53,27 +54,27 @@ CGColorSpaceRef CGColorSpaceCreateDeviceRGB(void);
 CGColorSpaceRef CGColorSpaceCreateDeviceCMYK(void);
 
 CGColorSpaceRef CGColorSpaceCreateCalibratedGray(
-  const float *whitePoint,
-  const float *blackPoint,
-  float gamma
+  const CGFloat *whitePoint,
+  const CGFloat *blackPoint,
+  CGFloat gamma
 );
 
 CGColorSpaceRef CGColorSpaceCreateCalibratedRGB(
-  const float *whitePoint,
-  const float *blackPoint,
-  const float *gamma,
-  const float *matrix
+  const CGFloat *whitePoint,
+  const CGFloat *blackPoint,
+  const CGFloat *gamma,
+  const CGFloat *matrix
 );
 
 CGColorSpaceRef CGColorSpaceCreateLab(
-  const float *whitePoint,
-  const float *blackPoint,
-  const float *range
+  const CGFloat *whitePoint,
+  const CGFloat *blackPoint,
+  const CGFloat *range
 );
 
 CGColorSpaceRef CGColorSpaceCreateICCBased(
   size_t nComponents,
-  const float *range,
+  const CGFloat *range,
   CGDataProviderRef profile,
   CGColorSpaceRef alternateSpace
 );

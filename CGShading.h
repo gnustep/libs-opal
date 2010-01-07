@@ -42,9 +42,9 @@ CGShadingRef CGShadingCreateAxial (
 CGShadingRef CGShadingCreateRadial(
   CGColorSpaceRef colorspace,
   CGPoint start,
-  float startRadius,
+  CGFloat startRadius,
   CGPoint end,
-  float endRadius,
+  CGFloat endRadius,
   CGFunctionRef function,
   int extendStart,
   int extendEnd

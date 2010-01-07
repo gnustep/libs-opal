@@ -29,12 +29,12 @@
 
 typedef struct CGAffineTransform
 {
-  float a;
-  float b;
-  float c;
-  float d;
-  float tx;
-  float ty;
+  CGFloat a;
+  CGFloat b;
+  CGFloat c;
+  CGFloat d;
+  CGFloat tx;
+  CGFloat ty;
 } CGAffineTransform;
 
 /* Constants */
@@ -58,25 +58,25 @@ extern const CGAffineTransform CGAffineTransformIdentity;
 #endif
 
 GS_AFTR_SCOPE CGAffineTransform CGAffineTransformMake(
-  float a,
-  float b,
-  float c,
-  float d,
-  float tx,
-  float ty
+  CGFloat a,
+  CGFloat b,
+  CGFloat c,
+  CGFloat d,
+  CGFloat tx,
+  CGFloat ty
 ) GS_AFTR_ATTR;
 
 GS_AFTR_SCOPE CGAffineTransform CGAffineTransformMakeTranslation(
-  float tx,
-  float ty
+  CGFloat tx,
+  CGFloat ty
 ) GS_AFTR_ATTR;
 
 GS_AFTR_SCOPE CGAffineTransform CGAffineTransformMakeScale(
-  float sx,
-  float sy
+  CGFloat sx,
+  CGFloat sy
 ) GS_AFTR_ATTR;
 
-CGAffineTransform CGAffineTransformMakeRotation(float angle);
+CGAffineTransform CGAffineTransformMakeRotation(CGFloat angle);
 
 GS_AFTR_SCOPE CGAffineTransform CGAffineTransformConcat(
   CGAffineTransform t1,
@@ -85,19 +85,19 @@ GS_AFTR_SCOPE CGAffineTransform CGAffineTransformConcat(
 
 GS_AFTR_SCOPE CGAffineTransform CGAffineTransformTranslate(
   CGAffineTransform t,
-  float tx,
-  float ty
+  CGFloat tx,
+  CGFloat ty
 ) GS_AFTR_ATTR;
 
 GS_AFTR_SCOPE CGAffineTransform CGAffineTransformScale(
   CGAffineTransform t,
-  float sx,
-  float sy
+  CGFloat sx,
+  CGFloat sy
 ) GS_AFTR_ATTR;
 
 GS_AFTR_SCOPE CGAffineTransform CGAffineTransformRotate(
   CGAffineTransform t,
-  float angle
+  CGFloat angle
 ) GS_AFTR_ATTR;
 
 CGAffineTransform CGAffineTransformInvert(CGAffineTransform t);
@@ -115,7 +115,7 @@ GS_AFTR_SCOPE CGSize CGSizeApplyAffineTransform(
 /* Inlined functions */
 
 GS_AFTR_SCOPE CGAffineTransform CGAffineTransformMake(
-  float a, float b, float c, float d, float tx, float ty)
+  CGFloat a, CGFloat b, CGFloat c, CGFloat d, CGFloat tx, CGFloat ty)
 {
   CGAffineTransform matrix;
 
@@ -130,7 +130,7 @@ GS_AFTR_SCOPE CGAffineTransform CGAffineTransformMake(
 }
 
 GS_AFTR_SCOPE CGAffineTransform CGAffineTransformMakeTranslation(
-  float tx, float ty)
+  CGFloat tx, CGFloat ty)
 {
   CGAffineTransform matrix;
 
@@ -141,7 +141,7 @@ GS_AFTR_SCOPE CGAffineTransform CGAffineTransformMakeTranslation(
   return matrix;
 }
 
-GS_AFTR_SCOPE CGAffineTransform CGAffineTransformMakeScale(float sx, float sy)
+GS_AFTR_SCOPE CGAffineTransform CGAffineTransformMakeScale(CGFloat sx, CGFloat sy)
 {
   CGAffineTransform matrix;
 
@@ -168,7 +168,7 @@ GS_AFTR_SCOPE CGAffineTransform CGAffineTransformConcat(
 }
 
 GS_AFTR_SCOPE CGAffineTransform CGAffineTransformTranslate(
-  CGAffineTransform t, float tx, float ty)
+  CGAffineTransform t, CGFloat tx, CGFloat ty)
 {
   t.tx += tx * t.a + ty * t.c;
   t.ty += tx * t.b + ty * t.d;
@@ -177,7 +177,7 @@ GS_AFTR_SCOPE CGAffineTransform CGAffineTransformTranslate(
 }
 
 GS_AFTR_SCOPE CGAffineTransform CGAffineTransformScale(
-  CGAffineTransform t, float sx, float sy)
+  CGAffineTransform t, CGFloat sx, CGFloat sy)
 {
   t.a *= sx;
   t.b *= sx;
@@ -188,7 +188,7 @@ GS_AFTR_SCOPE CGAffineTransform CGAffineTransformScale(
 }
 
 GS_AFTR_SCOPE CGAffineTransform CGAffineTransformRotate(
-  CGAffineTransform t, float angle)
+  CGAffineTransform t, CGFloat angle)
 {
   return CGAffineTransformConcat(CGAffineTransformMakeRotation(angle), t);
 }

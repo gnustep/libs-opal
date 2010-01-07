@@ -106,7 +106,7 @@ CGRect CGRectIntersection(CGRect r1, CGRect r2)
 }
 
 void CGRectDivide(CGRect rect, CGRect *slice, CGRect *remainder,
-                  float amount, CGRectEdge edge)
+                  CGFloat amount, CGRectEdge edge)
 {
   static CGRect srect;
   static CGRect rrect;

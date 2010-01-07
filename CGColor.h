@@ -31,23 +31,23 @@ typedef struct CGColor * CGColorRef;
 
 /* Functions */
 
-CGColorRef CGColorCreate(CGColorSpaceRef colorspace, const float components[]);
+CGColorRef CGColorCreate(CGColorSpaceRef colorspace, const CGFloat components[]);
 
 CGColorRef CGColorCreateCopy(CGColorRef clr);
 
-CGColorRef CGColorCreateCopyWithAlpha(CGColorRef clr, float alpha);
+CGColorRef CGColorCreateCopyWithAlpha(CGColorRef clr, CGFloat alpha);
 
 CGColorRef CGColorCreateWithPattern(
   CGColorSpaceRef colorspace,
   CGPatternRef pattern,
-  const float components[]
+  const CGFloat components[]
 );
 
-float CGColorGetAlpha(CGColorRef clr);
+CGFloat CGColorGetAlpha(CGColorRef clr);
 
 CGColorSpaceRef CGColorGetColorSpace(CGColorRef clr);
 
-const float *CGColorGetComponents(CGColorRef clr);
+const CGFloat *CGColorGetComponents(CGColorRef clr);
 
 size_t CGColorGetNumberOfComponents(CGColorRef clr);
 

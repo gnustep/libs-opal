@@ -53,8 +53,8 @@ CGPatternRef CGPatternCreate(
   void *info,
   CGRect bounds,
   CGAffineTransform matrix,
-  float xStep,
-  float yStep,
+  CGFloat xStep,
+  CGFloat yStep,
   CGPatternTiling tiling,
   int isColored,
   const CGPatternCallbacks *callbacks

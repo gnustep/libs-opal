@@ -30,7 +30,7 @@
 static cairo_pattern_t *default_cp;
 
 extern void opal_surface_flush(cairo_surface_t *target);
-extern void opal_cspace_todev(CGColorSpaceRef cs, double *dest, const float comps[]);
+extern void opal_cspace_todev(CGColorSpaceRef cs, double *dest, const CGFloat comps[]);
 extern CGFontRef opal_FontCreateWithName(const char *name);
 
 void opal_dealloc_CGContext(void *c)
@@ -129,17 +129,17 @@ void CGContextEndPage(CGContextRef ctx)
   cairo_show_page(ctx->ct);
 }
 
-void CGContextScaleCTM(CGContextRef ctx, float sx, float sy)
+void CGContextScaleCTM(CGContextRef ctx, CGFloat sx, CGFloat sy)
 {
   cairo_scale(ctx->ct, sx, sy);
 }
 
-void CGContextTranslateCTM(CGContextRef ctx, float tx, float ty)
+void CGContextTranslateCTM(CGContextRef ctx, CGFloat tx, CGFloat ty)
 {
   cairo_translate(ctx->ct, tx, ty);
 }
 
-void CGContextRotateCTM(CGContextRef ctx, float angle)
+void CGContextRotateCTM(CGContextRef ctx, CGFloat angle)
 {
   cairo_rotate(ctx->ct, angle);
 }
@@ -219,7 +219,7 @@ void CGContextSetShouldAntialias(CGContextRef ctx, int shouldAntialias)
     (shouldAntialias ? CAIRO_ANTIALIAS_DEFAULT : CAIRO_ANTIALIAS_NONE));
 }
 
-void CGContextSetLineWidth(CGContextRef ctx, float width)
+void CGContextSetLineWidth(CGContextRef ctx, CGFloat width)
 {
   cairo_set_line_width(ctx->ct, width);
 }
@@ -229,7 +229,7 @@ void CGContextSetLineJoin(CGContextRef ctx, CGLineJoin join)
   cairo_set_line_join(ctx->ct, join);
 }
 
-void CGContextSetMiterLimit(CGContextRef ctx, float limit)
+void CGContextSetMiterLimit(CGContextRef ctx, CGFloat limit)
 {
   cairo_set_miter_limit(ctx->ct, limit);
 }
@@ -241,8 +241,8 @@ void CGContextSetLineCap(CGContextRef ctx, CGLineCap cap)
 
 void CGContextSetLineDash(
   CGContextRef ctx,
-  float phase,
-  const float lengths[],
+  CGFloat phase,
+  const CGFloat lengths[],
   size_t count)
 {
   double dashes[count]; /* C99 allows this */
@@ -254,7 +254,7 @@ void CGContextSetLineDash(
   cairo_set_dash(ctx->ct, dashes, count, phase);
 }
 
-void CGContextSetFlatness(CGContextRef ctx, float flatness)
+void CGContextSetFlatness(CGContextRef ctx, CGFloat flatness)
 {
   cairo_set_tolerance(ctx->ct, flatness);
 }
@@ -286,12 +286,12 @@ void CGContextClosePath(CGContextRef ctx)
   cairo_close_path(ctx->ct);
 }
 
-void CGContextMoveToPoint(CGContextRef ctx, float x, float y)
+void CGContextMoveToPoint(CGContextRef ctx, CGFloat x, CGFloat y)
 {
   cairo_move_to(ctx->ct, x, y);
 }
 
-void CGContextAddLineToPoint(CGContextRef ctx, float x, float y)
+void CGContextAddLineToPoint(CGContextRef ctx, CGFloat x, CGFloat y)
 {
   cairo_line_to(ctx->ct, x, y);
 }
@@ -308,12 +308,12 @@ void CGContextAddLines(CGContextRef ctx, const CGPoint points[], size_t count)
 
 void CGContextAddCurveToPoint(
   CGContextRef ctx,
-  float cp1x,
-  float cp1y,
-  float cp2x,
-  float cp2y,
-  float x,
-  float y)
+  CGFloat cp1x,
+  CGFloat cp1y,
+  CGFloat cp2x,
+  CGFloat cp2y,
+  CGFloat x,
+  CGFloat y)
 {
   cairo_curve_to(ctx->ct, cp1x, cp1y, cp2x, cp2y, x, y);
 }
@@ -334,11 +334,11 @@ void CGContextAddRects(CGContextRef ctx, const CGRect rects[], size_t count)
 
 void CGContextAddArc(
   CGContextRef ctx,
-  float x,
-  float y,
-  float radius,
-  float startAngle,
-  float endAngle,
+  CGFloat x,
+  CGFloat y,
+  CGFloat radius,
+  CGFloat startAngle,
+  CGFloat endAngle,
   int clockwise)
 {
   if (clockwise)
@@ -349,11 +349,11 @@ void CGContextAddArc(
 
 void CGContextAddArcToPoint(
   CGContextRef ctx,
-  float x1,
-  float y1,
-  float x2,
-  float y2,
-  float radius)
+  CGFloat x1,
+  CGFloat y1,
+  CGFloat x2,
+  CGFloat y2,
+  CGFloat radius)
 {
   double x0, y0;
   double dx0, dy0, dx2, dy2, xl0, xl2;
@@ -464,7 +464,7 @@ void CGContextStrokeRect(CGContextRef ctx, CGRect rect)
   CGContextStrokePath(ctx);
 }
 
-void CGContextStrokeRectWithWidth(CGContextRef ctx, CGRect rect, float width)
+void CGContextStrokeRectWithWidth(CGContextRef ctx, CGRect rect, CGFloat width)
 {
   CGContextSetLineWidth(ctx, width);
   CGContextStrokeRect(ctx, rect);
@@ -568,7 +568,7 @@ void CGContextSetStrokeColorWithColor(CGContextRef ctx, CGColorRef color)
   set_color(&ctx->add->stroke_cp, color, ctx->add->alpha);
 }
 
-void CGContextSetAlpha(CGContextRef ctx, float alpha)
+void CGContextSetAlpha(CGContextRef ctx, CGFloat alpha)
 {
   if (alpha < 0)
     alpha = 0;
@@ -584,12 +584,12 @@ void CGContextSetAlpha(CGContextRef ctx, float alpha)
 
 void CGContextSetFillColorSpace(CGContextRef ctx, CGColorSpaceRef colorspace)
 {
-  float *components;
+  CGFloat *components;
   CGColorRef color;
   size_t nc;
 
   nc = CGColorSpaceGetNumberOfComponents(colorspace);
-  components = calloc(nc+1, sizeof(float));
+  components = calloc(nc+1, sizeof(CGFloat));
   if (components) {
     errlog("%s:%d: calloc failed\n", __FILE__, __LINE__);
     return;
@@ -604,12 +604,12 @@ void CGContextSetFillColorSpace(CGContextRef ctx, CGColorSpaceRef colorspace)
 
 void CGContextSetStrokeColorSpace(CGContextRef ctx, CGColorSpaceRef colorspace)
 {
-  float *components;
+  CGFloat *components;
   CGColorRef color;
   size_t nc;
 
   nc = CGColorSpaceGetNumberOfComponents(colorspace);
-  components = calloc(nc+1, sizeof(float));
+  components = calloc(nc+1, sizeof(CGFloat));
   if (components) {
     errlog("%s:%d: calloc failed\n", __FILE__, __LINE__);
     return;
@@ -622,7 +622,7 @@ void CGContextSetStrokeColorSpace(CGContextRef ctx, CGColorSpaceRef colorspace)
   CGColorRelease(color);
 }
 
-void CGContextSetFillColor(CGContextRef ctx, const float components[])
+void CGContextSetFillColor(CGContextRef ctx, const CGFloat components[])
 {
   CGColorSpaceRef cs;
   CGColorRef color;
@@ -633,7 +633,7 @@ void CGContextSetFillColor(CGContextRef ctx, const float components[])
   CGColorRelease(color);
 }
 
-void CGContextSetStrokeColor(CGContextRef ctx, const float components[])
+void CGContextSetStrokeColor(CGContextRef ctx, const CGFloat components[])
 {
   CGColorSpaceRef cs;
   CGColorRef color;
@@ -644,9 +644,9 @@ void CGContextSetStrokeColor(CGContextRef ctx, const float components[])
   CGColorRelease(color);
 }
 
-void CGContextSetGrayFillColor(CGContextRef ctx, float gray, float alpha)
+void CGContextSetGrayFillColor(CGContextRef ctx, CGFloat gray, CGFloat alpha)
 {
-  float comps[2];
+  CGFloat comps[2];
   CGColorSpaceRef cs;
   CGColorRef color;
 
@@ -659,9 +659,9 @@ void CGContextSetGrayFillColor(CGContextRef ctx, float gray, float alpha)
   CGColorRelease(color);
 }
 
-void CGContextSetGrayStrokeColor(CGContextRef ctx, float gray, float alpha)
+void CGContextSetGrayStrokeColor(CGContextRef ctx, CGFloat gray, CGFloat alpha)
 {
-  float comps[2];
+  CGFloat comps[2];
   CGColorSpaceRef cs;
   CGColorRef color;
 
@@ -675,9 +675,9 @@ void CGContextSetGrayStrokeColor(CGContextRef ctx, float gray, float alpha)
 }
 
 void CGContextSetRGBFillColor(CGContextRef ctx,
-       float r, float g, float b, float alpha)
+       CGFloat r, CGFloat g, CGFloat b, CGFloat alpha)
 {
-  float comps[4];
+  CGFloat comps[4];
   CGColorSpaceRef cs;
   CGColorRef color;
 
@@ -693,9 +693,9 @@ void CGContextSetRGBFillColor(CGContextRef ctx,
 }
 
 void CGContextSetRGBStrokeColor(CGContextRef ctx,
-       float r, float g, float b, float alpha)
+       CGFloat r, CGFloat g, CGFloat b, CGFloat alpha)
 {
-  float comps[4];
+  CGFloat comps[4];
   CGColorSpaceRef cs;
   CGColorRef color;
 
@@ -719,7 +719,7 @@ void CGContextSetFont(CGContextRef ctx, CGFontRef font)
   cairo_set_font_face(ctx->ct, (cairo_font_face_t *)font);
 }
 
-void CGContextSetFontSize(CGContextRef ctx, float size)
+void CGContextSetFontSize(CGContextRef ctx, CGFloat size)
 {
   cairo_matrix_t fm;
 
@@ -733,7 +733,7 @@ void CGContextSetFontSize(CGContextRef ctx, float size)
 void CGContextSelectFont(
   CGContextRef ctx,
   const char *name,
-  float size,
+  CGFloat size,
   CGTextEncoding textEncoding)
 {
   /* FIXME: textEncoding is ignored */
@@ -741,7 +741,7 @@ void CGContextSelectFont(
   CGContextSetFontSize(ctx, size);
 }
 
-void CGContextSetTextPosition(CGContextRef ctx, float x, float y)
+void CGContextSetTextPosition(CGContextRef ctx, CGFloat x, CGFloat y)
 {
   ctx->txtpos.x = x;
   ctx->txtpos.y = y;
@@ -775,8 +775,8 @@ void CGContextShowText(CGContextRef ctx, const char *cstring, size_t length)
 
 void CGContextShowTextAtPoint(
   CGContextRef ctx,
-  float x,
-  float y,
+  CGFloat x,
+  CGFloat y,
   const char *cstring,
   size_t length)
 {

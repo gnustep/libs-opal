@@ -72,7 +72,7 @@ void drawRandomPaths(CGContextRef context, int w, int h)
     for (i = 0; i < 20; i++) {
         int numberOfSegments = rand() % 8;
         int j;
-        float sx, sy;
+        CGFloat sx, sy;
         
         CGContextBeginPath(context);
         sx = rand()%w; sy = rand()%h;
@@ -90,16 +90,16 @@ void drawRandomPaths(CGContextRef context, int w, int h)
             CGContextAddCurveToPoint(context, rand()%w, rand()%h,
                     rand()%w, rand()%h,  sx, sy);
             CGContextClosePath(context);
-            CGContextSetRGBFillColor(context, (float)(rand()%256)/255, 
-                    (float)(rand()%256)/255, (float)(rand()%256)/255, 
-                    (float)(rand()%256)/255);
+            CGContextSetRGBFillColor(context, (CGFloat)(rand()%256)/255, 
+                    (CGFloat)(rand()%256)/255, (CGFloat)(rand()%256)/255, 
+                    (CGFloat)(rand()%256)/255);
             CGContextFillPath(context);
         }
         else {
             CGContextSetLineWidth(context, (rand()%10)+2);
-            CGContextSetRGBStrokeColor(context, (float)(rand()%256)/255, 
-                    (float)(rand()%256)/255, (float)(rand()%256)/255, 
-                    (float)(rand()%256)/255);
+            CGContextSetRGBStrokeColor(context, (CGFloat)(rand()%256)/255, 
+                    (CGFloat)(rand()%256)/255, (CGFloat)(rand()%256)/255, 
+                    (CGFloat)(rand()%256)/255);
             CGContextStrokePath(context);
         }
     }
@@ -119,16 +119,16 @@ void myDraw(CGContextRef context, CGRect* contextRect)
         // Draw random rectangles (some stroked some filled)
         for (i = 0; i < 20; i++) {
             if(i % 2) {
-                CGContextSetRGBFillColor(context, (float)(rand()%256)/255, 
-                        (float)(rand()%256)/255, (float)(rand()%256)/255, 
-                        (float)(rand()%256)/255);
+                CGContextSetRGBFillColor(context, (CGFloat)(rand()%256)/255, 
+                        (CGFloat)(rand()%256)/255, (CGFloat)(rand()%256)/255, 
+                        (CGFloat)(rand()%256)/255);
                 CGContextFillRect(context, CGRectMake(rand()%w, rand()%h, rand()%w, rand()%h));
             }
             else {
                 CGContextSetLineWidth(context, (rand()%10)+2);
-                CGContextSetRGBStrokeColor(context, (float)(rand()%256)/255, 
-                        (float)(rand()%256)/255, (float)(rand()%256)/255, 
-                        (float)(rand()%256)/255);
+                CGContextSetRGBStrokeColor(context, (CGFloat)(rand()%256)/255, 
+                        (CGFloat)(rand()%256)/255, (CGFloat)(rand()%256)/255, 
+                        (CGFloat)(rand()%256)/255);
                 CGContextStrokeRect(context, CGRectMake(rand()%w, rand()%h, rand()%w, rand()%h));
             }
         }
@@ -141,16 +141,16 @@ void myDraw(CGContextRef context, CGRect* contextRect)
             CGContextClosePath(context);
 
             if(i % 2) {
-                CGContextSetRGBFillColor(context, (float)(rand()%256)/255, 
-                        (float)(rand()%256)/255, (float)(rand()%256)/255, 
-                        (float)(rand()%256)/255);
+                CGContextSetRGBFillColor(context, (CGFloat)(rand()%256)/255, 
+                        (CGFloat)(rand()%256)/255, (CGFloat)(rand()%256)/255, 
+                        (CGFloat)(rand()%256)/255);
                 CGContextFillPath(context);
             }
             else {
                 CGContextSetLineWidth(context, (rand()%10)+2);
-                CGContextSetRGBStrokeColor(context, (float)(rand()%256)/255, 
-                        (float)(rand()%256)/255, (float)(rand()%256)/255, 
-                        (float)(rand()%256)/255);
+                CGContextSetRGBStrokeColor(context, (CGFloat)(rand()%256)/255, 
+                        (CGFloat)(rand()%256)/255, (CGFloat)(rand()%256)/255, 
+                        (CGFloat)(rand()%256)/255);
                 CGContextStrokePath(context);
             }
         }

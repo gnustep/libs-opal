@@ -53,7 +53,7 @@ CGImageRef CGImageCreate(
   CGColorSpaceRef colorspace,
   CGImageAlphaInfo alphaInfo,
   CGDataProviderRef provider,
-  const float *decode,
+  const CGFloat *decode,
   int shouldInterpolate,
   CGColorRenderingIntent intent
 );
@@ -65,7 +65,7 @@ CGImageRef CGImageMaskCreate(
   size_t bitsPerPixel,
   size_t bytesPerRow,
   CGDataProviderRef provider,
-  const float *decode,
+  const CGFloat *decode,
   int shouldInterpolate
 );
 
@@ -91,7 +91,7 @@ CGImageAlphaInfo CGImageGetAlphaInfo(CGImageRef image);
 
 CGDataProviderRef CGImageGetDataProvider(CGImageRef image);
 
-const float *CGImageGetDecode(CGImageRef image);
+const CGFloat *CGImageGetDecode(CGImageRef image);
 
 int CGImageGetShouldInterpolate(CGImageRef image);
 

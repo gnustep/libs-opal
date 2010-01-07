@@ -27,11 +27,11 @@
 
 const CGAffineTransform CGAffineTransformIdentity = {1,0,0,1,0,0};
 
-CGAffineTransform CGAffineTransformMakeRotation(float angle)
+CGAffineTransform CGAffineTransformMakeRotation(CGFloat angle)
 {
   CGAffineTransform matrix;
-  float cosa = cos(angle);
-  float sina = sin(angle);
+  CGFloat cosa = cos(angle);
+  CGFloat sina = sin(angle);
 
   matrix.a = matrix.d = cosa;
   matrix.b = sina;
@@ -44,7 +44,7 @@ CGAffineTransform CGAffineTransformMakeRotation(float angle)
 CGAffineTransform CGAffineTransformInvert(CGAffineTransform t)
 {
   CGAffineTransform inv;
-  float det;
+  CGFloat det;
 
   det = t.a * t.d - t.b *t.c;
   if (det == 0) {

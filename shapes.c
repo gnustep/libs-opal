@@ -16,8 +16,8 @@ extern void frameOval(CGContextRef context, CGRect r);
 extern void paintOval(CGContextRef context, CGRect r);
 extern void frameRect(CGContextRef context, CGRect r);
 extern void paintRect(CGContextRef context, CGRect r);
-extern void fillRoundedRect(CGContextRef context, CGRect rect, float ovalWidth, float ovalHeight);
-extern void strokeRoundedRect(CGContextRef context, CGRect rect, float ovalWidth, float ovalHeight);
+extern void fillRoundedRect(CGContextRef context, CGRect rect, CGFloat ovalWidth, CGFloat ovalHeight);
+extern void strokeRoundedRect(CGContextRef context, CGRect rect, CGFloat ovalWidth, CGFloat ovalHeight);
 
 void draw(CGContextRef ctx, CGRect r)
 {

@@ -27,10 +27,10 @@ typedef struct CGColor
 {
   struct objbase base;
   CGColorSpaceRef cspace;
-  float *comps;
+  CGFloat *comps;
 } CGColor;
 
-CGColorRef CGColorCreate(CGColorSpaceRef colorspace, const float components[])
+CGColorRef CGColorCreate(CGColorSpaceRef colorspace, const CGFloat components[])
 {
   CGColorRef clr;
   size_t nc, i;
@@ -39,7 +39,7 @@ CGColorRef CGColorCreate(CGColorSpaceRef colorspace, const float components[])
   if (!clr) return NULL;
 
   nc = CGColorSpaceGetNumberOfComponents(colorspace);
-  clr->comps = malloc((nc+1)*sizeof(float));
+  clr->comps = malloc((nc+1)*sizeof(CGFloat));
   if (!clr->comps) {
     errlog("%s:%d: malloc failed\n", __FILE__, __LINE__);
     free(clr);
@@ -77,7 +77,7 @@ CGColorRef CGColorCreateCopy(CGColorRef clr)
   return CGColorCreate(clr->cspace, clr->comps);
 }
 
-CGColorRef CGColorCreateCopyWithAlpha(CGColorRef clr, float alpha)
+CGColorRef CGColorCreateCopyWithAlpha(CGColorRef clr, CGFloat alpha)
 {
   CGColorRef newclr;
 
@@ -88,7 +88,7 @@ CGColorRef CGColorCreateCopyWithAlpha(CGColorRef clr, float alpha)
   return newclr;
 }
 
-float CGColorGetAlpha(CGColorRef clr)
+CGFloat CGColorGetAlpha(CGColorRef clr)
 {
   return clr->comps[CGColorSpaceGetNumberOfComponents(clr->cspace)];
 }
@@ -98,7 +98,7 @@ CGColorSpaceRef CGColorGetColorSpace(CGColorRef clr)
   return clr->cspace;
 }
 
-const float *CGColorGetComponents(CGColorRef clr)
+const CGFloat *CGColorGetComponents(CGColorRef clr)
 {
   return clr->comps;
 }

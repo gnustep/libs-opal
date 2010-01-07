@@ -31,11 +31,11 @@ typedef struct CGColorSpace
 {
   struct objbase base;
   int numcomps;
-  void (*todevice)(double *dest, const float comps[]);
+  void (*todevice)(double *dest, const CGFloat comps[]);
 } CGColorSpace;
 
-static void opal_todev_rgb(double *dest, const float comps[]);
-static void opal_todev_gray(double *dest, const float comps[]);
+static void opal_todev_rgb(double *dest, const CGFloat comps[]);
+static void opal_todev_gray(double *dest, const CGFloat comps[]);
 
 /* Return these for everything now */
 static CGColorSpace deviceRGB =
@@ -92,7 +92,7 @@ size_t CGColorSpaceGetNumberOfComponents(CGColorSpaceRef cs)
   return cs->numcomps;
 }
 
-static void opal_todev_rgb(double *dest, const float comps[])
+static void opal_todev_rgb(double *dest, const CGFloat comps[])
 {
   dest[0] = comps[0];
   dest[1] = comps[1];
@@ -100,7 +100,7 @@ static void opal_todev_rgb(double *dest, const float comps[])
   dest[3] = comps[3];
 }
 
-static void opal_todev_gray(double *dest, const float comps[])
+static void opal_todev_gray(double *dest, const CGFloat comps[])
 {
   dest[0] = comps[0];
   dest[1] = comps[0];
@@ -110,7 +110,7 @@ static void opal_todev_gray(double *dest, const float comps[])
 
 /* FIXME: This sould really convert to the color space of the device,
  * but Cairo only knows about RGBA, so we convert to that */
-void opal_cspace_todev(CGColorSpaceRef cs, double *dest, const float comps[])
+void opal_cspace_todev(CGColorSpaceRef cs, double *dest, const CGFloat comps[])
 {
   cs->todevice(dest, comps);
 }

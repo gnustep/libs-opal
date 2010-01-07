@@ -36,7 +36,7 @@ typedef struct CGImage
   size_t bitsPerPixel;
   size_t bytesPerRow;
   CGDataProviderRef dp;
-  float *decode;
+  CGFloat *decode;
   int shouldInterpolate;
   /* alphaInfo is always AlphaNone for mask */
   CGImageAlphaInfo alphaInfo;
@@ -58,7 +58,7 @@ void opal_dealloc_CGImage(void *i)
 static inline CGImageRef opal_CreateImage(
   size_t width, size_t height,
   size_t bitsPerComponent, size_t bitsPerPixel, size_t bytesPerRow,
-  CGDataProviderRef provider, const float *decode, int shouldInterpolate,
+  CGDataProviderRef provider, const CGFloat *decode, int shouldInterpolate,
   size_t numComponents, int hasAlpha)
 {
   CGImageRef img;
@@ -86,7 +86,7 @@ static inline CGImageRef opal_CreateImage(
   if(decode && numComponents) {
     size_t i;
 
-    img->decode = malloc(2*numComponents*sizeof(float));
+    img->decode = malloc(2*numComponents*sizeof(CGFloat));
     if (!img->decode) {
       errlog("%s:%d: malloc failed\n", __FILE__, __LINE__);
       free(img);
@@ -115,7 +115,7 @@ CGImageRef CGImageCreate(
   CGColorSpaceRef colorspace,
   CGImageAlphaInfo alphaInfo,
   CGDataProviderRef provider,
-  const float *decode,
+  const CGFloat *decode,
   int shouldInterpolate,
   CGColorRenderingIntent intent)
 {
@@ -150,7 +150,7 @@ CGImageRef CGImageCreate(
 CGImageRef CGImageMaskCreate(
   size_t width, size_t height,
   size_t bitsPerComponent, size_t bitsPerPixel, size_t bytesPerRow,
-  CGDataProviderRef provider, const float *decode, int shouldInterpolate)
+  CGDataProviderRef provider, const CGFloat *decode, int shouldInterpolate)
 {
   CGImageRef img;
 
@@ -220,7 +220,7 @@ CGDataProviderRef CGImageGetDataProvider(CGImageRef image)
   return image->dp;
 }
 
-const float *CGImageGetDecode(CGImageRef image)
+const CGFloat *CGImageGetDecode(CGImageRef image)
 {
   return image->decode;
 }

@@ -46,7 +46,7 @@
  STRICT LIABILITY OR OTHERWISE, EVEN IF APPLE HAS BEEN ADVISED OF THE
  POSSIBILITY OF SUCH DAMAGE.
  
- Copyright © 2005 Apple Computer, Inc., All Rights Reserved
+ Copyright ï¿½ 2005 Apple Computer, Inc., All Rights Reserved
  
  */ 
 
@@ -86,10 +86,10 @@ ovalHeight : The height of the CG rectangle that encloses the rounded corners
 context : The CG context to render to.
 */
 
-static void addRoundedRectToPath(CGContextRef context, CGRect rect, float ovalWidth,
-						  float ovalHeight)
+static void addRoundedRectToPath(CGContextRef context, CGRect rect, CGFloat ovalWidth,
+						  CGFloat ovalHeight)
 {
-	float fw, fh;
+	CGFloat fw, fh;
 	// If the width or height of the corner oval is zero, then it reduces to a right angle,
 	// so instead of a rounded rectangle we have an ordinary one.
 	if (ovalWidth == 0 || ovalHeight == 0) {
@@ -137,7 +137,7 @@ ovalWidth : The width of the CG rectangle that encloses the rounded corners
 ovalHeight : The height of the CG rectangle that encloses the rounded corners
 context : The CG context to render to.
 */
-void fillRoundedRect(CGContextRef context, CGRect rect, float ovalWidth, float
+void fillRoundedRect(CGContextRef context, CGRect rect, CGFloat ovalWidth, CGFloat
 					 ovalHeight)
 {
 	// Signal the start of a path
@@ -158,8 +158,8 @@ ovalWidth : The width of the CG rectangle that encloses the rounded corners
 ovalHeight : The height of the CG rectangle that encloses the rounded corners
 context : The CG context to render to.
 */
-void strokeRoundedRect(CGContextRef context, CGRect rect, float ovalWidth,
-					   float ovalHeight)
+void strokeRoundedRect(CGContextRef context, CGRect rect, CGFloat ovalWidth,
+					   CGFloat ovalHeight)
 {
 	
 	// Signal the start of a path

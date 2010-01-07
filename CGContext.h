@@ -27,6 +27,7 @@
 typedef struct CGContext * CGContextRef;
 
 #include <CGAffineTransform.h>
+#include <CGBase.h>
 #include <CGColor.h>
 #include <CGFont.h>
 #include <CGImage.h>
@@ -110,11 +111,11 @@ void CGContextEndPage(CGContextRef ctx);
 
 /* Transforming the Coordinate Space of the Page */
 
-void CGContextScaleCTM(CGContextRef ctx, float sx, float sy);
+void CGContextScaleCTM(CGContextRef ctx, CGFloat sx, CGFloat sy);
 
-void CGContextTranslateCTM(CGContextRef ctx, float tx, float ty);
+void CGContextTranslateCTM(CGContextRef ctx, CGFloat tx, CGFloat ty);
 
-void CGContextRotateCTM(CGContextRef ctx, float angle);
+void CGContextRotateCTM(CGContextRef ctx, CGFloat angle);
 
 void CGContextConcatCTM(CGContextRef ctx, CGAffineTransform transform);
 
@@ -130,22 +131,22 @@ void CGContextRestoreGState(CGContextRef ctx);
 
 void CGContextSetShouldAntialias(CGContextRef ctx, int shouldAntialias);
 
-void CGContextSetLineWidth(CGContextRef ctx, float width);
+void CGContextSetLineWidth(CGContextRef ctx, CGFloat width);
 
 void CGContextSetLineJoin(CGContextRef ctx, CGLineJoin join);
 
-void CGContextSetMiterLimit(CGContextRef ctx, float limit);
+void CGContextSetMiterLimit(CGContextRef ctx, CGFloat limit);
 
 void CGContextSetLineCap(CGContextRef ctx, CGLineCap cap);
 
 void CGContextSetLineDash(
   CGContextRef ctx,
-  float phase,
-  const float lengths[],
+  CGFloat phase,
+  const CGFloat lengths[],
   size_t count
 );
 
-void CGContextSetFlatness(CGContextRef ctx, float flatness);
+void CGContextSetFlatness(CGContextRef ctx, CGFloat flatness);
 
 CGInterpolationQuality CGContextGetInterpolationQuality(CGContextRef ctx);
 
@@ -159,13 +160,13 @@ void CGContextSetPatternPhase (CGContextRef ctx, CGSize phase);
 void CGContextSetFillPattern(
   CGContextRef ctx,
   CGPatternRef pattern,
-  const float components[]
+  const CGFloat components[]
 );
 
 void CGContextSetStrokePattern(
   CGContextRef ctx,
   CGPatternRef pattern,
-  const float components[]
+  const CGFloat components[]
 );
 
 void CGContextSetShouldSmoothFonts(CGContextRef ctx, int shouldSmoothFonts);
@@ -193,28 +194,28 @@ void CGContextBeginPath(CGContextRef ctx);
 
 void CGContextClosePath(CGContextRef ctx);
 
-void CGContextMoveToPoint(CGContextRef ctx, float x, float y);
+void CGContextMoveToPoint(CGContextRef ctx, CGFloat x, CGFloat y);
 
-void CGContextAddLineToPoint(CGContextRef ctx, float x, float y);
+void CGContextAddLineToPoint(CGContextRef ctx, CGFloat x, CGFloat y);
 
 void CGContextAddLines(CGContextRef ctx, const CGPoint points[], size_t count);
 
 void CGContextAddCurveToPoint(
   CGContextRef ctx,
-  float cp1x,
-  float cp1y,
-  float cp2x,
-  float cp2y,
-  float x,
-  float y
+  CGFloat cp1x,
+  CGFloat cp1y,
+  CGFloat cp2x,
+  CGFloat cp2y,
+  CGFloat x,
+  CGFloat y
 );
 
 void CGContextAddQuadCurveToPoint(
   CGContextRef ctx,
-  float cpx,
-  float cpy,
-  float x,
-  float y
+  CGFloat cpx,
+  CGFloat cpy,
+  CGFloat x,
+  CGFloat y
 );
 
 void CGContextAddRect(CGContextRef ctx, CGRect rect);
@@ -223,21 +224,21 @@ void CGContextAddRects(CGContextRef ctx, const CGRect rects[], size_t count);
 
 void CGContextAddArc(
   CGContextRef ctx,
-  float x,
-  float y,
-  float radius,
-  float startAngle,
-  float endAngle,
+  CGFloat x,
+  CGFloat y,
+  CGFloat radius,
+  CGFloat startAngle,
+  CGFloat endAngle,
   int clockwise
 );
 
 void CGContextAddArcToPoint(
   CGContextRef ctx,
-  float x1,
-  float y1,
-  float x2,
-  float y2,
-  float radius
+  CGFloat x1,
+  CGFloat y1,
+  CGFloat x2,
+  CGFloat y2,
+  CGFloat radius
 );
 
 void CGContextAddPath(CGContextRef ctx, CGPathRef path);
@@ -256,7 +257,7 @@ void CGContextDrawPath(CGContextRef ctx, CGPathDrawingMode mode);
 
 void CGContextStrokeRect(CGContextRef ctx, CGRect rect);
 
-void CGContextStrokeRectWithWidth(CGContextRef ctx, CGRect rect, float width);
+void CGContextStrokeRectWithWidth(CGContextRef ctx, CGRect rect, CGFloat width);
 
 void CGContextFillRect(CGContextRef ctx, CGRect rect);
 
@@ -298,52 +299,52 @@ void CGContextSetFillColorWithColor(CGContextRef ctx, CGColorRef color);
 
 void CGContextSetStrokeColorWithColor(CGContextRef ctx, CGColorRef color);
 
-void CGContextSetAlpha(CGContextRef ctx, float alpha);
+void CGContextSetAlpha(CGContextRef ctx, CGFloat alpha);
 
 void CGContextSetFillColorSpace(CGContextRef ctx, CGColorSpaceRef colorspace);
 
 void CGContextSetStrokeColorSpace(CGContextRef ctx, CGColorSpaceRef colorspace);
 
-void CGContextSetFillColor(CGContextRef ctx, const float components[]);
+void CGContextSetFillColor(CGContextRef ctx, const CGFloat components[]);
 
-void CGContextSetStrokeColor(CGContextRef ctx, const float components[]);
+void CGContextSetStrokeColor(CGContextRef ctx, const CGFloat components[]);
 
-void CGContextSetGrayFillColor(CGContextRef ctx, float gray, float alpha);
+void CGContextSetGrayFillColor(CGContextRef ctx, CGFloat gray, CGFloat alpha);
 
-void CGContextSetGrayStrokeColor(CGContextRef ctx, float gray, float alpha);
+void CGContextSetGrayStrokeColor(CGContextRef ctx, CGFloat gray, CGFloat alpha);
 
 void CGContextSetRGBFillColor(
     CGContextRef ctx,
-    float r,
-    float g,
-    float b,
-    float alpha
+    CGFloat r,
+    CGFloat g,
+    CGFloat b,
+    CGFloat alpha
 );
 
 void CGContextSetRGBStrokeColor(
   CGContextRef ctx,
-  float r,
-  float g,
-  float b,
-  float alpha
+  CGFloat r,
+  CGFloat g,
+  CGFloat b,
+  CGFloat alpha
 );
 
 void CGContextSetCMYKFillColor(
   CGContextRef ctx,
-  float c,
-  float m,
-  float y,
-  float k,
-  float alpha
+  CGFloat c,
+  CGFloat m,
+  CGFloat y,
+  CGFloat k,
+  CGFloat alpha
 );
 
 void CGContextSetCMYKStrokeColor(
   CGContextRef ctx,
-  float c,
-  float m,
-  float y,
-  float k,
-  float alpha
+  CGFloat c,
+  CGFloat m,
+  CGFloat y,
+  CGFloat k,
+  CGFloat alpha
 );
 
 void CGContextSetRenderingIntent(CGContextRef ctx, CGColorRenderingIntent intent);
@@ -368,20 +369,20 @@ void CGContextDrawPDFPage(CGContextRef ctx, CGPDFPageRef page);
 
 void CGContextSetFont(CGContextRef ctx, CGFontRef font);
 
-void CGContextSetFontSize(CGContextRef ctx, float size);
+void CGContextSetFontSize(CGContextRef ctx, CGFloat size);
 
 void CGContextSelectFont(
   CGContextRef ctx,
   const char *name,
-  float size,
+  CGFloat size,
   CGTextEncoding textEncoding
 );
 
-void CGContextSetCharacterSpacing(CGContextRef ctx, float spacing);
+void CGContextSetCharacterSpacing(CGContextRef ctx, CGFloat spacing);
 
 void CGContextSetTextDrawingMode(CGContextRef ctx, CGTextDrawingMode mode);
 
-void CGContextSetTextPosition(CGContextRef ctx, float x, float y);
+void CGContextSetTextPosition(CGContextRef ctx, CGFloat x, CGFloat y);
 
 CGPoint CGContextGetTextPosition(CGContextRef ctx);
 
@@ -393,8 +394,8 @@ void CGContextShowText(CGContextRef ctx, const char *cstring, size_t length);
 
 void CGContextShowTextAtPoint(
   CGContextRef ctx,
-  float x,
-  float y,
+  CGFloat x,
+  CGFloat y,
   const char *cstring,
   size_t length
 );
@@ -403,8 +404,8 @@ void CGContextShowGlyphs(CGContextRef ctx, const CGGlyph *g, size_t count);
 
 void CGContextShowGlyphsAtPoint(
   CGContextRef ctx,
-  float x,
-  float y,
+  CGFloat x,
+  CGFloat y,
   const CGGlyph *g,
   size_t count
 );

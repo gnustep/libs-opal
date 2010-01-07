@@ -88,33 +88,33 @@ int CGPathContainsPoint(
 void CGPathAddArc(
   CGMutablePathRef path,
   const CGAffineTransform *m,
-  float x,
-  float y,
-  float r,
-  float startAngle,
-  float endAngle,
+  CGFloat x,
+  CGFloat y,
+  CGFloat r,
+  CGFloat startAngle,
+  CGFloat endAngle,
   int clockwise
 );
 
 void CGPathAddArcToPoint(
   CGMutablePathRef path,
   const CGAffineTransform *m,
-  float x1,
-  float y1,
-  float x2,
-  float y2,
-  float r
+  CGFloat x1,
+  CGFloat y1,
+  CGFloat x2,
+  CGFloat y2,
+  CGFloat r
 );
 
 void CGPathAddCurveToPoint(
   CGMutablePathRef path,
   const CGAffineTransform *m,
-  float cx1,
-  float cy1,
-  float cx2,
-  float cy2,
-  float x,
-  float y
+  CGFloat cx1,
+  CGFloat cy1,
+  CGFloat cx2,
+  CGFloat cy2,
+  CGFloat x,
+  CGFloat y
 );
 
 void CGPathAddLines(
@@ -127,8 +127,8 @@ void CGPathAddLines(
 void CGPathAddLineToPoint (
   CGMutablePathRef path,
   const CGAffineTransform *m,
-  float x,
-  float y
+  CGFloat x,
+  CGFloat y
 );
 
 void CGPathAddPath(
@@ -140,10 +140,10 @@ void CGPathAddPath(
 void CGPathAddQuadCurveToPoint(
   CGMutablePathRef path,
   const CGAffineTransform *m,
-  float cx,
-  float cy,
-  float x,
-  float y
+  CGFloat cx,
+  CGFloat cy,
+  CGFloat x,
+  CGFloat y
 );
 
 void CGPathAddRect(
@@ -168,8 +168,8 @@ void CGPathApply(
 void CGPathMoveToPoint(
   CGMutablePathRef path,
   const CGAffineTransform *m,
-  float x,
-  float y
+  CGFloat x,
+  CGFloat y
 );
 
 void CGPathCloseSubpath(CGMutablePathRef path);

@@ -67,7 +67,7 @@ arcAngle : The angle indicating the arc’s extent.
 
 void pathForArc(CGContextRef context, CGRect r, int startAngle, int arcAngle)
 {
-    float start, end;
+    CGFloat start, end;
     CGAffineTransform matrix;
 	
 	// Save the context's state because we are going to scale it
@@ -136,7 +136,7 @@ arcAngle : The angle indicating the arc’s extent.
 
 void paintArc(CGContextRef context, CGRect r, int startAngle, int arcAngle)
 {
-    float start, end;
+    CGFloat start, end;
 	
 	// Signal the start of a path
     CGContextBeginPath(context);

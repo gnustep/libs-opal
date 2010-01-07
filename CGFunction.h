@@ -30,8 +30,8 @@ typedef struct CGFunction *CGFunctionRef;
 
 typedef void (*CGFunctionEvaluateCallback)(
   void *info,
-  const float *inData,
-  float *outData
+  const CGFloat *inData,
+  CGFloat *outData
 );
 
 typedef void (*CGFunctionReleaseInfoCallback)(void *info);
@@ -47,9 +47,9 @@ typedef struct CGFunctionCallbacks {
 CGFunctionRef CGFunctionCreate(
   void *info,
   size_t domainDimension,
-  const float *domain,
+  const CGFloat *domain,
   size_t rangeDimension,
-  const float *range,
+  const CGFloat *range,
   const CGFunctionCallbacks *callbacks
 );
 
