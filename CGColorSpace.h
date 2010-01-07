@@ -60,16 +60,9 @@ typedef enum opal_GenericColorSpaceNames {
 
 /* Functions */
 
-CFDataRef CGColorSpaceCopyICCProfile(CGColorSpaceRef space);
+CFDataRef CGColorSpaceCopyICCProfile(CGColorSpaceRef cs);
 
-CFStringRef CGColorSpaceCopyName(CGColorSpaceRef space);
-
-
-CGColorSpaceRef CGColorSpaceCreateDeviceGray(void);
-
-CGColorSpaceRef CGColorSpaceCreateDeviceRGB(void);
-
-CGColorSpaceRef CGColorSpaceCreateDeviceCMYK(void);
+CFStringRef CGColorSpaceCopyName(CGColorSpaceRef cs);
 
 CGColorSpaceRef CGColorSpaceCreateCalibratedGray(
   const CGFloat *whitePoint,
@@ -84,11 +77,11 @@ CGColorSpaceRef CGColorSpaceCreateCalibratedRGB(
   const CGFloat *matrix
 );
 
-CGColorSpaceRef CGColorSpaceCreateLab(
-  const CGFloat *whitePoint,
-  const CGFloat *blackPoint,
-  const CGFloat *range
-);
+CGColorSpaceRef CGColorSpaceCreateDeviceCMYK();
+
+CGColorSpaceRef CGColorSpaceCreateDeviceGray();
+
+CGColorSpaceRef CGColorSpaceCreateDeviceRGB();
 
 CGColorSpaceRef CGColorSpaceCreateICCBased(
   size_t nComponents,
@@ -103,13 +96,29 @@ CGColorSpaceRef CGColorSpaceCreateIndexed(
   const unsigned char *colorTable
 );
 
+CGColorSpaceRef CGColorSpaceCreateLab(
+  const CGFloat *whitePoint,
+  const CGFloat *blackPoint,
+  const CGFloat *range
+);
+
+CGColorSpaceRef CGColorSpaceCreatePattern(CGColorSpaceRef baseSpace);
+
+CGColorSpaceRef CGColorSpaceCreateWithICCProfile(CFDataRef data);
+
+CGColorSpaceRef CGColorSpaceCreateWithName(opal_GenericColorSpaceNames name);
+
 CGColorSpaceRef CGColorSpaceCreateWithPlatformColorSpace(
   void *platformColorSpace
 );
 
-CGColorSpaceRef CGColorSpaceCreateWithName(opal_GenericColorSpaceNames name);
+CGColorSpaceRef CGColorSpaceGetBaseColorSpace(CGColorSpaceRef cs);
 
-CGColorSpaceRef CGColorSpaceCreatePattern(CGColorSpaceRef baseSpace);
+void CGColorSpaceGetColorTable(CGColorSpaceRef cs, unsigned char *table);
+
+size_t CGColorSpaceGetColorTableCount(CGColorSpaceRef cs);
+
+CGColorSpaceModel CGColorSpaceGetModel(CGColorSpaceRef cs);
 
 size_t CGColorSpaceGetNumberOfComponents(CGColorSpaceRef cs);
 
