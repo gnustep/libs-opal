@@ -24,7 +24,11 @@
 
 /* Data Types */
 
-typedef void * CGPatternRef;
+typedef struct CGPattern *CGPatternRef;
+
+#include <CGContext.h>
+#include <CGGeometry.h>
+#include <CGAffineTransform.h>
 
 /* Constants */
 
