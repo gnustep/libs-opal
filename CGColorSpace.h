@@ -22,12 +22,25 @@
 #ifndef OPAL_CGColorSpace_h
 #define OPAL_CGColorSpace_h
 
+#include <CoreFoundation.h>
 #include <CGBase.h>
 #include <CGDataProvider.h>
 
 /* Data Types */
 
 typedef struct CGColorSpace * CGColorSpaceRef;
+
+typedef enum CGColorSpaceModel {
+  kCGColorSpaceModelUnknown = -1,
+  kCGColorSpaceModelMonochrome = 0,
+  kCGColorSpaceModelRGB = 1,
+  kCGColorSpaceModelCMYK = 2,
+  kCGColorSpaceModelLab = 3,
+  kCGColorSpaceModelDeviceN = 4,
+  kCGColorSpaceModelIndexed = 5,
+  kCGColorSpaceModelPattern = 6
+} CGColorSpaceModel;
+
 
 /* Constants */
 
@@ -46,6 +59,11 @@ typedef enum opal_GenericColorSpaceNames {
 } opal_GenericColorSpaceNames;
 
 /* Functions */
+
+CFDataRef CGColorSpaceCopyICCProfile(CGColorSpaceRef space);
+
+CFStringRef CGColorSpaceCopyName(CGColorSpaceRef space);
+
 
 CGColorSpaceRef CGColorSpaceCreateDeviceGray(void);
 

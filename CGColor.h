@@ -22,12 +22,20 @@
 #ifndef OPAL_CGColor_h
 #define OPAL_CGColor_h
 
-#include <CGColorSpace.h>
-#include <CGPattern.h>
-
 /* Data Types */
 
 typedef struct CGColor * CGColorRef;
+
+#include <CoreFoundation.h>
+#include <CGBase.h>
+#include <CGColorSpace.h>
+#include <CGPattern.h>
+
+/* Constants */
+
+const extern CFStringRef kCGColorWhite;
+const extern CFStringRef kCGColorBlack;
+const extern CFStringRef kCGColorClear;
 
 /* Functions */
 
@@ -37,17 +45,38 @@ CGColorRef CGColorCreateCopy(CGColorRef clr);
 
 CGColorRef CGColorCreateCopyWithAlpha(CGColorRef clr, CGFloat alpha);
 
+CGColorRef CGColorCreateGenericCMYK(
+  CGFloat cyan,
+  CGFloat magenta,
+  CGFloat yellow,
+  CGFloat black,
+  CGFloat alpha
+);
+
+CGColorRef CGColorCreateGenericGray(CGFloat gray, CGFloat alpha);
+
+CGColorRef CGColorCreateGenericRGB(
+  CGFloat red,
+  CGFloat green,
+  CGFloat blue,
+  CGFloat alpha
+);
+
 CGColorRef CGColorCreateWithPattern(
   CGColorSpaceRef colorspace,
   CGPatternRef pattern,
   const CGFloat components[]
 );
 
+bool CGColorEqualToColor(CGColorRef color1, CGColorRef color2);
+
 CGFloat CGColorGetAlpha(CGColorRef clr);
 
 CGColorSpaceRef CGColorGetColorSpace(CGColorRef clr);
 
 const CGFloat *CGColorGetComponents(CGColorRef clr);
+
+CGColorRef CGColorGetConstantColor(CFStringRef name);
 
 size_t CGColorGetNumberOfComponents(CGColorRef clr);
 

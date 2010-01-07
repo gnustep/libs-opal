@@ -35,6 +35,7 @@ extern void opal_dealloc_CGLayer(void *);
 extern void opal_dealloc_CGColor(void *);
 extern void opal_dealloc_CGImage(void *);
 extern void opal_dealloc_CGDataProvider(void *);
+extern void opal_dealloc_CGPattern(void *);
 
 static struct objbase objtypes[] = {
   {"CGContext", opal_dealloc_CGContext},
@@ -42,6 +43,7 @@ static struct objbase objtypes[] = {
   {"CGColor", opal_dealloc_CGColor},
   {"CGImage", opal_dealloc_CGImage},
   {"CGDataProvider", opal_dealloc_CGDataProvider},
+  {"CGPattern", opal_dealloc_CGPattern},
   {NULL}
 };
 

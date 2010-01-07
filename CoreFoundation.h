@@ -23,10 +23,14 @@
 #define OPAL_CoreFoundation_h
 
 #	ifdef __OBJC__
-@class NSDictionary;
+@class NSDictionary, NSString;
 typedef NSDictionary* CFDictionaryRef;
+typedef NSString* CFStringRef;
+typedef NSData* CFDataRef;
 #	else
 typedef struct cf_dictionary  *CFDictionaryRef;
+typedef struct cf_string  *CFStringRef;
+typedef struct cf_data *CFDataRef;
 #	endif
 
 #endif

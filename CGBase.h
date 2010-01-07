@@ -30,5 +30,12 @@
 
 typedef CGFLOAT_TYPE CGFloat;
 
+// FIXME: Ugly
+#ifndef bool
+typedef int bool;
+#define true 1
+#define false 0
+#endif
+
 #endif
 

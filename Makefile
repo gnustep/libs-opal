@@ -21,7 +21,7 @@ CAIROLIBS=/usr/local/lib/libcairo.a /usr/local/lib/libpixman-1.a
 
 # Portable parts of libopal.a
 OPAL_OBJS=CGAffineTransform.o CGColor.o CGColorSpace.o CGContext.o \
-  CGDataProvider.o CGFont.o CGImage.o CGLayer.o opal.o
+  CGDataProvider.o CGFont.o CGImage.o CGLayer.o CGPattern.o opal.o
 # System specific parts of libopal.a
 OPAL-X11_OBJS=opal-x11.o
 
