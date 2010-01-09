@@ -35,6 +35,10 @@ struct ct_additions
   cairo_pattern_t *fill_cp;
   CGColorRef stroke_color;
   cairo_pattern_t *stroke_cp;
+  CGColorRef shadow_color;
+  cairo_pattern_t *shadow_cp; //FIXME: Don't need this
+  CGSize shadow_offset;
+  CGFloat shadow_radius;
 };
 
 typedef struct CGContext
