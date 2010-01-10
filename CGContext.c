@@ -40,6 +40,20 @@ static inline void set_color(cairo_pattern_t **cp, CGColorRef clr, double alpha)
 static void start_shadow(CGContextRef ctx);
 static void end_shadow(CGContextRef ctx, CGRect bounds);
 
+#ifndef MAX
+#define MAX(a,b) \
+       ({typeof(a) _MAX_a = (a); typeof(b) _MAX_b = (b);  \
+         _MAX_a > _MAX_b ? _MAX_a : _MAX_b; })
+#define	GS_DEFINED_MAX
+#endif
+
+#ifndef MIN
+#define MIN(a,b) \
+       ({typeof(a) _MIN_a = (a); typeof(b) _MIN_b = (b);  \
+         _MIN_a < _MIN_b ? _MIN_a : _MIN_b; })
+#define	GS_DEFINED_MIN
+#endif
+
 void opal_dealloc_CGContext(void *c)
 {
   CGContextRef ctx = c;
@@ -62,7 +76,7 @@ void opal_dealloc_CGContext(void *c)
   free(ctx);
 }
 
-CGContextRef opal_new_CGContext(cairo_surface_t *target)
+CGContextRef opal_new_CGContext(cairo_surface_t *target, CGSize device_size)
 {
   CGContextRef ctx;
   cairo_status_t cret;
@@ -96,6 +110,14 @@ CGContextRef opal_new_CGContext(cairo_surface_t *target)
   /* Cairo defaults to line width 2.0 (see http://cairographics.org/FAQ) */
   cairo_set_line_width(ctx->ct, 1);
 
+  /* Perform the flip transformation. Note that this is 'hidden' in 
+     CGContextGetCTM() */
+  cairo_scale(ctx->ct, 1, -1);
+  cairo_translate(ctx->ct, 0, -device_size.height);
+
+  ctx->scale_factor = 1;
+  ctx->device_size = device_size;
+  
   return ctx;
 }
 
@@ -166,13 +188,21 @@ void CGContextConcatCTM(CGContextRef ctx, CGAffineTransform transform)
   cairo_transform(ctx->ct, &cmat);
 }
 
+/**
+ * Returns the current transformation matrix. Note: this include the scale
+ * factor but not the flip transformation.
+ */
 CGAffineTransform CGContextGetCTM(CGContextRef ctx)
 {
   cairo_matrix_t cmat;
 
   cairo_get_matrix(ctx->ct, &cmat);
-  return CGAffineTransformMake(cmat.xx, -cmat.yx, cmat.xy, -cmat.yy, cmat.x0, -cmat.y0);
-/*  return CGAffineTransformMake(cmat.xx, cmat.xy, cmat.yx, cmat.yy, cmat.x0, cmat.y0); */
+  
+  // "Undo" the flip transformation
+  cairo_matrix_translate(&cmat, 0, ctx->device_size.height);
+  cairo_matrix_scale(&cmat, 1, -1);
+  
+  return CGAffineTransformMake(cmat.xx, cmat.yx, cmat.xy, cmat.yy, cmat.x0, cmat.y0);
 }
 
 void CGContextSaveGState(CGContextRef ctx)
@@ -870,14 +900,99 @@ void CGContextEndTransparencyLayer(CGContextRef ctx)
   cairo_restore(ctx->ct);
 }
 
-// Shadow support
+/**
+ * Returns the affine transformation mapping user space to device space.
+ * Note this includes the flip transformation, along with the scale factor.
+ */
+CGAffineTransform CGContextGetUserSpaceToDeviceSpaceTransform(CGContextRef ctx)
+{
+  cairo_matrix_t cmat;
+  cairo_get_matrix(ctx->ct, &cmat);
+  cairo_matrix_invert(&cmat);
+  return CGAffineTransformMake(cmat.xx, cmat.yx, cmat.xy, cmat.yy, cmat.x0, cmat.y0);
+}
 
-#ifndef MAX
-#define MAX(a,b) ((a)>=(b)?(a):(b))
-#endif
-#ifndef MIN
-#define MIN(a,b) ((a)<=(b)?(a):(b))
-#endif
+CGPoint CGContextConvertPointToDeviceSpace(CGContextRef ctx, CGPoint point)
+{
+  return CGPointApplyAffineTransform(point, 
+    CGContextGetUserSpaceToDeviceSpaceTransform(ctx));
+}
+
+CGPoint CGContextConvertPointToUserSpace(CGContextRef ctx, CGPoint point)
+{
+  cairo_matrix_t cmat;
+  double x = point.x, y = point.y;
+  
+  cairo_get_matrix(ctx->ct, &cmat);
+  cairo_matrix_transform_point(&cmat, &x, &y);
+  return CGPointMake(x,y);
+}
+
+CGSize CGContextConvertSizeToDeviceSpace(CGContextRef ctx, CGSize size)
+{
+  return CGSizeApplyAffineTransform(size, 
+    CGContextGetUserSpaceToDeviceSpaceTransform(ctx));
+}
+
+CGSize CGContextConvertSizeToUserSpace(CGContextRef ctx, CGSize size)
+{
+  cairo_matrix_t cmat;
+  double w = size.width, h = size.height;
+  
+  cairo_get_matrix(ctx->ct, &cmat);
+  cairo_matrix_transform_distance(&cmat, &w, &h);
+  return CGSizeMake(w, h);
+}
+
+static CGRect make_bounding_rect(CGPoint p1, CGPoint p2, CGPoint p3, CGPoint p4)
+{
+  CGFloat minX = MIN(p1.x, MIN(p2.x, MIN(p3.x, p4.x)));
+  CGFloat minY = MIN(p1.y, MIN(p2.y, MIN(p3.y, p4.y)));
+  CGFloat maxX = MAX(p1.x, MAX(p2.x, MAX(p3.x, p4.x)));
+  CGFloat maxY = MAX(p1.y, MAX(p2.y, MAX(p3.y, p4.y)));
+  
+  return CGRectMake(minX, minY, (maxX - minX), (maxY - minY));
+}
+
+CGRect CGContextConvertRectToDeviceSpace(CGContextRef ctx, CGRect rect)
+{
+  CGPoint p1 = CGContextConvertPointToDeviceSpace(ctx, 
+    CGPointMake(CGRectGetMinX(rect), CGRectGetMinY(rect)));
+  CGPoint p2 = CGContextConvertPointToDeviceSpace(ctx,
+	CGPointMake(CGRectGetMaxX(rect), CGRectGetMinY(rect)));
+  CGPoint p3 = CGContextConvertPointToDeviceSpace(ctx,
+    CGPointMake(CGRectGetMinX(rect), CGRectGetMaxY(rect)));  
+  CGPoint p4 = CGContextConvertPointToDeviceSpace(ctx,
+	CGPointMake(CGRectGetMaxX(rect), CGRectGetMaxY(rect)));
+  
+  return make_bounding_rect(p1, p2, p3, p4);
+}
+
+CGRect CGContextConvertRectToUserSpace(CGContextRef ctx, CGRect rect)
+{
+  CGPoint p1 = CGContextConvertPointToUserSpace(ctx, 
+    CGPointMake(CGRectGetMinX(rect), CGRectGetMinY(rect)));
+  CGPoint p2 = CGContextConvertPointToUserSpace(ctx,
+	CGPointMake(CGRectGetMaxX(rect), CGRectGetMinY(rect)));
+  CGPoint p3 = CGContextConvertPointToUserSpace(ctx,
+    CGPointMake(CGRectGetMinX(rect), CGRectGetMaxY(rect)));  
+  CGPoint p4 = CGContextConvertPointToUserSpace(ctx,
+	CGPointMake(CGRectGetMaxX(rect), CGRectGetMaxY(rect)));
+  
+  return make_bounding_rect(p1, p2, p3, p4);
+}
+
+void OpalContextSetScaleFactor(CGContextRef ctx, CGFloat scale)
+{
+  if (scale == 0)
+    return;
+  CGFloat old = ctx->scale_factor;
+  ctx->scale_factor = scale;
+  CGContextScaleCTM(ctx, scale/old, scale/old);
+}
+
+
+// Shadow support
 
 /**
  * Perform a box blur on a one dimensional strip of an 8-bit alpha image 

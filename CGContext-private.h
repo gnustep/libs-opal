@@ -50,8 +50,10 @@ typedef struct CGContext
     double x;
     double y;
   } txtpos;
+  CGFloat scale_factor;
+  CGSize device_size;
 } CGContext;
 
-CGContextRef opal_new_CGContext(cairo_surface_t *target);
+CGContextRef opal_new_CGContext(cairo_surface_t *target, CGSize device_size);
 
 #endif

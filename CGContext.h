@@ -425,5 +425,25 @@ void CGContextBeginTransparencyLayerWithRect(
 
 void CGContextEndTransparencyLayer(CGContextRef ctx);
 
+/* User to Device Transformation */
+
+CGAffineTransform CGContextGetUserSpaceToDeviceSpaceTransform(CGContextRef ctx);
+
+CGPoint CGContextConvertPointToDeviceSpace(CGContextRef ctx, CGPoint point);
+
+CGPoint CGContextConvertPointToUserSpace(CGContextRef ctx, CGPoint point);
+
+CGSize CGContextConvertSizeToDeviceSpace(CGContextRef ctx, CGSize size);
+
+CGSize CGContextConvertSizeToUserSpace(CGContextRef ctx, CGSize size);
+
+CGRect CGContextConvertRectToDeviceSpace(CGContextRef ctx, CGRect rect);
+
+CGRect CGContextConvertRectToUserSpace(CGContextRef ctx, CGRect rect);
+
+/* Opal Extensions */
+
+void OpalContextSetScaleFactor(CGContextRef ctx, CGFloat scale);
+
 #endif /* OPAL_CGContext_h */
 

@@ -60,9 +60,7 @@ CGLayerRef CGLayerCreateWithContext(
                                  CAIRO_CONTENT_COLOR_ALPHA,
                                  ceil(fabs(w)),
                                  ceil(fabs(h)));
-  cairo_surface_set_device_offset(layerSurface, 0, ceil(fabs(h)));                                   
-  layer->ctxt = opal_new_CGContext(layerSurface);
-  CGContextScaleCTM(layer->ctxt, 1.0, -1.0);
+  layer->ctxt = opal_new_CGContext(layerSurface, CGSizeMake(ceil(fabs(w)), ceil(fabs(h))));
   layer->size = size;
   
   return layer;
@@ -99,42 +97,34 @@ void CGContextDrawLayerInRect(
   cairo_pattern_t *pattern = 
     cairo_pattern_create_for_surface(cairo_get_target(layer->ctxt->ct));
     
-  // Horrible code.. but sort-of works. Fix this up ASAP.
-    
   cairo_matrix_t patternMatrix;
   cairo_matrix_init_identity(&patternMatrix);
-
-  cairo_matrix_translate(&patternMatrix, 0, layer->size.height);
-
+  
+  // Move to the place where the layer should be drawn
   cairo_matrix_translate(&patternMatrix, rect.origin.x, rect.origin.y);
-  cairo_matrix_scale(&patternMatrix, 1, -1);
-      cairo_matrix_scale(&patternMatrix,
+  // Scale the pattern to the correct size
+  cairo_matrix_scale(&patternMatrix,
     rect.size.width / layer->size.width,
     rect.size.height / layer->size.height);
- cairo_matrix_translate(&patternMatrix, 0, -layer->size.height);
-  
+  // Flip the layer up-side-down
+  cairo_matrix_scale(&patternMatrix, 1, -1);
+  cairo_matrix_translate(&patternMatrix, 0, -layer->size.height);
 
-  
   cairo_matrix_invert(&patternMatrix);
   
-  
   cairo_pattern_set_matrix(pattern, &patternMatrix);
-  
- // cairo_pattern_set_extend(pattern, CAIRO_EXTEND_PAD);
-  
   cairo_set_source(destCairo, pattern);
-  
-  //cairo_set_source_surface(destCairo, cairo_get_target(layer->ctxt->ct), 20, 20);
-  
   cairo_pattern_destroy(pattern);
-
   cairo_set_operator(destCairo, CAIRO_OPERATOR_OVER);
-  //cairo_rectangle(destCairo, rect.origin.x, rect.origin.y,
-  //  rect.size.width, rect.size.height);
-  //cairo_fill(destCairo);
   
-  cairo_paint(destCairo);
-  
+  //cairo_paint(destCairo);
+
+  // FIXME: This should be faster than cairo_paint, but the edges look a bit
+  //        different.
+  cairo_rectangle(destCairo, rect.origin.x, rect.origin.y,
+    rect.size.width, rect.size.height);
+  cairo_fill(destCairo);
+
   cairo_restore(destCairo);
 }
 
