@@ -2,7 +2,10 @@
 
    <abstract>C Interface to graphics drawing library</abstract>
 
-   Copyright (C) 2006 BALATON Zoltan <balaton@eik.bme.hu>
+   Copyright <copy>(C) 2006 Free Software Foundation, Inc.</copy>
+
+   Author: BALATON Zoltan <balaton@eik.bme.hu>
+   Date: 2006
 
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public

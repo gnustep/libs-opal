@@ -5,7 +5,7 @@
 
    Copyright (C) 1995,2002 Free Software Foundation, Inc.
    Author: Adam Fedor <fedor@gnu.org>
-   Copyright (C) 2006 BALATON Zoltan <balaton@eik.bme.hu>
+   Author: BALATON Zoltan <balaton@eik.bme.hu>
 
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
