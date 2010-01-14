@@ -26,6 +26,7 @@
 #define OPAL_CGImage_h
 
 #include <CGColorSpace.h>
+#include <CGGeometry.h>
 
 /* Data Types */
 
@@ -44,6 +45,26 @@ typedef enum CGImageAlphaInfo
   kCGImageAlphaNoneSkipFirst = 6,
   kCGImageAlphaOnly = 7
 } CGImageAlphaInfo;
+
+typedef enum CGBitmapInfo {
+  kCGBitmapAlphaInfoMask = 0x1F,
+  kCGBitmapFloatComponents = (1 << 8),
+  kCGBitmapByteOrderMask = 0x7000,
+  kCGBitmapByteOrderDefault = (0 << 12),
+  kCGBitmapByteOrder16Little = (1 << 12),
+  kCGBitmapByteOrder32Little = (2 << 12),
+  kCGBitmapByteOrder16Big = (3 << 12),
+  kCGBitmapByteOrder32Big = (4 << 12)
+} CGBitmapInfo;
+
+// FIXME: Is there a portable preprocessor endianness check?
+#if 0
+#define kCGBitmapByteOrder16Host kCGBitmapByteOrder16Big
+#define kCGBitmapByteOrder32Host kCGBitmapByteOrder32Big
+#else
+#define kCGBitmapByteOrder16Host kCGBitmapByteOrder16Little
+#define kCGBitmapByteOrder32Host kCGBitmapByteOrder32Little
+#endif
 
 /* Drawing Images */
 
@@ -70,6 +91,42 @@ CGImageRef CGImageMaskCreate(
   CGDataProviderRef provider,
   const CGFloat *decode,
   int shouldInterpolate
+);
+
+CGImageRef CGImageCreateCopy(CGImageRef image);
+
+CGImageRef CGImageCreateCopyWithColorSpace(
+  CGImageRef image,
+  CGColorSpaceRef colorspace
+);
+
+CGImageRef CGImageCreateWithImageInRect(
+  CGImageRef image,
+  CGRect rect
+);
+
+CGImageRef CGImageCreateWithJPEGDataProvider (
+  CGDataProviderRef source,
+  const CGFloat decode[],
+  bool shouldInterpolate,
+  CGColorRenderingIntent intent
+);
+
+CGImageRef CGImageCreateWithMask (
+  CGImageRef image,
+  CGImageRef mask
+);
+
+CGImageRef CGImageCreateWithMaskingColors (
+  CGImageRef image,
+  const CGFloat components[]
+);
+
+CGImageRef CGImageCreateWithPNGDataProvider (
+  CGDataProviderRef source,
+  const CGFloat decode[],
+  bool shouldInterpolate,
+  CGColorRenderingIntent intent
 );
 
 CGImageRef CGImageRetain(CGImageRef image);
