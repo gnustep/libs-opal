@@ -819,6 +819,25 @@ CGPoint CGContextGetTextPosition(CGContextRef ctx)
   return CGPointMake(ctx->txtpos.x, ctx->txtpos.y);
 }
 
+void CGContextSetTextMatrix(CGContextRef ctx, CGAffineTransform transform)
+{
+  // FIXME: Check whether cairo stores the font matrix in the gstate
+  //        (we don't want it to).
+  // FIXME: Apply any additional transformation between the Cairo and Quartz
+  //        definition of text matrix
+  cairo_matrix_t cmat;
+  cairo_matrix_init(&cmat, transform.a, transform.b, transform.c, transform.d, 
+    transform.tx, transform.ty);
+  cairo_set_font_matrix(ctx->ct, &cmat);
+}
+
+CGAffineTransform CGContextGetTextMatrix(CGContextRef ctx)
+{
+  cairo_matrix_t cmat;
+  cairo_get_font_matrix(ctx->ct, &cmat);
+  return CGAffineTransformMake(cmat.xx, cmat.yx, cmat.xy, cmat.yy, cmat.x0, cmat.y0);
+}
+
 void CGContextShowText(CGContextRef ctx, const char *cstring, size_t length)
 {
   double x, y;
