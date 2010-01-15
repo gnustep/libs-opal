@@ -37,24 +37,37 @@ typedef struct CGColorSpace
   struct objbase base;
   int numcomps;
   CGColorSpaceModel model;
+  void (*todevice)(CGFloat *dest, const CGFloat comps[]);
 } CGColorSpace;
+
+static void opal_todev_rgb(CGFloat *dest, const CGFloat comps[]);
+static void opal_todev_gray(CGFloat *dest, const CGFloat comps[]);
+static void opal_todev_cmyk(CGFloat *dest, const CGFloat comps[]);
 
 /* Return these for everything now */
 static CGColorSpace deviceRGB =
 {
   {"CGColorSpace", NULL, -1},
   3,
-  kCGColorSpaceModelRGB
+  kCGColorSpaceModelRGB,
+  opal_todev_rgb
 };
 
 static CGColorSpace deviceGray =
 {
   {"CGColorSpace", NULL, -1},
   1,
-  kCGColorSpaceModelMonochrome
+  kCGColorSpaceModelMonochrome,
+  opal_todev_gray
 };
 
-
+static CGColorSpace deviceCMYK =
+{
+  {"CGColorSpace", NULL, -1},
+  4,
+  kCGColorSpaceModelCMYK,
+  opal_todev_cmyk
+};
 
 CFDataRef CGColorSpaceCopyICCProfile(CGColorSpaceRef cs)
 {
@@ -85,7 +98,7 @@ CGColorSpaceRef CGColorSpaceCreateCalibratedRGB(
 
 CGColorSpaceRef CGColorSpaceCreateDeviceCMYK()
 {
-  return &deviceRGB;  
+  return &deviceCMYK;  
 }
 
 CGColorSpaceRef CGColorSpaceCreateDeviceGray()
@@ -141,6 +154,7 @@ CGColorSpaceRef CGColorSpaceCreateWithName(opal_GenericColorSpaceNames name)
     case kCGColorSpaceGenericRGB:
       return CGColorSpaceCreateDeviceRGB();
     case kCGColorSpaceGenericCMYK:
+      return CGColorSpaceCreateDeviceCMYK();
     default:
       errlog("%s:%d: Unknown colorspace name\n", __FILE__, __LINE__);
       return NULL;
@@ -177,7 +191,6 @@ size_t CGColorSpaceGetNumberOfComponents(CGColorSpaceRef cs)
   return cs->numcomps;
 }
 
-
 CGColorSpaceRef CGColorSpaceRetain(CGColorSpaceRef cs)
 {
   /* NOP */
@@ -187,4 +200,52 @@ CGColorSpaceRef CGColorSpaceRetain(CGColorSpaceRef cs)
 void CGColorSpaceRelease(CGColorSpaceRef cs)
 {
   /* NOP */
+}
+
+static void opal_todev_rgb(CGFloat *dest, const CGFloat comps[])
+{
+  dest[0] = comps[0];
+  dest[1] = comps[1];
+  dest[2] = comps[2];
+  dest[3] = comps[3];
+}
+
+static void opal_todev_gray(CGFloat *dest, const CGFloat comps[])
+{
+  dest[0] = comps[0];
+  dest[1] = comps[0];
+  dest[2] = comps[0];
+  dest[3] = comps[1];
+}
+
+// FIXME: Move MIN and MAX somewhere shared
+#ifndef MAX
+#define MAX(a,b) \
+       ({typeof(a) _MAX_a = (a); typeof(b) _MAX_b = (b);  \
+         _MAX_a > _MAX_b ? _MAX_a : _MAX_b; })
+#define	GS_DEFINED_MAX
+#endif
+
+#ifndef MIN
+#define MIN(a,b) \
+       ({typeof(a) _MIN_a = (a); typeof(b) _MIN_b = (b);  \
+         _MIN_a < _MIN_b ? _MIN_a : _MIN_b; })
+#define	GS_DEFINED_MIN
+#endif
+
+static void opal_todev_cmyk(CGFloat *dest, const CGFloat comps[])
+{
+  // DeviceCMYK to DeviceRGB conversion from PostScript Language Reference
+  // section 7.2.4
+  dest[0] = 1 - MIN(1.0, comps[0] + comps[3]);
+  dest[1] = 1 - MIN(1.0, comps[1] + comps[3]);
+  dest[2] = 1 - MIN(1.0, comps[2] + comps[3]);
+  dest[3] = comps[4];
+}
+
+/* FIXME: This sould really convert to the color space of the device,
+ * but Cairo only knows about RGBA, so we convert to that */
+void opal_cspace_todev(CGColorSpaceRef cs, CGFloat *dest, const CGFloat comps[])
+{
+  cs->todevice(dest, comps);
 }

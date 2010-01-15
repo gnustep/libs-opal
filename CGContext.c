@@ -36,7 +36,7 @@
 static cairo_pattern_t *default_cp;
 
 extern void opal_surface_flush(cairo_surface_t *target);
-extern void opal_cspace_todev(CGColorSpaceRef cs, double *dest, const CGFloat comps[]);
+extern void opal_cspace_todev(CGColorSpaceRef cs, CGFloat *dest, const CGFloat comps[]);
 extern CGFontRef opal_FontCreateWithName(const char *name);
 
 static inline void set_color(cairo_pattern_t **cp, CGColorRef clr, double alpha);
@@ -603,10 +603,13 @@ void CGContextClipToRects(CGContextRef ctx, const CGRect rects[], size_t count)
 
 static inline void set_color(cairo_pattern_t **cp, CGColorRef clr, double alpha)
 {
+  CGFloat cc[4];
+  // FIXME: check why this might be called with a NULL clr
   if (!clr) return;
-  const CGFloat *cc = CGColorGetComponents(clr);
   cairo_pattern_t *newcp;
   cairo_status_t cret;
+  
+  opal_cspace_todev(CGColorGetColorSpace(clr), cc, CGColorGetComponents(clr));
     
   newcp = cairo_pattern_create_rgba(cc[0], cc[1], cc[2], cc[3]*alpha);
   cret = cairo_pattern_status(newcp);
