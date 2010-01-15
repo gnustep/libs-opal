@@ -89,7 +89,7 @@ void addOvalToPath(CGContextRef context, CGRect r)
 	// Add a circle to the path.  After the circle is transformed by the
 	// context's transformation matrix, it will become an oval lying
 	// just inside the bounding rectangle.
-    CGContextAddArc(context, 0, 0, 1, 0, 2*M_PI, true);
+    CGContextAddArc(context, 0, 0, 1, 0, 2*M_PI, 0);
 
 	// Restore the context's state. This removes the translation and scaling but leaves
 	// the path, since the path is not part of the graphics state.

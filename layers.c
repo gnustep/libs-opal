@@ -26,14 +26,14 @@ CGLayerRef makeSampleLayer(CGContextRef ctx){
 
   // Draw a smiley
 
-  CGContextAddArc(layerCtx, 10, 35, 4, 0, 2 * pi, 1); CGContextClosePath(layerCtx);
-  CGContextAddArc(layerCtx, 40, 35, 4, 0, 2 * pi, 1); CGContextClosePath(layerCtx);
+  CGContextAddArc(layerCtx, 10, 35, 4, 0, 2 * pi, 0); CGContextClosePath(layerCtx);
+  CGContextAddArc(layerCtx, 40, 35, 4, 0, 2 * pi, 0); CGContextClosePath(layerCtx);
 
-  CGContextAddArc(layerCtx, 12, 15, 4, 0, 2 * pi, 1);CGContextClosePath(layerCtx);
-  CGContextAddArc(layerCtx, 19, 10, 4, 0, 2 * pi, 1);CGContextClosePath(layerCtx);
-  CGContextAddArc(layerCtx, 25, 8, 4, 0, 2 * pi, 1);CGContextClosePath(layerCtx);
-  CGContextAddArc(layerCtx, 31, 10, 4, 0, 2 * pi, 1);CGContextClosePath(layerCtx);
-  CGContextAddArc(layerCtx, 38, 15, 4, 0, 2 * pi, 1);CGContextClosePath(layerCtx);
+  CGContextAddArc(layerCtx, 12, 15, 4, 0, 2 * pi, 0);CGContextClosePath(layerCtx);
+  CGContextAddArc(layerCtx, 19, 10, 4, 0, 2 * pi, 0);CGContextClosePath(layerCtx);
+  CGContextAddArc(layerCtx, 25, 8, 4, 0, 2 * pi, 0);CGContextClosePath(layerCtx);
+  CGContextAddArc(layerCtx, 31, 10, 4, 0, 2 * pi, 0);CGContextClosePath(layerCtx);
+  CGContextAddArc(layerCtx, 38, 15, 4, 0, 2 * pi, 0);CGContextClosePath(layerCtx);
 
   CGContextSetRGBFillColor(layerCtx, 0, 0, 0, 0.7);
   CGContextFillPath(layerCtx);  
