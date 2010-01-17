@@ -27,6 +27,8 @@ $(LIBRARY_NAME)_HEADER_FILES = \
 	CGShading.h \
 	CoreFoundation.h
 
+ADDITIONAL_CFLAGS = -Wall -g
+
 ADDITIONAL_CPPFLAGS = \
 	$(shell pkg-config --cflags freetype2) \
 	$(shell pkg-config --cflags cairo)

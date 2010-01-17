@@ -70,6 +70,7 @@ void opal_dealloc_CGContext(void *c)
     cairo_pattern_destroy(ctadd->stroke_cp);
     CGColorRelease(ctadd->shadow_color);
     cairo_pattern_destroy(ctadd->shadow_cp);
+    CGFontRelease(ctadd->font);
     next = ctadd->next;
     free(ctadd);
     ctadd = next;
@@ -104,7 +105,8 @@ CGContextRef opal_new_CGContext(cairo_surface_t *target, CGSize device_size)
     return NULL;
   }
   ctx->add->alpha = 1;
-
+  ctx->add->font_size = 0;
+  
   if (!default_cp) {
     default_cp = cairo_get_source(ctx->ct);
     cairo_pattern_reference(default_cp);
@@ -118,6 +120,7 @@ CGContextRef opal_new_CGContext(cairo_surface_t *target, CGSize device_size)
   cairo_scale(ctx->ct, 1, -1);
   cairo_translate(ctx->ct, 0, -device_size.height);
 
+  ctx->txtmatrix = CGAffineTransformIdentity;
   ctx->scale_factor = 1;
   ctx->device_size = device_size;
   
@@ -786,18 +789,14 @@ void CGContextSetFont(CGContextRef ctx, CGFontRef font)
     errlog("%s:%d: CGContextSetFont got NULL\n", __FILE__, __LINE__);
     return;
   }
+  // FIXME:
   cairo_set_font_face(ctx->ct, (cairo_font_face_t *)font);
+  ctx->add->font = CGFontRetain(font);
 }
 
 void CGContextSetFontSize(CGContextRef ctx, CGFloat size)
 {
-  cairo_matrix_t fm;
-
-  /* The 10 * 96/72 factor is a heuristic. 1/96 is the cairo default unit,
-   * 1/72 is the default in Postscript and PDF but why is *10 needed?
-   * Nevertheless, it seems to produce about the right results. */
-  cairo_matrix_init_scale(&fm, size * 10 * 96.0/72.0, -size * 10 * 96.0/72.0);
-  cairo_set_font_matrix(ctx->ct, &fm);
+  ctx->add->font_size = size;
 }
 
 void CGContextSelectFont(
@@ -811,42 +810,46 @@ void CGContextSelectFont(
   CGContextSetFontSize(ctx, size);
 }
 
+void CGContextSetCharacterSpacing(CGContextRef ctx, CGFloat spacing)
+{
+  ctx->add->char_spacing = spacing;
+}
+
+void CGContextSetTextDrawingMode(CGContextRef ctx, CGTextDrawingMode mode)
+{
+  ctx->add->text_mode = mode;
+}
+
 void CGContextSetTextPosition(CGContextRef ctx, CGFloat x, CGFloat y)
 {
-  ctx->txtpos.x = x;
-  ctx->txtpos.y = y;
+  ctx->txtmatrix.tx = x;
+  ctx->txtmatrix.ty = y;
 }
 
 CGPoint CGContextGetTextPosition(CGContextRef ctx)
 {
-  return CGPointMake(ctx->txtpos.x, ctx->txtpos.y);
+  return CGPointMake(ctx->txtmatrix.tx, ctx->txtmatrix.ty);
 }
 
 void CGContextSetTextMatrix(CGContextRef ctx, CGAffineTransform transform)
 {
-  // FIXME: Check whether cairo stores the font matrix in the gstate
-  //        (we don't want it to).
-  // FIXME: Apply any additional transformation between the Cairo and Quartz
-  //        definition of text matrix
-  cairo_matrix_t cmat;
-  cairo_matrix_init(&cmat, transform.a, transform.b, transform.c, transform.d, 
-    transform.tx, transform.ty);
-  cairo_set_font_matrix(ctx->ct, &cmat);
+  ctx->txtmatrix = transform;
 }
 
 CGAffineTransform CGContextGetTextMatrix(CGContextRef ctx)
 {
-  cairo_matrix_t cmat;
-  cairo_get_font_matrix(ctx->ct, &cmat);
-  return CGAffineTransformMake(cmat.xx, cmat.yx, cmat.xy, cmat.yy, cmat.x0, cmat.y0);
+  return ctx->txtmatrix;
 }
 
 void CGContextShowText(CGContextRef ctx, const char *cstring, size_t length)
 {
-  double x, y;
+  cairo_matrix_t matrix, opaltextmatrix, cairotextmatrix;
 
-  cairo_get_current_point(ctx->ct, &x, &y);
-  cairo_move_to(ctx->ct, ctx->txtpos.x, ctx->txtpos.y);
+  cairo_matrix_init(&opaltextmatrix, ctx->txtmatrix.a, ctx->txtmatrix.b, ctx->txtmatrix.c,
+    ctx->txtmatrix.d, ctx->txtmatrix.tx, ctx->txtmatrix.ty);  
+  cairo_get_font_matrix(ctx->ct, &cairotextmatrix);
+  cairo_matrix_multiply(&matrix, &cairotextmatrix, &opaltextmatrix); 
+  cairo_set_font_matrix(ctx->ct, &matrix);
 
   /* FIXME: All text is currently drawn with fill color.
    * Should support other text drawing modes. */
@@ -858,8 +861,12 @@ void CGContextShowText(CGContextRef ctx, const char *cstring, size_t length)
   /* FIXME: length is ignored, \0 terminated string is assumed */
   cairo_show_text(ctx->ct, cstring);
 
-  cairo_get_current_point(ctx->ct, &ctx->txtpos.x, &ctx->txtpos.y);
-  cairo_move_to(ctx->ct, x, y);
+  double x, y;
+  cairo_get_current_point(ctx->ct, &x, &y);
+  ctx->txtmatrix.tx = x - cairotextmatrix.x0;
+  ctx->txtmatrix.ty = y - cairotextmatrix.y0;
+  
+  cairo_set_font_matrix(ctx->ct, &cairotextmatrix);
 }
 
 void CGContextShowTextAtPoint(
@@ -871,6 +878,47 @@ void CGContextShowTextAtPoint(
 {
   CGContextSetTextPosition(ctx, x, y);
   CGContextShowText(ctx, cstring, length);
+}
+
+void CGContextShowGlyphs(CGContextRef ctx, const CGGlyph *g, size_t count)
+{
+#if 0
+  CGFloat size  = ctx->add->font_size / CGFontGetUnitsPerEm(ctx->add->font);
+  
+  ctx->add->char_spacing;
+  CGFontGetGlyphAdvances
+  
+  cairo_show_glyphs(ctx->ct, )
+#endif
+}
+
+void CGContextShowGlyphsAtPoint(
+  CGContextRef ctx,
+  CGFloat x,
+  CGFloat y,
+  const CGGlyph *g,
+  size_t count)
+{
+  CGContextSetTextPosition(ctx, x, y);
+  CGContextShowGlyphs(ctx, g, count);
+}
+
+void CGContextShowGlyphsAtPositions(
+  CGContextRef context,
+  const CGGlyph glyphs[],
+  const CGPoint positions[],
+  size_t count)
+{
+
+}
+
+void CGContextShowGlyphsWithAdvances (
+  CGContextRef c,
+  const CGGlyph glyphs[],
+  const CGSize advances[],
+  size_t count)
+{
+
 }
 
 void CGContextBeginTransparencyLayer(

@@ -42,6 +42,10 @@ struct ct_additions
   cairo_pattern_t *shadow_cp; //FIXME: Don't need this
   CGSize shadow_offset;
   CGFloat shadow_radius;
+  CGFontRef font;
+  CGFloat font_size;
+  CGFloat char_spacing;
+  CGTextDrawingMode text_mode;
 };
 
 typedef struct CGContext
@@ -49,10 +53,7 @@ typedef struct CGContext
   struct objbase base;
   cairo_t *ct;  /* A Cairo context -- destination of this CGContext */
   ct_additions *add;  /* Additional things not in Cairo's gstate */
-  struct {
-    double x;
-    double y;
-  } txtpos;
+  CGAffineTransform txtmatrix;
   CGFloat scale_factor;
   CGSize device_size;
 } CGContext;

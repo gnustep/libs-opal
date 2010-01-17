@@ -6,6 +6,8 @@
 
    Author: BALATON Zoltan <balaton@eik.bme.hu>
    Date: 2006
+   Author: Eric Wasylishen <ewasylishen@gmail.com>
+   Date: January, 2010
 
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -22,6 +24,8 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
    */
 
+#include "CoreGraphics/CGBase.h"
+#include "CoreGraphics/CGDataProvider.h"
 #include "CoreGraphics/CGFont.h"
 #include <stdlib.h>
 #include <string.h>
@@ -123,15 +127,110 @@ static FcPattern *opal_FcPatternCacheLookup(const char *name)
 
 /* End of cache related things */
 
+typedef struct CGFont
+{
+  struct objbase base;
+  cairo_font_face_t *face;
+} CGFont;
+
+void opal_dealloc_CGFont(void *f)
+{
+  CGFontRef font = f;
+  cairo_font_face_destroy(font->face);
+  free(font);
+}
+
 CGFontRef opal_FontCreateWithName(const char *name)
 {
   FcPattern *pat;
+  CGFontRef font = opal_obj_alloc("CGFont", sizeof(CGFont));
+  if (!font) return NULL;
 
   pat = opal_FcPatternCacheLookup(name);
-  if(pat)
-    return (CGFontRef)cairo_ft_font_face_create_for_pattern(pat);
-  else
+  if(pat) {
+    font->face = cairo_ft_font_face_create_for_pattern(pat);
+  } else {
+    CGFontRelease(font);
     return NULL;
+  }
+  return font;
+}
+
+bool CGFontCanCreatePostScriptSubset(
+  CGFontRef font,
+  CGFontPostScriptFormat format)
+{
+  return false;
+}
+
+CFStringRef CGFontCopyFullName(CGFontRef font)
+{
+
+}
+
+CFStringRef CGFontCopyGlyphNameForGlyph(CGFontRef font, CGGlyph glyph)
+{
+
+}
+
+CFStringRef CGFontCopyPostScriptName(CGFontRef font)
+{
+
+}
+
+CFDataRef CGFontCopyTableForTag(CGFontRef font, uint32_t tag)
+{
+
+}
+
+CFArrayRef CGFontCopyTableTags(CGFontRef font)
+{
+
+}
+
+CFArrayRef CGFontCopyVariationAxes(CGFontRef font)
+{
+
+}
+
+CFDictionaryRef CGFontCopyVariations(CGFontRef font)
+{
+
+}
+
+CGFontRef CGFontCreateCopyWithVariations(
+  CGFontRef font,
+  CFDictionaryRef variations)
+{
+
+}
+
+CFDataRef CGFontCreatePostScriptEncoding(
+  CGFontRef font,
+  const CGGlyph encoding[256])
+{
+
+}
+
+CFDataRef CGFontCreatePostScriptSubset(
+  CGFontRef font,
+  CFStringRef name,
+  CGFontPostScriptFormat format,
+  const CGGlyph glyphs[],
+  size_t count,
+  const CGGlyph encoding[256])
+{
+
+}
+
+CGFontRef CGFontCreateWithDataProvider(CGDataProviderRef provider)
+{
+
+}
+
+CGFontRef CGFontCreateWithFontName(CFStringRef name)
+{
+
 }
 
 CGFontRef CGFontCreateWithPlatformFont(void *platformFontReference)
@@ -153,14 +252,86 @@ CGFontRef CGFontCreateWithPlatformFont(void *platformFontReference)
   return (CGFontRef)cfont;
 }
 
+int CGFontGetAscent(CGFontRef font)
+{
+
+}
+
+int CGFontGetCapHeight(CGFontRef font)
+{
+
+}
+
+int CGFontGetDescent(CGFontRef font)
+{
+
+}
+
+CGRect CGFontGetFontBBox(CGFontRef font)
+{
+
+}
+
+bool CGFontGetGlyphAdvances(
+  CGFontRef font,
+  const CGGlyph glyphs[],
+  size_t count,
+  int advances[])
+{
+}
+
+bool CGFontGetGlyphBBoxes(
+  CGFontRef font,
+  const CGGlyph glyphs[],
+  size_t count,
+  CGRect bboxes[])
+{
+
+}
+
+CGGlyph CGFontGetGlyphWithGlyphName(CGFontRef font, CFStringRef glyphName)
+{
+
+}
+
+CGFloat CGFontGetItalicAngle(CGFontRef font)
+{
+
+}
+
+int CGFontGetLeading(CGFontRef font)
+{
+
+}
+
+size_t CGFontGetNumberOfGlyphs(CGFontRef font)
+{
+
+}
+
+CFTypeID CGFontGetTypeID()
+{
+
+}
+
+int CGFontGetUnitsPerEm(CGFontRef font)
+{
+
+}
+
+int CGFontGetXHeight(CGFontRef font)
+{
+
+}
+
 CGFontRef CGFontRetain(CGFontRef font)
 {
-  return (CGFontRef)cairo_font_face_reference((cairo_font_face_t *)font);
+  return (font ? opal_obj_retain(font) : NULL);
 }
 
 void CGFontRelease(CGFontRef font)
 {
-  cairo_font_face_destroy((cairo_font_face_t *)font);
+  if(font) opal_obj_release(font);
 }
 
 static FcPattern *opal_FcPatternCreateFromName(const char *name)

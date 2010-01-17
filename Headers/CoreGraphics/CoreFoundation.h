@@ -25,15 +25,19 @@
 #ifndef OPAL_CoreFoundation_h
 #define OPAL_CoreFoundation_h
 
+typedef unsigned long CFTypeID;
+
 #	ifdef __OBJC__
-@class NSDictionary, NSString;
+@class NSDictionary, NSString, NSArray;
 typedef NSDictionary* CFDictionaryRef;
 typedef NSString* CFStringRef;
 typedef NSData* CFDataRef;
+typedef NSArray* CFArrayRef;
 #	else
 typedef struct cf_dictionary  *CFDictionaryRef;
 typedef struct cf_string  *CFStringRef;
 typedef struct cf_data *CFDataRef;
+typedef struct cf_array *CFArrayRef;
 #	endif
 
 #endif

@@ -25,6 +25,10 @@
 #ifndef OPAL_CGBase_h
 #define OPAL_CGBase_h
 
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+
 #define CGFLOAT_DEFINED 1
 #define CGFLOAT_TYPE double
 #define CGFLOAT_IS_DOUBLE 1
@@ -32,13 +36,6 @@
 #define CGFLOAT_MAX DBL_MAX
 
 typedef CGFLOAT_TYPE CGFloat;
-
-// FIXME: Ugly
-#ifndef bool
-typedef int bool;
-#define true 1
-#define false 0
-#endif
 
 #endif
 

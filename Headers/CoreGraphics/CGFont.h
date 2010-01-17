@@ -25,6 +25,10 @@
 #ifndef OPAL_CGFont_h
 #define OPAL_CGFont_h
 
+#include <CoreGraphics/CGBase.h>
+#include "CoreGraphics/CGGeometry.h"
+#include <CoreGraphics/CoreFoundation.h>
+
 /* Data Types */
 
 typedef struct CGFont * CGFontRef;
@@ -41,9 +45,100 @@ enum {
    kCGGlyphMax = kCGFontIndexMax
 };
 
+typedef enum CGFontPostScriptFormat {
+  kCGFontPostScriptFormatType1 = 1,
+  kCGFontPostScriptFormatType3 = 3,
+  kCGFontPostScriptFormatType42 = 42
+} CGFontPostScriptFormat;
+
+const extern CFStringRef kCGFontVariationAxisName;
+const extern CFStringRef kCGFontVariationAxisMinValue;
+const extern CFStringRef kCGFontVariationAxisMaxValue;
+const extern CFStringRef kCGFontVariationAxisDefaultValue;
+
 /* Functions */
 
+bool CGFontCanCreatePostScriptSubset(
+  CGFontRef font,
+  CGFontPostScriptFormat format
+);
+
+CFStringRef CGFontCopyFullName(CGFontRef font);
+
+CFStringRef CGFontCopyGlyphNameForGlyph(CGFontRef font, CGGlyph glyph);
+
+CFStringRef CGFontCopyPostScriptName(CGFontRef font);
+
+CFDataRef CGFontCopyTableForTag(CGFontRef font, uint32_t tag);
+
+CFArrayRef CGFontCopyTableTags(CGFontRef font);
+
+CFArrayRef CGFontCopyVariationAxes(CGFontRef font);
+
+CFDictionaryRef CGFontCopyVariations(CGFontRef font);
+
+CGFontRef CGFontCreateCopyWithVariations(
+  CGFontRef font,
+  CFDictionaryRef variations
+);
+
+CFDataRef CGFontCreatePostScriptEncoding(
+  CGFontRef font,
+  const CGGlyph encoding[256]
+);
+
+CFDataRef CGFontCreatePostScriptSubset(
+  CGFontRef font,
+  CFStringRef name,
+  CGFontPostScriptFormat format,
+  const CGGlyph glyphs[],
+  size_t count,
+  const CGGlyph encoding[256]
+);
+
+CGFontRef CGFontCreateWithDataProvider(CGDataProviderRef provider);
+
+CGFontRef CGFontCreateWithFontName(CFStringRef name);
+
 CGFontRef CGFontCreateWithPlatformFont(void *platformFontReference);
+
+int CGFontGetAscent(CGFontRef font);
+
+int CGFontGetCapHeight(CGFontRef font);
+
+int CGFontGetDescent(CGFontRef font);
+
+CGRect CGFontGetFontBBox(CGFontRef font);
+
+bool CGFontGetGlyphAdvances(
+  CGFontRef font,
+  const CGGlyph glyphs[],
+  size_t count,
+  int advances[]
+);
+
+bool CGFontGetGlyphBBoxes(
+  CGFontRef font,
+  const CGGlyph glyphs[],
+  size_t count,
+  CGRect bboxes[]
+);
+
+CGGlyph CGFontGetGlyphWithGlyphName(CGFontRef font, CFStringRef glyphName);
+
+CGFloat CGFontGetItalicAngle(CGFontRef font);
+
+int CGFontGetLeading(CGFontRef font);
+
+size_t CGFontGetNumberOfGlyphs(CGFontRef font);
+
+CGFloat CGFontGetItalicAngle(CGFontRef font);
+
+CFTypeID CGFontGetTypeID();
+
+int CGFontGetUnitsPerEm(CGFontRef font);
+
+int CGFontGetXHeight(CGFontRef font);
 
 CGFontRef CGFontRetain(CGFontRef font);
 

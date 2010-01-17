@@ -414,6 +414,20 @@ void CGContextShowGlyphsAtPoint(
   size_t count
 );
 
+void CGContextShowGlyphsAtPositions(
+  CGContextRef context,
+  const CGGlyph glyphs[],
+  const CGPoint positions[],
+  size_t count
+);
+
+void CGContextShowGlyphsWithAdvances (
+  CGContextRef c,
+  const CGGlyph glyphs[],
+  const CGSize advances[],
+  size_t count
+);
+
 /* Transparency Layers */
 
 void CGContextBeginTransparencyLayer(
