@@ -31,6 +31,9 @@
 #include <string.h>
 #include "cairo-ft.h"
 #include FT_LIST_H
+#include FT_SFNT_NAMES_H
+#include FT_TRUETYPE_IDS_H
+#include FT_TRUETYPE_TABLES_H
 #include "opal.h"
 
 /* We just return a (cairo_font_face_t *) as a (CGFontRef) */
@@ -130,30 +133,29 @@ static FcPattern *opal_FcPatternCacheLookup(const char *name)
 typedef struct CGFont
 {
   struct objbase base;
-  cairo_font_face_t *face;
+  cairo_font_face_t *cairo_face;
+  /**
+   * Note: there are several dangers with this FreeType face:
+   * - FT_Faces are not reference counted. Here, ft_face is owned by
+   *   cairo_font_face_t.
+   * - Some parts of an FT_Face are mutable, so the FreeType API is not
+   *   all threadsafe.
+   * - Cairo may call FT_Set_Transform which modifies the ft_face.
+   *   We should only look at attributes of the ft_face which are not
+   *   dependent on the size the face is being rendered at. According to
+   *   FreeType docs, it is safe to look at face.glyph.metrics
+   *
+   * Unfortunately, there is no other way to get the info we need than to look
+   * directly at the FT_Face, so we have to follow the above precautions.
+   */
+  FT_Face ft_face;
 } CGFont;
 
 void opal_dealloc_CGFont(void *f)
 {
   CGFontRef font = f;
-  cairo_font_face_destroy(font->face);
+  cairo_font_face_destroy(font->cairo_face);
   free(font);
-}
-
-CGFontRef opal_FontCreateWithName(const char *name)
-{
-  FcPattern *pat;
-  CGFontRef font = opal_obj_alloc("CGFont", sizeof(CGFont));
-  if (!font) return NULL;
-
-  pat = opal_FcPatternCacheLookup(name);
-  if(pat) {
-    font->face = cairo_ft_font_face_create_for_pattern(pat);
-  } else {
-    CGFontRelease(font);
-    return NULL;
-  }
-  return font;
 }
 
 bool CGFontCanCreatePostScriptSubset(
@@ -165,27 +167,79 @@ bool CGFontCanCreatePostScriptSubset(
 
 CFStringRef CGFontCopyFullName(CGFontRef font)
 {
-
+  const int FULL_NAME = 4;
+  FT_SfntName nameStruct;
+  if (0 == FT_Get_Sfnt_Name(font->ft_face, FULL_NAME, &nameStruct))
+  {
+    if (nameStruct.platform_id == TT_PLATFORM_APPLE_UNICODE)
+    {
+      return CFStringCreateWithBytes(NULL, nameStruct.string, nameStruct.string_len, kCFStringEncodingUTF16BE, false);  
+    }
+    else if (nameStruct.platform_id == TT_PLATFORM_MACINTOSH &&
+             nameStruct.encoding_id == TT_MAC_ID_ROMAN)
+    {
+      return CFStringCreateWithBytes(NULL, nameStruct.string, nameStruct.string_len, kCFStringEncodingMacRoman, false);        
+    }
+    else if (nameStruct.platform_id == TT_PLATFORM_MICROSOFT &&
+             nameStruct.encoding_id == TT_MS_ID_UNICODE_CS)
+    {
+      return CFStringCreateWithBytes(NULL, nameStruct.string, nameStruct.string_len, kCFStringEncodingUTF16BE, false);        
+    }
+  }
+  
+  if (NULL != font->ft_face->family_name) {
+    return CFStringCreateWithCString(NULL, font->ft_face->family_name, kCFStringEncodingASCII);
+  }
 }
 
 CFStringRef CGFontCopyGlyphNameForGlyph(CGFontRef font, CGGlyph glyph)
 {
-
+  char buffer[256];
+  FT_Get_Glyph_Name(font->ft_face, glyph, buffer, 256);
+  return CFStringCreateWithCString(NULL, buffer, kCFStringEncodingASCII);
 }
 
 CFStringRef CGFontCopyPostScriptName(CGFontRef font)
 {
-
+  const char *psname = FT_Get_Postscript_Name(font->ft_face);
+  if (NULL != psname) {
+    return CFStringCreateWithCString(NULL, psname, kCFStringEncodingASCII);
+  } else {
+    return NULL;
+  }
 }
 
 CFDataRef CGFontCopyTableForTag(CGFontRef font, uint32_t tag)
 {
-
+  FT_ULong length = 0;
+  void *buffer;
+  
+  if (0 != FT_Load_Sfnt_Table(font->ft_face, tag, 0, NULL, &length))
+    return NULL;
+  
+  buffer = malloc(length);
+  if (NULL == buffer)
+    return NULL;
+  
+  if (0 != FT_Load_Sfnt_Table(font->ft_face, tag, 0, buffer, &length))
+    return NULL;
+  
+  return CFDataCreate(NULL, buffer, length);
 }
 
 CFArrayRef CGFontCopyTableTags(CGFontRef font)
 {
-
+  unsigned int i = 0;
+  unsigned long tag, length;
+  
+  CFArrayRef array = CFArrayCreateMutable(NULL, 0, NULL);
+  while (FT_Err_Table_Missing !=
+         FT_Sfnt_Table_Info(font->ft_face, i, &tag, &length))
+  {
+    CFArrayAppendValue(array, (void *)tag);    
+    i++;
+  }
+  return array;
 }
 
 CFArrayRef CGFontCopyVariationAxes(CGFontRef font)
@@ -202,14 +256,14 @@ CGFontRef CGFontCreateCopyWithVariations(
   CGFontRef font,
   CFDictionaryRef variations)
 {
-
+  return NULL;
 }
 
 CFDataRef CGFontCreatePostScriptEncoding(
   CGFontRef font,
   const CGGlyph encoding[256])
 {
-
+  return NULL;
 }
 
 CFDataRef CGFontCreatePostScriptSubset(
@@ -230,7 +284,19 @@ CGFontRef CGFontCreateWithDataProvider(CGDataProviderRef provider)
 
 CGFontRef CGFontCreateWithFontName(CFStringRef name)
 {
+  FcPattern *pat;
+  CGFontRef font = opal_obj_alloc("CGFont", sizeof(CGFont));
+  if (!font) return NULL;
 
+  pat = opal_FcPatternCacheLookup(name);
+  if(pat) {
+    font->cairo_face = cairo_ft_font_face_create_for_pattern(pat);
+  } else {
+    CGFontRelease(font);
+    return NULL;
+  }
+  // FIXME: not sure how to get the FT_Face pointer now..
+  return font;
 }
 
 CGFontRef CGFontCreateWithPlatformFont(void *platformFontReference)
@@ -254,22 +320,32 @@ CGFontRef CGFontCreateWithPlatformFont(void *platformFontReference)
 
 int CGFontGetAscent(CGFontRef font)
 {
-
+  return font->ft_face->bbox.yMax;
 }
 
 int CGFontGetCapHeight(CGFontRef font)
 {
-
+  TT_OS2 *os2table = (TT_OS2 *)FT_Get_Sfnt_Table(font->ft_face, ft_sfnt_os2);
+  if (NULL != os2table) {
+    return os2table->sCapHeight;
+  } else {
+    return 0;
+  }        
 }
 
 int CGFontGetDescent(CGFontRef font)
 {
-
+  return font->ft_face->bbox.yMax;
 }
 
 CGRect CGFontGetFontBBox(CGFontRef font)
 {
-
+  FT_BBox bbox = font->ft_face->bbox;
+  return CGRectMake(
+    bbox.xMin,
+    bbox.yMin, 
+    bbox.xMax - bbox.xMin,
+    bbox.yMax - bbox.yMin);
 }
 
 bool CGFontGetGlyphAdvances(
@@ -278,6 +354,10 @@ bool CGFontGetGlyphAdvances(
   size_t count,
   int advances[])
 {
+
+//FT_LOAD_NO_SCALE
+
+  return true;
 }
 
 bool CGFontGetGlyphBBoxes(
@@ -286,27 +366,46 @@ bool CGFontGetGlyphBBoxes(
   size_t count,
   CGRect bboxes[])
 {
+  //FT_LOAD_NO_SCALE
 
+  return true;
 }
 
 CGGlyph CGFontGetGlyphWithGlyphName(CGFontRef font, CFStringRef glyphName)
 {
-
+  const char *name = CFStringGetCStringPtr(glyphName, kCFStringEncodingASCII);
+  if (NULL != name) {
+    return (CGGlyph)FT_Get_Name_Index(font->ft_face, name);
+  } else {
+    return (CGGlyph)0;
+  }
 }
 
 CGFloat CGFontGetItalicAngle(CGFontRef font)
 {
-
+  TT_Postscript *pstable = (TT_Postscript *)FT_Get_Sfnt_Table(font->ft_face, ft_sfnt_post);
+  if (NULL != pstable) {
+    return pstable->italicAngle;
+  } else {
+    return 0;
+  }    
 }
 
 int CGFontGetLeading(CGFontRef font)
 {
-
+  // see http://www.typophile.com/node/13081
+  return font->ft_face->height - font->ft_face->ascender + 
+    font->ft_face->descender;
 }
 
 size_t CGFontGetNumberOfGlyphs(CGFontRef font)
 {
+  return font->ft_face->num_glyphs;
+}
 
+CGFloat CGFontGetStemV(CGFontRef font)
+{
+  return 0;
 }
 
 CFTypeID CGFontGetTypeID()
@@ -316,12 +415,17 @@ CFTypeID CGFontGetTypeID()
 
 int CGFontGetUnitsPerEm(CGFontRef font)
 {
-
+  return font->ft_face->units_per_EM;
 }
 
 int CGFontGetXHeight(CGFontRef font)
 {
-
+  TT_OS2 *os2table = (TT_OS2 *)FT_Get_Sfnt_Table(font->ft_face, ft_sfnt_os2);
+  if (NULL != os2table) {
+    return os2table->sxHeight;
+  } else {
+    return 0;
+  }
 }
 
 CGFontRef CGFontRetain(CGFontRef font)

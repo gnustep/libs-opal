@@ -25,8 +25,7 @@
 #ifndef OPAL_CGColorSpace_h
 #define OPAL_CGColorSpace_h
 
-// FIXME
-#include <CoreGraphics/CoreFoundation.h>
+#include <CoreFoundation/CoreFoundation.h>
 #include <CoreGraphics/CGBase.h>
 #include <CoreGraphics/CGDataProvider.h>
 

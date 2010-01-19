@@ -27,7 +27,7 @@
 
 #include <CoreGraphics/CGBase.h>
 #include "CoreGraphics/CGGeometry.h"
-#include <CoreGraphics/CoreFoundation.h>
+#include <CoreFoundation/CoreFoundation.h>
 
 /* Data Types */
 
@@ -132,7 +132,7 @@ int CGFontGetLeading(CGFontRef font);
 
 size_t CGFontGetNumberOfGlyphs(CGFontRef font);
 
-CGFloat CGFontGetItalicAngle(CGFontRef font);
+CGFloat CGFontGetStemV(CGFontRef font);
 
 CFTypeID CGFontGetTypeID();
 

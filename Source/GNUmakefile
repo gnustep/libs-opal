@@ -24,8 +24,7 @@ $(LIBRARY_NAME)_HEADER_FILES = \
 	CGPDFDocument.h \
 	CGPath.h \
 	CGPattern.h \
-	CGShading.h \
-	CoreFoundation.h
+	CGShading.h
 
 ADDITIONAL_CFLAGS = -Wall -g
 

@@ -25,8 +25,7 @@
 #ifndef OPAL_CGLayer_h
 #define OPAL_CGLayer_h
 
-//FIXME
-#include <CoreGraphics/CoreFoundation.h>
+#include <CoreFoundation/CoreFoundation.h>
 #include <CoreGraphics/CGContext.h>
 
 typedef struct CGLayer *CGLayerRef;

@@ -29,8 +29,7 @@
 
 typedef struct CGColor * CGColorRef;
 
-//FIXME
-#include <CoreGraphics/CoreFoundation.h>
+#include <CoreFoundation/CoreFoundation.h>
 #include <CoreGraphics/CGBase.h>
 #include <CoreGraphics/CGColorSpace.h>
 #include <CoreGraphics/CGPattern.h>

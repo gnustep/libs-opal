@@ -29,8 +29,7 @@
 
 typedef struct CGContext * CGContextRef;
 
-//FIXME
-#include <CoreGraphics/CoreFoundation.h>
+#include <CoreFoundation/CoreFoundation.h>
 #include <CoreGraphics/CGAffineTransform.h>
 #include <CoreGraphics/CGBase.h>
 #include <CoreGraphics/CGColor.h>
