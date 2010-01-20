@@ -25,7 +25,9 @@
 
 #include "CoreGraphics/CGGeometry.h"
 #include "CGContext-private.h"
+#include "CGFont-private.h"
 
+#include <CoreFoundation/CoreFoundation.h>
 #include <stdlib.h>
 #include <math.h>
 #include <cairo.h>
@@ -37,7 +39,6 @@ static cairo_pattern_t *default_cp;
 
 extern void opal_surface_flush(cairo_surface_t *target);
 extern void opal_cspace_todev(CGColorSpaceRef cs, CGFloat *dest, const CGFloat comps[]);
-extern CGFontRef opal_FontCreateWithName(const char *name);
 
 static inline void set_color(cairo_pattern_t **cp, CGColorRef clr, double alpha);
 static void start_shadow(CGContextRef ctx);
@@ -789,8 +790,7 @@ void CGContextSetFont(CGContextRef ctx, CGFontRef font)
     errlog("%s:%d: CGContextSetFont got NULL\n", __FILE__, __LINE__);
     return;
   }
-  // FIXME:
-  cairo_set_font_face(ctx->ct, (cairo_font_face_t *)font);
+  cairo_set_font_face(ctx->ct, font->cairo_face);
   ctx->add->font = CGFontRetain(font);
 }
 
@@ -806,7 +806,7 @@ void CGContextSelectFont(
   CGTextEncoding textEncoding)
 {
   /* FIXME: textEncoding is ignored */
-  CGContextSetFont(ctx, opal_FontCreateWithName(name));
+  CGContextSetFont(ctx, CGFontCreateWithFontName(CFStringCreateWithCString(NULL, name, kCFStringEncodingASCII)));
   CGContextSetFontSize(ctx, size);
 }
 
@@ -851,8 +851,6 @@ void CGContextShowText(CGContextRef ctx, const char *cstring, size_t length)
   cairo_matrix_multiply(&matrix, &cairotextmatrix, &opaltextmatrix); 
   cairo_set_font_matrix(ctx->ct, &matrix);
 
-  /* FIXME: All text is currently drawn with fill color.
-   * Should support other text drawing modes. */
   if(ctx->add->fill_cp)
     cairo_set_source(ctx->ct, ctx->add->fill_cp);
   else
@@ -880,45 +878,93 @@ void CGContextShowTextAtPoint(
   CGContextShowText(ctx, cstring, length);
 }
 
-void CGContextShowGlyphs(CGContextRef ctx, const CGGlyph *g, size_t count)
+void CGContextShowGlyphs(CGContextRef ctx, const CGGlyph *glyphs, size_t count)
 {
-#if 0
-  CGFloat size  = ctx->add->font_size / CGFontGetUnitsPerEm(ctx->add->font);
-  
-  ctx->add->char_spacing;
-  CGFontGetGlyphAdvances
-  
-  cairo_show_glyphs(ctx->ct, )
-#endif
+  // FIXME: Okay to stack allocate?
+  int advances[count];
+  if (CGFontGetGlyphAdvances(ctx->add->font, glyphs, count, advances))
+  {
+    CGSize fAdvances[count];
+    CGFloat mult = ctx->add->font_size / CGFontGetUnitsPerEm(ctx->add->font);
+    for (int i=0; i<count; i++)
+    {
+      // FIXME: Assumes the glyphs are to be layed out horizontally.. check that
+      // Quartz makes the same assumption.
+      fAdvances[i].width = (advances[i] * mult) + ctx->add->char_spacing;
+      fAdvances[i].height = 0;
+    }
+    CGContextShowGlyphsWithAdvances(ctx, glyphs, fAdvances, count);
+  }
 }
 
 void CGContextShowGlyphsAtPoint(
   CGContextRef ctx,
   CGFloat x,
   CGFloat y,
-  const CGGlyph *g,
+  const CGGlyph *glyphs,
   size_t count)
 {
   CGContextSetTextPosition(ctx, x, y);
-  CGContextShowGlyphs(ctx, g, count);
+  CGContextShowGlyphs(ctx, glyphs, count);
 }
 
 void CGContextShowGlyphsAtPositions(
-  CGContextRef context,
+  CGContextRef ctx,
   const CGGlyph glyphs[],
   const CGPoint positions[],
   size_t count)
 {
+  // FIXME: Okay to stack allocate?
+  cairo_glyph_t cairoGlyphs[count];
+  for (int i=0; i<count; i++) {
+    cairoGlyphs[i].index = glyphs[i];
+    cairoGlyphs[i].x = positions[i].x;
+    cairoGlyphs[i].y = positions[i].y;
+  }
 
+  cairo_matrix_t matrix, opaltextmatrix, cairotextmatrix;
+
+  cairo_matrix_init(&opaltextmatrix, ctx->txtmatrix.a, ctx->txtmatrix.b, ctx->txtmatrix.c,
+    ctx->txtmatrix.d, ctx->txtmatrix.tx, ctx->txtmatrix.ty);  
+  cairo_get_font_matrix(ctx->ct, &cairotextmatrix);
+  cairo_matrix_multiply(&matrix, &cairotextmatrix, &opaltextmatrix); 
+  cairo_set_font_matrix(ctx->ct, &matrix);
+
+  if(ctx->add->fill_cp)
+    cairo_set_source(ctx->ct, ctx->add->fill_cp);
+  else
+    cairo_set_source(ctx->ct, default_cp);
+    
+  cairo_show_glyphs(ctx->ct, cairoGlyphs, count);
+  
+  double x, y;
+  cairo_get_current_point(ctx->ct, &x, &y);
+  ctx->txtmatrix.tx = x - cairotextmatrix.x0;
+  ctx->txtmatrix.ty = y - cairotextmatrix.y0;
+  
+  cairo_set_font_matrix(ctx->ct, &cairotextmatrix);
 }
 
+/**
+ * Draws the given glyphs starting at the current text position.
+ */
 void CGContextShowGlyphsWithAdvances (
-  CGContextRef c,
+  CGContextRef ctx,
   const CGGlyph glyphs[],
   const CGSize advances[],
   size_t count)
 {
-
+  if (count <= 0) {
+    return;
+  }
+  // FIXME: Okay to stack allocate?
+  CGPoint positions[count];
+  positions[0] = CGPointMake(ctx->txtmatrix.tx, ctx->txtmatrix.ty);
+  for (size_t i=1; i<count; i++) {
+    positions[i] = CGPointMake(positions[i - 1].x + advances[i].width,
+      positions[i - 1].y + advances[i].height);
+  }
+  CGContextShowGlyphsAtPositions(ctx, glyphs, positions, count);
 }
 
 void CGContextBeginTransparencyLayer(

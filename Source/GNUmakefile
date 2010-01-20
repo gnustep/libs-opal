@@ -26,7 +26,7 @@ $(LIBRARY_NAME)_HEADER_FILES = \
 	CGPattern.h \
 	CGShading.h
 
-ADDITIONAL_CFLAGS = -Wall -g
+ADDITIONAL_CFLAGS = -Wall -g -std=gnu99
 
 ADDITIONAL_CPPFLAGS = \
 	$(shell pkg-config --cflags freetype2) \

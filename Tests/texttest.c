@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <X11/Xlib.h>
 #include <CoreGraphics/CGContext.h>
+#include <CoreFoundation/CoreFoundation.h>
 
 Display *d;
 Window win;
@@ -12,9 +13,7 @@ extern CGContextRef opal_XWindowContextCreate(Display *d, Window w);
 
 void drawRect(CGContextRef currentContext, CGRect rect)
 {
-    CGRect pageRect = CGRectMake( 0, 0, rect.size.width, rect.size.height );
-
-    CGContextBeginPage(currentContext, &pageRect);
+    // Test CGContextSelectFont and CGContextShowTextAtPoint
 
     CGContextSetGrayFillColor(currentContext, 0, 1);
 
@@ -30,9 +29,25 @@ void drawRect(CGContextRef currentContext, CGRect rect)
     CGContextSelectFont(currentContext, fontName, 4, kCGEncodingMacRoman);
     CGContextShowTextAtPoint(currentContext, 40, 50, "4: M x", 6);
 
-    CGContextEndPage(currentContext);
+    // Test CGContextShowText
+    
+    CGContextSelectFont(currentContext, fontName, 1, kCGEncodingMacRoman);
+    CGContextShowTextAtPoint(currentContext, 40, 250, "This-", 5);    
+    CGContextShowText(currentContext, "and-that", 8);
+  
 
-    CGContextFlush(currentContext);
+    CGFontRef font = CGFontCreateWithFontName(CFSTR("Times-Roman"));
+    int i;
+    for ( i=0; i<CGFontGetNumberOfGlyphs(font); i++){
+      printf("%d", i);
+      CFShow(CGFontCopyGlyphNameForGlyph(font, i));
+    }
+
+    CGContextSetFont(currentContext, font);
+    CGContextSetFontSize(currentContext, 4);
+
+    CGGlyph glyphs[2] = {36, 57};
+    CGContextShowGlyphs(currentContext, glyphs, 2);
 }
 
 int main(int argc, char **argv)
@@ -53,7 +68,7 @@ int main(int argc, char **argv)
     fontName = argv[1];
   }
 
-  cr = CGRectMake(0,0,480,360);
+  cr = CGRectMake(0,0,800,600);
   wa.background_pixel = WhitePixel(d, DefaultScreen(d));
   wa.event_mask = ExposureMask | ButtonReleaseMask;
 

@@ -11,7 +11,7 @@ texttest_C_FILES = texttest.c
 ADDITIONAL_LDFLAGS += \
 	$(shell pkg-config --libs freetype2) \
 	$(shell pkg-config --libs cairo) \
-	-lfontconfig -lX11 -lXrender -lm
+	-lfontconfig -lX11 -lXrender -lm -framework CoreFoundation
 
 ADDITIONAL_LDFLAGS += -L../Source/obj -lopal
 ADDITIONAL_INCLUDE_DIRS = -I../Headers
