@@ -31,7 +31,7 @@
 typedef struct CGImage
 {
   struct objbase base;
-  int ismask;
+  bool ismask;
 
   size_t width;
   size_t height;
@@ -40,12 +40,15 @@ typedef struct CGImage
   size_t bytesPerRow;
   CGDataProviderRef dp;
   CGFloat *decode;
-  int shouldInterpolate;
+  bool shouldInterpolate;
   /* alphaInfo is always AlphaNone for mask */
-  CGImageAlphaInfo alphaInfo;
+  CGBitmapInfo bitmapInfo;
   /* cspace and intent are only set for image */
   CGColorSpaceRef cspace;
   CGColorRenderingIntent intent;
+  
+  /* used for CGImageCreateWithImageInRect */
+  CGRect crop;
   cairo_surface_t *surf;
 } CGImage;
 
@@ -63,8 +66,8 @@ void opal_dealloc_CGImage(void *i)
 static inline CGImageRef opal_CreateImage(
   size_t width, size_t height,
   size_t bitsPerComponent, size_t bitsPerPixel, size_t bytesPerRow,
-  CGDataProviderRef provider, const CGFloat *decode, int shouldInterpolate,
-  size_t numComponents, int hasAlpha)
+  CGDataProviderRef provider, const CGFloat *decode, bool shouldInterpolate,
+  size_t numComponents, bool hasAlpha)
 {
   CGImageRef img;
 
@@ -107,6 +110,7 @@ static inline CGImageRef opal_CreateImage(
   img->bytesPerRow = bytesPerRow;
   img->dp = CGDataProviderRetain(provider);
   img->shouldInterpolate = shouldInterpolate;
+  img->crop = CGRectNull;
   img->surf = NULL;
   
   return img;
@@ -119,16 +123,18 @@ CGImageRef CGImageCreate(
   size_t bitsPerPixel,
   size_t bytesPerRow,
   CGColorSpaceRef colorspace,
-  CGImageAlphaInfo alphaInfo,
+  CGBitmapInfo bitmapInfo,
   CGDataProviderRef provider,
-  const CGFloat *decode,
-  int shouldInterpolate,
+  const CGFloat decode[],
+  bool shouldInterpolate,
   CGColorRenderingIntent intent)
 {
   CGImageRef img;
   size_t numComponents;
-  int hasAlpha;
-
+  CGImageAlphaInfo alphaInfo;
+  bool hasAlpha;
+  
+  alphaInfo = bitmapInfo & kCGBitmapAlphaInfoMask;
   if (alphaInfo == kCGImageAlphaOnly)
     numComponents = 0;
   else
@@ -146,7 +152,7 @@ CGImageRef CGImageCreate(
                          numComponents, hasAlpha);
   if (!img) return NULL;
 
-  img->alphaInfo = alphaInfo;
+  img->bitmapInfo = bitmapInfo;
   img->cspace = CGColorSpaceRetain(colorspace);
   img->intent = intent;
 
@@ -156,7 +162,7 @@ CGImageRef CGImageCreate(
 CGImageRef CGImageMaskCreate(
   size_t width, size_t height,
   size_t bitsPerComponent, size_t bitsPerPixel, size_t bytesPerRow,
-  CGDataProviderRef provider, const CGFloat *decode, int shouldInterpolate)
+  CGDataProviderRef provider, const CGFloat decode[], bool shouldInterpolate)
 {
   CGImageRef img;
 
@@ -166,9 +172,87 @@ CGImageRef CGImageMaskCreate(
                          provider, decode, shouldInterpolate, 0, 1);
   if (!img) return NULL;
 
-  img->ismask = 1;
+  img->ismask = true;
 
   return img;
+}
+
+CGImageRef CGImageCreateCopy(CGImageRef image)
+{
+  CGImageRef new;
+  
+  if (image->ismask) {
+    new = CGImageMaskCreate(image->width, image->height,
+      image->bitsPerComponent, image->bitsPerPixel, image->bytesPerRow,
+      image->dp, image->decode, image->shouldInterpolate);
+  } else {
+    new = CGImageCreate(image->width, image->height,
+      image->bitsPerComponent, image->bitsPerPixel, image->bytesPerRow,
+      image->cspace, image->bitmapInfo, image->dp, image->decode,
+      image->shouldInterpolate, image->intent);
+  }
+      
+  if (!new) return NULL;
+  
+  // Since CGImage is immutable, we can reference the source image's surface
+  if (image->surf) {
+    new->surf = cairo_surface_reference(image->surf);
+  }
+  return new;
+}
+
+
+CGImageRef CGImageCreateCopyWithColorSpace(
+  CGImageRef image,
+  CGColorSpaceRef colorspace)
+{
+  CGImageRef new = CGImageCreateCopy(image);
+  if (!new) return NULL;
+    
+  CGColorSpaceRelease(new->cspace);
+  new->cspace = CGColorSpaceRetain(colorspace);
+  
+  return new;
+}
+
+CGImageRef CGImageCreateWithImageInRect(
+  CGImageRef image,
+  CGRect rect)
+{
+  CGImageRef new = CGImageCreateCopy(image);
+  if (!new) return NULL;
+    
+  // Set the crop rect
+  rect = CGRectIntegral(rect);
+  rect = CGRectIntersection(rect, CGRectMake(0, 0, image->width, image->height));
+  new->crop = rect;
+
+  return new;
+}
+
+CGImageRef CGImageCreateWithJPEGDataProvider (
+  CGDataProviderRef source,
+  const CGFloat decode[],
+  bool shouldInterpolate,
+  CGColorRenderingIntent intent)
+{
+  //FIXME: Implement
+}
+
+CGImageRef CGImageCreateWithMaskingColors (
+  CGImageRef image,
+  const CGFloat components[])
+{
+  //FIXME: Implement
+}
+
+CGImageRef CGImageCreateWithPNGDataProvider (
+  CGDataProviderRef source,
+  const CGFloat decode[],
+  bool shouldInterpolate,
+  CGColorRenderingIntent intent)
+{
+  //FIXME: Implement
 }
 
 CGImageRef CGImageRetain(CGImageRef image)
@@ -181,7 +265,7 @@ void CGImageRelease(CGImageRef image)
   if(image) opal_obj_release(image);
 }
 
-int CGImageIsMask(CGImageRef image)
+bool CGImageIsMask(CGImageRef image)
 {
   return image->ismask;
 }
@@ -218,7 +302,7 @@ CGColorSpaceRef CGImageGetColorSpace(CGImageRef image)
 
 CGImageAlphaInfo CGImageGetAlphaInfo(CGImageRef image)
 {
-  return image->alphaInfo;
+  return image->bitmapInfo & kCGBitmapAlphaInfoMask;
 }
 
 CGDataProviderRef CGImageGetDataProvider(CGImageRef image)
@@ -231,7 +315,7 @@ const CGFloat *CGImageGetDecode(CGImageRef image)
   return image->decode;
 }
 
-int CGImageGetShouldInterpolate(CGImageRef image)
+bool CGImageGetShouldInterpolate(CGImageRef image)
 {
   return image->shouldInterpolate;
 }
@@ -243,7 +327,6 @@ CGColorRenderingIntent CGImageGetRenderingIntent(CGImageRef image)
 
 cairo_surface_t *opal_CGImageGetSurfaceForImage(CGImageRef img)
 {
-  cairo_surface_t *surf;
   cairo_format_t cformat;
   unsigned char *data;
   size_t datalen;
@@ -260,7 +343,7 @@ cairo_surface_t *opal_CGImageGetSurfaceForImage(CGImageRef img)
   if (img->cspace)
     numComponents = CGColorSpaceGetNumberOfComponents(img->cspace);
 
-  switch (img->alphaInfo) {
+  switch (CGImageGetAlphaInfo(img)) {
     case kCGImageAlphaNone:
     case kCGImageAlphaNoneSkipLast:
       alphaLast = 1;
@@ -301,11 +384,24 @@ cairo_surface_t *opal_CGImageGetSurfaceForImage(CGImageRef img)
 						img->height,
 						cairo_format_stride_for_width(CAIRO_FORMAT_ARGB32, img->width));
             
-  if (cairo_surface_status(surf) != CAIRO_STATUS_SUCCESS)
+  if (cairo_surface_status(img->surf) != CAIRO_STATUS_SUCCESS)
   {
     errlog("%s:%d: Cairo error creating surface\n", __FILE__, __LINE__);
   }
 
+  // FIXME: If cairo 1.9.x or greater, and the image is a PNG or JPEG, attach the
+  // compressed data to the surface with cairo_surface_set_mime_data (so embedding
+  // images in to PDF/SVG output works optimally)
+
   free(data);
   return img->surf;
+}
+
+CGRect opal_CGImageGetSourceRect(CGImageRef image)
+{
+  if (CGRectIsNull(image->crop)) {
+    return CGRectMake(0, 0, image->width, image->height);
+  } else {
+    return image->crop;
+  }
 }

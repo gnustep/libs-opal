@@ -75,10 +75,10 @@ CGImageRef CGImageCreate(
   size_t bitsPerPixel,
   size_t bytesPerRow,
   CGColorSpaceRef colorspace,
-  CGImageAlphaInfo alphaInfo,
+  CGBitmapInfo bitmapInfo,
   CGDataProviderRef provider,
-  const CGFloat *decode,
-  int shouldInterpolate,
+  const CGFloat decode[],
+  bool shouldInterpolate,
   CGColorRenderingIntent intent
 );
 
@@ -89,8 +89,8 @@ CGImageRef CGImageMaskCreate(
   size_t bitsPerPixel,
   size_t bytesPerRow,
   CGDataProviderRef provider,
-  const CGFloat *decode,
-  int shouldInterpolate
+  const CGFloat decode[],
+  bool shouldInterpolate
 );
 
 CGImageRef CGImageCreateCopy(CGImageRef image);
@@ -133,7 +133,7 @@ CGImageRef CGImageRetain(CGImageRef image);
 
 void CGImageRelease(CGImageRef image);
 
-int CGImageIsMask(CGImageRef image);
+bool CGImageIsMask(CGImageRef image);
 
 size_t CGImageGetWidth(CGImageRef image);
 
@@ -153,7 +153,7 @@ CGDataProviderRef CGImageGetDataProvider(CGImageRef image);
 
 const CGFloat *CGImageGetDecode(CGImageRef image);
 
-int CGImageGetShouldInterpolate(CGImageRef image);
+bool CGImageGetShouldInterpolate(CGImageRef image);
 
 CGColorRenderingIntent CGImageGetRenderingIntent(CGImageRef image);
 

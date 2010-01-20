@@ -41,6 +41,7 @@ extern void opal_cspace_todev(CGColorSpaceRef cs, CGFloat *dest, const CGFloat c
 extern cairo_font_face_t *opal_font_get_cairo_font(CGFontRef font);
 
 extern cairo_surface_t *opal_CGImageGetSurfaceForImage(CGImageRef img);
+extern CGRect opal_CGImageGetSourceRect(CGImageRef image);
 
 static inline void set_color(cairo_pattern_t **cp, CGColorRef clr, double alpha);
 static void start_shadow(CGContextRef ctx);
@@ -828,7 +829,7 @@ void opal_draw_surface_in_rect(CGContextRef ctxt, CGRect rect, cairo_surface_t *
 void CGContextDrawImage(CGContextRef ctx, CGRect rect, CGImageRef image)
 {
   opal_draw_surface_in_rect(ctx, rect, opal_CGImageGetSurfaceForImage(image),
-    CGRectMake(0, 0, CGImageGetWidth(image), CGImageGetHeight(image)));
+    opal_CGImageGetSourceRect(image));
 }
 
 void CGContextSetFont(CGContextRef ctx, CGFontRef font)
