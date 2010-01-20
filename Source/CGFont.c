@@ -393,15 +393,30 @@ CGRect CGFontGetFontBBox(CGFontRef font)
   return result;
 }
 
+/**
+ * Returns the advances, in glpyh cooridinate space, of a series of glyphs.
+ * No kerning is apllied, so the result of calling CGFontGetGlyphAdvances 
+ * is the same whether it is called for each glyph or once for the array.
+ * FIXME: double check that is correct
+ */
 bool CGFontGetGlyphAdvances(
   CGFontRef font,
   const CGGlyph glyphs[],
   size_t count,
   int advances[])
 {
-
-//FT_LOAD_NO_SCALE
-
+  for (int i=0; i<count; i++) {
+    cairo_text_extents_t glyphExtents;
+    
+    cairo_glyph_t cairoGlyph;
+    cairoGlyph.index = glyphs[i];
+    cairoGlyph.x = 0;
+    cairoGlyph.y = 0;
+    
+    cairo_scaled_font_glyph_extents(font->metrics_face, &cairoGlyph, 1, &glyphExtents);
+    // FIXME: scale?
+    advances[i] = (int)glyphExtents.x_advance;
+  }
   return true;
 }
 
@@ -411,8 +426,20 @@ bool CGFontGetGlyphBBoxes(
   size_t count,
   CGRect bboxes[])
 {
-  //FT_LOAD_NO_SCALE
-
+  for (int i=0; i<count; i++) {
+    cairo_text_extents_t glyphExtents;
+    
+    cairo_glyph_t cairoGlyph;
+    cairoGlyph.index = glyphs[i];
+    cairoGlyph.x = 0;
+    cairoGlyph.y = 0;
+    
+    cairo_scaled_font_glyph_extents(font->metrics_face, &cairoGlyph, 1, &glyphExtents);
+    
+    // FIXME: flip? scale?
+    bboxes[i] = CGRectMake(glyphExtents.x_bearing, glyphExtents.y_bearing, 
+      glyphExtents.width, glyphExtents.height);
+  }
   return true;
 }
 
