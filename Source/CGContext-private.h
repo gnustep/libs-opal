@@ -60,4 +60,6 @@ typedef struct CGContext
 
 CGContextRef opal_new_CGContext(cairo_surface_t *target, CGSize device_size);
 
+void opal_draw_surface_in_rect(CGContextRef ctxt, CGRect dest, cairo_surface_t *src, CGRect srcRect);
+
 #endif

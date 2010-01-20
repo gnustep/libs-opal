@@ -130,6 +130,14 @@ static FcPattern *opal_FcPatternCacheLookup(const char *name)
 
 /* End of cache related things */
 
+//
+// Note on CGFont: we really need  David Turner's cairo-ft rewrite,
+// which is on the roadmap for cairo 1.12.
+//
+// The current cairo_ft_scaled_font_lock_face function is almost useless.
+// With it, we can only (safely) look at immutable parts of the FT_Face.
+//
+
 typedef struct CGFont
 {
   struct objbase base;

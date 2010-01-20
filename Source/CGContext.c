@@ -40,6 +40,8 @@ extern void opal_surface_flush(cairo_surface_t *target);
 extern void opal_cspace_todev(CGColorSpaceRef cs, CGFloat *dest, const CGFloat comps[]);
 extern cairo_font_face_t *opal_font_get_cairo_font(CGFontRef font);
 
+extern cairo_surface_t *opal_CGImageGetSurfaceForImage(CGImageRef img);
+
 static inline void set_color(cairo_pattern_t **cp, CGColorRef clr, double alpha);
 static void start_shadow(CGContextRef ctx);
 static void end_shadow(CGContextRef ctx, CGRect bounds);
@@ -782,6 +784,51 @@ void CGContextSetRGBStrokeColor(CGContextRef ctx,
   CGColorSpaceRelease(cs);
   CGContextSetStrokeColorWithColor(ctx, color);
   CGColorRelease(color);
+}
+
+void opal_draw_surface_in_rect(CGContextRef ctxt, CGRect rect, cairo_surface_t *src, CGRect srcRect)
+{
+  cairo_t *destCairo = ctxt->ct;
+  cairo_save(destCairo);
+  
+  cairo_pattern_t *pattern = cairo_pattern_create_for_surface(src);
+    
+  cairo_matrix_t patternMatrix;
+  cairo_matrix_init_identity(&patternMatrix);
+  
+  // Move to the place where the layer should be drawn
+  cairo_matrix_translate(&patternMatrix, rect.origin.x, rect.origin.y);
+  // Scale the pattern to the correct size
+  cairo_matrix_scale(&patternMatrix,
+    rect.size.width / srcRect.size.width,
+    rect.size.height / srcRect.size.height);
+  // Flip the layer up-side-down
+  cairo_matrix_scale(&patternMatrix, 1, -1);
+  cairo_matrix_translate(&patternMatrix, 0, -srcRect.size.height);
+
+  cairo_matrix_invert(&patternMatrix);
+  
+  cairo_pattern_set_matrix(pattern, &patternMatrix);
+  
+  // FIXME: do we always want this?
+  cairo_pattern_set_extend(pattern, CAIRO_EXTEND_PAD);
+  
+  cairo_set_operator(destCairo, CAIRO_OPERATOR_OVER);
+  cairo_set_source(destCairo, pattern);
+  cairo_pattern_destroy(pattern);
+  
+  // FIXME: What is the fastest way to draw? cairo_paint? clip? fill a rect?
+  cairo_rectangle(destCairo, rect.origin.x, rect.origin.y,
+    rect.size.width, rect.size.height);
+  cairo_fill(destCairo);
+
+  cairo_restore(destCairo);
+}
+
+void CGContextDrawImage(CGContextRef ctx, CGRect rect, CGImageRef image)
+{
+  opal_draw_surface_in_rect(ctx, rect, opal_CGImageGetSurfaceForImage(image),
+    CGRectMake(0, 0, CGImageGetWidth(image), CGImageGetHeight(image)));
 }
 
 void CGContextSetFont(CGContextRef ctx, CGFontRef font)

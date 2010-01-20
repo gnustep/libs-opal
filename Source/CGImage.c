@@ -46,6 +46,7 @@ typedef struct CGImage
   /* cspace and intent are only set for image */
   CGColorSpaceRef cspace;
   CGColorRenderingIntent intent;
+  cairo_surface_t *surf;
 } CGImage;
 
 void opal_dealloc_CGImage(void *i)
@@ -55,6 +56,7 @@ void opal_dealloc_CGImage(void *i)
   CGColorSpaceRelease(img->cspace);
   CGDataProviderRelease(img->dp);
   if (img->decode) free(img->decode);
+  if (img->surf) cairo_surface_destroy(img->surf);
   free(i);
 }
 
@@ -105,7 +107,8 @@ static inline CGImageRef opal_CreateImage(
   img->bytesPerRow = bytesPerRow;
   img->dp = CGDataProviderRetain(provider);
   img->shouldInterpolate = shouldInterpolate;
-
+  img->surf = NULL;
+  
   return img;
 }
 
@@ -238,7 +241,7 @@ CGColorRenderingIntent CGImageGetRenderingIntent(CGImageRef image)
   return image->intent;
 }
 
-cairo_surface_t *opal_CGImageCreateSurfaceForImage(CGImageRef img)
+cairo_surface_t *opal_CGImageGetSurfaceForImage(CGImageRef img)
 {
   cairo_surface_t *surf;
   cairo_format_t cformat;
@@ -247,6 +250,10 @@ cairo_surface_t *opal_CGImageCreateSurfaceForImage(CGImageRef img)
   size_t numComponents = 0;
   int alphaLast = 0;
   int mask;
+
+  // Return the cached surface if it already exists
+  if (NULL != img->surf)
+    return img->surf;
 
   /* The target is always 8 BPC 32 BPP for Cairo so should convert to this */
   /* (see also QA1037) */
@@ -274,9 +281,31 @@ cairo_surface_t *opal_CGImageCreateSurfaceForImage(CGImageRef img)
       numComponents = 1;
   }
 
-  /* FIXME: implement this */
-  /* datalen = */
+  datalen = img->bytesPerRow * img->height;
 
+  // FIXME: ???
   mask = (1 << img->bitsPerComponent) - 1;
 
+  // FIXME: the following is just a rough sketch
+  data = malloc(datalen);
+
+  int read = 0;
+  while (read < datalen)
+  {
+    read += opal_DataProviderRead(img->dp, data, 10000000);
+  }
+
+  img->surf = cairo_image_surface_create_for_data(data,
+						CAIRO_FORMAT_ARGB32,
+						img->width,
+						img->height,
+						cairo_format_stride_for_width(CAIRO_FORMAT_ARGB32, img->width));
+            
+  if (cairo_surface_status(surf) != CAIRO_STATUS_SUCCESS)
+  {
+    errlog("%s:%d: Cairo error creating surface\n", __FILE__, __LINE__);
+  }
+
+  free(data);
+  return img->surf;
 }

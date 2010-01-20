@@ -91,41 +91,8 @@ void CGContextDrawLayerInRect(
   CGRect rect,
   CGLayerRef layer)
 {
-  cairo_t *destCairo = destCtxt->ct;
-  cairo_save(destCairo);
-  
-  cairo_pattern_t *pattern = 
-    cairo_pattern_create_for_surface(cairo_get_target(layer->ctxt->ct));
-    
-  cairo_matrix_t patternMatrix;
-  cairo_matrix_init_identity(&patternMatrix);
-  
-  // Move to the place where the layer should be drawn
-  cairo_matrix_translate(&patternMatrix, rect.origin.x, rect.origin.y);
-  // Scale the pattern to the correct size
-  cairo_matrix_scale(&patternMatrix,
-    rect.size.width / layer->size.width,
-    rect.size.height / layer->size.height);
-  // Flip the layer up-side-down
-  cairo_matrix_scale(&patternMatrix, 1, -1);
-  cairo_matrix_translate(&patternMatrix, 0, -layer->size.height);
-
-  cairo_matrix_invert(&patternMatrix);
-  
-  cairo_pattern_set_matrix(pattern, &patternMatrix);
-  cairo_set_source(destCairo, pattern);
-  cairo_pattern_destroy(pattern);
-  cairo_set_operator(destCairo, CAIRO_OPERATOR_OVER);
-  
-  //cairo_paint(destCairo);
-
-  // FIXME: This should be faster than cairo_paint, but the edges look a bit
-  //        different.
-  cairo_rectangle(destCairo, rect.origin.x, rect.origin.y,
-    rect.size.width, rect.size.height);
-  cairo_fill(destCairo);
-
-  cairo_restore(destCairo);
+  opal_draw_surface_in_rect(destCtxt, rect, cairo_get_target(layer->ctxt->ct),
+    CGRectMake(0, 0, layer->size.width, layer->size.height));
 }
 
 void CGContextDrawLayerAtPoint(

@@ -57,8 +57,8 @@ typedef enum CGBitmapInfo {
   kCGBitmapByteOrder32Big = (4 << 12)
 } CGBitmapInfo;
 
-// FIXME: Is there a portable preprocessor endianness check?
-#if 0
+// FIXME: Verify this endianness check works
+#if GS_WORDS_BIGENDIAN
 #define kCGBitmapByteOrder16Host kCGBitmapByteOrder16Big
 #define kCGBitmapByteOrder32Host kCGBitmapByteOrder32Big
 #else
