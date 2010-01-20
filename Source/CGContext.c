@@ -25,7 +25,6 @@
 
 #include "CoreGraphics/CGGeometry.h"
 #include "CGContext-private.h"
-#include "CGFont-private.h"
 
 #include <CoreFoundation/CoreFoundation.h>
 #include <stdlib.h>
@@ -39,6 +38,7 @@ static cairo_pattern_t *default_cp;
 
 extern void opal_surface_flush(cairo_surface_t *target);
 extern void opal_cspace_todev(CGColorSpaceRef cs, CGFloat *dest, const CGFloat comps[]);
+extern cairo_font_face_t *opal_font_get_cairo_font(CGFontRef font);
 
 static inline void set_color(cairo_pattern_t **cp, CGColorRef clr, double alpha);
 static void start_shadow(CGContextRef ctx);
@@ -790,7 +790,7 @@ void CGContextSetFont(CGContextRef ctx, CGFontRef font)
     errlog("%s:%d: CGContextSetFont got NULL\n", __FILE__, __LINE__);
     return;
   }
-  cairo_set_font_face(ctx->ct, font->cairo_face);
+  cairo_set_font_face(ctx->ct, opal_font_get_cairo_font(font));
   ctx->add->font = CGFontRetain(font);
 }
 

@@ -26,7 +26,7 @@
 
 #include "CoreGraphics/CGBase.h"
 #include "CoreGraphics/CGDataProvider.h"
-#include "CGFont-private.h"
+#include "CoreGraphics/CGFont.h"
 #include <stdlib.h>
 #include <string.h>
 #include "cairo-ft.h"
@@ -129,6 +129,18 @@ static FcPattern *opal_FcPatternCacheLookup(const char *name)
 }
 
 /* End of cache related things */
+
+typedef struct CGFont
+{
+  struct objbase base;
+  cairo_font_face_t *cairo_face;
+  cairo_scaled_font_t *metrics_face;
+} CGFont;
+
+cairo_font_face_t *opal_font_get_cairo_font(CGFontRef font)
+{
+  return font->cairo_face;
+}
 
 void opal_dealloc_CGFont(void *f)
 {
