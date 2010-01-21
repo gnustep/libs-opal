@@ -29,6 +29,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#ifndef CGFLOAT_DEFINED
 #define CGFLOAT_DEFINED 1
 #define CGFLOAT_TYPE double
 #define CGFLOAT_IS_DOUBLE 1
@@ -36,6 +37,7 @@
 #define CGFLOAT_MAX DBL_MAX
 
 typedef CGFLOAT_TYPE CGFloat;
-
+#endif
+ 
 #endif
 

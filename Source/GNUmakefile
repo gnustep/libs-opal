@@ -2,7 +2,7 @@ include $(GNUSTEP_MAKEFILES)/common.make
 
 LIBRARY_NAME = opal
 
-$(LIBRARY_NAME)_C_FILES = $(wildcard *.c)
+$(LIBRARY_NAME)_OBJC_FILES = $(wildcard *.m)
 $(LIBRARY_NAME)_HEADER_FILES_DIR = ../Headers/CoreGraphics
 $(LIBRARY_NAME)_INCLUDE_DIRS = -I../Headers
 $(LIBRARY_NAME)_HEADER_FILES_INSTALL_DIR = CoreGraphics
@@ -26,13 +26,13 @@ $(LIBRARY_NAME)_HEADER_FILES = \
 	CGPattern.h \
 	CGShading.h
 
-ADDITIONAL_CFLAGS = -Wall -g -std=gnu99
+ADDITIONAL_OBJCFLAGS += -Wall -g -std=gnu99
 
-ADDITIONAL_CPPFLAGS = \
+ADDITIONAL_CPPFLAGS += \
 	$(shell pkg-config --cflags freetype2) \
 	$(shell pkg-config --cflags cairo)
 	
-ADDITIONAL_LDFLAGS = \
+ADDITIONAL_LDFLAGS += \
 	$(shell pkg-config --libs freetype2) \
 	$(shell pkg-config --libs cairo) \
 	-lfontconfig -lX11 -lXrender -lm

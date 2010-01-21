@@ -22,7 +22,7 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
    */
 
-
+#include <Foundation/NSString.h>
 #include "CoreGraphics/CGPDFContext.h"
 #include "CoreGraphics/CGDataConsumer.h"
 #include "CGContext-private.h"
@@ -34,31 +34,31 @@
 
 /* Constants */
 
-const CFStringRef kCGPDFContextAuthor = CFSTR("kCGPDFContextAuthor");
-const CFStringRef kCGPDFContextCreator = CFSTR("kCGPDFContextCreator");
-const CFStringRef kCGPDFContextTitle = CFSTR("kCGPDFContextTitle");
-const CFStringRef kCGPDFContextOwnerPassword = CFSTR("kCGPDFContextOwnerPassword");
-const CFStringRef kCGPDFContextUserPassword = CFSTR("kCGPDFContextUserPassword");
-const CFStringRef kCGPDFContextAllowsPrinting = CFSTR("kCGPDFContextAllowsPrinting");
-const CFStringRef kCGPDFContextAllowsCopying = CFSTR("kCGPDFContextAllowsCopying");
-const CFStringRef kCGPDFContextOutputIntent = CFSTR("kCGPDFContextOutputIntent");
-const CFStringRef kCGPDFContextOutputIntents = CFSTR("kCGPDFContextOutputIntents");
-const CFStringRef kCGPDFContextSubject = CFSTR("kCGPDFContextSubject");
-const CFStringRef kCGPDFContextKeywords = CFSTR("kCGPDFContextKeywords");
-const CFStringRef kCGPDFContextEncryptionKeyLength = CFSTR("kCGPDFContextEncryptionKeyLength");
+const CFStringRef kCGPDFContextAuthor = @"kCGPDFContextAuthor";
+const CFStringRef kCGPDFContextCreator = @"kCGPDFContextCreator";
+const CFStringRef kCGPDFContextTitle = @"kCGPDFContextTitle";
+const CFStringRef kCGPDFContextOwnerPassword = @"kCGPDFContextOwnerPassword";
+const CFStringRef kCGPDFContextUserPassword = @"kCGPDFContextUserPassword";
+const CFStringRef kCGPDFContextAllowsPrinting = @"kCGPDFContextAllowsPrinting";
+const CFStringRef kCGPDFContextAllowsCopying = @"kCGPDFContextAllowsCopying";
+const CFStringRef kCGPDFContextOutputIntent = @"kCGPDFContextOutputIntent";
+const CFStringRef kCGPDFContextOutputIntents = @"kCGPDFContextOutputIntents";
+const CFStringRef kCGPDFContextSubject = @"kCGPDFContextSubject";
+const CFStringRef kCGPDFContextKeywords = @"kCGPDFContextKeywords";
+const CFStringRef kCGPDFContextEncryptionKeyLength = @"kCGPDFContextEncryptionKeyLength";
 
-const CFStringRef kCGPDFContextMediaBox = CFSTR("kCGPDFContextMediaBox");
-const CFStringRef kCGPDFContextCropBox = CFSTR("kCGPDFContextCropBox");
-const CFStringRef kCGPDFContextBleedBox = CFSTR("kCGPDFContextBleedBox");
-const CFStringRef kCGPDFContextTrimBox = CFSTR("kCGPDFContextTrimBox");
-const CFStringRef kCGPDFContextArtBox = CFSTR("kCGPDFContextArtBox");
+const CFStringRef kCGPDFContextMediaBox = @"kCGPDFContextMediaBox";
+const CFStringRef kCGPDFContextCropBox = @"kCGPDFContextCropBox";
+const CFStringRef kCGPDFContextBleedBox = @"kCGPDFContextBleedBox";
+const CFStringRef kCGPDFContextTrimBox = @"kCGPDFContextTrimBox";
+const CFStringRef kCGPDFContextArtBox = @"kCGPDFContextArtBox";
 
-const CFStringRef kCGPDFXOutputIntentSubtype = CFSTR("kCGPDFXOutputIntentSubtype");
-const CFStringRef kCGPDFXOutputConditionIdentifier = CFSTR("kCGPDFXOutputConditionIdentifier");
-const CFStringRef kCGPDFXOutputCondition = CFSTR("kCGPDFXOutputCondition");
-const CFStringRef kCGPDFXRegistryName = CFSTR("kCGPDFXRegistryName");
-const CFStringRef kCGPDFXInfo = CFSTR("kCGPDFXInfo");
-const CFStringRef kCGPDFXDestinationOutputProfile = CFSTR("kCGPDFXDestinationOutputProfile");
+const CFStringRef kCGPDFXOutputIntentSubtype = @"kCGPDFXOutputIntentSubtype";
+const CFStringRef kCGPDFXOutputConditionIdentifier = @"kCGPDFXOutputConditionIdentifier";
+const CFStringRef kCGPDFXOutputCondition = @"kCGPDFXOutputCondition";
+const CFStringRef kCGPDFXRegistryName = @"kCGPDFXRegistryName";
+const CFStringRef kCGPDFXInfo = @"kCGPDFXInfo";
+const CFStringRef kCGPDFXDestinationOutputProfile = @"kCGPDFXDestinationOutputProfile";
 
 /* Functions */
 

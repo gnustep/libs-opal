@@ -3,6 +3,7 @@
 #include <X11/Xlib.h>
 #include <CoreGraphics/CGContext.h>
 #include <CoreFoundation/CoreFoundation.h>
+#include <Foundation/Foundation.h>
 
 Display *d;
 Window win;
@@ -36,11 +37,11 @@ void drawRect(CGContextRef currentContext, CGRect rect)
     CGContextShowText(currentContext, "and-that", 8);
   
 
-    CGFontRef font = CGFontCreateWithFontName(CFSTR("Times-Roman"));
+    CGFontRef font = CGFontCreateWithFontName(@"Times-Roman");
     int i;
     for ( i=0; i<CGFontGetNumberOfGlyphs(font); i++){
       printf("%d", i);
-      CFShow(CGFontCopyGlyphNameForGlyph(font, i));
+      NSLog(@"%@", CGFontCopyGlyphNameForGlyph(font, i));
     }
 
     CGContextSetFont(currentContext, font);

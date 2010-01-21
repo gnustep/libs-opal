@@ -3,6 +3,7 @@
 #include <CoreGraphics/CGContext.h>
 #include <CoreGraphics/CGPDFContext.h>
 #include <CoreFoundation/CoreFoundation.h>
+#include <Foundation/Foundation.h>
 
 #define pi 3.14159265358979323846
 
@@ -109,7 +110,7 @@ void drawRect(CGContextRef ctx, CGRect r)
 
 int main(int argc, char **argv)
 {
-  CFURLRef url = CFURLCreateWithString(NULL, CFSTR("file:///Users/ericw/OpalTest.pdf"), NULL);
+  CFURLRef url = CFURLCreateWithString(NULL, @"file:///home/etoile/OpalTest.pdf", NULL);
   
   CGContextRef ctx = CGPDFContextCreateWithURL(url, NULL, NULL);
   drawRect(ctx, CGRectMake(0, 2.25*72, 8.5*72, 5.5*72));
