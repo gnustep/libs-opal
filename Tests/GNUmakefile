@@ -1,12 +1,13 @@
 include $(GNUSTEP_MAKEFILES)/common.make
 
-CTOOL_NAME = qeb2 shadows shapes layers texttest
+CTOOL_NAME = qeb2 shadows shapes layers texttest pdf
 
 qeb2_C_FILES = qeb2.c qeb2-draw.c
 shadows_C_FILES = shadows.c
 shapes_C_FILES = arcs.c ovals.c rects.c shapes.c
 layers_C_FILES = layers.c
 texttest_C_FILES = texttest.c
+pdf_C_FILES = arcs.c ovals.c rects.c pdf.c
 
 ADDITIONAL_LDFLAGS += \
 	$(shell pkg-config --libs freetype2) \
