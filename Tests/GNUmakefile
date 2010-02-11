@@ -10,9 +10,14 @@ texttest_OBJC_FILES = texttest.m
 pdf_C_FILES = arcs.c ovals.c rects.c
 pdf_OBJC_FILES = pdf.m
 
+# Use := to compute the flags we need so that the subshells are
+# spawned only once
+OPAL_LDFLAGS := $(shell pkg-config --cflags freetype2) \
+	         $(shell pkg-config --cflags cairo)
+
+# Then add them to ADDITIONAL_CPPFLAGS
 ADDITIONAL_LDFLAGS += \
-	$(shell pkg-config --libs freetype2) \
-	$(shell pkg-config --libs cairo) \
+	$(OPAL_LDFLAGS) \
 	-lfontconfig -lX11 -lXrender -lm -lgnustep-corebase
 
 ADDITIONAL_LDFLAGS += -L../Source/obj -lopal

@@ -28,13 +28,20 @@ $(LIBRARY_NAME)_HEADER_FILES = \
 
 ADDITIONAL_OBJCFLAGS += -Wall -g -std=gnu99
 
-ADDITIONAL_CPPFLAGS += \
-	$(shell pkg-config --cflags freetype2) \
-	$(shell pkg-config --cflags cairo)
-	
+# Use := to compute the flags we need so that the subshells are
+# spawned only once
+OPAL_CPPFLAGS := $(shell pkg-config --cflags freetype2) \
+	         $(shell pkg-config --cflags cairo)
+
+# Then add them to ADDITIONAL_CPPFLAGS
+ADDITIONAL_CPPFLAGS += $(OPAL_CPPFLAGS)
+
+
+OPAL_LDFLAGS := $(shell pkg-config --libs freetype2) \
+		$(shell pkg-config --libs cairo)
+
 ADDITIONAL_LDFLAGS += \
-	$(shell pkg-config --libs freetype2) \
-	$(shell pkg-config --libs cairo) \
+	$(OPAL_LDFLAGS) \
 	-lfontconfig -lX11 -lXrender -lm
 
 -include GNUmakefile.preamble

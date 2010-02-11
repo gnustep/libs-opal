@@ -1,0 +1,6 @@
+2010-02-11  Nicola Pero  <nicola.pero@meta-innovation.com>
+
+	* Source/GNUmakefile: Use := when setting ADDITIONAL_CPPFLAGS and
+	ADDITIONAL_LDFLAGS to reduce the number of subshell invocations
+	required to compile.
+	* Tests/GNUmakefile: Same change for ADDITIONAL_LDFLAGS.
