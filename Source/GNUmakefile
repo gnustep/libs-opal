@@ -28,14 +28,15 @@ $(LIBRARY_NAME)_HEADER_FILES = \
 
 ADDITIONAL_OBJCFLAGS += -Wall -g -std=gnu99
 ADDITIONAL_CPPFLAGS += $(shell pkg-config --cflags cairo)
-ADDITIONAL_LDFLAGS += $(shell pkg-config --libs cairo) -lgnustep-corebase
+
 
 ifneq ($(GNUSTEP_TARGET_OS), mingw32)
 ADDITIONAL_CPPFLAGS += $(shell pkg-config --cflags freetype2)
 ADDITIONAL_LDFLAGS += $(shell pkg-config --libs freetype2) -lfontconfig -lX11 -lXrender -lm 
+ADDITIONAL_LDFLAGS += $(shell pkg-config --libs cairo) -lgnustep-corebase
 else
 ADDITIONAL_CPPFLAGS += -D__MINGW__
-ADDITIONAL_LDFLAGS += -lgdi32
+LIBRARIES_DEPEND_UPON = -lgdi32 -lcairo -lgnustep-corebase
 endif
 
 -include GNUmakefile.preamble
