@@ -36,14 +36,13 @@ CGContextRef opal_Win32ContextCreate(HDC hdc)
 {
   CGContextRef ctx;
   cairo_surface_t *target;
-  int width, height;
+  RECT r;
 
   target = cairo_win32_surface_create(hdc);
 
-  width = GetDeviceCaps(hdc, HORZRES);
-  height = GetDeviceCaps(hdc, VERTRES);
+  GetClipBox(hdc, &r);
 
-  ctx = opal_new_CGContext(target, CGSizeMake(width, height));
+  ctx = opal_new_CGContext(target, CGSizeMake(r.right - r.left, r.bottom - r.top));
 
   cairo_surface_destroy(target);
 
