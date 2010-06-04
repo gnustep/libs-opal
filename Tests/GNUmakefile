@@ -2,26 +2,30 @@ include $(GNUSTEP_MAKEFILES)/common.make
 
 TOOL_NAME = qeb2 shadows shapes layers texttest pdf
 
-qeb2_C_FILES = qeb2.c qeb2-draw.c
-shadows_C_FILES = shadows.c
-shapes_C_FILES = arcs.c ovals.c rects.c shapes.c
-layers_C_FILES = layers.c
-texttest_OBJC_FILES = texttest.m
+ifeq ($(GNUSTEP_TARGET_OS), mingw32)
+main_file = win32.c
+else
+main_file = x11.c
+endif
+
+qeb2_C_FILES = qeb2-draw.c $(main_file)
+shadows_C_FILES = shadows.c $(main_file)
+shapes_C_FILES = arcs.c ovals.c rects.c shapes.c $(main_file)
+layers_C_FILES = layers.c $(main_file)
+texttest_OBJC_FILES = texttest.m $(main_file)
 pdf_C_FILES = arcs.c ovals.c rects.c
 pdf_OBJC_FILES = pdf.m
 
-# Use := to compute the flags we need so that the subshells are
-# spawned only once
-OPAL_LDFLAGS := $(shell pkg-config --cflags freetype2) \
-	         $(shell pkg-config --cflags cairo)
 
 # Then add them to ADDITIONAL_CPPFLAGS
-ADDITIONAL_LDFLAGS += \
-	$(OPAL_LDFLAGS) \
-	-lfontconfig -lX11 -lXrender -lm -lgnustep-corebase
+ADDITIONAL_LDFLAGS += -lgnustep-corebase
 
-ADDITIONAL_LDFLAGS += -L../Source/obj -lopal
-ADDITIONAL_INCLUDE_DIRS = -I../Headers
+ifneq ($(GNUSTEP_TARGET_OS), mingw32)
+ADDITIONAL_LDFLAGS += -lfontconfig -lX11 -lXrender -lm 
+endif
+
+ADDITIONAL_LDFLAGS += -L../Source/obj $(shell pkg-config --libs cairo)
+ADDITIONAL_INCLUDE_DIRS = -I../Headers $(shell pkg-config --cflags cairo)
 
 -include GNUmakefile.preamble
 include $(GNUSTEP_MAKEFILES)/tool.make

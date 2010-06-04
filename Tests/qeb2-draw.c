@@ -105,14 +105,14 @@ void drawRandomPaths(CGContextRef context, int w, int h)
     }
 }
 
-void myDraw(CGContextRef context, CGRect* contextRect)
+void draw(CGContextRef context, CGRect contextRect)
 {
     int i;
     int w, h;
     static int n = 0;
     
-    w = contextRect->size.width;
-    h = contextRect->size.height;
+    w = contextRect.size.width;
+    h = contextRect.size.height;
     
     switch (n) {
     case 0:

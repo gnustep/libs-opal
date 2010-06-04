@@ -24,6 +24,8 @@
    Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02111 USA.
    */
 
+#ifndef __MINGW__
+
 #include <stdlib.h>
 #include <cairo-xlib.h>
 #include "CoreGraphics/CGContext.h"
@@ -86,3 +88,5 @@ void opal_surface_flush(cairo_surface_t *target)
 {
   XFlush(cairo_xlib_surface_get_display(target));
 }
+
+#endif
