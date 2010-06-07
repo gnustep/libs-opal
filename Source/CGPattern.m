@@ -57,6 +57,10 @@ CGPatternRef CGPatternCreate(
   return pattern;
 }
 
+CFTypeID CGPatternGetTypeID()
+{
+}
+
 CGPatternRef CGPatternRetain(CGPatternRef pattern)
 {
   return (pattern ? opal_obj_retain(pattern) : NULL);

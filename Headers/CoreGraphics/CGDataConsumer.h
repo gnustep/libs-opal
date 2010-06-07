@@ -25,6 +25,8 @@
 #ifndef OPAL_CGDataConsumer_h
 #define OPAL_CGDataConsumer_h
 
+#include <CoreFoundation/CFURL.h>
+#include <CoreFoundation/CFData.h>
 #include <unistd.h>
 
 /* Data Types */
@@ -54,9 +56,11 @@ CGDataConsumerRef CGDataConsumerCreate(
   const CGDataConsumerCallbacks *callbacks
 );
 
-/* CGDataConsumerRef CGDataConsumerCreateWithCFData(CFMutableDataRef data); */
+CGDataConsumerRef CGDataConsumerCreateWithCFData(CFMutableDataRef data);
 
-/* CGDataConsumerRef CGDataConsumerCreateWithURL(CFURLRef url); */
+CGDataConsumerRef CGDataConsumerCreateWithURL(CFURLRef url);
+
+CFTypeID CGDataConsumerGetTypeID();
 
 void CGDataConsumerRelease(CGDataConsumerRef consumer);
 

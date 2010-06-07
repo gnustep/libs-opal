@@ -36,7 +36,27 @@ CGContextRef CGBitmapContextCreate(
 
 }
 
+CGContextRef CGBitmapContextCreateWithData(
+  void *data,
+  size_t width,
+  size_t height,
+  size_t bitsPerComponent,
+  size_t bytesPerRow,
+  CGColorSpaceRef cs,
+  CGBitmapInfo info,
+  CGBitmapContextReleaseDataCallback callback,
+  void *releaseInfo)
+{
+
+}
+
+
 CGImageAlphaInfo CGBitmapContextGetAlphaInfo(CGContextRef ctx)
+{
+
+}
+
+CGBitmapInfo CGBitmapContextGetBitmapInfo(CGContextRef context)
 {
 
 }

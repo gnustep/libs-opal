@@ -255,6 +255,11 @@ CGImageRef CGImageCreateWithPNGDataProvider (
   //FIXME: Implement
 }
 
+CFTypeID CGImageGetTypeID()
+{
+
+}
+
 CGImageRef CGImageRetain(CGImageRef image)
 {
   return (image ? opal_obj_retain(image) : NULL);

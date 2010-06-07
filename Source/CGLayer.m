@@ -66,6 +66,10 @@ CGLayerRef CGLayerCreateWithContext(
   return layer;
 }
 
+CFTypeID CGLayerGetTypeID()
+{
+}
+
 CGLayerRef CGLayerRetain(CGLayerRef layer)
 {
   return (layer ? opal_obj_retain(layer) : NULL);

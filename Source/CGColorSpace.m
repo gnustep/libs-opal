@@ -29,8 +29,18 @@
  * We should properly implement this once Cairo supports color management.
  */
 
+#import <Foundation/NSString.h>
+
 #include "CoreGraphics/CGColorSpace.h"
 #include "opal.h"
+
+const CFStringRef kCGColorSpaceGenericGray = @"kCGColorSpaceGenericGray";
+const CFStringRef kCGColorSpaceGenericRGB = @"kCGColorSpaceGenericRGB";
+const CFStringRef kCGColorSpaceGenericCMYK = @"kCGColorSpaceGenericCMYK";
+const CFStringRef kCGColorSpaceGenericRGBLinear = @"kCGColorSpaceGenericRGBLinear";
+const CFStringRef kCGColorSpaceAdobeRGB1998 = @"kCGColorSpaceAdobeRGB1998";
+const CFStringRef kCGColorSpaceSRGB = @"kCGColorSpaceSRGB";
+const CFStringRef kCGColorSpaceGenericGrayGamma2_2 = @"kCGColorSpaceGenericGrayGamma2_2";
 
 typedef struct CGColorSpace
 {
@@ -146,19 +156,25 @@ CGColorSpaceRef CGColorSpaceCreateWithICCProfile(CFDataRef data)
   return &deviceRGB;  
 }
 
-CGColorSpaceRef CGColorSpaceCreateWithName(opal_GenericColorSpaceNames name)
+CGColorSpaceRef CGColorSpaceCreateWithName(CFStringRef name)
 {
-  switch (name) {
-    case kCGColorSpaceGenericGray:
-      return CGColorSpaceCreateDeviceGray();
-    case kCGColorSpaceGenericRGB:
-      return CGColorSpaceCreateDeviceRGB();
-    case kCGColorSpaceGenericCMYK:
-      return CGColorSpaceCreateDeviceCMYK();
-    default:
-      errlog("%s:%d: Unknown colorspace name\n", __FILE__, __LINE__);
-      return NULL;
+  if ([name isEqualToString: kCGColorSpaceGenericGray])
+  {
+    return CGColorSpaceCreateDeviceGray();
   }
+  else if ([name isEqualToString: kCGColorSpaceGenericRGB])
+  {
+    return CGColorSpaceCreateDeviceRGB();
+  }
+  else if ([name isEqualToString: kCGColorSpaceGenericCMYK])
+  {
+    return CGColorSpaceCreateDeviceCMYK();
+  }
+  else
+  {
+    errlog("%s:%d: Unknown colorspace name\n", __FILE__, __LINE__);
+  }
+  return NULL;
 }
 
 CGColorSpaceRef CGColorSpaceCreateWithPlatformColorSpace(
@@ -189,6 +205,11 @@ CGColorSpaceModel CGColorSpaceGetModel(CGColorSpaceRef cs)
 size_t CGColorSpaceGetNumberOfComponents(CGColorSpaceRef cs)
 {
   return cs->numcomps;
+}
+
+CFTypeID CGColorSpaceGetTypeID()
+{
+  return NULL; 
 }
 
 CGColorSpaceRef CGColorSpaceRetain(CGColorSpaceRef cs)

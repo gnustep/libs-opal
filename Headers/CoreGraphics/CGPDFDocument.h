@@ -26,6 +26,7 @@
 #define OPAL_CGPDFDocument_h
 
 #include <CoreGraphics/CGGeometry.h>
+#include <CoreGraphics/CGDataConsumer.h>
 #include <CoreGraphics/CGDataProvider.h>
 
 /* Data Types */
@@ -36,21 +37,7 @@ typedef void * CGPDFDocumentRef;
 
 CGPDFDocumentRef CGPDFDocumentCreateWithProvider(CGDataProviderRef provider);
 
-#if 0
 CGPDFDocumentRef CGPDFDocumentCreateWithURL(CFURLRef url);
-
-CGContextRef CGPDFContextCreate(
-  CGDataConsumerRef consumer,
-  const CGRect *mediaBox,
-  CFDictionaryRef auxiliaryInfo
-);
-
-CGContextRef CGPDFContextCreateWithURL(
-  CFURLRef url,
-  const CGRect *mediaBox,
-  CFDictionaryRef auxiliaryInfo
-);
-#endif
 
 CGPDFDocumentRef CGPDFDocumentRetain(CGPDFDocumentRef document);
 

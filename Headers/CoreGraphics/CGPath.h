@@ -35,15 +35,6 @@ typedef enum CGPathElementType {
   kCGPathElementCloseSubpath = 4
 } CGPathElementType;
 
-typedef enum CGPathDrawingMode
-{
-  kCGPathFill = 0,
-  kCGPathEOFill = 1,
-  kCGPathStroke = 2,
-  kCGPathFillStroke = 3,
-  kCGPathEOFillStroke = 4
-} CGPathDrawingMode;
-
 /* Data Types */
 
 typedef const struct CGPath * CGPathRef;
@@ -63,7 +54,7 @@ typedef void (*CGPathApplierFunction)(void *info, const CGPathElement *element);
 
 CGPathRef CGPathCreateCopy(CGPathRef path);
 
-CGMutablePathRef CGPathCreateMutable(void);
+CGMutablePathRef CGPathCreateMutable();
 
 CGMutablePathRef CGPathCreateMutableCopy(CGPathRef path);
 

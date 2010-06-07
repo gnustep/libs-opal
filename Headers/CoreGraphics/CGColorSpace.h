@@ -55,11 +55,13 @@ typedef enum CGColorRenderingIntent {
   kCGRenderingIntentSaturation = 4
 } CGColorRenderingIntent;
 
-typedef enum opal_GenericColorSpaceNames {
-  kCGColorSpaceGenericGray = 0,
-  kCGColorSpaceGenericRGB = 1,
-  kCGColorSpaceGenericCMYK = 2
-} opal_GenericColorSpaceNames;
+extern const CFStringRef kCGColorSpaceGenericGray;
+extern const CFStringRef kCGColorSpaceGenericRGB;
+extern const CFStringRef kCGColorSpaceGenericCMYK;
+extern const CFStringRef kCGColorSpaceGenericRGBLinear;
+extern const CFStringRef kCGColorSpaceAdobeRGB1998;
+extern const CFStringRef kCGColorSpaceSRGB;
+extern const CFStringRef kCGColorSpaceGenericGrayGamma2_2;
 
 /* Functions */
 
@@ -68,16 +70,16 @@ CFDataRef CGColorSpaceCopyICCProfile(CGColorSpaceRef cs);
 CFStringRef CGColorSpaceCopyName(CGColorSpaceRef cs);
 
 CGColorSpaceRef CGColorSpaceCreateCalibratedGray(
-  const CGFloat *whitePoint,
-  const CGFloat *blackPoint,
+  const CGFloat whitePoint[3],
+  const CGFloat blackPoint[3],
   CGFloat gamma
 );
 
 CGColorSpaceRef CGColorSpaceCreateCalibratedRGB(
-  const CGFloat *whitePoint,
-  const CGFloat *blackPoint,
-  const CGFloat *gamma,
-  const CGFloat *matrix
+  const CGFloat whitePoint[3],
+  const CGFloat blackPoint[3],
+  const CGFloat gamma[3],
+  const CGFloat matrix[9]
 );
 
 CGColorSpaceRef CGColorSpaceCreateDeviceCMYK();
@@ -100,16 +102,16 @@ CGColorSpaceRef CGColorSpaceCreateIndexed(
 );
 
 CGColorSpaceRef CGColorSpaceCreateLab(
-  const CGFloat *whitePoint,
-  const CGFloat *blackPoint,
-  const CGFloat *range
+  const CGFloat whitePoint[3],
+  const CGFloat blackPoint[3],
+  const CGFloat range[4]
 );
 
 CGColorSpaceRef CGColorSpaceCreatePattern(CGColorSpaceRef baseSpace);
 
 CGColorSpaceRef CGColorSpaceCreateWithICCProfile(CFDataRef data);
 
-CGColorSpaceRef CGColorSpaceCreateWithName(opal_GenericColorSpaceNames name);
+CGColorSpaceRef CGColorSpaceCreateWithName(CFStringRef name);
 
 CGColorSpaceRef CGColorSpaceCreateWithPlatformColorSpace(
   void *platformColorSpace
@@ -124,6 +126,8 @@ size_t CGColorSpaceGetColorTableCount(CGColorSpaceRef cs);
 CGColorSpaceModel CGColorSpaceGetModel(CGColorSpaceRef cs);
 
 size_t CGColorSpaceGetNumberOfComponents(CGColorSpaceRef cs);
+
+CFTypeID CGColorSpaceGetTypeID();
 
 CGColorSpaceRef CGColorSpaceRetain(CGColorSpaceRef cs);
 

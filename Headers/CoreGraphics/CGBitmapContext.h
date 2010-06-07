@@ -26,6 +26,14 @@
 #define OPAL_CGBitMapContext_h
 
 #include <CoreGraphics/CGContext.h>
+#include <CoreGraphics/CGImage.h>
+
+/* Callbacks */
+
+typedef void (*CGBitmapContextReleaseDataCallback)(
+  void *releaseInfo,
+  void *data
+);
 
 /* Functions */
 
@@ -39,7 +47,21 @@ CGContextRef CGBitmapContextCreate(
   CGImageAlphaInfo alphaInfo
 );
 
+CGContextRef CGBitmapContextCreateWithData(
+  void *data,
+  size_t width,
+  size_t height,
+  size_t bitsPerComponent,
+  size_t bytesPerRow,
+  CGColorSpaceRef cs,
+  CGBitmapInfo info,
+  CGBitmapContextReleaseDataCallback callback,
+  void *releaseInfo
+);
+
 CGImageAlphaInfo CGBitmapContextGetAlphaInfo(CGContextRef ctx);
+
+CGBitmapInfo CGBitmapContextGetBitmapInfo(CGContextRef context);
 
 size_t CGBitmapContextGetBitsPerComponent (CGContextRef ctx);
 

@@ -56,8 +56,6 @@ void CGContextDrawLayerAtPoint(
   CGLayerRef layer
 );
 
-#if 0
 CFTypeID CGLayerGetTypeID();
-#endif
 
 #endif

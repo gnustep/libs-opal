@@ -117,6 +117,10 @@ CGContextRef opal_new_CGContext(cairo_surface_t *target, CGSize device_size)
   return ctx;
 }
 
+CFTypeID CGContextGetTypeID()
+{
+}
+
 CGContextRef CGContextRetain(CGContextRef ctx)
 {
   return (ctx ? opal_obj_retain(ctx) : NULL);
@@ -293,6 +297,76 @@ void CGContextSetFlatness(CGContextRef ctx, CGFloat flatness)
   cairo_set_tolerance(ctx->ct, flatness);
 }
 
+CGInterpolationQuality CGContextGetInterpolationQuality(CGContextRef ctx)
+{
+}
+
+void CGContextSetInterpolationQuality(
+  CGContextRef ctx,
+  CGInterpolationQuality quality)
+{
+}
+
+void CGContextSetPatternPhase (CGContextRef ctx, CGSize phase)
+{
+}
+
+void CGContextSetFillPattern(
+  CGContextRef ctx,
+  CGPatternRef pattern,
+  const CGFloat components[])
+{
+  
+}
+
+void CGContextSetStrokePattern(
+  CGContextRef ctx,
+  CGPatternRef pattern,
+  const CGFloat components[])
+{
+}
+
+void CGContextSetShouldSmoothFonts(CGContextRef ctx, int shouldSmoothFonts)
+{
+}
+
+void CGContextSetAllowsFontSmoothing(CGContextRef ctx, bool allowsFontSmoothing)
+{
+}
+
+void CGContextSetBlendMode(CGContextRef ctx, CGBlendMode mode)
+{
+}
+
+void CGContextSetAllowsAntialiasing(CGContextRef ctx, int allowsAntialiasing)
+{
+}
+
+void CGContextSetShouldSubpixelPositionFonts(
+  CGContextRef ctx,
+  bool shouldSubpixelPositionFonts)
+{
+  
+}
+
+void CGContextSetAllowsFontSubpixelPositioning(
+  CGContextRef ctx,
+  bool allowsFontSubpixelPositioning)
+{
+}
+
+void CGContextSetShouldSubpixelQuantizeFonts(
+  CGContextRef ctx,
+  bool shouldSubpixelQuantizeFonts)
+{
+}     
+ 
+void CGContextSetAllowsFontSubpixelQuantization(
+  CGContextRef ctx,
+  bool allowsFontSubpixelQuantization)
+{
+}
+
 void CGContextSetShadow(
   CGContextRef ctx,
   CGSize offset,
@@ -434,6 +508,18 @@ void CGContextAddArcToPoint(
     radius, atan2(-n0y, -n0x), atan2(-n2y, -n2x), (san < 0));
 }
 
+void CGContextAddPath(CGContextRef ctx, CGPathRef path)
+{
+}
+
+void CGContextAddEllipseInRect(CGContextRef ctx, CGRect rect)
+{
+}
+
+void CGContextReplacePathWithStrokedPath(CGContextRef ctx)
+{
+}
+
 void CGContextStrokePath(CGContextRef ctx)
 {
   cairo_status_t cret;
@@ -560,12 +646,27 @@ void CGContextStrokeLineSegments(
   CGContextStrokePath(ctx);
 }
 
+bool CGContextIsPathEmpty(CGContextRef ctx)
+{
+
+}
+
 CGPoint CGContextGetPathCurrentPoint(CGContextRef ctx)
 {
   double x, y;
 
   cairo_get_current_point(ctx->ct, &x, &y);
   return CGPointMake(x, y);
+}
+
+CGRect CGContextGetPathBoundingBox(CGContextRef ctx)
+{
+
+}
+
+CGPathRef CGContextCopyPath(CGContextRef ctx)
+{
+
 }
 
 void CGContextClip(CGContextRef ctx)
@@ -592,6 +693,16 @@ void CGContextClipToRects(CGContextRef ctx, const CGRect rects[], size_t count)
   CGContextBeginPath(ctx);
   CGContextAddRects(ctx, rects, count);
   CGContextClip(ctx);
+}
+
+void CGContextClipToMask(CGContextRef ctx, CGRect rect, CGImageRef mask)
+{
+
+}
+
+CGRect CGContextGetClipBoundingBox(CGContextRef ctx)
+{
+
 }
 
 static inline void set_color(cairo_pattern_t **cp, CGColorRef clr, double alpha)
@@ -817,6 +928,48 @@ void CGContextDrawImage(CGContextRef ctx, CGRect rect, CGImageRef image)
   opal_draw_surface_in_rect(ctx, rect, opal_CGImageGetSurfaceForImage(image),
     opal_CGImageGetSourceRect(image));
 }
+
+void CGContextDrawTiledImage(CGContextRef ctx, CGRect rect, CGImageRef image)
+{
+  
+}
+
+void CGContextDrawPDFDocument(
+  CGContextRef ctx,
+  CGRect rect,
+  CGPDFDocumentRef document,
+  int page)
+{
+
+}
+
+void CGContextDrawPDFPage(CGContextRef ctx, CGPDFPageRef page)
+{
+
+}
+
+void CGContextDrawLinearGradient(
+  CGContextRef ctx,
+  CGGradientRef gradient,
+  CGPoint startPoint,
+  CGPoint endPoint,
+  CGGradientDrawingOptions options
+);
+
+void CGContextDrawRadialGradient(
+  CGContextRef ctx,
+  CGGradientRef gradient,
+  CGPoint startCenter,
+  CGFloat startRadius,
+  CGPoint endCenter,
+  CGFloat endRadius,
+  CGGradientDrawingOptions options
+);
+
+void CGContextDrawShading(
+  CGContextRef ctx,
+  CGShadingRef shading
+);
 
 void CGContextSetFont(CGContextRef ctx, CGFontRef font)
 {

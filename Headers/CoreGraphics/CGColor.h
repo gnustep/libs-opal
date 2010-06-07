@@ -85,6 +85,8 @@ size_t CGColorGetNumberOfComponents(CGColorRef clr);
 
 CGPatternRef CGColorGetPattern(CGColorRef clr);
 
+CFTypeID CGColorGetTypeID();
+
 void CGColorRelease(CGColorRef clr);
 
 CGColorRef CGColorRetain(CGColorRef clr);

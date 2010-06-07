@@ -182,3 +182,27 @@ CGRect CGRectUnion(CGRect r1, CGRect r2)
   rect.size.height = MAX(r1.origin.y + r1.size.height, r2.origin.y + r2.size.height);
   return rect;
 }
+
+CFDictionaryRef CGPointCreateDictionaryRepresentation(CGPoint point)
+{
+}  
+
+bool CGPointMakeWithDictionaryRepresentation(CFDictionaryRef dict, CGPoint *point)
+{
+}
+
+CFDictionaryRef CGSizeCreateDictionaryRepresentation(CGSize size)
+{
+}
+
+bool CGSizeMakeWithDictionaryRepresentation(CFDictionaryRef dict, CGSize *size)
+{
+}
+
+CFDictionaryRef CGRectCreateDictionaryRepresentation(CGRect rect)
+{
+}
+
+bool CGRectMakeWithDictionaryRepresentation(CFDictionaryRef dict, CGRect *rect)
+{
+}

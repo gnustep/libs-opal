@@ -140,6 +140,8 @@ int CGFontGetUnitsPerEm(CGFontRef font);
 
 int CGFontGetXHeight(CGFontRef font);
 
+CFTypeID CGFontGetTypeID();
+
 CGFontRef CGFontRetain(CGFontRef font);
 
 void CGFontRelease(CGFontRef font);

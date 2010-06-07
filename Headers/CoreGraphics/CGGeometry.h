@@ -25,6 +25,7 @@
 #ifndef OPAL_CGGeometry_h
 #define OPAL_CGGeometry_h
 
+#include <CoreFoundation/CFDictionary.h>
 #include <CoreGraphics/CGBase.h>
 
 /* Data Types */
@@ -188,6 +189,18 @@ GS_GEOM_SCOPE int CGSizeEqualToSize(CGSize size1, CGSize size2) GS_GEOM_ATTR;
 
 /** Returns 1 iff point1's and point2's x- and y-coordinates are the same. */
 GS_GEOM_SCOPE int CGPointEqualToPoint(CGPoint point1, CGPoint point2) GS_GEOM_ATTR;
+
+CFDictionaryRef CGPointCreateDictionaryRepresentation(CGPoint point);
+  
+bool CGPointMakeWithDictionaryRepresentation(CFDictionaryRef dict, CGPoint *point);
+
+CFDictionaryRef CGSizeCreateDictionaryRepresentation(CGSize size);
+
+bool CGSizeMakeWithDictionaryRepresentation(CFDictionaryRef dict, CGSize *size);
+
+CFDictionaryRef CGRectCreateDictionaryRepresentation(CGRect rect);
+
+bool CGRectMakeWithDictionaryRepresentation(CFDictionaryRef dict, CGRect *rect);
 
 /* Inlined functions */
 

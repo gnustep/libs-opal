@@ -42,7 +42,7 @@ typedef void (*CGFunctionReleaseInfoCallback)(void *info);
 typedef struct CGFunctionCallbacks {
   unsigned int version;
   CGFunctionEvaluateCallback evaluate;
-  CGFunctionReleaseInfoCallback releaseInfo
+  CGFunctionReleaseInfoCallback releaseInfo;
 } CGFunctionCallbacks;
 
 /* Functions */

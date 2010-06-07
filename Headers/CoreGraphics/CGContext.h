@@ -32,11 +32,16 @@ typedef struct CGContext * CGContextRef;
 #include <CoreFoundation/CoreFoundation.h>
 #include <CoreGraphics/CGAffineTransform.h>
 #include <CoreGraphics/CGBase.h>
+#include <CoreGraphics/CGBitmapContext.h>
 #include <CoreGraphics/CGColor.h>
 #include <CoreGraphics/CGFont.h>
 #include <CoreGraphics/CGImage.h>
 #include <CoreGraphics/CGPath.h>
 #include <CoreGraphics/CGBase.h>
+#include <CoreGraphics/CGPDFDocument.h>
+#include <CoreGraphics/CGPDFPage.h>
+#include <CoreGraphics/CGGradient.h>
+#include <CoreGraphics/CGShading.h>
 
 /* Constants */
 
@@ -56,13 +61,26 @@ typedef enum CGBlendMode {
   kCGBlendModeHue = 12,
   kCGBlendModeSaturation = 13,
   kCGBlendModeColor = 14,
-  kCGBlendModeLuminosity = 15
+  kCGBlendModeLuminosity = 15,
+  kCGBlendModeClear = 16,
+  kCGBlendModeCopy = 17,
+  kCGBlendModeSourceIn = 18,
+  kCGBlendModeSourceOut = 19,
+  kCGBlendModeSourceAtop = 20,
+  kCGBlendModeDestinationOver = 21,
+  kCGBlendModeDestinationIn = 22,
+  kCGBlendModeDestinationOut = 23,
+  kCGBlendModeDestinationAtop = 24,
+  kCGBlendModeXOR = 25,
+  kCGBlendModePlusDarker = 26,
+  kCGBlendModePlusLighter = 27
 } CGBlendMode;
 
 typedef enum CGInterpolationQuality {
   kCGInterpolationDefault = 0,
   kCGInterpolationNone = 1,
   kCGInterpolationLow = 2,
+  kCGInterpolationMedium = 4,
   kCGInterpolationHigh = 3
 } CGInterpolationQuality;
 
@@ -77,6 +95,14 @@ typedef enum CGLineJoin {
   kCGLineJoinRound = 1,
   kCGLineJoinBevel = 2
 } CGLineJoin;
+
+typedef enum CGPathDrawingMode {
+  kCGPathFill = 0,
+  kCGPathEOFill = 1,
+  kCGPathStroke = 2,
+  kCGPathFillStroke = 3,
+  kCGPathEOFillStroke = 4
+} CGPathDrawingMode;
 
 typedef enum CGTextDrawingMode {
   kCGTextFill = 0,
@@ -97,6 +123,8 @@ typedef enum CGTextEncoding {
 /* Functions */
 
 /* Managing Graphics Contexts */
+
+CFTypeID CGContextGetTypeID();
 
 CGContextRef CGContextRetain(CGContextRef ctx);
 
@@ -174,9 +202,31 @@ void CGContextSetStrokePattern(
 
 void CGContextSetShouldSmoothFonts(CGContextRef ctx, int shouldSmoothFonts);
 
+void CGContextSetAllowsFontSmoothing(CGContextRef ctx, bool allowsFontSmoothing);
+
 void CGContextSetBlendMode(CGContextRef ctx, CGBlendMode mode);
 
 void CGContextSetAllowsAntialiasing(CGContextRef ctx, int allowsAntialiasing);
+
+void CGContextSetShouldSubpixelPositionFonts(
+  CGContextRef ctx,
+  bool shouldSubpixelPositionFonts
+);
+
+void CGContextSetAllowsFontSubpixelPositioning(
+  CGContextRef ctx,
+  bool allowsFontSubpixelPositioning
+);
+
+void CGContextSetShouldSubpixelQuantizeFonts(
+  CGContextRef ctx,
+  bool shouldSubpixelQuantizeFonts
+);
+
+void CGContextSetAllowsFontSubpixelQuantization(
+  CGContextRef ctx,
+  bool allowsFontSubpixelQuantization
+);
 
 void CGContextSetShadow(
   CGContextRef ctx,
@@ -248,6 +298,10 @@ void CGContextAddPath(CGContextRef ctx, CGPathRef path);
 
 void CGContextAddEllipseInRect(CGContextRef ctx, CGRect rect);
 
+/* Creating Stroked Paths */
+
+void CGContextReplacePathWithStrokedPath(CGContextRef ctx);
+
 /* Painting Paths */
 
 void CGContextStrokePath(CGContextRef ctx);
@@ -266,7 +320,7 @@ void CGContextFillRect(CGContextRef ctx, CGRect rect);
 
 void CGContextFillRects(CGContextRef ctx, const CGRect rects[], size_t count);
 
-void CGContextClearRect(CGContextRef c, CGRect rect);
+void CGContextClearRect(CGContextRef ctx, CGRect rect);
 
 void CGContextFillEllipseInRect(CGContextRef ctx, CGRect rect);
 
@@ -280,11 +334,13 @@ void CGContextStrokeLineSegments(
 
 /* Obtaining Path Information */
 
-int CGContextIsPathEmpty(CGContextRef ctx);
+bool CGContextIsPathEmpty(CGContextRef ctx);
 
 CGPoint CGContextGetPathCurrentPoint(CGContextRef ctx);
 
 CGRect CGContextGetPathBoundingBox(CGContextRef ctx);
+
+CGPathRef CGContextCopyPath(CGContextRef context);
 
 /* Clipping Paths */
 
@@ -295,6 +351,10 @@ void CGContextEOClip(CGContextRef ctx);
 void CGContextClipToRect(CGContextRef ctx, CGRect rect);
 
 void CGContextClipToRects(CGContextRef ctx, const CGRect rects[], size_t count);
+
+void CGContextClipToMask(CGContextRef ctx, CGRect rect, CGImageRef mask);
+
+CGRect CGContextGetClipBoundingBox(CGContextRef ctx);
 
 /* Setting the Color Space and Colors */
 
@@ -317,11 +377,11 @@ void CGContextSetGrayFillColor(CGContextRef ctx, CGFloat gray, CGFloat alpha);
 void CGContextSetGrayStrokeColor(CGContextRef ctx, CGFloat gray, CGFloat alpha);
 
 void CGContextSetRGBFillColor(
-    CGContextRef ctx,
-    CGFloat r,
-    CGFloat g,
-    CGFloat b,
-    CGFloat alpha
+  CGContextRef ctx,
+  CGFloat r,
+  CGFloat g,
+  CGFloat b,
+  CGFloat alpha
 );
 
 void CGContextSetRGBStrokeColor(
@@ -356,8 +416,10 @@ void CGContextSetRenderingIntent(CGContextRef ctx, CGColorRenderingIntent intent
 
 void CGContextDrawImage(CGContextRef ctx, CGRect rect, CGImageRef image);
 
+void CGContextDrawTiledImage(CGContextRef ctx, CGRect rect, CGImageRef image);
+
 /* Drawing PDF Documents */
-#if 0
+
 void CGContextDrawPDFDocument(
   CGContextRef ctx,
   CGRect rect,
@@ -366,7 +428,31 @@ void CGContextDrawPDFDocument(
 );
 
 void CGContextDrawPDFPage(CGContextRef ctx, CGPDFPageRef page);
-#endif
+
+/* Drawing Gradients */
+
+void CGContextDrawLinearGradient(
+  CGContextRef ctx,
+  CGGradientRef gradient,
+  CGPoint startPoint,
+  CGPoint endPoint,
+  CGGradientDrawingOptions options
+);
+
+void CGContextDrawRadialGradient(
+  CGContextRef ctx,
+  CGGradientRef gradient,
+  CGPoint startCenter,
+  CGFloat startRadius,
+  CGPoint endCenter,
+  CGFloat endRadius,
+  CGGradientDrawingOptions options
+);
+
+void CGContextDrawShading(
+  CGContextRef ctx,
+  CGShadingRef shading
+);
 
 /* Drawing Text */
 
@@ -459,6 +545,8 @@ CGRect CGContextConvertRectToDeviceSpace(CGContextRef ctx, CGRect rect);
 CGRect CGContextConvertRectToUserSpace(CGContextRef ctx, CGRect rect);
 
 /* Opal Extensions */
+
+// FIXME: Move extensions to a separate header?
 
 void OpalContextSetScaleFactor(CGContextRef ctx, CGFloat scale);
 

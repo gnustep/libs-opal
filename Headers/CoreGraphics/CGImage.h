@@ -129,6 +129,8 @@ CGImageRef CGImageCreateWithPNGDataProvider (
   CGColorRenderingIntent intent
 );
 
+CFTypeID CGImageGetTypeID();
+
 CGImageRef CGImageRetain(CGImageRef image);
 
 void CGImageRelease(CGImageRef image);

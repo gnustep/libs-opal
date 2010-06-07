@@ -26,6 +26,8 @@
 #define OPAL_CGPDFContext_h
 
 #include <CoreFoundation/CFURL.h>
+#include <CoreFoundation/CFString.h>
+#include <CoreFoundation/CFDictionary.h>
 #include <CoreGraphics/CGContext.h>
 #include <CoreGraphics/CGDataConsumer.h>
 

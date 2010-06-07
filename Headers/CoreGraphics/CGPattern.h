@@ -67,6 +67,8 @@ CGPatternRef CGPatternCreate(
   const CGPatternCallbacks *callbacks
 );
 
+CFTypeID CGPatternGetTypeID();
+
 void CGPatternRelease(CGPatternRef pattern);
 
 CGPatternRef CGPatternRetain(CGPatternRef pattern);

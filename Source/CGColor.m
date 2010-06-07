@@ -78,6 +78,11 @@ void opal_dealloc_CGColor(void *clr)
   free(c);
 }
 
+CFTypeID CGColorGetTypeID()
+{
+   
+}
+
 CGColorRef CGColorRetain(CGColorRef clr)
 {
   return (clr ? opal_obj_retain(clr) : clr);
