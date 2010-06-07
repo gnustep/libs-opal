@@ -127,7 +127,6 @@ CGContextRef CGPDFContextCreateWithURL(
   const CGRect *mediaBox,
   CFDictionaryRef auxiliaryInfo)
 {
-  const char *path; 
   CGRect box;
   if (mediaBox == NULL) {
     box = CGRectMake(0, 0, 8.5 * 72, 11 * 72);
@@ -137,23 +136,10 @@ CGContextRef CGPDFContextCreateWithURL(
   
   //FIXME: We ignore the origin of mediaBox.. is that correct?
   
-  //FIXME: Use system native path style?
-  CFStringRef pathString = CFURLCopyFileSystemPath(url, kCFURLPOSIXPathStyle);
-  int length = CFStringGetMaximumSizeOfFileSystemRepresentation(pathString);
-  path = malloc(length);
-  
-  if (!CFStringGetFileSystemRepresentation(pathString, path, length)) {
-     free(path);
-     errlog("%s:%d: CFStringGetFileSystemRepresentation failed\n",
-           __FILE__, __LINE__);
-     return NULL; 
-  }
-  
   cairo_surface_t *surf = cairo_pdf_surface_create(
-    path,
+    [[url path] UTF8String],
     box.size.width,
     box.size.height);
-  free(path);
   
   CGContextRef ctx = opal_new_CGContext(surf, box.size);
   return ctx;

@@ -163,20 +163,6 @@ void CGRectDivide(CGRect rect, CGRect *slice, CGRect *remainder,
   }
 }
 
-#ifndef MAX
-#define MAX(a,b) \
-       ({typeof(a) _MAX_a = (a); typeof(b) _MAX_b = (b);  \
-         _MAX_a > _MAX_b ? _MAX_a : _MAX_b; })
-#define	GS_DEFINED_MAX
-#endif
-
-#ifndef MIN
-#define MIN(a,b) \
-       ({typeof(a) _MIN_a = (a); typeof(b) _MIN_b = (b);  \
-         _MIN_a < _MIN_b ? _MIN_a : _MIN_b; })
-#define	GS_DEFINED_MIN
-#endif
-
 CGRect CGRectUnion(CGRect r1, CGRect r2)
 {
   CGRect rect;
@@ -196,13 +182,3 @@ CGRect CGRectUnion(CGRect r1, CGRect r2)
   rect.size.height = MAX(r1.origin.y + r1.size.height, r2.origin.y + r2.size.height);
   return rect;
 }
-
-#ifdef	GS_DEFINED_MAX
-#undef	GS_DEFINED_MAX
-#undef	MAX
-#endif
-
-#ifdef	GS_DEFINED_MIN
-#undef	GS_DEFINED_MIN
-#undef	MIN
-#endif

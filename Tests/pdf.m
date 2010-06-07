@@ -110,7 +110,8 @@ void drawRect(CGContextRef ctx, CGRect r)
 
 int main(int argc, char **argv)
 {
-  CFURLRef url = CFURLCreateWithString(NULL, @"file:///home/etoile/OpalTest.pdf", NULL);
+  [NSAutoreleasePool new];
+  CFURLRef url = [NSURL fileURLWithPath: @"test.pdf"];
   
   CGContextRef ctx = CGPDFContextCreateWithURL(url, NULL, NULL);
   drawRect(ctx, CGRectMake(0, 2.25*72, 8.5*72, 5.5*72));

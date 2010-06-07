@@ -115,6 +115,11 @@ GS_AFTR_SCOPE CGSize CGSizeApplyAffineTransform(
   CGAffineTransform t
 ) GS_AFTR_ATTR;
 
+CGRect CGRectApplyAffineTransform(
+  CGRect rect,
+  CGAffineTransform t
+);
+
 /* Inlined functions */
 
 GS_AFTR_SCOPE CGAffineTransform CGAffineTransformMake(
