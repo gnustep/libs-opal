@@ -28,9 +28,9 @@
 #include <cairo.h>
 #include "opal.h"
 
-typedef struct CGImage
+@interface CGImage : NSObject
 {
-  struct objbase base;
+@public
   bool ismask;
 
   size_t width;
@@ -50,18 +50,23 @@ typedef struct CGImage
   /* used for CGImageCreateWithImageInRect */
   CGRect crop;
   cairo_surface_t *surf;
-} CGImage;
-
-void opal_dealloc_CGImage(void *i)
-{
-  CGImageRef img = i;
-
-  CGColorSpaceRelease(img->cspace);
-  CGDataProviderRelease(img->dp);
-  if (img->decode) free(img->decode);
-  if (img->surf) cairo_surface_destroy(img->surf);
-  free(i);
 }
+@end
+
+@implementation CGImage
+
+- (void) dealloc
+{
+  CGColorSpaceRelease(self->cspace);
+  CGDataProviderRelease(self->dp);
+  if (self->decode) free(self->decode);
+  if (self->surf) cairo_surface_destroy(self->surf);
+  [super dealloc];
+}
+
+@end
+
+
 
 static inline CGImageRef opal_CreateImage(
   size_t width, size_t height,
@@ -69,7 +74,7 @@ static inline CGImageRef opal_CreateImage(
   CGDataProviderRef provider, const CGFloat *decode, bool shouldInterpolate,
   size_t numComponents, bool hasAlpha)
 {
-  CGImageRef img;
+  CGImage *img;
 
   if (bitsPerComponent != 8 && bitsPerComponent != 4 &&
       bitsPerComponent != 2 && bitsPerComponent != 1) {
@@ -89,7 +94,7 @@ static inline CGImageRef opal_CreateImage(
     return NULL;
   }
 
-  img = opal_obj_alloc("CGImage", sizeof(CGImage));
+  img = [[CGImage alloc] init];
   if (!img) return NULL;
   if(decode && numComponents) {
     size_t i;
@@ -113,7 +118,7 @@ static inline CGImageRef opal_CreateImage(
   img->crop = CGRectNull;
   img->surf = NULL;
   
-  return img;
+  return (CGImageRef)img;
 }
 
 CGImageRef CGImageCreate(
@@ -257,17 +262,17 @@ CGImageRef CGImageCreateWithPNGDataProvider (
 
 CFTypeID CGImageGetTypeID()
 {
-
+  return (CFTypeID)[CGImage class];
 }
 
 CGImageRef CGImageRetain(CGImageRef image)
 {
-  return (image ? opal_obj_retain(image) : NULL);
+  return (CGImageRef)[(CGImage *)image retain];
 }
 
 void CGImageRelease(CGImageRef image)
 {
-  if(image) opal_obj_release(image);
+  [(CGImage *)image release];
 }
 
 bool CGImageIsMask(CGImageRef image)

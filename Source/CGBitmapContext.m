@@ -24,7 +24,23 @@
 
 #include "CoreGraphics/CGBitmapContext.h"
 #include "CGContext-private.h" 
- 
+
+@interface CGBitmapContext : CGContext
+{
+  
+}
+@end
+
+@implementation CGBitmapContext
+
+- (void) dealloc
+{
+  [super dealloc];    
+}
+
+@end
+
+
 CGContextRef CGBitmapContextCreate(
   void *data,
   size_t width,

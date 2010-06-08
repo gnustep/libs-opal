@@ -47,12 +47,60 @@ static inline void set_color(cairo_pattern_t **cp, CGColorRef clr, double alpha)
 static void start_shadow(CGContextRef ctx);
 static void end_shadow(CGContextRef ctx, CGRect bounds);
 
-void opal_dealloc_CGContext(void *c)
+
+@implementation CGContext
+
+- (id) initWithSurface: (cairo_surface_t *)target size: (CGSize)size
 {
-  CGContextRef ctx = c;
+  self = [super init];
+  cairo_status_t cret;
+
+  if (!self) return NULL;
+
+  self->add = NULL;
+  self->ct = cairo_create(target);
+  cret = cairo_status(self->ct);
+  if (cret) {
+    errlog("%s:%d: cairo_create status: %s\n",
+           __FILE__, __LINE__, cairo_status_to_string(cret));
+    [self release];
+    return NULL;
+  }
+
+  self->add = calloc(1, sizeof(struct ct_additions));
+  if (!self->add) {
+    errlog("%s:%d: calloc failed\n", __FILE__, __LINE__);
+    [self release];
+    return NULL;
+  }
+  self->add->alpha = 1;
+  self->add->font_size = 0;
+  
+  if (!default_cp) {
+    default_cp = cairo_get_source(self->ct);
+    cairo_pattern_reference(default_cp);
+  }
+
+  /* Cairo defaults to line width 2.0 (see http://cairographics.org/FAQ) */
+  cairo_set_line_width(self->ct, 1);
+
+  /* Perform the flip transformation. Note that this is 'hidden' in 
+     CGContextGetCTM() */
+  cairo_scale(self->ct, 1, -1);
+  cairo_translate(self->ct, 0, -size.height);
+
+  self->txtmatrix = CGAffineTransformIdentity;
+  self->scale_factor = 1;
+  self->device_size = size;
+  
+  return self;
+}
+
+- (void) dealloc
+{
   ct_additions *ctadd, *next;
 
-  ctadd = ctx->add;
+  ctadd = self->add;
   while (ctadd) {
     CGColorRelease(ctadd->fill_color);
     cairo_pattern_destroy(ctadd->fill_cp);
@@ -66,69 +114,32 @@ void opal_dealloc_CGContext(void *c)
     ctadd = next;
   }
 
-  cairo_destroy(ctx->ct);
-  free(ctx);
+  cairo_destroy(self->ct);
+  
+  [super dealloc];
 }
+
+@end
 
 CGContextRef opal_new_CGContext(cairo_surface_t *target, CGSize device_size)
 {
-  CGContextRef ctx;
-  cairo_status_t cret;
-
-  ctx = opal_obj_alloc("CGContext", sizeof(CGContext));
-  if (!ctx) return NULL;
-
-  ctx->add = NULL;
-  ctx->ct = cairo_create(target);
-  cret = cairo_status(ctx->ct);
-  if (cret) {
-    errlog("%s:%d: cairo_create status: %s\n",
-           __FILE__, __LINE__, cairo_status_to_string(cret));
-    opal_dealloc_CGContext(ctx);
-    return NULL;
-  }
-
-  ctx->add = calloc(1, sizeof(struct ct_additions));
-  if (!ctx->add) {
-    errlog("%s:%d: calloc failed\n", __FILE__, __LINE__);
-    opal_dealloc_CGContext(ctx);
-    return NULL;
-  }
-  ctx->add->alpha = 1;
-  ctx->add->font_size = 0;
-  
-  if (!default_cp) {
-    default_cp = cairo_get_source(ctx->ct);
-    cairo_pattern_reference(default_cp);
-  }
-
-  /* Cairo defaults to line width 2.0 (see http://cairographics.org/FAQ) */
-  cairo_set_line_width(ctx->ct, 1);
-
-  /* Perform the flip transformation. Note that this is 'hidden' in 
-     CGContextGetCTM() */
-  cairo_scale(ctx->ct, 1, -1);
-  cairo_translate(ctx->ct, 0, -device_size.height);
-
-  ctx->txtmatrix = CGAffineTransformIdentity;
-  ctx->scale_factor = 1;
-  ctx->device_size = device_size;
-  
-  return ctx;
+  CGContext *ctx = [[CGContext alloc] initWithSurface: target size: device_size];
+  return (CGContextRef)ctx;
 }
 
 CFTypeID CGContextGetTypeID()
 {
+  return (CFTypeID)[CGContext class];
 }
 
 CGContextRef CGContextRetain(CGContextRef ctx)
 {
-  return (ctx ? opal_obj_retain(ctx) : NULL);
+  return (CGContextRef)[(CGContext *)ctx retain];
 }
 
 void CGContextRelease(CGContextRef ctx)
 {
-  if(ctx) opal_obj_release(ctx);
+  [(CGContext*)ctx release];
 }
 
 void CGContextFlush(CGContextRef ctx)

@@ -22,79 +22,106 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
    */
 
+//FIXME: should not need
 #import <Foundation/NSString.h>
+#import <Foundation/NSObject.h>
+#include <CoreFoundation/CFString.h>
 #include "CoreGraphics/CGContext.h"
 #include "CoreGraphics/CGColor.h"
 #include "opal.h"
 
-typedef struct CGColor
-{
-  struct objbase base;
-  CGColorSpaceRef cspace;
-  CGFloat *comps;
-  CGPatternRef pattern;
-} CGColor;
-
-const CFStringRef kCGColorWhite = @"kCGColorWhite";
-const CFStringRef kCGColorBlack = @"kCGColorBlack";
-const CFStringRef kCGColorClear = @"kCGColorClear";
+const CFStringRef kCGColorWhite = CFSTR("kCGColorWhite");
+const CFStringRef kCGColorBlack = CFSTR("kCGColorBlack");
+const CFStringRef kCGColorClear = CFSTR("kCGColorClear");
 
 static CGColorRef _whiteColor;
 static CGColorRef _blackColor;
 static CGColorRef _clearColor;
 
-CGColorRef CGColorCreate(CGColorSpaceRef colorspace, const CGFloat components[])
+
+@interface CGColor : NSObject
 {
-  CGColorRef clr;
+@public
+  CGColorSpaceRef cspace;
+  CGFloat *comps;
+  CGPatternRef pattern;
+}
+@end
+
+@implementation CGColor
+
+- (id) initWithColorSpace: (CGColorSpaceRef)cs components: (const CGFloat*)components
+{
+  self = [super init];
+  if (NULL == self) return NULL;
+
   size_t nc, i;
-
-  clr = opal_obj_alloc("CGColor", sizeof(CGColor));
-  if (!clr) return NULL;
-
-  nc = CGColorSpaceGetNumberOfComponents(colorspace);
-  clr->comps = malloc((nc+1)*sizeof(CGFloat));
-  if (!clr->comps) {
+  nc = CGColorSpaceGetNumberOfComponents(cs);
+  self->comps = malloc((nc+1)*sizeof(CGFloat));
+  if (NULL == self->comps) {
     errlog("%s:%d: malloc failed\n", __FILE__, __LINE__);
-    free(clr);
+    [self release];
     return NULL;
   }
-  clr->cspace = colorspace;
-  CGColorSpaceRetain(colorspace);
-  clr->pattern = NULL;
+  self->cspace = CGColorSpaceRetain(cs);
+  self->pattern = NULL;
   for (i=0; i<=nc; i++)
-    clr->comps[i] = components[i];
-
-  return clr;
+    self->comps[i] = components[i];    
+  return self;  
 }
 
-void opal_dealloc_CGColor(void *clr)
+- (void) dealloc
 {
-  CGColorRef c = clr;
+  CGColorSpaceRelease(self->cspace);
+  CGPatternRelease(self->pattern);
+  free(self->comps);
+  [super dealloc];    
+}
 
-  CGColorSpaceRelease(c->cspace);
-  CGPatternRelease(c->pattern);
-  free(c->comps);
-  free(c);
+- (BOOL) isEqual: (id)other
+{
+  if (![other isKindOfClass: [CGColor class]]) return NO;
+  
+  int nc = CGColorSpaceGetNumberOfComponents(((CGColor*)self)->cspace);
+  int i;
+
+  if (!CFEqual(((CGColor*)self)->cspace, ((CGColor*)other)->cspace)) return NO;
+  if (!CFEqual(((CGColor*)self)->pattern, ((CGColor*)other)->pattern)) return NO;
+  
+  for (int i = 0; i <= nc; i++) {
+    if (((CGColor*)self)->comps[i] != ((CGColor*)other)->comps[i])
+      return NO;
+  }
+  return YES;
+}
+
+@end
+
+
+CGColorRef CGColorCreate(CGColorSpaceRef colorspace, const CGFloat components[])
+{
+  CGColor *clr = [[CGColor alloc] initWithColorSpace: colorspace components: components];
+  return (CGColorRef)clr;
 }
 
 CFTypeID CGColorGetTypeID()
 {
-   
+  return (CFTypeID)[CGColor class];   
 }
 
 CGColorRef CGColorRetain(CGColorRef clr)
 {
-  return (clr ? opal_obj_retain(clr) : clr);
+  return [(CGColor*)clr retain];
 }
 
 void CGColorRelease(CGColorRef clr)
 {
-  if(clr) opal_obj_release(clr);
+  [(CGColor*)clr release];
 }
 
 CGColorRef CGColorCreateCopy(CGColorRef clr)
 {
-  return CGColorCreate(clr->cspace, clr->comps);
+  return CGColorCreate(((CGColor*)clr)->cspace, ((CGColor*)clr)->comps);
 }
 
 CGColorRef CGColorCreateCopyWithAlpha(CGColorRef clr, CGFloat alpha)
@@ -150,54 +177,53 @@ CGColorRef CGColorCreateWithPattern(
   const CGFloat components[])
 {
   CGColorRef clr = CGColorCreate(colorspace, components);
-  clr->pattern = CGPatternRetain(pattern);
+  ((CGColor*)clr)->pattern = CGPatternRetain(pattern);
   return clr;
 }
 
 bool CGColorEqualToColor(CGColorRef color1, CGColorRef color2)
 {
-  int nc = CGColorSpaceGetNumberOfComponents(color1->cspace);
-  int i;
-
-  if (color1->cspace != color2->cspace) return false;
-  if (color1->pattern != color2->pattern) return false;
-  
-  for (i = 0; i <= nc; i++) {
-    if (color1->comps[i] != color2->comps[i])
-      return false;
-  }
-  return true;
+  return CFEqual(color1, color2);
 }
 
 CGFloat CGColorGetAlpha(CGColorRef clr)
 {
-  return clr->comps[CGColorSpaceGetNumberOfComponents(clr->cspace)];
+  int alphaIndex = CGColorSpaceGetNumberOfComponents(((CGColor*)clr)->cspace);
+  return ((CGColor*)clr)->comps[alphaIndex];
 }
 
 CGColorSpaceRef CGColorGetColorSpace(CGColorRef clr)
 {
-  return clr->cspace;
+  return ((CGColor*)clr)->cspace;
 }
 
 const CGFloat *CGColorGetComponents(CGColorRef clr)
 {
-  return clr->comps;
+  return ((CGColor*)clr)->comps;
 }
 
 CGColorRef CGColorGetConstantColor(CFStringRef name)
 {
-  if ([name isEqualToString: kCGColorWhite]) {
-    if (!_whiteColor) {
+  if (CFEqual(name, kCGColorWhite))
+  {
+    if (NULL == _whiteColor)
+    {
       _whiteColor = CGColorCreateGenericGray(1, 1);
     }
     return  _whiteColor;
-  } else if ([name isEqualToString: kCGColorBlack]) {
-    if (!_blackColor) {
+  }
+  else if (CFEqual(name, kCGColorBlack))
+  {
+    if (NULL == _blackColor)
+    {
       _blackColor = CGColorCreateGenericGray(0, 1);
     }
     return _whiteColor;
-  } else if ([name isEqualToString: kCGColorClear]) {
-    if (!_clearColor) {
+  }
+  else if (CFEqual(name, kCGColorClear))
+  {
+    if (NULL == _clearColor)
+    {
       _clearColor = CGColorCreateGenericGray(0, 0);
     }
     return _clearColor;
@@ -207,10 +233,10 @@ CGColorRef CGColorGetConstantColor(CFStringRef name)
 
 size_t CGColorGetNumberOfComponents(CGColorRef clr)
 {
-  return CGColorSpaceGetNumberOfComponents(clr->cspace);
+  return CGColorSpaceGetNumberOfComponents(((CGColor*)clr)->cspace);
 }
 
 CGPatternRef CGColorGetPattern(CGColorRef clr)
 {
-  return clr->pattern;
+  return ((CGColor*)clr)->pattern;
 }

@@ -140,23 +140,27 @@ static FcPattern *opal_FcPatternCacheLookup(const char *name)
 // With it, we can only (safely) look at immutable parts of the FT_Face.
 //
 
-typedef struct CGFont
+@interface CGFont : NSObject
 {
-  struct objbase base;
+@public
   cairo_font_face_t *cairo_face;
   cairo_scaled_font_t *metrics_face;
-} CGFont;
+}
+@end
+
+@implementation CGFont
+
+- (void) dealloc
+{
+  cairo_font_face_destroy(self->cairo_face);
+  [super dealloc];
+}
+
+@end
 
 cairo_font_face_t *opal_font_get_cairo_font(CGFontRef font)
 {
-  return font->cairo_face;
-}
-
-void opal_dealloc_CGFont(void *f)
-{
-  CGFontRef font = f;
-  cairo_font_face_destroy(font->cairo_face);
-  free(font);
+  return ((CGFont *)font)->cairo_face;
 }
 
 bool CGFontCanCreatePostScriptSubset(
@@ -168,7 +172,7 @@ bool CGFontCanCreatePostScriptSubset(
 
 CFStringRef CGFontCopyFullName(CGFontRef font)
 {
-  FT_Face ft_face = cairo_ft_scaled_font_lock_face(font->metrics_face);
+  FT_Face ft_face = cairo_ft_scaled_font_lock_face(((CGFont *)font)->metrics_face);
   CFStringRef result = NULL;
   
   if (ft_face) {
@@ -197,13 +201,13 @@ CFStringRef CGFontCopyFullName(CGFontRef font)
     }
   }
   
-  cairo_ft_scaled_font_unlock_face(font->metrics_face);
+  cairo_ft_scaled_font_unlock_face(((CGFont *)font)->metrics_face);
   return result;
 }
 
 CFStringRef CGFontCopyGlyphNameForGlyph(CGFontRef font, CGGlyph glyph)
 {
-  FT_Face ft_face = cairo_ft_scaled_font_lock_face(font->metrics_face);
+  FT_Face ft_face = cairo_ft_scaled_font_lock_face(((CGFont *)font)->metrics_face);
   CFStringRef result = NULL;
   
   if (ft_face) {
@@ -212,13 +216,13 @@ CFStringRef CGFontCopyGlyphNameForGlyph(CGFontRef font, CGGlyph glyph)
     result = CFStringCreateWithCString(NULL, buffer, kCFStringEncodingASCII);
   }
   
-  cairo_ft_scaled_font_unlock_face(font->metrics_face);
+  cairo_ft_scaled_font_unlock_face(((CGFont *)font)->metrics_face);
   return result;
 }
 
 CFStringRef CGFontCopyPostScriptName(CGFontRef font)
 {
-  FT_Face ft_face = cairo_ft_scaled_font_lock_face(font->metrics_face);
+  FT_Face ft_face = cairo_ft_scaled_font_lock_face(((CGFont *)font)->metrics_face);
   CFStringRef result = NULL;
   
   if (ft_face) {
@@ -228,13 +232,13 @@ CFStringRef CGFontCopyPostScriptName(CGFontRef font)
     } 
   }
   
-  cairo_ft_scaled_font_unlock_face(font->metrics_face);  
+  cairo_ft_scaled_font_unlock_face(((CGFont *)font)->metrics_face);  
   return result;
 }
 
 CFDataRef CGFontCopyTableForTag(CGFontRef font, uint32_t tag)
 {
-  FT_Face ft_face = cairo_ft_scaled_font_lock_face(font->metrics_face);
+  FT_Face ft_face = cairo_ft_scaled_font_lock_face(((CGFont *)font)->metrics_face);
   CFDataRef result = NULL;
   
   if (ft_face) {
@@ -252,13 +256,13 @@ CFDataRef CGFontCopyTableForTag(CGFontRef font, uint32_t tag)
     }
   }
   
-  cairo_ft_scaled_font_unlock_face(font->metrics_face);
+  cairo_ft_scaled_font_unlock_face(((CGFont *)font)->metrics_face);
   return result;
 }
 
 CFArrayRef CGFontCopyTableTags(CGFontRef font)
 {
-  FT_Face ft_face = cairo_ft_scaled_font_lock_face(font->metrics_face);
+  FT_Face ft_face = cairo_ft_scaled_font_lock_face(((CGFont *)font)->metrics_face);
   CFArrayRef result = CFArrayCreateMutable(NULL, 0, NULL);
   
   if (ft_face) {
@@ -273,7 +277,7 @@ CFArrayRef CGFontCopyTableTags(CGFontRef font)
     }
   }
 
-  cairo_ft_scaled_font_unlock_face(font->metrics_face);
+  cairo_ft_scaled_font_unlock_face(((CGFont *)font)->metrics_face);
   return result;
 }
 
@@ -321,12 +325,12 @@ CGFontRef CGFontCreateWithDataProvider(CGDataProviderRef provider)
 CGFontRef CGFontCreateWithFontName(CFStringRef name)
 {
   FcPattern *pat;
-  CGFontRef font = opal_obj_alloc("CGFont", sizeof(CGFont));
+  CGFont *font = [[CGFont alloc] init];
   if (!font) return NULL;
 
   pat = opal_FcPatternCacheLookup(name);
   if(pat) {
-    font->cairo_face = cairo_ft_font_face_create_for_pattern(pat);
+    ((CGFont *)font)->cairo_face = cairo_ft_font_face_create_for_pattern(pat);
   } else {
     CGFontRelease(font);
     return NULL;
@@ -342,12 +346,12 @@ CGFontRef CGFontCreateWithFontName(CFStringRef name)
   cairo_font_options_set_hint_metrics(opts, CAIRO_HINT_METRICS_OFF);
   cairo_font_options_set_hint_style(opts, CAIRO_HINT_STYLE_NONE);
   
-  font->metrics_face = cairo_scaled_font_create(font->cairo_face,
+  ((CGFont *)font)->metrics_face = cairo_scaled_font_create(((CGFont *)font)->cairo_face,
     &ident, &ident, opts);
     
   cairo_font_options_destroy(opts);
 
-  return font;
+  return (CGFontRef)font;
 }
 
 CGFontRef CGFontCreateWithPlatformFont(void *platformFontReference)
@@ -358,15 +362,15 @@ CGFontRef CGFontCreateWithPlatformFont(void *platformFontReference)
 
 int CGFontGetAscent(CGFontRef font)
 {
-  FT_Face ft_face = cairo_ft_scaled_font_lock_face(font->metrics_face);
+  FT_Face ft_face = cairo_ft_scaled_font_lock_face(((CGFont *)font)->metrics_face);
   int result = ft_face->bbox.yMax;
-  cairo_ft_scaled_font_unlock_face(font->metrics_face);
+  cairo_ft_scaled_font_unlock_face(((CGFont *)font)->metrics_face);
   return result;
 }
 
 int CGFontGetCapHeight(CGFontRef font)
 {
-  FT_Face ft_face = cairo_ft_scaled_font_lock_face(font->metrics_face);
+  FT_Face ft_face = cairo_ft_scaled_font_lock_face(((CGFont *)font)->metrics_face);
   int result = 0;
   
   TT_OS2 *os2table = (TT_OS2 *)FT_Get_Sfnt_Table(ft_face, ft_sfnt_os2);
@@ -374,24 +378,24 @@ int CGFontGetCapHeight(CGFontRef font)
     result = os2table->sCapHeight;
   }
   
-  cairo_ft_scaled_font_unlock_face(font->metrics_face);
+  cairo_ft_scaled_font_unlock_face(((CGFont *)font)->metrics_face);
   return result;
 }
 
 int CGFontGetDescent(CGFontRef font)
 {
-  FT_Face ft_face = cairo_ft_scaled_font_lock_face(font->metrics_face);
+  FT_Face ft_face = cairo_ft_scaled_font_lock_face(((CGFont *)font)->metrics_face);
   int result = 0;
   
   result = ft_face->bbox.yMax;
   
-  cairo_ft_scaled_font_unlock_face(font->metrics_face);
+  cairo_ft_scaled_font_unlock_face(((CGFont *)font)->metrics_face);
   return result;
 }
 
 CGRect CGFontGetFontBBox(CGFontRef font)
 {
-  FT_Face ft_face = cairo_ft_scaled_font_lock_face(font->metrics_face);
+  FT_Face ft_face = cairo_ft_scaled_font_lock_face(((CGFont *)font)->metrics_face);
   FT_BBox bbox = ft_face->bbox;
   CGRect result = CGRectMake(
     bbox.xMin,
@@ -399,7 +403,7 @@ CGRect CGFontGetFontBBox(CGFontRef font)
     bbox.xMax - bbox.xMin,
     bbox.yMax - bbox.yMin);
     
-  cairo_ft_scaled_font_unlock_face(font->metrics_face);
+  cairo_ft_scaled_font_unlock_face(((CGFont *)font)->metrics_face);
   return result;
 }
 
@@ -423,7 +427,7 @@ bool CGFontGetGlyphAdvances(
     cairoGlyph.x = 0;
     cairoGlyph.y = 0;
     
-    cairo_scaled_font_glyph_extents(font->metrics_face, &cairoGlyph, 1, &glyphExtents);
+    cairo_scaled_font_glyph_extents(((CGFont *)font)->metrics_face, &cairoGlyph, 1, &glyphExtents);
     // FIXME: scale?
     advances[i] = (int)glyphExtents.x_advance;
   }
@@ -444,7 +448,7 @@ bool CGFontGetGlyphBBoxes(
     cairoGlyph.x = 0;
     cairoGlyph.y = 0;
     
-    cairo_scaled_font_glyph_extents(font->metrics_face, &cairoGlyph, 1, &glyphExtents);
+    cairo_scaled_font_glyph_extents(((CGFont *)font)->metrics_face, &cairoGlyph, 1, &glyphExtents);
     
     // FIXME: flip? scale?
     bboxes[i] = CGRectMake(glyphExtents.x_bearing, glyphExtents.y_bearing, 
@@ -455,7 +459,7 @@ bool CGFontGetGlyphBBoxes(
 
 CGGlyph CGFontGetGlyphWithGlyphName(CGFontRef font, CFStringRef glyphName)
 {
-  FT_Face ft_face = cairo_ft_scaled_font_lock_face(font->metrics_face);
+  FT_Face ft_face = cairo_ft_scaled_font_lock_face(((CGFont *)font)->metrics_face);
   CGGlyph result = 0;
   
   const char *name = CFStringGetCStringPtr(glyphName, kCFStringEncodingASCII);
@@ -463,13 +467,13 @@ CGGlyph CGFontGetGlyphWithGlyphName(CGFontRef font, CFStringRef glyphName)
     result = (CGGlyph)FT_Get_Name_Index(ft_face, name);
   }
   
-  cairo_ft_scaled_font_unlock_face(font->metrics_face);
+  cairo_ft_scaled_font_unlock_face(((CGFont *)font)->metrics_face);
   return result;
 }
 
 CGFloat CGFontGetItalicAngle(CGFontRef font)
 {
-  FT_Face ft_face = cairo_ft_scaled_font_lock_face(font->metrics_face);
+  FT_Face ft_face = cairo_ft_scaled_font_lock_face(((CGFont *)font)->metrics_face);
   CGFloat result = 0;
   
   TT_Postscript *pstable = (TT_Postscript *)FT_Get_Sfnt_Table(ft_face, ft_sfnt_post);
@@ -477,29 +481,29 @@ CGFloat CGFontGetItalicAngle(CGFontRef font)
     result = pstable->italicAngle;
   }
   
-  cairo_ft_scaled_font_unlock_face(font->metrics_face);
+  cairo_ft_scaled_font_unlock_face(((CGFont *)font)->metrics_face);
   return result;
 }
 
 int CGFontGetLeading(CGFontRef font)
 {
-  FT_Face ft_face = cairo_ft_scaled_font_lock_face(font->metrics_face);
+  FT_Face ft_face = cairo_ft_scaled_font_lock_face(((CGFont *)font)->metrics_face);
   
   // see http://www.typophile.com/node/13081
   int result =  ft_face->height - ft_face->ascender + 
     ft_face->descender;
     
-  cairo_ft_scaled_font_unlock_face(font->metrics_face);
+  cairo_ft_scaled_font_unlock_face(((CGFont *)font)->metrics_face);
   return result;
 }
 
 size_t CGFontGetNumberOfGlyphs(CGFontRef font)
 {
-  FT_Face ft_face = cairo_ft_scaled_font_lock_face(font->metrics_face);
+  FT_Face ft_face = cairo_ft_scaled_font_lock_face(((CGFont *)font)->metrics_face);
 
   int result = ft_face->num_glyphs;
   
-  cairo_ft_scaled_font_unlock_face(font->metrics_face);
+  cairo_ft_scaled_font_unlock_face(((CGFont *)font)->metrics_face);
   return result;
 }
 
@@ -515,17 +519,17 @@ CFTypeID CGFontGetTypeID()
 
 int CGFontGetUnitsPerEm(CGFontRef font)
 {
-  FT_Face ft_face = cairo_ft_scaled_font_lock_face(font->metrics_face);
+  FT_Face ft_face = cairo_ft_scaled_font_lock_face(((CGFont *)font)->metrics_face);
   
   int result = ft_face->units_per_EM;
   
-  cairo_ft_scaled_font_unlock_face(font->metrics_face);
+  cairo_ft_scaled_font_unlock_face(((CGFont *)font)->metrics_face);
   return result;
 }
 
 int CGFontGetXHeight(CGFontRef font)
 {
-  FT_Face ft_face = cairo_ft_scaled_font_lock_face(font->metrics_face);
+  FT_Face ft_face = cairo_ft_scaled_font_lock_face(((CGFont *)font)->metrics_face);
   int result = 0;
   
   TT_OS2 *os2table = (TT_OS2 *)FT_Get_Sfnt_Table(ft_face, ft_sfnt_os2);
@@ -533,7 +537,7 @@ int CGFontGetXHeight(CGFontRef font)
     result = os2table->sxHeight;
   }
   
-  cairo_ft_scaled_font_unlock_face(font->metrics_face);
+  cairo_ft_scaled_font_unlock_face(((CGFont *)font)->metrics_face);
   return result;
 }
 

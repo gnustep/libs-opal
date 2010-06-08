@@ -31,16 +31,6 @@
 
 #include <stddef.h>
 
-struct objbase
-{
-  char *name;
-  void (*dealloc)(void *);
-  unsigned long int rc;  /* reference counter */
-};
-
-extern void errlog(const char *fmt, ...);
-extern void *opal_obj_alloc(const char *name, size_t size);
-extern void *opal_obj_retain(void *obj);
-extern void opal_obj_release(void *obj);
+void errlog(const char *fmt, ...);
 
 #endif /* OPAL_OPAL_H */

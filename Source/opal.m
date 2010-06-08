@@ -30,25 +30,6 @@
 #include <stdarg.h>
 #include "opal.h"
 
-extern void opal_dealloc_CGContext(void *);
-extern void opal_dealloc_CGLayer(void *);
-extern void opal_dealloc_CGColor(void *);
-extern void opal_dealloc_CGImage(void *);
-extern void opal_dealloc_CGDataProvider(void *);
-extern void opal_dealloc_CGPattern(void *);
-extern void opal_dealloc_CGFont(void *);
-
-static struct objbase objtypes[] = {
-  {"CGContext", opal_dealloc_CGContext},
-  {"CGLayer", opal_dealloc_CGLayer},
-  {"CGColor", opal_dealloc_CGColor},
-  {"CGImage", opal_dealloc_CGImage},
-  {"CGDataProvider", opal_dealloc_CGDataProvider},
-  {"CGPattern", opal_dealloc_CGPattern},
-  {"CGFont", opal_dealloc_CGFont},
-  {NULL}
-};
-
 void errlog(const char *fmt, ...)
 {
   va_list ap;
@@ -56,40 +37,4 @@ void errlog(const char *fmt, ...)
   va_start(ap, fmt);
   vfprintf(stderr, fmt, ap);
   va_end(ap);
-}
-
-void *opal_obj_alloc(const char *name, size_t size)
-{
-  int typeidx;
-  struct objbase *obj;
-
-  for (typeidx=0; objtypes[typeidx].name; typeidx++)
-    if (strcmp(objtypes[typeidx].name, name) == 0) break;
-  if (!objtypes[typeidx].name) {
-    errlog("obj_alloc: Failed to create an unknown object: %s\n", name);
-    return NULL;
-  }
-
-  obj = calloc(1, size);
-  if (!obj) {
-    errlog("obj_alloc: calloc failed for %s\n", name);
-    return NULL;
-  }
-  *obj = objtypes[typeidx];
-  obj->rc = 1;
-
-  return obj;
-}
-
-void *opal_obj_retain(void *obj)
-{
-  ((struct objbase *)obj)->rc++;
-  return obj;
-}
-
-void opal_obj_release(void *obj)
-{
-  struct objbase *o = obj;
-
-  if (--o->rc == 0) o->dealloc(obj);
 }

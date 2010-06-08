@@ -22,8 +22,8 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
    */
 
-#ifndef OPAL_CGBitMapContext_h
-#define OPAL_CGBitMapContext_h
+#ifndef OPAL_CGBitmapContext_h
+#define OPAL_CGBitmapContext_h
 
 #include <CoreGraphics/CGContext.h>
 #include <CoreGraphics/CGImage.h>
@@ -79,4 +79,4 @@ size_t CGBitmapContextGetWidth(CGContextRef ctx);
 
 CGImageRef CGBitmapContextCreateImage(CGContextRef ctx);
 
-#endif /* OPAL_CGBitMapContext_h */
+#endif /* OPAL_CGBitmapContext_h */

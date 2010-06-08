@@ -27,6 +27,7 @@
 
 @interface CGFunction : NSObject
 {
+@public
 }
 
 @end

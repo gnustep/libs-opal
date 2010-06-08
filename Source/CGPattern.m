@@ -2,10 +2,10 @@
  
  <abstract>C Interface to graphics drawing library</abstract>
  
- Copyright <copy>(C) 2009 Free Software Foundation, Inc.</copy>
+ Copyright <copy>(C) 2010 Free Software Foundation, Inc.</copy>
 
  Author: Eric Wasylishen
- Date: Dec 2009
+ Date: June 2010
  
  This library is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -22,22 +22,18 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#include <stdlib.h>
+#import <Foundation/NSObject.h>
 #include "CoreGraphics/CGPattern.h"
 #include "opal.h"
 
-typedef struct CGPattern
+@interface CGPattern : NSObject
 {
-  struct objbase base;
   void *info;
-  
-} CGPattern;
-
-void opal_dealloc_CGPattern(void *p)
-{
-  CGPatternRef pattern = p;
-  free(pattern);
 }
+@end
+@implementation CGPattern
+@end
+
 
 CGPatternRef CGPatternCreate(
   void *info,
@@ -49,8 +45,7 @@ CGPatternRef CGPatternCreate(
   int isColored,
   const CGPatternCallbacks *callbacks)
 {
-  CGPatternRef pattern = opal_obj_alloc("CGPattern", sizeof(CGPattern));
-  if (!pattern) return NULL;
+  CGPatternRef pattern = NULL;
   
   // FIXME
 
@@ -59,16 +54,17 @@ CGPatternRef CGPatternCreate(
 
 CFTypeID CGPatternGetTypeID()
 {
+  return [CGPattern class];
 }
 
 CGPatternRef CGPatternRetain(CGPatternRef pattern)
 {
-  return (pattern ? opal_obj_retain(pattern) : NULL);
+  return [pattern retain];
 }
 
 void CGPatternRelease(CGPatternRef pattern)
 {
-  if (pattern) opal_obj_release(pattern);
+  [pattern release];
 }
 
 

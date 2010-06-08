@@ -56,6 +56,8 @@ CGShadingRef CGShadingCreateRadial(
   int extendEnd
 );
 
+CFTypeID CGShadingGetTypeID();
+
 CGShadingRef CGShadingRetain(CGShadingRef shading);
 
 void CGShadingRelease(CGShadingRef shading);

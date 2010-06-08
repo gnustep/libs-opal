@@ -25,11 +25,13 @@
 #ifndef OPAL_CGContext_private_h
 #define OPAL_CGContext_private_h
 
+#import <Foundation/NSObject.h>
+
 #include "CoreGraphics/CGContext.h"
 #include <cairo.h>
 #include "opal.h"
 
-typedef struct ct_additions  ct_additions;
+typedef struct ct_additions ct_additions;
 struct ct_additions
 {
   ct_additions *next;  /* for Save/Restore */
@@ -48,15 +50,18 @@ struct ct_additions
   CGTextDrawingMode text_mode;
 };
 
-typedef struct CGContext
+@interface CGContext : NSObject
 {
-  struct objbase base;
+@public
   cairo_t *ct;  /* A Cairo context -- destination of this CGContext */
   ct_additions *add;  /* Additional things not in Cairo's gstate */
   CGAffineTransform txtmatrix;
   CGFloat scale_factor;
   CGSize device_size;
-} CGContext;
+}
+
+@end
+
 
 CGContextRef opal_new_CGContext(cairo_surface_t *target, CGSize device_size);
 

@@ -22,7 +22,16 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
+#import <Foundation/NSObject.h>
 #include "CoreGraphics/CGShading.h"
+
+@interface CGShading : NSObject
+{
+  
+}
+@end
+@implementation CGShading
+@end
 
 CGShadingRef CGShadingCreateAxial(
   CGColorSpaceRef colorspace,
@@ -48,9 +57,14 @@ CGShadingRef CGShadingCreateRadial(
   
 }
 
+CFTypeID CGShadingGetTypeID()
+{
+  return [CGShading class];    
+}
+
 CGShadingRef CGShadingRetain(CGShadingRef shading)
 {
-  [shading retain];
+  return [shading retain];
 }
 
 void CGShadingRelease(CGShadingRef shading)

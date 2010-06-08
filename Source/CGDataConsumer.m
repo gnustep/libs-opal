@@ -22,7 +22,25 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
    */
 
+#import <Foundation/NSObject.h>
 #include "CoreGraphics/CGDataConsumer.h"
+
+
+@interface CGDataConsumer : NSObject
+{
+@public
+}
+@end
+
+@implementation CGDataConsumer
+
+- (void) dealloc
+{
+  [super dealloc];    
+}
+
+@end
+
 
 CGDataConsumerRef CGDataConsumerCreate(
   void *info,

@@ -22,15 +22,18 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
    */
 
+#import <Foundation/NSObject.h>
 #include "CoreGraphics/CGDataProvider.h"
 #include "opal.h"
 
-typedef struct CGDataProvider
+@interface CGDataProvider : NSObject
 {
-  struct objbase base;
+@public
   CGDataProviderCallbacks cb;
   void *info;
-} CGDataProvider;
+}
+@end
+
 
 static inline size_t opal_DataProviderRead(CGDataProviderRef dp, void *buffer, size_t count)
 {

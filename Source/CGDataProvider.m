@@ -27,6 +27,10 @@
 #include "CoreGraphics/CGDataProvider.h"
 #include "CGDataProvider-private.h"
 
+@implementation CGDataProvider
+@end
+
+
 typedef struct DirectInfo {
   size_t offset;
   CGDataProviderDirectAccessCallbacks cb;
@@ -95,19 +99,19 @@ void opal_dealloc_CGDataProvider(void *d)
 CGDataProviderRef CGDataProviderCreate(
   void *info, const CGDataProviderCallbacks *callbacks)
 {
-  CGDataProviderRef dp;
+  CGDataProvider *dp;
 
   if (!(callbacks && callbacks->getBytes &&
         callbacks->skipBytes && callbacks->rewind))
     return NULL;
 
-  dp = opal_obj_alloc("CGDataProvider", sizeof(CGDataProvider));
+  dp = [[CGDataProvider alloc] init];
   if (!dp) return NULL;
 
   dp->cb = *callbacks;
   dp->info = info;
 
-  return dp;
+  return (CGDataProviderRef)dp;
 }
 
 static inline CGDataProviderRef opal_CreateDirectAccess(
@@ -172,10 +176,10 @@ CGDataProviderRef CGDataProviderCreateWithData(
 
 CGDataProviderRef CGDataProviderRetain(CGDataProviderRef provider)
 {
-  return (provider ? opal_obj_retain(provider) : NULL);
+  return (CGDataProviderRef)[(CGDataProvider *)provider retain];
 }
 
 void CGDataProviderRelease(CGDataProviderRef provider)
 {
-  if(provider) opal_obj_release(provider);
+  [(CGDataProvider *)provider release];
 }
