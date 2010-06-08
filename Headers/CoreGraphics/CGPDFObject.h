@@ -24,6 +24,8 @@
 #ifndef OPAL_CGPDFObject_h
 #define OPAL_CGPDFObject_h
 
+#include <CoreGraphics/CGBase.h>
+
 /* Data Types */
 
 typedef unsigned char CGPDFBoolean;

@@ -28,14 +28,15 @@
 
 typedef struct CGPDFContentStream *CGPDFContentStreamRef;
 
+#include <CoreFoundation/CFArray.h>
+#include <CoreGraphics/CGBase.h>
 #include <CoreGraphics/CGPDFPage.h>
 #include <CoreGraphics/CGPDFStream.h>
 #include <CoreGraphics/CGPDFDictionary.h>
-#include <CoreFoundation/CFArray.h>
 
 /* Functions */
 
-CGPDFContentStreamRef CGPDFContentStreamCreateWithPage(CGPDFPageRef page)
+CGPDFContentStreamRef CGPDFContentStreamCreateWithPage(CGPDFPageRef page);
 
 CGPDFContentStreamRef CGPDFContentStreamCreateWithStream(
   CGPDFStreamRef stream,
@@ -54,6 +55,5 @@ CFArrayRef CGPDFContentStreamGetStreams(CGPDFContentStreamRef stream);
 CGPDFContentStreamRef CGPDFContentStreamRetain(CGPDFContentStreamRef stream);
 
 void CGPDFContentStreamRelease(CGPDFContentStreamRef stream);
-
 
 #endif /* OPAL_CGPDFContentStream_h */

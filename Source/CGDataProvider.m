@@ -22,9 +22,10 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
    */
 
-#include "CGDataProvider-private.h"
-#include <stdlib.h>
 #include <string.h>
+
+#include "CoreGraphics/CGDataProvider.h"
+#include "CGDataProvider-private.h"
 
 typedef struct DirectInfo {
   size_t offset;

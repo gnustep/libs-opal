@@ -25,12 +25,13 @@
 #ifndef OPAL_CGImage_h
 #define OPAL_CGImage_h
 
-#include <CoreGraphics/CGColorSpace.h>
-#include <CoreGraphics/CGGeometry.h>
-
 /* Data Types */
 
 typedef struct CGImage *  CGImageRef;
+
+#include <CoreGraphics/CGBase.h>
+#include <CoreGraphics/CGColorSpace.h>
+#include <CoreGraphics/CGGeometry.h>
 
 /* Constants */
 

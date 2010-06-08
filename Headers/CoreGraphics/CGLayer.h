@@ -25,10 +25,15 @@
 #ifndef OPAL_CGLayer_h
 #define OPAL_CGLayer_h
 
-#include <CoreFoundation/CoreFoundation.h>
-#include <CoreGraphics/CGContext.h>
+/* Data Types */
 
 typedef struct CGLayer *CGLayerRef;
+
+#include <CoreFoundation/CFDictionary.h>
+#include <CoreGraphics/CGBase.h>
+#include <CoreGraphics/CGContext.h>
+
+/* Functions */
 
 CGLayerRef CGLayerCreateWithContext(
   CGContextRef referenceCtxt,

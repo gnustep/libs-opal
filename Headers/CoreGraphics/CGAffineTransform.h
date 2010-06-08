@@ -25,7 +25,7 @@
 #ifndef OPAL_CGAffineTransform_h
 #define OPAL_CGAffineTransform_h
 
-#include <stddef.h>
+#include <CoreGraphics/CGBase.h>
 #include <CoreGraphics/CGGeometry.h>
 
 /* Data Types */

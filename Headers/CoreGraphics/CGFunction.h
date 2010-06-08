@@ -29,6 +29,8 @@
 
 typedef struct CGFunction *CGFunctionRef;
 
+#include <CoreGraphics/CGBase.h>
+
 /* Callbacks */
 
 typedef void (*CGFunctionEvaluateCallback)(

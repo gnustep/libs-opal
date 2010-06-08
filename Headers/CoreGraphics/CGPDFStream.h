@@ -30,6 +30,7 @@ typedef struct CGPDFStream *CGPDFStreamRef;
 
 #include <CoreFoundation/CFData.h>
 #include <CoreGraphics/CGPDFDictionary.h>
+#include <CoreGraphics/CGBase.h>
 
 /* Constants */
 

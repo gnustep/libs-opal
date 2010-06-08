@@ -28,6 +28,7 @@
 
 typedef struct CGPDFDictionary *CGPDFDictionaryRef;
 
+#include <CoreGraphics/CGBase.h>
 #include <CoreGraphics/CGPDFObject.h>
 #include <CoreGraphics/CGPDFArray.h>
 #include <CoreGraphics/CGPDFStream.h>

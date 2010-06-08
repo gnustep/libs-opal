@@ -29,6 +29,7 @@
 typedef struct CGGradient *CGGradientRef;
 
 #include <CoreFoundation/CFArray.h>
+#include <CoreGraphics/CGBase.h>
 #include <CoreGraphics/CGColorSpace.h>
 
 /* Constants */

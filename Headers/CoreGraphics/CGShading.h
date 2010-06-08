@@ -25,15 +25,18 @@
 #ifndef OPAL_CGShading_h
 #define OPAL_CGShading_h
 
-#include <CoreGraphics/CGFunction.h>
-
 /* Data Types */
 
 typedef struct CGShading * CGShadingRef;
 
+#include <CoreGraphics/CGBase.h>
+#include <CoreGraphics/CGFunction.h>
+#include <CoreGraphics/CGGeometry.h>
+#include <CoreGraphics/CGColorSpace.h>
+
 /* Functions */
 
-CGShadingRef CGShadingCreateAxial (
+CGShadingRef CGShadingCreateAxial(
   CGColorSpaceRef colorspace,
   CGPoint start,
   CGPoint end,

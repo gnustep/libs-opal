@@ -28,6 +28,7 @@
 
 typedef struct CGPDFScanner *CGPDFScannerRef;
 
+#include <CoreGraphics/CGBase.h>
 #include <CoreGraphics/CGPDFContentStream.h>
 #include <CoreGraphics/CGPDFOperatorTable.h>
 #include <CoreGraphics/CGPDFArray.h>

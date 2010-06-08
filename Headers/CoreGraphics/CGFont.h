@@ -25,13 +25,16 @@
 #ifndef OPAL_CGFont_h
 #define OPAL_CGFont_h
 
-#include <CoreGraphics/CGBase.h>
-#include "CoreGraphics/CGGeometry.h"
-#include <CoreFoundation/CoreFoundation.h>
-
 /* Data Types */
 
 typedef struct CGFont * CGFontRef;
+
+#include <CoreFoundation/CFData.h>
+#include <CoreFoundation/CFDictionary.h>
+#include <CoreFoundation/CFString.h>
+#include <CoreFoundation/CFArray.h>
+#include <CoreGraphics/CGBase.h>
+#include <CoreGraphics/CGGeometry.h>
 
 typedef unsigned short CGGlyph;
 

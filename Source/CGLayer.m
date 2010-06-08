@@ -68,6 +68,7 @@ CGLayerRef CGLayerCreateWithContext(
 
 CFTypeID CGLayerGetTypeID()
 {
+  // FIXME: Implement
 }
 
 CGLayerRef CGLayerRetain(CGLayerRef layer)

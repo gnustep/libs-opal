@@ -24,6 +24,11 @@
 #ifndef OPAL_CGPSConverter_h
 #define OPAL_CGPSConverter_h
 
+#include <CoreFoundation/CFDictionary.h>
+#include <CoreGraphics/CGBase.h>
+#include <CoreGraphics/CGDataProvider.h>
+#include <CoreGraphics/CGDataConsumer.h>
+
 /* Callbacks */
 
 typedef void (*CGPSConverterBeginDocumentCallback)(void *info);
@@ -60,6 +65,8 @@ typedef struct CGPSConverterCallbacks {
     CGPSConverterMessageCallback noteMessage;
     CGPSConverterReleaseInfoCallback releaseInfo;
 } CGPSConverterCallbacks;
+
+typedef struct CGPSConverter *CGPSConverterRef;
 
 /* Functions */
 

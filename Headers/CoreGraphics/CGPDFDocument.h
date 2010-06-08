@@ -25,13 +25,14 @@
 #ifndef OPAL_CGPDFDocument_h
 #define OPAL_CGPDFDocument_h
 
-#include <CoreGraphics/CGGeometry.h>
-#include <CoreGraphics/CGDataConsumer.h>
-#include <CoreGraphics/CGDataProvider.h>
-
 /* Data Types */
 
 typedef void * CGPDFDocumentRef;
+
+#include <CoreGraphics/CGBase.h>
+#include <CoreGraphics/CGGeometry.h>
+#include <CoreGraphics/CGDataConsumer.h>
+#include <CoreGraphics/CGDataProvider.h>
 
 /* Functions */
 

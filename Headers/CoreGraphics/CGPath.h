@@ -25,6 +25,9 @@
 #ifndef OPAL_CGPath_h
 #define OPAL_CGPath_h
 
+#include <CoreGraphics/CGBase.h>
+#include <CoreGraphics/CGAffineTransform.h>
+
 /* Constants */
 
 typedef enum CGPathElementType {

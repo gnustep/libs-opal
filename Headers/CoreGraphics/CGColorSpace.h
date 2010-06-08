@@ -25,13 +25,13 @@
 #ifndef OPAL_CGColorSpace_h
 #define OPAL_CGColorSpace_h
 
-#include <CoreFoundation/CoreFoundation.h>
-#include <CoreGraphics/CGBase.h>
-#include <CoreGraphics/CGDataProvider.h>
-
 /* Data Types */
 
 typedef struct CGColorSpace * CGColorSpaceRef;
+
+#include <CoreFoundation/CoreFoundation.h>
+#include <CoreGraphics/CGBase.h>
+#include <CoreGraphics/CGDataProvider.h>
 
 typedef enum CGColorSpaceModel {
   kCGColorSpaceModelUnknown = -1,

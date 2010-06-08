@@ -28,6 +28,9 @@
 
 typedef struct CGPDFOperatorTable *CGPDFOperatorTableRef;
 
+#include <CoreGraphics/CGBase.h>
+#include <CoreGraphics/CGPDFScanner.h>
+
 /* Callbacks */
 
 typedef void (*CGPDFOperatorCallback)(CGPDFScannerRef scanner, void *info);

@@ -1,11 +1,12 @@
-/** <title>CGPDFString</title>
+/** <title>CGDataConsumer</title>
 
-   <abstract>C Interface to graphics drawing library
-             - geometry routines</abstract>
+   <abstract>C Interface to graphics drawing library</abstract>
 
-   Copyright (C) 2010 Free Software Foundation, Inc.
+   Copyright <copy>(C) 2010 Free Software Foundation, Inc.</copy>
+
    Author: Eric Wasylishen <ewasylishen@gmail.com>
-    
+   Date: June, 2010
+
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
    License as published by the Free Software Foundation; either
@@ -21,25 +22,33 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
    */
 
-#ifndef OPAL_CGPDFString_h
-#define OPAL_CGPDFString_h
+#include "CoreGraphics/CGDataConsumer.h"
 
-/* Data Types */
+CGDataConsumerRef CGDataConsumerCreate(
+  void *info,
+  const CGDataConsumerCallbacks *callbacks)
+{
+  
+}
 
-typedef struct CGPDFString *CGPDFStringRef;
+CGDataConsumerRef CGDataConsumerCreateWithCFData(CFMutableDataRef data)
+{
+  
+}
 
-#include <CoreFoundation/CFString.h>
-#include <CoreFoundation/CFDate.h>
-#include <CoreGraphics/CGBase.h>
+CGDataConsumerRef CGDataConsumerCreateWithURL(CFURLRef url)
+{
 
-/* Functions */
+}
 
-size_t CGPDFStringGetLength(CGPDFStringRef string);
+CFTypeID CGDataConsumerGetTypeID()
+{
+}
 
-const unsigned char *CGPDFStringGetBytePtr(CGPDFStringRef string);
+void CGDataConsumerRelease(CGDataConsumerRef consumer)
+{
+}
 
-CFStringRef CGPDFStringCopyTextString(CGPDFStringRef string);
-
-CFDateRef CGPDFStringCopyDate(CGPDFStringRef string);
-
-#endif /* OPAL_CGPDFString_h */
+CGDataConsumerRef CGDataConsumerRetain(CGDataConsumerRef consumer)
+{
+}

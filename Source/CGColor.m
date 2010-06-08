@@ -22,10 +22,10 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
    */
 
+#import <Foundation/NSString.h>
 #include "CoreGraphics/CGContext.h"
 #include "CoreGraphics/CGColor.h"
 #include "opal.h"
-#include "stdlib.h"
 
 typedef struct CGColor
 {
@@ -35,10 +35,9 @@ typedef struct CGColor
   CGPatternRef pattern;
 } CGColor;
 
-// FIXME: Make real CFStrings
-const CFStringRef kCGColorWhite = (void *)"kCGColorWhite";
-const CFStringRef kCGColorBlack = (void *)"kCGColorBlack";
-const CFStringRef kCGColorClear = (void *)"kCGColorClear";
+const CFStringRef kCGColorWhite = @"kCGColorWhite";
+const CFStringRef kCGColorBlack = @"kCGColorBlack";
+const CFStringRef kCGColorClear = @"kCGColorClear";
 
 static CGColorRef _whiteColor;
 static CGColorRef _blackColor;
@@ -187,17 +186,17 @@ const CGFloat *CGColorGetComponents(CGColorRef clr)
 
 CGColorRef CGColorGetConstantColor(CFStringRef name)
 {
-  if (name == kCGColorWhite) {
+  if ([name isEqualToString: kCGColorWhite]) {
     if (!_whiteColor) {
       _whiteColor = CGColorCreateGenericGray(1, 1);
     }
     return  _whiteColor;
-  } else if (name == kCGColorBlack) {
+  } else if ([name isEqualToString: kCGColorBlack]) {
     if (!_blackColor) {
       _blackColor = CGColorCreateGenericGray(0, 1);
     }
     return _whiteColor;
-  } else if (name == kCGColorClear) {
+  } else if ([name isEqualToString: kCGColorClear]) {
     if (!_clearColor) {
       _clearColor = CGColorCreateGenericGray(0, 0);
     }

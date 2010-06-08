@@ -185,24 +185,30 @@ CGRect CGRectUnion(CGRect r1, CGRect r2)
 
 CFDictionaryRef CGPointCreateDictionaryRepresentation(CGPoint point)
 {
+  // FIXME: implement
 }  
 
 bool CGPointMakeWithDictionaryRepresentation(CFDictionaryRef dict, CGPoint *point)
 {
+  // FIXME: implement
 }
 
 CFDictionaryRef CGSizeCreateDictionaryRepresentation(CGSize size)
 {
+  // FIXME: implement
 }
 
 bool CGSizeMakeWithDictionaryRepresentation(CFDictionaryRef dict, CGSize *size)
 {
+  // FIXME: implement
 }
 
 CFDictionaryRef CGRectCreateDictionaryRepresentation(CGRect rect)
 {
+  // FIXME: implement
 }
 
 bool CGRectMakeWithDictionaryRepresentation(CFDictionaryRef dict, CGRect *rect)
 {
+  // FIXME: implement
 }

@@ -25,13 +25,13 @@
 #ifndef OPAL_CGDataConsumer_h
 #define OPAL_CGDataConsumer_h
 
-#include <CoreFoundation/CFURL.h>
-#include <CoreFoundation/CFData.h>
-#include <unistd.h>
-
 /* Data Types */
 
 typedef void * CGDataConsumerRef;
+
+#include <CoreFoundation/CFURL.h>
+#include <CoreFoundation/CFData.h>
+#include <CoreGraphics/CGBase.h>
 
 /* Callbacks */
 

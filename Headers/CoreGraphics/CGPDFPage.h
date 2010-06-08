@@ -28,7 +28,7 @@
 
 typedef struct CGPDFPage *CGPDFPageRef;
 
-#include <stdbool.h>
+#include <CoreGraphics/CGBase.h>
 #include <CoreGraphics/CGPDFDocument.h>
 #include <CoreGraphics/CGAffineTransform.h>
 #include <CoreGraphics/CGPDFDictionary.h>

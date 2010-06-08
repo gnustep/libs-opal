@@ -29,6 +29,7 @@
 
 typedef struct CGPattern *CGPatternRef;
 
+#include <CoreGraphics/CGBase.h>
 #include <CoreGraphics/CGContext.h>
 #include <CoreGraphics/CGGeometry.h>
 #include <CoreGraphics/CGAffineTransform.h>

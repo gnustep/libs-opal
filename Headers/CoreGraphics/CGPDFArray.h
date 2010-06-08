@@ -28,6 +28,7 @@
 
 typedef struct CGPDFArray *CGPDFArrayRef;
 
+#include <CoreGraphics/CGBase.h>
 #include <CoreGraphics/CGPDFObject.h>
 #include <CoreGraphics/CGPDFString.h>
 #include <CoreGraphics/CGPDFDictionary.h>

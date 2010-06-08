@@ -25,11 +25,13 @@
 #ifndef OPAL_CGDataProvider_h
 #define OPAL_CGDataProvider_h
 
-#include <unistd.h>
-
 /* Data Types */
 
 typedef struct CGDataProvider *  CGDataProviderRef;
+
+#include <CoreFoundation/CFURL.h>
+#include <CoreFoundation/CFData.h>
+#include <CoreGraphics/CGBase.h>
 
 /* Callbacks */
 
@@ -101,9 +103,9 @@ CGDataProviderRef CGDataProviderCreateWithData(
   void (*releaseData)(void *info, const void *data, size_t size)
 );
 
-/* CGDataProviderRef CGDataProviderCreateWithCFData(CFDataRef data); */
+CGDataProviderRef CGDataProviderCreateWithCFData(CFDataRef data);
 
-/* CGDataProviderRef CGDataProviderCreateWithURL(CFURLRef url); */
+CGDataProviderRef CGDataProviderCreateWithURL(CFURLRef url);
 
 CGDataProviderRef CGDataProviderRetain(CGDataProviderRef provider);
 
