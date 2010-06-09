@@ -32,13 +32,14 @@
 #include <cairo.h>
 #include "opal.h"
 
+#import "cairo/CairoFont.h"
+
 /* The default (opaque black) color in a Cairo context,
  * used if no other color is set on the context yet */
 static cairo_pattern_t *default_cp;
 
 extern void opal_surface_flush(cairo_surface_t *target);
 extern void opal_cspace_todev(CGColorSpaceRef cs, CGFloat *dest, const CGFloat comps[]);
-extern cairo_font_face_t *opal_font_get_cairo_font(CGFontRef font);
 
 extern cairo_surface_t *opal_CGImageGetSurfaceForImage(CGImageRef img);
 extern CGRect opal_CGImageGetSourceRect(CGImageRef image);
@@ -988,7 +989,7 @@ void CGContextSetFont(CGContextRef ctx, CGFontRef font)
     errlog("%s:%d: CGContextSetFont got NULL\n", __FILE__, __LINE__);
     return;
   }
-  cairo_set_font_face(ctx->ct, opal_font_get_cairo_font(font));
+  cairo_set_font_face(ctx->ct, cairo_scaled_font_get_font_face(((CairoFont*)font)->cairofont));
   ctx->add->font = CGFontRetain(font);
 }
 

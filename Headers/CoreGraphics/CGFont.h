@@ -35,6 +35,7 @@ typedef struct CGFont * CGFontRef;
 #include <CoreFoundation/CFArray.h>
 #include <CoreGraphics/CGBase.h>
 #include <CoreGraphics/CGGeometry.h>
+#include <CoreGraphics/CGDataProvider.h>
 
 typedef unsigned short CGGlyph;
 
@@ -136,8 +137,6 @@ int CGFontGetLeading(CGFontRef font);
 size_t CGFontGetNumberOfGlyphs(CGFontRef font);
 
 CGFloat CGFontGetStemV(CGFontRef font);
-
-CFTypeID CGFontGetTypeID();
 
 int CGFontGetUnitsPerEm(CGFontRef font);
 
