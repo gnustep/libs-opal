@@ -29,15 +29,28 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#ifdef CGFLOAT_DEFINED
+#warning CGFloat already defined - the definition must match that in CGBase.h
+#endif
+
 #ifndef CGFLOAT_DEFINED
 #define CGFLOAT_DEFINED 1
+
+#if INTPTR_MAX == INT64_MAX
 #define CGFLOAT_TYPE double
 #define CGFLOAT_IS_DOUBLE 1
 #define CGFLOAT_MIN DBL_MIN
 #define CGFLOAT_MAX DBL_MAX
+#else
+#define CGFLOAT_TYPE float
+#define CGFLOAT_IS_DOUBLE 0
+#define CGFLOAT_MIN FLT_MIN
+#define CGFLOAT_MAX FLT_MAX
+#endif
 
 typedef CGFLOAT_TYPE CGFloat;
 #endif
+
 
 #ifndef MAX
 #define MAX(a,b) \

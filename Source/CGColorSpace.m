@@ -82,9 +82,17 @@ static CGColorSpaceRef _deviceCMYK;
   _deviceCMYK->todevice = opal_todev_cmyk;  
 } 
 
-- (void) dealloc
+- (id) retain
 {
-  [super dealloc];    
+  return self; 
+}
+
+- (void) release
+{
+}
+
+- (void) dealloc
+{    
 }
 
 - (BOOL) isEqual: (id)other
