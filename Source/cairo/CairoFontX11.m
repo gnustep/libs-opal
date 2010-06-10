@@ -24,6 +24,7 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
    */
 
+// FIXME: hack, fix the build system
 #ifndef __MINGW__
 
 #include "CoreGraphics/CGBase.h"
@@ -32,7 +33,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "cairo-ft.h"
+#include <cairo-ft.h>
 #include FT_LIST_H
 #include FT_SFNT_NAMES_H
 #include FT_TRUETYPE_IDS_H

@@ -29,17 +29,13 @@
 
 @implementation CairoFontWin32
 
-- (CFStringRef) copyFullName
+- (void) dealloc
 {
-
+  DeleteObject(hfont);
+  [super dealloc];
 }
 
 - (CFStringRef) copyGlyphNameForGlyph: (CGGlyph)glyph
-{
-
-}
-
-- (CFStringRef) copyPostScriptName
 {
 
 }
@@ -81,15 +77,15 @@
   
   if (NULL == font) return nil;
 
-  HFONT hfont = CreateFont(46, 28, 215, 0,
+  font->hfont = CreateFont(46, 28, 215, 0,
                            FW_NORMAL, FALSE, FALSE, FALSE,
                            ANSI_CHARSET, OUT_DEFAULT_PRECIS,
 		         CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
 		         DEFAULT_PITCH | FF_ROMAN,
 			"Times New Roman");
 
-  if (hfont) {
-    unscaled = cairo_win32_font_face_create_for_hfont(hfont);
+  if (font->hfont) {
+    unscaled = cairo_win32_font_face_create_for_hfont(font->hfont);
   } else {
     [font release];
     return nil;
@@ -109,7 +105,7 @@
     
   cairo_font_options_destroy(opts);
 
-  return font;
+  return (CGFontRef)font;
 }
 
 + (CGFontRef) createWithPlatformFont: (void *)platformFontReference
@@ -117,57 +113,7 @@
   return nil;
 }
 
-- (int) ascent
-{
-
-}
-
-- (int) capHeight
-{
-
-}
-
-- (int) descent
-{
-
-}
-
-- (CGRect) fontBBox
-{
-
-}
-
 - (CGGlyph) glyphWithGlyphName: (CFStringRef)glyphName
-{
-
-}
-
-- (CGFloat) italicAngle
-{
-
-}
-
-- (int) leading
-{
-
-}
-
-- (size_t) numberOfGlyphs
-{
-
-}
-
-- (CGFloat) stemV
-{
-
-}
-
-- (int) unitsPerEm
-{
-
-}
-
-- (int) xHeight
 {
 
 }

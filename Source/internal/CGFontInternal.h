@@ -29,15 +29,23 @@
 
 @interface CGFont : NSObject
 {
+  CFStringRef fullName;
+  CFStringRef postScriptName;
+  int ascent;
+  int capHeight;
+  int descent;
+  CGRect fontBBox;
+  CGFloat italicAngle;
+  int leading;
+  size_t numberOfGlyphs;
+  CGFloat stemV;
+  int unitsPerEm;
+  int xHeight;
 }
 
 - (bool) canCreatePostScriptSubset: (CGFontPostScriptFormat)format;
 
-- (CFStringRef) copyFullName;
-
 - (CFStringRef) copyGlyphNameForGlyph: (CGGlyph)glyph;
-
-- (CFStringRef) copyPostScriptName;
 
 - (CFDataRef) copyTableForTag: (uint32_t)tag;
 
@@ -63,13 +71,7 @@
 
 + (CGFontRef) createWithPlatformFont: (void *)platformFontReference;
 
-- (int) ascent;
 
-- (int) capHeight;
-
-- (int) descent;
-
-- (CGRect) fontBBox;
 
 - (bool) getGlyphAdvances: (const CGGlyph[])glyphs
                          : (size_t)count
@@ -81,16 +83,5 @@
 
 - (CGGlyph) glyphWithGlyphName: (CFStringRef)glyphName;
 
-- (CGFloat) italicAngle;
-
-- (int) leading;
-
-- (size_t) numberOfGlyphs;
-
-- (CGFloat) stemV;
-
-- (int) unitsPerEm;
-
-- (int) xHeight;
 
 @end

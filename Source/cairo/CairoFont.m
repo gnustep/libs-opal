@@ -38,51 +38,6 @@
   return false;
 }
 
-- (CFStringRef) copyFullName
-{
-  [self doesNotRecognizeSelector: _cmd];
-}
-
-- (CFStringRef) copyGlyphNameForGlyph: (CGGlyph)glyph
-{
-  [self doesNotRecognizeSelector: _cmd];
-}
-
-- (CFStringRef) copyPostScriptName
-{
-  [self doesNotRecognizeSelector: _cmd];
-}
-
-- (CFDataRef) copyTableForTag: (uint32_t)tag
-{
-  [self doesNotRecognizeSelector: _cmd];
-}
-
-- (CFArrayRef) copyTableTags
-{
-  [self doesNotRecognizeSelector: _cmd];
-}
-
-- (CFArrayRef) copyVariationAxes
-{
-  [self doesNotRecognizeSelector: _cmd];
-}
-
-- (CFDictionaryRef) copyVariations
-{
-  [self doesNotRecognizeSelector: _cmd];
-}
-
-- (CGFontRef) createCopyWithVariations: (CFDictionaryRef)variations
-{
-  [self doesNotRecognizeSelector: _cmd];
-}
-
-- (CFDataRef) createPostScriptEncoding: (const CGGlyph[])encoding
-{
-  [self doesNotRecognizeSelector: _cmd];
-}
-
 - (CFDataRef) createPostScriptSubset: (CFStringRef)name
                                     : (CGFontPostScriptFormat)format
                                     : (const CGGlyph[])glyphs
@@ -95,36 +50,6 @@
 + (CGFontRef) createWithDataProvider: (CGDataProviderRef)provider
 {
   // FIXME: implement
-}
-
-+ (CGFontRef) createWithFontName: (CFStringRef)name
-{
-  [self doesNotRecognizeSelector: _cmd];
-}
-
-+ (CGFontRef) createWithPlatformFont: (void *)platformFontReference
-{
-  [self doesNotRecognizeSelector: _cmd];
-}
-
-- (int) ascent
-{
-  [self doesNotRecognizeSelector: _cmd];
-}
-
-- (int) capHeight
-{
-  [self doesNotRecognizeSelector: _cmd];
-}
-
-- (int) descent
-{
-  [self doesNotRecognizeSelector: _cmd];
-}
-
-- (CGRect) fontBBox
-{
-  [self doesNotRecognizeSelector: _cmd];
 }
 
 /**
@@ -171,41 +96,6 @@
       glyphExtents.width, glyphExtents.height);
   }
   return true;   
-}
-
-- (CGGlyph) glyphWithGlyphName: (CFStringRef)glyphName
-{
-  [self doesNotRecognizeSelector: _cmd];
-}
-
-- (CGFloat) italicAngle
-{
-  [self doesNotRecognizeSelector: _cmd];
-}
-
-- (int) leading
-{
-  [self doesNotRecognizeSelector: _cmd];
-}
-
-- (size_t) numberOfGlyphs
-{
-  [self doesNotRecognizeSelector: _cmd];
-}
-
-- (CGFloat) stemV
-{
-  [self doesNotRecognizeSelector: _cmd];
-}
-
-- (int) unitsPerEm
-{
-  [self doesNotRecognizeSelector: _cmd];
-}
-
-- (int) xHeight
-{
-  [self doesNotRecognizeSelector: _cmd];
 }
 
 @end

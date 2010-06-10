@@ -23,8 +23,10 @@
  */
 
 #import "CairoFont.h"
+#include <windows.h>
 
 @interface CairoFontWin32 : CairoFont
 {
+  HFONT hfont;
 }
 @end

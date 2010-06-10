@@ -32,7 +32,92 @@
 #import "cairo/CairoFontWin32.h"
 
 @implementation CGFont
+
+- (bool) canCreatePostScriptSubset: (CGFontPostScriptFormat)format
+{
+  [self doesNotRecognizeSelector: _cmd];
+}
+
+- (CFStringRef) copyGlyphNameForGlyph: (CGGlyph)glyph
+{
+  [self doesNotRecognizeSelector: _cmd];
+}
+
+- (CFDataRef) copyTableForTag: (uint32_t)tag
+{
+  [self doesNotRecognizeSelector: _cmd];
+}
+
+- (CFArrayRef) copyTableTags
+{
+  [self doesNotRecognizeSelector: _cmd];
+}
+
+- (CFArrayRef) copyVariationAxes
+{
+  [self doesNotRecognizeSelector: _cmd];
+}
+
+- (CFDictionaryRef) copyVariations
+{
+  [self doesNotRecognizeSelector: _cmd];
+}
+
+- (CGFontRef) createCopyWithVariations: (CFDictionaryRef)variations
+{
+  [self doesNotRecognizeSelector: _cmd];
+}
+
+- (CFDataRef) createPostScriptEncoding: (const CGGlyph[])encoding
+{
+  [self doesNotRecognizeSelector: _cmd];
+}
+
+- (CFDataRef) createPostScriptSubset: (CFStringRef)name
+                                    : (CGFontPostScriptFormat)format
+                                    : (const CGGlyph[])glyphs
+                                    : (size_t)count
+                                    : (const CGGlyph[])encoding
+{
+  [self doesNotRecognizeSelector: _cmd];
+}
+
++ (CGFontRef) createWithDataProvider: (CGDataProviderRef)provider
+{
+  [self doesNotRecognizeSelector: _cmd];
+}
+
++ (CGFontRef) createWithFontName: (CFStringRef)name
+{
+  [self doesNotRecognizeSelector: _cmd];
+}
+
++ (CGFontRef) createWithPlatformFont: (void *)platformFontReference
+{
+  [self doesNotRecognizeSelector: _cmd];
+}
+
+- (bool) getGlyphAdvances: (const CGGlyph[])glyphs
+                         : (size_t)count
+                         : (int[]) advances
+{
+  [self doesNotRecognizeSelector: _cmd];
+}
+
+- (bool) getGlyphBBoxes: (const CGGlyph[])glyphs
+                       : (size_t)count
+                       : (CGRect[])bboxes
+{
+  [self doesNotRecognizeSelector: _cmd];
+}
+
+- (CGGlyph) glyphWithGlyphName: (CFStringRef)glyphName
+{
+  [self doesNotRecognizeSelector: _cmd];
+}
+
 @end
+
 
 
 bool CGFontCanCreatePostScriptSubset(
@@ -44,7 +129,7 @@ bool CGFontCanCreatePostScriptSubset(
 
 CFStringRef CGFontCopyFullName(CGFontRef font)
 {
-  return [(CGFont*)font copyFullName];
+  return ((CGFont*)font)->fullName;
 }
 
 CFStringRef CGFontCopyGlyphNameForGlyph(CGFontRef font, CGGlyph glyph)
@@ -54,7 +139,7 @@ CFStringRef CGFontCopyGlyphNameForGlyph(CGFontRef font, CGGlyph glyph)
 
 CFStringRef CGFontCopyPostScriptName(CGFontRef font)
 {
-  return [(CGFont*)font copyPostScriptName];
+  return ((CGFont*)font)->postScriptName;
 }
 
 CFDataRef CGFontCopyTableForTag(CGFontRef font, uint32_t tag)
@@ -122,22 +207,22 @@ CGFontRef CGFontCreateWithPlatformFont(void *platformFontReference)
 
 int CGFontGetAscent(CGFontRef font)
 {
-  return [(CGFont*)font ascent];
+  return ((CGFont*)font)->ascent;
 }
 
 int CGFontGetCapHeight(CGFontRef font)
 {
-  return [(CGFont*)font capHeight];
+  return ((CGFont*)font)->capHeight;
 }
 
 int CGFontGetDescent(CGFontRef font)
 {
-  return [(CGFont*)font descent];
+  return ((CGFont*)font)->descent;
 }
 
 CGRect CGFontGetFontBBox(CGFontRef font)
 {
-  return [(CGFont*)font fontBBox];
+  return ((CGFont*)font)->fontBBox;
 }
 
 bool CGFontGetGlyphAdvances(
@@ -165,22 +250,22 @@ CGGlyph CGFontGetGlyphWithGlyphName(CGFontRef font, CFStringRef glyphName)
 
 CGFloat CGFontGetItalicAngle(CGFontRef font)
 {
-  return [(CGFont*)font italicAngle];
+  return ((CGFont*)font)->italicAngle;
 }
 
 int CGFontGetLeading(CGFontRef font)
 {
-  return [(CGFont*)font leading];
+  return ((CGFont*)font)->leading;
 }
 
 size_t CGFontGetNumberOfGlyphs(CGFontRef font)
 {
-  return [(CGFont*)font numberOfGlyphs];
+  return ((CGFont*)font)->numberOfGlyphs;
 }
 
 CGFloat CGFontGetStemV(CGFontRef font)
 {
-  return [(CGFont*)font stemV];
+  return ((CGFont*)font)->stemV;
 }
 
 CFTypeID CGFontGetTypeID()
@@ -191,12 +276,12 @@ CFTypeID CGFontGetTypeID()
 
 int CGFontGetUnitsPerEm(CGFontRef font)
 {
-  return [(CGFont*)font unitsPerEm];
+  return ((CGFont*)font)->unitsPerEm;
 }
 
 int CGFontGetXHeight(CGFontRef font)
 {
-  return [(CGFont*)font xHeight];
+  return ((CGFont*)font)->xHeight;
 }
 
 CGFontRef CGFontRetain(CGFontRef font)
