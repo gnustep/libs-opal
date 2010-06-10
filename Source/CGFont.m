@@ -29,9 +29,24 @@
 #include "CoreGraphics/CGFont.h"
 
 #import "internal/CGFontInternal.h"
+
+//FIXME: hack
+#ifdef __MINGW__
 #import "cairo/CairoFontWin32.h"
+#else
+#import "cairo/CairoFontX11.h"
+#endif
 
 @implementation CGFont
+
++ (Class) fontClass
+{
+#ifdef __MINGW__
+  return [CairoFontWin32 class];
+#else
+  return [CairoFontX11 class];
+#endif
+}
 
 - (bool) canCreatePostScriptSubset: (CGFontPostScriptFormat)format
 {
@@ -189,20 +204,17 @@ CFDataRef CGFontCreatePostScriptSubset(
 
 CGFontRef CGFontCreateWithDataProvider(CGDataProviderRef provider)
 {
-  // FIXME: correct subclass
-  return [CairoFontWin32 createWithDataProvider: provider];
+  return [[CGFont fontClass] createWithDataProvider: provider];
 }
 
 CGFontRef CGFontCreateWithFontName(CFStringRef name)
 {
-  // FIXME: correct subclass
-  return [CairoFontWin32 createWithFontName: name];
+  return [[CGFont fontClass] createWithFontName: name];
 }
 
 CGFontRef CGFontCreateWithPlatformFont(void *platformFontReference)
 {
-  // FIXME: correct subclass
-  return [CairoFontWin32 createWithPlatformFont: platformFontReference];
+  return [[CGFont fontClass] createWithPlatformFont: platformFontReference];
 }
 
 int CGFontGetAscent(CGFontRef font)
@@ -271,7 +283,7 @@ CGFloat CGFontGetStemV(CGFontRef font)
 CFTypeID CGFontGetTypeID()
 {
   // FIXME: correct subclass?
-  return [CairoFontWin32 class];
+  return [CGFont fontClass];
 }
 
 int CGFontGetUnitsPerEm(CGFontRef font)

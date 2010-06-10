@@ -11,6 +11,7 @@ int main(int argc, char **argv)
 {
   int ret;
   CGRect cr;
+  CGContextRef ctx;
   XSetWindowAttributes wa;
   XEvent e;
   Display *d;
@@ -24,7 +25,7 @@ int main(int argc, char **argv)
     }
   printf("Opened display %s\n", DisplayString(d));
 
-  cr = CGRectMake(0,0,500,250);
+  cr = CGRectMake(0,0,640,480);
   wa.background_pixel = WhitePixel(d, DefaultScreen(d));
   wa.event_mask = ExposureMask | ButtonReleaseMask;
 

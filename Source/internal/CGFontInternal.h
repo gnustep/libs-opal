@@ -29,6 +29,7 @@
 
 @interface CGFont : NSObject
 {
+@public
   CFStringRef fullName;
   CFStringRef postScriptName;
   int ascent;
