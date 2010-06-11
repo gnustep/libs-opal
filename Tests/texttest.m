@@ -44,7 +44,9 @@ void dumpGlpyhNames(CGFontRef f)
 {
   for (int i=0; i<CGFontGetNumberOfGlyphs(f); i++){
     CFStringRef str = CGFontCopyGlyphNameForGlyph(f, i);
-    printf("Glyph %d = '%s'\n", i, CFStringGetCStringPtr(str, kCFStringEncodingMacRoman));
+    char name[256];
+    CFStringGetCString(str, name, 256, kCFStringEncodingASCII);
+    printf("Glyph %d = '%s'\n", i, name);
     CFRelease(str);
   }
 }
