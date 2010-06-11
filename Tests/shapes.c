@@ -1,5 +1,8 @@
+#ifdef __APPLE__
 #include <ApplicationServices/ApplicationServices.h>
-
+#else
+#include <CoreGraphics/CoreGraphics.h>
+#endif
 #define pi 3.14159265358979323846
 
 extern void frameArc(CGContextRef context, CGRect r, int startAngle, int arcAngle);
