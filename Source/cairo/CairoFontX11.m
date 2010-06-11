@@ -331,8 +331,9 @@ static FcPattern *opal_FcPatternCacheLookup(const char *name)
   FT_Face ft_face = cairo_ft_scaled_font_lock_face(self->cairofont);
   CGGlyph result = 0;
   
-  const char *name = CFStringGetCStringPtr(glyphName, kCFStringEncodingASCII);
-  if (NULL != name) {
+  char name[256];
+  if (CFStringGetCString(glyphName, name, 256, kCFStringEncodingASCII))
+  {
     result = (CGGlyph)FT_Get_Name_Index(ft_face, (FT_String*)name);
   }
   

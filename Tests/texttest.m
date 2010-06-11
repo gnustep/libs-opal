@@ -73,9 +73,10 @@ void dumpFontInfo(CGFontRef f)
   for (int i=0; i<CGFontGetNumberOfGlyphs(f); i++)
   {
     CFStringRef name = CGFontCopyGlyphNameForGlyph(f, i);
-    if (i != CGFontGetGlyphWithGlyphName(f, name))
+    int g = CGFontGetGlyphWithGlyphName(f, name);
+    if (g != i)
     {
-      printf("!!! CGFontCopyGlyphNameForGlyph and CGFontGetGlyphWithGlyphName disagree on glyph %d\n", i);
+      printf("!!! glyph %d has name '%s' = glyph %d\n", i, getString(name), g);
     }
     CFRelease(name);
   }
