@@ -54,8 +54,11 @@
  *
  */
  
-#include <CoreGraphics/CGContext.h>
-#include <stdlib.h>
+#ifdef __APPLE__
+#include <ApplicationServices/ApplicationServices.h>
+#else
+#include <CoreGraphics/CoreGraphics.h>
+#endif
 
 #define kNumOfExamples 4
 #define PI 3.14159265358979323846

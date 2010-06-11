@@ -1,4 +1,4 @@
-#include <CoreGraphics/CGContext.h>
+#include <ApplicationServices/ApplicationServices.h>
 
 #define pi 3.14159265358979323846
 
@@ -46,14 +46,18 @@ void draw(CGContextRef ctx, CGRect r)
 
 	// Move the origin to the middle of the first image (left side) to draw.
 	CGContextTranslateCTM(ctx, bounds.size.width/4, bounds.size.height/2);
-
+  CGColorRef shadowColor = CGColorCreateGenericRGB(0, 0.2, 0.3, 0.75);
+  
 	// Draw "count" ovals, rotating the context around the newly translated origin
 	// 1/count radians after drawing each oval
 	for (k = 0; k < count; k++)
 	{
+    CGContextSaveGState(ctx);
+    CGContextSetShadowWithColor(ctx, CGSizeMake(6.0,-6.0), 2.0, shadowColor);
 		// Paint the oval with the fill color
 		paintOval(ctx, CGRectMake(-a, -b, 2 * a, 2 * b));
-
+    CGContextRestoreGState(ctx);
+      
 		// Frame the oval with the stroke color
 		frameOval(ctx, CGRectMake(-a, -b, 2 * a, 2 * b));
 
@@ -62,9 +66,10 @@ void draw(CGContextRef ctx, CGRect r)
 	}
 	// Restore the saved state to a known state for dawing the next image
 	CGContextRestoreGState(ctx);
-
+  CGColorRelease(shadowColor);
+  
 	// End the transparency layer
-        CGContextEndTransparencyLayer(ctx);
+  CGContextEndTransparencyLayer(ctx);
 
 
 

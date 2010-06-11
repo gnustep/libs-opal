@@ -53,7 +53,12 @@
 #define _BSD_SOURCE
 #include <math.h>
 #include <stdbool.h>
-#include <CoreGraphics/CGContext.h>
+
+#ifdef __APPLE__
+#include <ApplicationServices/ApplicationServices.h>
+#else
+#include <CoreGraphics/CoreGraphics.h>
+#endif
 
 /*
 pathForArc : Adds an arc (a segment of an oval) fitting inside a rectangle to the path.

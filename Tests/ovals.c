@@ -53,7 +53,11 @@
 #define _BSD_SOURCE
 #include <math.h>
 #include <stdbool.h>
-#include <CoreGraphics/CGContext.h>
+#ifdef __APPLE__
+#include <ApplicationServices/ApplicationServices.h>
+#else
+#include <CoreGraphics/CoreGraphics.h>
+#endif
  
  /*
 addOvalToPath : Adds to the context a path for an oval just inside the bounding rectangle that you specify.

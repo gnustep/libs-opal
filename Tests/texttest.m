@@ -1,4 +1,8 @@
-#include <CoreGraphics/CGContext.h>
+#ifdef __APPLE__
+#include <ApplicationServices/ApplicationServices.h>
+#else
+#include <CoreGraphics/CoreGraphics.h>
+#endif
 #include <CoreFoundation/CoreFoundation.h>
 #include <Foundation/Foundation.h>
 

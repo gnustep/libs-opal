@@ -50,7 +50,11 @@
  
  */ 
 
-#include <CoreGraphics/CGContext.h>
+#ifdef __APPLE__
+#include <ApplicationServices/ApplicationServices.h>
+#else
+#include <CoreGraphics/CoreGraphics.h>
+#endif
 
 /*
 frameRect : Draws the outline of a rectangle.
