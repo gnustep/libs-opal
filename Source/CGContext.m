@@ -570,9 +570,13 @@ static void fill_path(CGContextRef ctx, int eorule, int preserve)
   else
     cairo_set_source(ctx->ct, default_cp);
 
-  if (eorule) cairo_set_fill_rule(ctx->ct, CAIRO_FILL_RULE_EVEN_ODD);
+  if (eorule)
+    cairo_set_fill_rule(ctx->ct, CAIRO_FILL_RULE_EVEN_ODD);
+  else
+    cairo_set_fill_rule(ctx->ct, CAIRO_FILL_RULE_WINDING);
+
   cairo_fill_preserve(ctx->ct);
-  if (eorule) cairo_set_fill_rule(ctx->ct, CAIRO_FILL_RULE_WINDING);
+
   if (!preserve) cairo_new_path(ctx->ct);
   
   if (ctx->add->shadow_cp) {
@@ -673,12 +677,46 @@ CGPoint CGContextGetPathCurrentPoint(CGContextRef ctx)
 
 CGRect CGContextGetPathBoundingBox(CGContextRef ctx)
 {
-
+  double x1, y1, x2, y2;
+  cairo_path_extents(ctx->ct, &x1, &y1, &x2, &y2);
+  if (x1 == 0 && y1 == 0 && x2 == 0 && y2 == 0)
+  {
+    return CGRectNull;
+  }
+  else
+  {
+    // FIXME: check non-negative width/height
+    return CGRectMake(x1, y1, (x2-x1), (y2-y1));
+  }
 }
 
 CGPathRef CGContextCopyPath(CGContextRef ctx)
 {
-
+  CGMutablePathRef path = CGPathCreateMutable();
+  cairo_path_t *cairopath = cairo_copy_path(ctx->ct);
+  for (int i=0; i<cairopath->num_data; i+=cairopath->data[i].header.length)
+  {
+    cairo_path_data_t *data = &cairopath->data[i];
+    switch (data[0].header.type)
+    {
+      case CAIRO_PATH_MOVE_TO:
+        CGPathMoveToPoint(path, NULL, data[1].point.x, data[1].point.y);
+        break;
+      case CAIRO_PATH_LINE_TO:
+        CGPathAddLineToPoint(path, NULL, data[1].point.x, data[1].point.y);
+        break;
+      case CAIRO_PATH_CURVE_TO:
+        CGPathAddCurveToPoint(path, NULL, data[1].point.x, data[1].point.y,
+                                          data[2].point.x, data[2].point.y,
+                                          data[3].point.x, data[3].point.y);
+        break;
+      case CAIRO_PATH_CLOSE_PATH:
+        CGPathCloseSubpath(path);
+        break;
+    }
+  }
+  cairo_path_destroy(cairopath);
+  return path;
 }
 
 void CGContextClip(CGContextRef ctx)
@@ -709,7 +747,13 @@ void CGContextClipToRects(CGContextRef ctx, const CGRect rects[], size_t count)
 
 void CGContextClipToMask(CGContextRef ctx, CGRect rect, CGImageRef mask)
 {
-
+  /* Attach a temporay image mask to the surface.
+     Then, all drawing needs a: 
+       push_group()
+       do the drawing
+       pop_group_to_source();
+       mask()
+  */
 }
 
 CGRect CGContextGetClipBoundingBox(CGContextRef ctx)
