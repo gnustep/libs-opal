@@ -1084,30 +1084,86 @@ CGAffineTransform CGContextGetTextMatrix(CGContextRef ctx)
   return ctx->txtmatrix;
 }
 
-void CGContextShowText(CGContextRef ctx, const char *cstring, size_t length)
+void CGContextShowText(CGContextRef ctx, const char *string, size_t length)
 {
-  cairo_matrix_t matrix, opaltextmatrix, cairotextmatrix;
+  // Add a null character to the string
+
+  char *cString;
+  if (length + 1 > 0)
+  {
+    cString = (char *)malloc(length+1);
+    memcpy(cString, string, length);
+    cString[length] = '\0';
+  }
+  else
+  {
+    return;
+  }
+
+  // Save the cairo current point and move to the origin
+
+  bool hadPoint;
+  double oldX, oldY;
+  if (cairo_has_current_point(ctx->ct))
+  {
+    cairo_get_current_point(ctx->ct, &oldX, &oldY);
+    hadPoint = true;
+  }
+  else
+  {
+    hadPoint = false;
+  }
+  cairo_move_to(ctx->ct, 0, 0);
+
+  // Compute the cairo text matrix
+
+  cairo_matrix_t cairotextmatrix, opaltextmatrix;
+
+  cairo_matrix_init_identity(&cairotextmatrix);
+
+  // << Compensate for the flip
+
+  cairo_matrix_scale(&cairotextmatrix, 1, -1);
+  cairo_matrix_translate(&cairotextmatrix, 0, -1);
+
+  // >> // FIXME: this seems to work, but is it correct?
+
+  cairo_matrix_scale(&cairotextmatrix, ctx->add->font_size, ctx->add->font_size);
 
   cairo_matrix_init(&opaltextmatrix, ctx->txtmatrix.a, ctx->txtmatrix.b, ctx->txtmatrix.c,
     ctx->txtmatrix.d, ctx->txtmatrix.tx, ctx->txtmatrix.ty);  
-  cairo_get_font_matrix(ctx->ct, &cairotextmatrix);
-  cairo_matrix_multiply(&matrix, &cairotextmatrix, &opaltextmatrix); 
-  cairo_set_font_matrix(ctx->ct, &matrix);
+
+  cairo_matrix_multiply(&cairotextmatrix, &cairotextmatrix, &opaltextmatrix);
+
+  cairo_set_font_matrix(ctx->ct, &cairotextmatrix);
 
   if(ctx->add->fill_cp)
     cairo_set_source(ctx->ct, ctx->add->fill_cp);
   else
     cairo_set_source(ctx->ct, default_cp);
 
-  /* FIXME: length is ignored, \0 terminated string is assumed */
-  cairo_show_text(ctx->ct, cstring);
+  cairo_show_text(ctx->ct, cString);
 
-  double x, y;
-  cairo_get_current_point(ctx->ct, &x, &y);
-  ctx->txtmatrix.tx = x - cairotextmatrix.x0;
-  ctx->txtmatrix.ty = y - cairotextmatrix.y0;
+
+  // Update the opal text matrix with the distance the current point moved
+
+  double dx, dy;
+  cairo_get_current_point(ctx->ct, &dx, &dy);
   
-  cairo_set_font_matrix(ctx->ct, &cairotextmatrix);
+  CGPoint textPos = CGContextGetTextPosition(ctx);
+  CGContextSetTextPosition(ctx, textPos.x + dx, textPos.y + dy);
+  // FXIME: scaled?
+
+  // Restore the cairo path to the way it was before we did any text
+
+  if (hadPoint)
+  {
+    cairo_move_to(ctx->ct, oldX, oldY);
+  }
+  else
+  {
+    cairo_new_path(ctx->ct);
+  }
 }
 
 void CGContextShowTextAtPoint(
@@ -1165,13 +1221,45 @@ void CGContextShowGlyphsAtPositions(
     cairoGlyphs[i].y = positions[i].y;
   }
 
-  cairo_matrix_t matrix, opaltextmatrix, cairotextmatrix;
+  // Save the cairo current point and move to the origin
+
+  bool hadPoint;
+  double oldX, oldY;
+  if (cairo_has_current_point(ctx->ct))
+  {
+    cairo_get_current_point(ctx->ct, &oldX, &oldY);
+    hadPoint = true;
+  }
+  else
+  {
+    hadPoint = false;
+  }
+  cairo_move_to(ctx->ct, 0, 0);
+
+  // Compute the cairo text matrix
+
+  cairo_matrix_t cairotextmatrix, opaltextmatrix;
+
+  cairo_matrix_init_identity(&cairotextmatrix);
+
+  // << Compensate for the flip
+
+  cairo_matrix_scale(&cairotextmatrix, 1, -1);
+  cairo_matrix_translate(&cairotextmatrix, 0, -1);
+
+  // >> // FIXME: this seems to work, but is it correct?
+
+  cairo_matrix_scale(&cairotextmatrix, ctx->add->font_size, ctx->add->font_size);
 
   cairo_matrix_init(&opaltextmatrix, ctx->txtmatrix.a, ctx->txtmatrix.b, ctx->txtmatrix.c,
     ctx->txtmatrix.d, ctx->txtmatrix.tx, ctx->txtmatrix.ty);  
-  cairo_get_font_matrix(ctx->ct, &cairotextmatrix);
-  cairo_matrix_multiply(&matrix, &cairotextmatrix, &opaltextmatrix); 
-  cairo_set_font_matrix(ctx->ct, &matrix);
+
+  cairo_matrix_multiply(&cairotextmatrix, &cairotextmatrix, &opaltextmatrix);
+
+  cairo_set_font_matrix(ctx->ct, &cairotextmatrix);
+
+
+  // SHow the glpyhs
 
   if(ctx->add->fill_cp)
     cairo_set_source(ctx->ct, ctx->add->fill_cp);
@@ -1179,13 +1267,27 @@ void CGContextShowGlyphsAtPositions(
     cairo_set_source(ctx->ct, default_cp);
     
   cairo_show_glyphs(ctx->ct, cairoGlyphs, count);
+
+  // Update the opal text matrix with the distance the current point moved
+
+  double dx, dy;
+  cairo_get_current_point(ctx->ct, &dx, &dy);
   
-  double x, y;
-  cairo_get_current_point(ctx->ct, &x, &y);
-  ctx->txtmatrix.tx = x - cairotextmatrix.x0;
-  ctx->txtmatrix.ty = y - cairotextmatrix.y0;
-  
-  cairo_set_font_matrix(ctx->ct, &cairotextmatrix);
+  CGPoint textPos = CGContextGetTextPosition(ctx);
+  CGContextSetTextPosition(ctx, textPos.x + dx, textPos.y + dy);
+  // FXIME: scaled?
+
+  // Restore the cairo path to the way it was before we did any text
+
+  if (hadPoint)
+  {
+    cairo_move_to(ctx->ct, oldX, oldY);
+  }
+  else
+  {
+    cairo_new_path(ctx->ct);
+  }
+
 }
 
 /**
