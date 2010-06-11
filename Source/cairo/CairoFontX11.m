@@ -27,6 +27,7 @@
 // FIXME: hack, fix the build system
 #ifndef __MINGW__
 
+#import <Foundation/NSString.h>
 #include "CoreGraphics/CGBase.h"
 #include "CoreGraphics/CGDataProvider.h"
 #include "CoreGraphics/CGFont.h"
@@ -278,44 +279,6 @@ static FcPattern *opal_FcPatternCacheLookup(const char *name)
   return NULL;
 }
 
-+ (CGFontRef) createWithFontName: (CFStringRef)name;
-{
-  FcPattern *pat;
-  cairo_font_face_t *unscaled;
-  CairoFontX11 *font = [[CairoFontX11 alloc] init];
-  if (!font) return NULL;
-
-  pat = opal_FcPatternCacheLookup(name);
-  if(pat) {
-    unscaled = cairo_ft_font_face_create_for_pattern(pat);
-  } else {
-    CGFontRelease(font);
-    return NULL;
-  }
-
-  // Create a cairo_scaled_font which we just use to access the underlying
-  // FT_Face
-
-  cairo_matrix_t ident;
-  cairo_matrix_init_identity(&ident);
-
-  cairo_font_options_t *opts = cairo_font_options_create();
-  cairo_font_options_set_hint_metrics(opts, CAIRO_HINT_METRICS_OFF);
-  cairo_font_options_set_hint_style(opts, CAIRO_HINT_STYLE_NONE);
-  
-  font->cairofont = cairo_scaled_font_create(unscaled,
-    &ident, &ident, opts);
-    
-  cairo_font_options_destroy(opts);
-
-  return (CGFontRef)font;
-}
-
-+ (CGFontRef) createWithPlatformFont: (void *)platformFontReference;
-{
-  return NULL;
-}
-
 - (int) ascent;
 {
   FT_Face ft_face = cairo_ft_scaled_font_lock_face(self->cairofont);
@@ -370,7 +333,7 @@ static FcPattern *opal_FcPatternCacheLookup(const char *name)
   
   const char *name = CFStringGetCStringPtr(glyphName, kCFStringEncodingASCII);
   if (NULL != name) {
-    result = (CGGlyph)FT_Get_Name_Index(ft_face, name);
+    result = (CGGlyph)FT_Get_Name_Index(ft_face, (FT_String*)name);
   }
   
   cairo_ft_scaled_font_unlock_face(self->cairofont);
@@ -406,7 +369,7 @@ static FcPattern *opal_FcPatternCacheLookup(const char *name)
 - (size_t) numberOfGlyphs;
 {
   FT_Face ft_face = cairo_ft_scaled_font_lock_face(self->cairofont);
-
+  
   int result = ft_face->num_glyphs;
   
   cairo_ft_scaled_font_unlock_face(self->cairofont);
@@ -440,6 +403,56 @@ static FcPattern *opal_FcPatternCacheLookup(const char *name)
   
   cairo_ft_scaled_font_unlock_face(self->cairofont);
   return result;
+}
+
++ (CGFontRef) createWithFontName: (CFStringRef)name;
+{
+  FcPattern *pat;
+  cairo_font_face_t *unscaled;
+  CairoFontX11 *font = [[CairoFontX11 alloc] init];
+  if (!font) return NULL;
+
+  pat = opal_FcPatternCacheLookup([(NSString*)name UTF8String]);
+  if(pat) {
+    unscaled = cairo_ft_font_face_create_for_pattern(pat);
+  } else {
+    CGFontRelease(font);
+    return NULL;
+  }
+
+  // Create a cairo_scaled_font which we just use to access the underlying
+  // FT_Face
+
+  cairo_matrix_t ident;
+  cairo_matrix_init_identity(&ident);
+
+  cairo_font_options_t *opts = cairo_font_options_create();
+  cairo_font_options_set_hint_metrics(opts, CAIRO_HINT_METRICS_OFF);
+  cairo_font_options_set_hint_style(opts, CAIRO_HINT_STYLE_NONE);
+  
+  font->cairofont = cairo_scaled_font_create(unscaled,
+    &ident, &ident, opts);
+    
+  cairo_font_options_destroy(opts);
+
+  font->fullName = [font copyFullName];
+  font->postScriptName = [font copyPostScriptName];
+  font->ascent = [font ascent];
+  font->capHeight = [font capHeight];
+  font->descent = [font descent];
+  font->fontBBox = [font fontBBox];
+  font->italicAngle = [font italicAngle];
+  font->leading = [font leading];
+  font->numberOfGlyphs = [font numberOfGlyphs];
+  font->stemV = [font stemV];
+  font->unitsPerEm = [font unitsPerEm];
+  font->xHeight = [font xHeight];
+  return (CGFontRef)font;
+}
+
++ (CGFontRef) createWithPlatformFont: (void *)platformFontReference;
+{
+  return NULL;
 }
 
 @end

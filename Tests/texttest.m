@@ -42,7 +42,9 @@ void getGlyphs(CGFontRef font, CGFloat size, CFStringRef str)
 
 void dumpGlpyhNames(CGFontRef f)
 {
-  for (int i=0; i<CGFontGetNumberOfGlyphs(f); i++){
+  int nglyphs = CGFontGetNumberOfGlyphs(f);
+  printf("Dumping glpyhs for %p, %d glyphs:\n", f, nglyphs);
+  for (int i=0; i<nglyphs; i++){
     CFStringRef str = CGFontCopyGlyphNameForGlyph(f, i);
     char name[256];
     CFStringGetCString(str, name, 256, kCFStringEncodingASCII);

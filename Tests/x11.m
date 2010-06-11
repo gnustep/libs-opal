@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <X11/Xlib.h>
 #include <CoreGraphics/CGContext.h>
+#import <Foundation/NSAutoreleasePool.h>
 
 extern CGContextRef opal_XWindowContextCreate(Display *d, Window w);
 
@@ -54,6 +55,8 @@ int main(int argc, char **argv)
   }
   printf("Created context\n");
 
+  NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+
   while(1)
   {
     XNextEvent(d,&e);
@@ -80,7 +83,7 @@ int main(int argc, char **argv)
         break;
     }
   }
-
+  [pool release];
   return EXIT_SUCCESS;
 }
 
