@@ -143,6 +143,8 @@ void draw(CGContextRef ctx, CGRect rect)
   CGContextSetFontSize(ctx, 20);
   getGlyphs(f, 20, CFSTR("ShowGlpyhsWithAdvances"));
   CGContextShowGlyphsWithAdvances(ctx, glyphs, sizeAdvances, len);
+  getGlyphs(f, 20, CFSTR("IJK"));
+  CGContextShowGlyphs(ctx, glyphs, len);
 
 
   // Try some fancy glyphs
@@ -153,7 +155,7 @@ void draw(CGContextRef ctx, CGRect rect)
   CGGlyph ligatures[2] = {CGFontGetGlyphWithGlyphName(f, CFSTR("fl")),
     CGFontGetGlyphWithGlyphName(f2, CFSTR("fi"))};
   CGContextShowGlyphsAtPoint(ctx, 10, 80, ligatures, 2);
-  
+  CGContextShowGlyphs(ctx, ligatures, 2);
   
   // Test out the text matrix.
   CGGlyph AEligatures[2] = {CGFontGetGlyphWithGlyphName(f, CFSTR("AE")),
@@ -170,4 +172,19 @@ void draw(CGContextRef ctx, CGRect rect)
   CGContextSetTextMatrix(ctx, xform);
   CGContextSetFontSize(ctx, 20); // This line should do nothing because the text matrix and font size are independent
   CGContextShowGlyphs(ctx, AEligatures, 2);
+  
+  
+  // Test out CGContextShowGlyphsAtPositions. 
+  // Note that it ignores the current text position (and doesn't change it),
+  // unlike the otehr ShowGlpyhs functions which all update it.
+  CGContextSetTextMatrix(ctx, CGAffineTransformIdentity);
+  getGlyphs(f, 20, CFSTR("abc"));
+  CGPoint points[] = {CGPointMake(10, 160), CGPointMake(30, 180), CGPointMake(50, 200)};
+  CGContextShowGlyphsAtPositions(ctx, glyphs, points, len);
+
+  assert(CGContextGetTextPosition(ctx).x == 0.0f);
+  assert(CGContextGetTextPosition(ctx).y == 0.0f);
+  
+  getGlyphs(f, 20, CFSTR("origin"));
+  CGContextShowGlyphsWithAdvances(ctx, glyphs, sizeAdvances, len);  
 }
