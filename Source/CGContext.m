@@ -1166,6 +1166,9 @@ void CGContextShowText(CGContextRef ctx, const char *string, size_t length)
   }
 }
 
+/**
+ * Displays text at the given point (in user-space)
+ */
 void CGContextShowTextAtPoint(
   CGContextRef ctx,
   CGFloat x,
@@ -1184,16 +1187,20 @@ void CGContextShowGlyphs(CGContextRef ctx, const CGGlyph *glyphs, size_t count)
   if (CGFontGetGlyphAdvances(ctx->add->font, glyphs, count, advances))
   {
     CGSize fAdvances[count];
-    CGFloat mult = ctx->add->font_size / CGFontGetUnitsPerEm(ctx->add->font);
+
+    CGFloat glyphSpaceToTextSpace = ctx->add->font_size / CGFontGetUnitsPerEm(ctx->add->font);
     for (int i=0; i<count; i++)
     {
       // FIXME: Assumes the glyphs are to be layed out horizontally.. check that
       // Quartz makes the same assumption.
-      fAdvances[i].width = (advances[i] * mult) + ctx->add->char_spacing;
+      fAdvances[i].width = (advances[i] * glyphSpaceToTextSpace) + ctx->add->char_spacing;
       fAdvances[i].height = 0;
+
+      // Convert the width from text space to user space
+      fAdvances[i] = CGSizeApplyAffineTransform(fAdvances[i], CGContextGetTextMatrix(ctx));
     }
     CGContextShowGlyphsWithAdvances(ctx, glyphs, fAdvances, count);
-  }
+  } 
 }
 
 void CGContextShowGlyphsAtPoint(
@@ -1207,6 +1214,14 @@ void CGContextShowGlyphsAtPoint(
   CGContextShowGlyphs(ctx, glyphs, count);
 }
 
+/**
+ * Displays glyphs at the specified positions, specified in text-space.
+ * The current text position is not updated modified.
+ *
+ * Note that because the positions are given in text space, they are
+ * transformed by the text matrix (i.e. the current text position
+ * affects the final glyph positions)
+ */
 void CGContextShowGlyphsAtPositions(
   CGContextRef ctx,
   const CGGlyph glyphs[],
@@ -1217,24 +1232,11 @@ void CGContextShowGlyphsAtPositions(
   cairo_glyph_t cairoGlyphs[count];
   for (int i=0; i<count; i++) {
     cairoGlyphs[i].index = glyphs[i];
-    cairoGlyphs[i].x = positions[i].x;
-    cairoGlyphs[i].y = positions[i].y;
+    CGPoint userSpacePoint = CGPointApplyAffineTransform(positions[i], CGContextGetTextMatrix(ctx));
+    cairoGlyphs[i].x = userSpacePoint.x;
+    cairoGlyphs[i].y = userSpacePoint.y;
   }
 
-  // Save the cairo current point and move to the origin
-
-  bool hadPoint;
-  double oldX, oldY;
-  if (cairo_has_current_point(ctx->ct))
-  {
-    cairo_get_current_point(ctx->ct, &oldX, &oldY);
-    hadPoint = true;
-  }
-  else
-  {
-    hadPoint = false;
-  }
-  cairo_move_to(ctx->ct, 0, 0);
 
   // Compute the cairo text matrix
 
@@ -1252,14 +1254,13 @@ void CGContextShowGlyphsAtPositions(
   cairo_matrix_scale(&cairotextmatrix, ctx->add->font_size, ctx->add->font_size);
 
   cairo_matrix_init(&opaltextmatrix, ctx->txtmatrix.a, ctx->txtmatrix.b, ctx->txtmatrix.c,
-    ctx->txtmatrix.d, ctx->txtmatrix.tx, ctx->txtmatrix.ty);  
+    ctx->txtmatrix.d, 0, 0); 
 
   cairo_matrix_multiply(&cairotextmatrix, &cairotextmatrix, &opaltextmatrix);
 
   cairo_set_font_matrix(ctx->ct, &cairotextmatrix);
 
-
-  // SHow the glpyhs
+  // Show the glpyhs
 
   if(ctx->add->fill_cp)
     cairo_set_source(ctx->ct, ctx->add->fill_cp);
@@ -1267,31 +1268,11 @@ void CGContextShowGlyphsAtPositions(
     cairo_set_source(ctx->ct, default_cp);
     
   cairo_show_glyphs(ctx->ct, cairoGlyphs, count);
-
-  // Update the opal text matrix with the distance the current point moved
-
-  double dx, dy;
-  cairo_get_current_point(ctx->ct, &dx, &dy);
-  
-  CGPoint textPos = CGContextGetTextPosition(ctx);
-  CGContextSetTextPosition(ctx, textPos.x + dx, textPos.y + dy);
-  // FXIME: scaled?
-
-  // Restore the cairo path to the way it was before we did any text
-
-  if (hadPoint)
-  {
-    cairo_move_to(ctx->ct, oldX, oldY);
-  }
-  else
-  {
-    cairo_new_path(ctx->ct);
-  }
-
 }
 
 /**
- * Draws the given glyphs starting at the current text position.
+ * Draws the given glyphs starting at the current text position, with the
+ * given advances. Advances are in user-space.
  */
 void CGContextShowGlyphsWithAdvances (
   CGContextRef ctx,
@@ -1304,12 +1285,22 @@ void CGContextShowGlyphsWithAdvances (
   }
   // FIXME: Okay to stack allocate?
   CGPoint positions[count];
-  positions[0] = CGPointMake(ctx->txtmatrix.tx, ctx->txtmatrix.ty);
+  positions[0] = CGPointMake(0,0);
   for (size_t i=1; i<count; i++) {
-    positions[i] = CGPointMake(positions[i - 1].x + advances[i].width,
-      positions[i - 1].y + advances[i].height);
+    CGSize textSpaceAdvance = CGSizeApplyAffineTransform(advances[i-1], CGAffineTransformInvert(CGContextGetTextMatrix(ctx)));
+    positions[i] = CGPointMake(positions[i - 1].x + textSpaceAdvance.width,
+      positions[i - 1].y + textSpaceAdvance.height);
+    
   }
   CGContextShowGlyphsAtPositions(ctx, glyphs, positions, count);
+
+  // Update the text position
+  CGPoint pos = CGContextGetTextPosition(ctx);
+  for (size_t i=0; i<count; i++) {
+    pos.x += advances[i].width;
+    pos.y += advances[i].height;
+  }
+  CGContextSetTextPosition(ctx, pos.x, pos.y);
 }
 
 void CGContextBeginTransparencyLayer(

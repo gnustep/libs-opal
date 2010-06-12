@@ -456,6 +456,37 @@ static FcPattern *opal_FcPatternCacheLookup(const char *name)
   return NULL;
 }
 
+//FIXME: Not threadsafe
+- (bool) getGlyphAdvances: (const CGGlyph[])glyphs
+                         : (size_t)count
+                         : (int[]) advances
+{
+  FT_Face ft_face = cairo_ft_scaled_font_lock_face(self->cairofont);
+  for (size_t i=0; i<count; i++)
+  {
+    FT_Load_Glyph(ft_face, glyphs[i], FT_LOAD_NO_SCALE);
+    advances[i] = ft_face->glyph->metrics.horiAdvance;
+  }
+  cairo_ft_scaled_font_unlock_face(self->cairofont);
+  return true;
+}
+
+//FIXME: Not threadsafe
+- (bool) getGlyphBBoxes: (const CGGlyph[])glyphs
+                       : (size_t)count
+                       : (CGRect[])bboxes
+{
+  FT_Face ft_face = cairo_ft_scaled_font_lock_face(self->cairofont);
+  for (size_t i=0; i<count; i++)
+  {
+    FT_Load_Glyph(ft_face, glyphs[i], FT_LOAD_NO_SCALE);
+    FT_Glyph_Metrics m = ft_face->glyph->metrics;
+    bboxes[i] = CGRectMake(m.horiBearingX, m.horiBearingY - m.height, m.width, m.height);
+  }
+  cairo_ft_scaled_font_unlock_face(self->cairofont);
+  return true;
+}
+
 @end
 
 

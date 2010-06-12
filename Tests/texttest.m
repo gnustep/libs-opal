@@ -5,6 +5,7 @@
 #endif
 #include <CoreFoundation/CoreFoundation.h>
 #include <Foundation/Foundation.h>
+#include <assert.h>
 
 static const char *fontName = "Times-Roman";
 
@@ -51,7 +52,7 @@ void dumpGlpyhNames(CGFontRef f)
   printf("Dumping glpyhs for %p, %d glyphs:\n", f, nglyphs);
   for (int i=0; i<nglyphs; i++){
     CFStringRef str = CGFontCopyGlyphNameForGlyph(f, i);
-    printf("Glyph %d = '%s'\n", i, getString(str));
+    //printf("Glyph %d = '%s'\n", i, getString(str));
     CFRelease(str);
   }
 }
@@ -143,9 +144,13 @@ void draw(CGContextRef ctx, CGRect rect)
   CGContextSetFontSize(ctx, 20);
   getGlyphs(f, 20, CFSTR("ShowGlpyhsWithAdvances"));
   CGContextShowGlyphsWithAdvances(ctx, glyphs, sizeAdvances, len);
-  getGlyphs(f, 20, CFSTR("IJK"));
+  getGlyphs(f, 20, CFSTR("IJ"));
+  CGContextShowGlyphsWithAdvances(ctx, glyphs, sizeAdvances, len);
+  getGlyphs(f, 20, CFSTR("KL"));
   CGContextShowGlyphs(ctx, glyphs, len);
-
+  getGlyphs(f, 20, CFSTR("MNO"));
+  CGContextShowGlyphsWithAdvances(ctx, glyphs, sizeAdvances, len);
+ 
 
   // Try some fancy glyphs
   CGFontRef f2 = CGFontCreateWithFontName(CFSTR("Times-Roman"));
@@ -168,11 +173,23 @@ void draw(CGContextRef ctx, CGRect rect)
 
   xform = CGAffineTransformIdentity;
   xform = CGAffineTransformScale(xform, 2, 2); // Font size is 20, scaling by 2, means 40 pt text
-  xform = CGAffineTransformTranslate(xform, 5, 60);
+  xform = CGAffineTransformTranslate(xform, 15, 60);
   CGContextSetTextMatrix(ctx, xform);
   CGContextSetFontSize(ctx, 20); // This line should do nothing because the text matrix and font size are independent
   CGContextShowGlyphs(ctx, AEligatures, 2);
-  
+
+  getGlyphs(f, 40, CFSTR("NoOverlap"));
+  CGContextShowGlyphs(ctx, glyphs, len);
+
+  CGContextShowGlyphsWithAdvances(ctx, glyphs, sizeAdvances, len);
+
+  {
+   getGlyphs(f, 20, CFSTR("abc"));
+  CGPoint points[] = {CGPointMake(10, 0), CGPointMake(30, 0), CGPointMake(50, 0)};
+  CGContextShowGlyphsAtPositions(ctx, glyphs, points, len);
+  }
+
+
   
   // Test out CGContextShowGlyphsAtPositions. 
   // Note that it ignores the current text position (and doesn't change it),
