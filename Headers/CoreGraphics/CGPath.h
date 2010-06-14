@@ -40,9 +40,9 @@ typedef enum CGPathElementType {
 
 /* Data Types */
 
-typedef const struct CGPath * CGPathRef;
+typedef struct CGPath *CGPathRef;
 
-typedef struct CGPath * CGMutablePathRef;
+typedef struct CGPath *CGMutablePathRef;
 
 typedef struct CGPathElement {
   CGPathElementType type;
@@ -65,17 +65,17 @@ CGPathRef CGPathRetain(CGPathRef path);
 
 void CGPathRelease(CGPathRef path);
 
-int CGPathIsEmpty(CGPathRef path);
+bool CGPathIsEmpty(CGPathRef path);
 
-int CGPathEqualToPath(CGPathRef path1, CGPathRef path2);
+bool CGPathEqualToPath(CGPathRef path1, CGPathRef path2);
 
-int CGPathIsRect(CGPathRef path, CGRect *rect);
+bool CGPathIsRect(CGPathRef path, CGRect *rect);
 
 CGRect CGPathGetBoundingBox(CGPathRef path);
 
 CGPoint CGPathGetCurrentPoint(CGPathRef path);
 
-int CGPathContainsPoint(
+bool CGPathContainsPoint(
   CGPathRef path, 
   const CGAffineTransform *m, 
   CGPoint point, 
