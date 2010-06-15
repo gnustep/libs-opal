@@ -1,3 +1,4 @@
+#import <Foundation/NSAutoreleasePool.h>
 #include <CoreGraphics/CGContext.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -37,6 +38,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 
 APIENTRY int WinMain(HINSTANCE hInst, HINSTANCE x, LPSTR y, int nCmdShow) 
 { 
+  NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
   WNDCLASS wc; 
   HWND hwnd; 
   MSG msg; 
@@ -67,7 +69,11 @@ APIENTRY int WinMain(HINSTANCE hInst, HINSTANCE x, LPSTR y, int nCmdShow)
 
   while (GetMessage(&msg, NULL, 0, 0) > 0) 
     { 
+      NSAutoreleasePool *pool2 = [[NSAutoreleasePool alloc] init];
       TranslateMessage(&msg); 
       DispatchMessage(&msg); 
-    } 
+      [pool2 release];
+    }
+  [pool release];
+  return 0;
 } 

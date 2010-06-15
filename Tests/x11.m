@@ -10,6 +10,7 @@ void draw(CGContextRef ctx, CGRect r);
 
 int main(int argc, char **argv)
 {
+  NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
   int ret;
   CGRect cr;
   CGContextRef ctx;
@@ -55,10 +56,9 @@ int main(int argc, char **argv)
   }
   printf("Created context\n");
 
-  NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-
   while(1)
   {
+    NSAutoreleasePool *pool2 = [[NSAutoreleasePool alloc] init];
     XNextEvent(d,&e);
     switch(e.type)
     {
@@ -82,6 +82,7 @@ int main(int argc, char **argv)
         exit(EXIT_SUCCESS);
         break;
     }
+    [pool2 release];
   }
   [pool release];
   return EXIT_SUCCESS;

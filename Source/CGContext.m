@@ -1266,8 +1266,13 @@ void CGContextShowGlyphsAtPositions(
     cairo_set_source(ctx->ct, ctx->add->fill_cp);
   else
     cairo_set_source(ctx->ct, default_cp);
-    
-  cairo_show_glyphs(ctx->ct, cairoGlyphs, count);
+  
+  // FIXME: Report this as a cairo bug.. the following places the glyphs after the first one incorrectly
+  //cairo_show_glyphs(ctx->ct, cairoGlyphs, count);
+  // WORKAROUND:
+  for (int i=0; i<count; i++) {
+    cairo_show_glyphs(ctx->ct, &(cairoGlyphs[i]), 1);
+  }
 }
 
 /**
