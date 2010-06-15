@@ -1,6 +1,7 @@
 include $(GNUSTEP_MAKEFILES)/common.make
 
 TOOL_NAME = qeb2 shadows shapes layers texttest pdf
+APP_NAME = images
 
 ifeq ($(GNUSTEP_TARGET_OS), mingw32)
 main_file = win32.m
@@ -19,6 +20,8 @@ layers_OBJC_FILES = $(main_file)
 texttest_OBJC_FILES = texttest.m $(main_file)
 pdf_C_FILES = arcs.c ovals.c rects.c
 pdf_OBJC_FILES = pdf.m
+images_OBJC_FILES = images.m $(main_file)
+images_RESOURCE_FILES = test.png test.jpg
 
 ifneq ($(GNUSTEP_TARGET_OS), mingw32)
 ADDITIONAL_LDFLAGS += -lfontconfig -lX11 -lXrender -lm 
@@ -32,4 +35,5 @@ ADDITIONAL_INCLUDE_DIRS = -I../Headers
 
 -include GNUmakefile.preamble
 include $(GNUSTEP_MAKEFILES)/tool.make
+include $(GNUSTEP_MAKEFILES)/application.make
 -include GNUmakefile.postamble

@@ -29,6 +29,11 @@
 		66A1263411C1ADCA0090B514 /* shadows.c in Sources */ = {isa = PBXBuildFile; fileRef = 66A125D711C1AAA00090B514 /* shadows.c */; };
 		66A1263511C1ADD10090B514 /* layers.c in Sources */ = {isa = PBXBuildFile; fileRef = 66A125D311C1AAA00090B514 /* layers.c */; };
 		66A1264D11C1B64E0090B514 /* ApplicationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 66A1264C11C1B64E0090B514 /* ApplicationServices.framework */; };
+		66C0E42C11C82B7A00A20BBE /* cocoa.m in Sources */ = {isa = PBXBuildFile; fileRef = 66A125D011C1AA700090B514 /* cocoa.m */; };
+		66C0E42E11C82B7A00A20BBE /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
+		66C0E43411C82BA100A20BBE /* images.m in Sources */ = {isa = PBXBuildFile; fileRef = 66C0E42411C82B7000A20BBE /* images.m */; };
+		66C0E44111C82D1300A20BBE /* test.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 66C0E43F11C82D1300A20BBE /* test.jpg */; };
+		66C0E44211C82D1300A20BBE /* test.png in Resources */ = {isa = PBXBuildFile; fileRef = 66C0E44011C82D1300A20BBE /* test.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -49,8 +54,12 @@
 		66A125F811C1ABDC0090B514 /* shapes.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = shapes.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		66A1260311C1ABE80090B514 /* texttest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = texttest.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		66A1260E11C1ABF70090B514 /* shadows.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = shadows.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		66A1262311C1AC090090B514 /* layers.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = layers.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		66A1262311C1AC090090B514 /* qeb2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = qeb2.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		66A1264C11C1B64E0090B514 /* ApplicationServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ApplicationServices.framework; path = System/Library/Frameworks/ApplicationServices.framework; sourceTree = SDKROOT; };
+		66C0E42411C82B7000A20BBE /* images.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = images.m; sourceTree = "<group>"; };
+		66C0E43211C82B7A00A20BBE /* images.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = images.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		66C0E43F11C82D1300A20BBE /* test.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = test.jpg; sourceTree = "<group>"; };
+		66C0E44011C82D1300A20BBE /* test.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = test.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -95,6 +104,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		66C0E42D11C82B7A00A20BBE /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				66C0E42E11C82B7A00A20BBE /* Cocoa.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -124,7 +141,8 @@
 				66A125F811C1ABDC0090B514 /* shapes.app */,
 				66A1260311C1ABE80090B514 /* texttest.app */,
 				66A1260E11C1ABF70090B514 /* shadows.app */,
-				66A1262311C1AC090090B514 /* layers.app */,
+				66A1262311C1AC090090B514 /* qeb2.app */,
+				66C0E43211C82B7A00A20BBE /* images.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -132,6 +150,7 @@
 		29B97314FDCFA39411CA2CEA /* OpalTest */ = {
 			isa = PBXGroup;
 			children = (
+				66C0E42411C82B7000A20BBE /* images.m */,
 				66A125D011C1AA700090B514 /* cocoa.m */,
 				66A125D211C1AAA00090B514 /* arcs.c */,
 				66A125D311C1AAA00090B514 /* layers.c */,
@@ -141,6 +160,7 @@
 				66A125D711C1AAA00090B514 /* shadows.c */,
 				66A125D811C1AAA00090B514 /* shapes.c */,
 				66A125D911C1AAA00090B514 /* texttest.m */,
+				66C0E44311C82D1F00A20BBE /* Resources */,
 				29B97323FDCFA39411CA2CEA /* Frameworks */,
 				19C28FACFE9D520D11CA2CBB /* Products */,
 			);
@@ -154,6 +174,15 @@
 				1058C7A2FEA54F0111CA2CBB /* Other Frameworks */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		66C0E44311C82D1F00A20BBE /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				66C0E43F11C82D1300A20BBE /* test.jpg */,
+				66C0E44011C82D1300A20BBE /* test.png */,
+			);
+			name = Resources;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -241,7 +270,24 @@
 			);
 			name = qeb2;
 			productName = layers;
-			productReference = 66A1262311C1AC090090B514 /* layers.app */;
+			productReference = 66A1262311C1AC090090B514 /* qeb2.app */;
+			productType = "com.apple.product-type.application";
+		};
+		66C0E42511C82B7A00A20BBE /* images */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 66C0E42F11C82B7A00A20BBE /* Build configuration list for PBXNativeTarget "images" */;
+			buildPhases = (
+				66C0E42611C82B7A00A20BBE /* Resources */,
+				66C0E42711C82B7A00A20BBE /* Sources */,
+				66C0E42D11C82B7A00A20BBE /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = images;
+			productName = layers;
+			productReference = 66C0E43211C82B7A00A20BBE /* images.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -261,6 +307,7 @@
 				66A125FB11C1ABE80090B514 /* texttest */,
 				66A1260611C1ABF70090B514 /* shadows */,
 				66A1261B11C1AC090090B514 /* qeb2 */,
+				66C0E42511C82B7A00A20BBE /* images */,
 			);
 		};
 /* End PBXProject section */
@@ -298,6 +345,15 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		66C0E42611C82B7A00A20BBE /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				66C0E44111C82D1300A20BBE /* test.jpg in Resources */,
+				66C0E44211C82D1300A20BBE /* test.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -352,6 +408,15 @@
 				66A1263211C1ADC40090B514 /* qeb2-draw.c in Sources */,
 				66A1263311C1ADC40090B514 /* rects.c in Sources */,
 				66A1262811C1AD940090B514 /* cocoa.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		66C0E42711C82B7A00A20BBE /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				66C0E43411C82BA100A20BBE /* images.m in Sources */,
+				66C0E42C11C82B7A00A20BBE /* cocoa.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -454,7 +519,7 @@
 					AppKit,
 				);
 				PREBINDING = NO;
-				PRODUCT_NAME = layers;
+				PRODUCT_NAME = qeb2;
 			};
 			name = Debug;
 		};
@@ -471,7 +536,40 @@
 					AppKit,
 				);
 				PREBINDING = NO;
-				PRODUCT_NAME = layers;
+				PRODUCT_NAME = qeb2;
+			};
+			name = Release;
+		};
+		66C0E43011C82B7A00A20BBE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				OTHER_LDFLAGS = (
+					"-framework",
+					Foundation,
+					"-framework",
+					AppKit,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = images;
+			};
+			name = Debug;
+		};
+		66C0E43111C82B7A00A20BBE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				OTHER_LDFLAGS = (
+					"-framework",
+					Foundation,
+					"-framework",
+					AppKit,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = images;
 			};
 			name = Release;
 		};
@@ -545,6 +643,15 @@
 			buildConfigurations = (
 				66A1262111C1AC090090B514 /* Debug */,
 				66A1262211C1AC090090B514 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		66C0E42F11C82B7A00A20BBE /* Build configuration list for PBXNativeTarget "images" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				66C0E43011C82B7A00A20BBE /* Debug */,
+				66C0E43111C82B7A00A20BBE /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
