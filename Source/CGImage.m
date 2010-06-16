@@ -32,7 +32,6 @@
 {
 @public
   bool ismask;
-
   size_t width;
   size_t height;
   size_t bitsPerComponent;
@@ -46,7 +45,6 @@
   /* cspace and intent are only set for image */
   CGColorSpaceRef cspace;
   CGColorRenderingIntent intent;
-  
   /* used for CGImageCreateWithImageInRect */
   CGRect crop;
   cairo_surface_t *surf;
@@ -385,7 +383,7 @@ cairo_surface_t *opal_CGImageGetSurfaceForImage(CGImageRef img)
   int read = 0;
   while (read < datalen)
   {
-    read += opal_DataProviderRead(img->dp, data, 10000000);
+    read += OPDataProviderGetBytes(img->dp, data, 10000000);
   }
 
   img->surf = cairo_image_surface_create_for_data(data,

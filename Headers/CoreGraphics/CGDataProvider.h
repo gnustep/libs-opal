@@ -35,14 +35,9 @@ typedef struct CGDataProvider *  CGDataProviderRef;
 
 /* Callbacks */
 
-typedef void *(*CGDataProviderGetBytePointerCallback)(void *info);
-
-typedef size_t (*CGDataProviderGetBytesAtOffsetCallback)(
-  void *info,
-  void *buffer,
-  size_t offset,
-  size_t count
-);
+/**
+* Sequential data provider callbacks
+*/
 
 typedef size_t (*CGDataProviderGetBytesCallback)(
   void *info,
@@ -52,10 +47,43 @@ typedef size_t (*CGDataProviderGetBytesCallback)(
 
 typedef void (*CGDataProviderSkipBytesCallback)(void *info, size_t count);
 
+typedef off_t (*CGDataProviderSkipForwardCallback)(
+  void *info,
+  off_t count
+);
+
+typedef void (*CGDataProviderRewindCallback)(void *info);
+
+typedef void (*CGDataProviderReleaseInfoCallback)(void *info);
+
+/**
+ * Direct access data provider callbacks
+ */
+ 
+typedef const void *(*CGDataProviderGetBytePointerCallback)(void *info);
+
 typedef void (*CGDataProviderReleaseBytePointerCallback)(
   void *info,
   const void *pointer
 );
+
+typedef size_t (*CGDataProviderGetBytesAtOffsetCallback)(
+  void *info,
+  void *buffer,
+  size_t offset,
+  size_t count
+);
+
+typedef size_t (*CGDataProviderGetBytesAtPositionCallback)(
+  void *info,
+  void *buffer,
+  off_t position,
+  size_t count
+);
+
+/** 
+ * Callback for CGDataProviderCreateWithData
+ */
 
 typedef void (*CGDataProviderReleaseDataCallback)(
   void *info,
@@ -63,18 +91,23 @@ typedef void (*CGDataProviderReleaseDataCallback)(
   size_t size
 );
 
-typedef void (*CGDataProviderReleaseInfoCallback)(void *info);
+/* Data Types */
 
-typedef void (*CGDataProviderRewindCallback)(void *info);
-
-typedef struct CGDataProviderCallbacks
+/**
+ * Direct access callbacks structure
+ */
+typedef struct CGDataProviderDirectCallbacks
 {
-  CGDataProviderGetBytesCallback getBytes;
-  CGDataProviderSkipBytesCallback skipBytes;
-  CGDataProviderRewindCallback rewind;
-  CGDataProviderReleaseInfoCallback releaseProvider;
-} CGDataProviderCallbacks;
+   unsigned int version;
+   CGDataProviderGetBytePointerCallback getBytePointer;
+   CGDataProviderReleaseBytePointerCallback releaseBytePointer;
+   CGDataProviderGetBytesAtPositionCallback getBytesAtPosition;
+   CGDataProviderReleaseInfoCallback releaseInfo;
+} CGDataProviderDirectCallbacks;
 
+/**
+ * Deprecated direct access callbacks structure
+ */
 typedef struct CGDataProviderDirectAccessCallbacks
 {
   CGDataProviderGetBytePointerCallback getBytePointer;
@@ -83,17 +116,58 @@ typedef struct CGDataProviderDirectAccessCallbacks
   CGDataProviderReleaseInfoCallback releaseProvider;
 } CGDataProviderDirectAccessCallbacks;
 
+/**
+ * Sequential callbacks structure
+ */
+typedef struct CGDataProviderSequentialCallbacks
+{
+   unsigned int version;
+   CGDataProviderGetBytesCallback getBytes;
+   CGDataProviderSkipForwardCallback skipForward;
+   CGDataProviderRewindCallback rewind;
+   CGDataProviderReleaseInfoCallback releaseInfo;
+} CGDataProviderSequentialCallbacks;
+
+/**
+ * Deprecated sequential callbacks structure
+ */
+typedef struct CGDataProviderCallbacks
+{
+  CGDataProviderGetBytesCallback getBytes;
+  CGDataProviderSkipBytesCallback skipBytes;
+  CGDataProviderRewindCallback rewind;
+  CGDataProviderReleaseInfoCallback releaseProvider;
+} CGDataProviderCallbacks;
+
+
 /* Functions */
 
-CGDataProviderRef CGDataProviderCreate(
-  void *info,
-  const CGDataProviderCallbacks *callbacks
+CGDataProviderRef CGDataProviderCreateDirect(
+   void *info,
+   off_t size,
+   const CGDataProviderDirectCallbacks *callbacks
 );
 
+CGDataProviderRef CGDataProviderCreateSequential(
+   void *info,
+   const CGDataProviderSequentialCallbacks *callbacks
+);
+
+/**
+ * Deprecated
+ */
 CGDataProviderRef CGDataProviderCreateDirectAccess(
   void *info,
   size_t size,
   const CGDataProviderDirectAccessCallbacks *callbacks
+);
+
+/**
+ * Deprecated
+ */
+CGDataProviderRef CGDataProviderCreate(
+  void *info,
+  const CGDataProviderCallbacks *callbacks
 );
 
 CGDataProviderRef CGDataProviderCreateWithData(
@@ -107,8 +181,14 @@ CGDataProviderRef CGDataProviderCreateWithCFData(CFDataRef data);
 
 CGDataProviderRef CGDataProviderCreateWithURL(CFURLRef url);
 
+CGDataProviderRef CGDataProviderCreateWithFilename(const char *filename);
+
+CFDataRef CGDataProviderCopyData(CGDataProviderRef provider);
+
 CGDataProviderRef CGDataProviderRetain(CGDataProviderRef provider);
 
 void CGDataProviderRelease(CGDataProviderRef provider);
+
+CFTypeID CGDataProviderGetTypeID();
 
 #endif /* OPAL_CGDataProvider_h */

@@ -2,8 +2,10 @@
 
    <abstract>C Interface to graphics drawing library</abstract>
 
-   Copyright <copy>(C) 2006 Free Software Foundation, Inc.</copy>
+   Copyright <copy>(C) 2010 Free Software Foundation, Inc.</copy>
 
+   Author: Eric Wasylishen <ewasylishen@gmail.com>
+   Date: June, 2010
    Author: BALATON Zoltan <balaton@eik.bme.hu>
    Date: 2006
 
@@ -24,28 +26,35 @@
 
 #import <Foundation/NSObject.h>
 #include "CoreGraphics/CGDataProvider.h"
-#include "opal.h"
 
-@interface CGDataProvider : NSObject
-{
-@public
-  CGDataProviderCallbacks cb;
-  void *info;
-}
-@end
+/**
+ * These functions provide access to the data in a CGDataProvider.
+ * Sequential or Direct Access functions can be used regardless of the
+ * internal type of the data provider.
+ */
 
+/* Sequential Access */
 
-static inline size_t opal_DataProviderRead(CGDataProviderRef dp, void *buffer, size_t count)
-{
-  return dp->cb.getBytes(dp->info, buffer, count);
-}
+size_t OPDataProviderGetBytes(CGDataProviderRef dp, void *buffer, size_t count);
 
-static inline void opal_DataProviderSkip(CGDataProviderRef dp, size_t count)
-{
-  return dp->cb.skipBytes(dp->info, count);
-}
+off_t OPDataProviderSkipForward(CGDataProviderRef dp, off_t count);
 
-static inline void opal_DataProviderRewind(CGDataProviderRef dp)
-{
-  return dp->cb.rewind(dp->info);
-}
+void OPDataProviderRewind(CGDataProviderRef dp);
+
+/* Direct Access */
+
+size_t OPDataProviderGetSize(CGDataProviderRef dp);
+
+const void *OPDataProviderGetBytePointer(CGDataProviderRef dp);
+
+void OPDataProviderReleaseBytePointer(
+  CGDataProviderRef dp,
+  const void *pointer
+);
+
+size_t OPDataProviderGetBytesAtPosition(
+  CGDataProviderRef dp, 
+  void *buffer,
+  off_t position,
+  size_t count
+);
