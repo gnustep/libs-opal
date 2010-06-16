@@ -23,50 +23,130 @@
    */
 
 #import <Foundation/NSObject.h>
+#import <Foundation/NSData.h>
+#import <Foundation/NSURL.h>
+#import <Foundation/NSFileHandle.h>
 #include "CoreGraphics/CGDataConsumer.h"
-
 
 @interface CGDataConsumer : NSObject
 {
 @public
+  CGDataConsumerCallbacks cb;
+  void *info;
 }
 @end
 
 @implementation CGDataConsumer
 
+- (id) initWithCallbacks: (CGDataConsumerCallbacks)callbacks info: (void*)i
+{
+  self = [super init];
+  cb = callbacks;
+  info = i;
+  return self;
+}
+
 - (void) dealloc
 {
+  if (cb.releaseConsumer)
+  {
+    cb.releaseConsumer(info);
+  }
   [super dealloc];    
 }
 
 @end
 
+/* Opal-internal access */
+
+void OPDataConsumerPutBytes(CGDataConsumerRef dc, const void *buffer, size_t count)
+{
+  if (NULL != dc)
+  {
+    ((CGDataConsumer*)dc)->cb.putBytes(
+      ((CGDataConsumer*)dc)->info, 
+      buffer,
+      count);
+  }
+}
+
+/* URL consumer */
+
+static size_t opal_URLConsumerPutBytes(
+  void *info,
+  const void *buffer,
+  size_t count)
+{
+  NSData *data = [[NSData alloc] initWithBytesNoCopy: (void*)buffer
+                                              length: count
+                                        freeWhenDone: NO];
+  // FIXME: catch exceptions?
+  [(NSFileHandle*)info writeData: data];  
+  
+  [data release];
+  return count; 
+}
+
+static void opal_URLConsumerReleaseInfo(void *info)
+{
+  [(NSFileHandle*)info release];
+}
+
+
+/* CFData consumer */
+
+static size_t opal_CFDataConsumerPutBytes(
+   void *info,
+   const void *buffer,
+   size_t count)
+{
+  [(NSMutableData*)info appendBytes: buffer length: count];
+  return count;
+}
+
+static void opal_CFDataConsumerReleaseInfo(void *info)
+{
+  [(NSMutableData*)info release];
+}
+
+
+/* Functions */
 
 CGDataConsumerRef CGDataConsumerCreate(
   void *info,
   const CGDataConsumerCallbacks *callbacks)
 {
-  
+  return [[CGDataConsumer alloc] initWithCallbacks: *callbacks info: info];
 }
 
 CGDataConsumerRef CGDataConsumerCreateWithCFData(CFMutableDataRef data)
 {
-  
+  CGDataConsumerCallbacks opal_CFDataConsumerCallbacks = {
+    opal_CFDataConsumerPutBytes, opal_CFDataConsumerReleaseInfo 
+  };
+  return CGDataConsumerCreate([(NSData*)data retain], &opal_CFDataConsumerCallbacks);
 }
 
 CGDataConsumerRef CGDataConsumerCreateWithURL(CFURLRef url)
 {
-
+  CGDataConsumerCallbacks opal_URLConsumerCallbacks = {
+    opal_URLConsumerPutBytes, opal_URLConsumerReleaseInfo 
+  };
+  NSFileHandle *handle = [NSFileHandle fileHandleForWritingAtPath: [(NSURL*)url path]];
+  return CGDataConsumerCreate([handle retain], &opal_URLConsumerCallbacks);
 }
 
 CFTypeID CGDataConsumerGetTypeID()
 {
+  return (CFTypeID)[CGDataConsumer class];
 }
 
 void CGDataConsumerRelease(CGDataConsumerRef consumer)
 {
+  [(CGDataConsumer*)consumer release];
 }
 
 CGDataConsumerRef CGDataConsumerRetain(CGDataConsumerRef consumer)
 {
+  return [(CGDataConsumer*)consumer retain];
 }
