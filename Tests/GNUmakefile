@@ -1,7 +1,6 @@
 include $(GNUSTEP_MAKEFILES)/common.make
 
-TOOL_NAME = qeb2 shadows shapes layers texttest pdf
-APP_NAME = images
+TOOL_NAME = qeb2 shadows shapes layers texttest pdf images
 
 ifeq ($(GNUSTEP_TARGET_OS), mingw32)
 main_file = win32.m
@@ -35,5 +34,4 @@ ADDITIONAL_INCLUDE_DIRS = -I../Headers
 
 -include GNUmakefile.preamble
 include $(GNUSTEP_MAKEFILES)/tool.make
-include $(GNUSTEP_MAKEFILES)/application.make
 -include GNUmakefile.postamble

@@ -560,7 +560,10 @@ CGDataProviderRef CGDataProviderCreateWithURL(CFURLRef url)
 CGDataProviderRef CGDataProviderCreateWithFilename(const char *filename)
 {
   FILE *info = fopen(filename, "rb");
-
+  if (NULL == info)
+  {
+    return nil;
+  }
   return CGDataProviderCreateSequential(info, &opal_fileCallbacks);
 }
 

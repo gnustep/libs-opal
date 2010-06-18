@@ -28,6 +28,20 @@
 #include <cairo.h>
 #include "opal.h"
 
+
+static cairo_status_t cairo_opal_read_func(
+  void *closure,
+  unsigned char *data,
+  unsigned int length)
+{
+  printf("cairo_opal_read_func %d", length);
+  if (length == OPDataProviderGetBytes((CGDataProviderRef)closure, data, length))
+    return CAIRO_STATUS_SUCCESS;
+  else
+    return CAIRO_STATUS_SUCCESS;
+}
+
+
 @interface CGImage : NSObject
 {
 @public
@@ -255,7 +269,25 @@ CGImageRef CGImageCreateWithPNGDataProvider (
   bool shouldInterpolate,
   CGColorRenderingIntent intent)
 {
-  //FIXME: Implement
+  cairo_surface_t *png;
+  png = cairo_image_surface_create_from_png_stream(cairo_opal_read_func, source);
+  printf("read status: %s\n", cairo_status_to_string(cairo_surface_status(png)));
+  
+  CGImage *img = [[CGImage alloc] init];
+
+  img->width = cairo_image_surface_get_width(png);
+  img->height = cairo_image_surface_get_height(png);
+  img->bitsPerComponent = 8;
+  img->bitsPerPixel = 32;
+  img->bytesPerRow = 0;
+  img->dp = CGDataProviderRetain(source);
+  img->shouldInterpolate = YES;
+  img->crop = CGRectNull;
+  img->surf = png;
+  
+  return (CGImageRef)img;
+  
+  return nil;
 }
 
 CFTypeID CGImageGetTypeID()
@@ -385,7 +417,7 @@ cairo_surface_t *opal_CGImageGetSurfaceForImage(CGImageRef img)
   {
     read += OPDataProviderGetBytes(img->dp, data, 10000000);
   }
-
+  NSLog(@"Read %d bytes from dp %@", read, img->dp);
   img->surf = cairo_image_surface_create_for_data(data,
 						CAIRO_FORMAT_ARGB32,
 						img->width,
