@@ -24,13 +24,81 @@
 
 #include "CoreGraphics/CGGradient.h"
  
+@interface CGGradient : NSObject
+{
+@public
+  CGColorSpaceRef cs;
+  CGFloat *components;
+  CGFloat *locations;
+  size_t count;
+}
+
+@end
+
+@implementation CGGradient
+
+- (id) initWithComponents: (const CGFloat[])comps
+                locations: (const CGFloat[])locs
+                    count: (size_t) cnt
+               colorspace: (CGColorSpaceRef)cspace
+{
+  self = [super init];
+  
+  size_t numcomps = cnt * (CGColorSpaceGetNumberOfComponents(cspace) + 1);
+  
+  components = malloc(numcomps * sizeof(CGFloat));
+  memcpy(components, comps, numcomps * sizeof(CGFloat));
+  locations = malloc(cnt * sizeof(CGFloat));
+  memcpy(locations, locs, cnt * sizeof(CGFloat));
+  count = cnt;
+  cs = CGColorSpaceRetain(cspace);
+  
+  return self; 
+}
+- (void) dealloc
+{
+  free(components);
+  free(locations);
+  CGColorSpaceRelease(cs);
+  [super dealloc];
+}
+- (id) copyWithZone: (NSZone*)zone
+{
+  return [self retain];    
+}
+
+@end
+
+/* Private */
+
+CGColorSpaceRef OPGradientGetColorSpace(CGGradientRef g)
+{
+  return ((CGGradient*)g)->cs;
+}
+const CGFloat *OPGradientGetComponents(CGGradientRef g)
+{
+  return ((CGGradient*)g)->components;
+}
+const CGFloat *OPGradientGetLocations(CGGradientRef g)
+{
+  return ((CGGradient*)g)->locations; 
+}
+size_t OPGradientGetCount(CGGradientRef g)
+{
+  return ((CGGradient*)g)->count;
+}
+
+
+/* Public */
+
+
 CGGradientRef CGGradientCreateWithColorComponents(
   CGColorSpaceRef cs,
   const CGFloat components[],
   const CGFloat locations[],
   size_t count)
 {
-  
+  return [[CGGradient alloc] initWithComponents: components locations: locations count: count colorspace: cs];
 }
 
 CGGradientRef CGGradientCreateWithColors(
@@ -38,20 +106,27 @@ CGGradientRef CGGradientCreateWithColors(
   CFArrayRef colors,
   const CGFloat locations[])
 {
-  
+  size_t count = CFArrayGetCount(colors);
+  size_t cs_numcomps = CGColorSpaceGetNumberOfComponents(cs) + 1;
+  CGFloat components[count * cs_numcomps];
+  for (int i=0; i<count; i++)
+  {
+    memcpy(&components[i*cs_numcomps], CGColorGetComponents(), cs_numcomps * sizeof(CGFloat));
+  }
+  return CGGradientCreateWithColorComponents(cs, components, locations, count);
 }
 
 CFTypeID CGGradientGetTypeID()
 {
-  
+  return (CFTypeID)[CGGradient class];
 }
 
 CGGradientRef CGGradientRetain(CGGradientRef grad)
 {
-  
+  return (CGGradientRef)[(CGGradient*)grad retain];
 }
 
 void CGGradientRelease(CGGradientRef grad)
 {
-  
+  [(CGGradient*)grad release];
 }

@@ -25,6 +25,7 @@
 
 #include "CoreGraphics/CGGeometry.h"
 #include "CGContext-private.h"
+#include "CGGradient-private.h"
 
 #include <CoreFoundation/CoreFoundation.h>
 #include <stdlib.h>
@@ -1004,13 +1005,46 @@ void CGContextDrawPDFPage(CGContextRef ctx, CGPDFPageRef page)
 
 }
 
+static void opal_AddStops(cairo_pattern_t *pat, CGGradientRef grad)
+{
+  // FIXME: support other colorspaces by converting to deviceRGB
+  if (!CFEqual(CGColorSpaceCreateDeviceRGB(), OPGradientGetColorSpace(grad)))
+  {
+    errlog("Only DeviceRGB supported for gradients");
+    return;
+  }
+    
+  size_t cs_numcomps = (CGColorSpaceGetNumberOfComponents(OPGradientGetColorSpace(grad)) + 1);
+  assert(cs_numcomps == 4);
+  
+  size_t numcomps = OPGradientGetCount(grad);
+  
+  const CGFloat *components = OPGradientGetComponents(grad);
+  const CGFloat *locations = OPGradientGetLocations(grad);
+  
+  for (int i=0; i<numcomps; i++)
+  {
+    cairo_pattern_add_color_stop_rgba(pat, locations[i], components[i*cs_numcomps], components[i*cs_numcomps + 1],
+      components[i*cs_numcomps + 2], components[i*cs_numcomps + 3]);
+  }
+}
+
 void CGContextDrawLinearGradient(
   CGContextRef ctx,
   CGGradientRef gradient,
   CGPoint startPoint,
   CGPoint endPoint,
-  CGGradientDrawingOptions options
-);
+  CGGradientDrawingOptions options)
+{
+  cairo_pattern_t *pat = cairo_pattern_create_linear(startPoint.x, startPoint.y, endPoint.x, endPoint.y);
+  opal_AddStops(pat, gradient);
+  
+  cairo_set_source(ctx->ct, pat);
+  // FIXME: respect CGGradientDrawingOptions
+  cairo_paint(ctx->ct);
+  
+  cairo_pattern_destroy(pat);
+}
 
 void CGContextDrawRadialGradient(
   CGContextRef ctx,
@@ -1019,8 +1053,18 @@ void CGContextDrawRadialGradient(
   CGFloat startRadius,
   CGPoint endCenter,
   CGFloat endRadius,
-  CGGradientDrawingOptions options
-);
+  CGGradientDrawingOptions options)
+{
+  cairo_pattern_t *pat = cairo_pattern_create_radial(startCenter.x, startCenter.y, startRadius,
+    endCenter.x, endCenter.y, endRadius);
+  opal_AddStops(pat, gradient);
+  
+  cairo_set_source(ctx->ct, pat);
+  // FIXME: respect CGGradientDrawingOptions
+  cairo_paint(ctx->ct);
+  
+  cairo_pattern_destroy(pat);
+}
 
 void CGContextDrawShading(
   CGContextRef ctx,
