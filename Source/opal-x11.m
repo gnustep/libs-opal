@@ -84,6 +84,12 @@ CGContextRef opal_XWindowContextCreate(Display *d, Window w)
   return ctx;
 }
 
+void opal_XWindowContexSetSize(CGContextRef ctx, CGSize size)
+{
+  OPContextSetSize(ctx, size); // Updates CTM
+  cairo_xlib_surface_set_size(cairo_get_target(ctx->ct), size.width, size.height);
+}
+
 void opal_surface_flush(cairo_surface_t *target)
 {
   XFlush(cairo_xlib_surface_get_display(target));

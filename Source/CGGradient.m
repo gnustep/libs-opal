@@ -23,6 +23,7 @@
  */
 
 #include "CoreGraphics/CGGradient.h"
+#import <Foundation/NSObject.h>
  
 @interface CGGradient : NSObject
 {

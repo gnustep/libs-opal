@@ -24,6 +24,7 @@
 
 #include "CoreGraphics/CGImage.h"
 #include "CGDataProvider-private.h"
+#import <Foundation/NSString.h>
 #include <stdlib.h>
 #include <cairo.h>
 #include "opal.h"

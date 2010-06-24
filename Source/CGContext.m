@@ -123,6 +123,29 @@ static void end_shadow(CGContextRef ctx, CGRect bounds);
 
 @end
 
+
+void OPContextSetSize(CGContextRef ctxt, CGSize size)
+{
+  cairo_matrix_t oldCTM;
+  cairo_get_matrix(ctxt->ct, &oldCTM);
+  
+  cairo_matrix_t oldFlipInverse;
+  cairo_matrix_init_scale(&oldFlipInverse, 1, -1);
+  cairo_matrix_translate(&oldFlipInverse, 0, -ctxt->device_size.height);
+  cairo_matrix_invert(&oldFlipInverse);
+
+  cairo_matrix_t oldCTMWithoutFlip;
+  cairo_matrix_multiply(&oldCTMWithoutFlip, &oldFlipInverse, &oldCTM);
+
+  cairo_matrix_t newCTM;
+  cairo_matrix_init_scale(&newCTM, 1, -1);
+  cairo_matrix_translate(&newCTM, 0, -size.height);
+  cairo_matrix_multiply(&newCTM, &newCTM, &oldCTMWithoutFlip);
+
+  ctxt->device_size = size;
+  cairo_set_matrix(ctxt->ct, &newCTM);
+}
+
 CGContextRef opal_new_CGContext(cairo_surface_t *target, CGSize device_size)
 {
   CGContext *ctx = [[CGContext alloc] initWithSurface: target size: device_size];
@@ -1014,8 +1037,7 @@ static void opal_AddStops(cairo_pattern_t *pat, CGGradientRef grad)
     return;
   }
     
-  size_t cs_numcomps = (CGColorSpaceGetNumberOfComponents(OPGradientGetColorSpace(grad)) + 1);
-  assert(cs_numcomps == 4);
+  size_t cs_numcomps = 4; // == (CGColorSpaceGetNumberOfComponents(OPGradientGetColorSpace(grad)) + 1);
   
   size_t numcomps = OPGradientGetCount(grad);
   

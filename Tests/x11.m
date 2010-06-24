@@ -2,9 +2,10 @@
 #include <stdio.h>
 #include <X11/Xlib.h>
 #include <CoreGraphics/CGContext.h>
-#import <Foundation/NSAutoreleasePool.h>
+#import <Foundation/Foundation.h>
 
 extern CGContextRef opal_XWindowContextCreate(Display *d, Window w);
+extern void opal_XWindowContexSetSize(CGContextRef ctx, CGSize s);
 
 void draw(CGContextRef ctx, CGRect r);
 
@@ -43,7 +44,7 @@ int main(int argc, char **argv)
         CWBackPixel | CWEventMask, /* valuemask */
         &wa); /* attributes */
   printf("XCreateWindow returned: %lx\n", win);
-
+  XSelectInput(d, win, ExposureMask | StructureNotifyMask | ButtonReleaseMask );
   /* Map the window */
   ret = XMapRaised(d, win);
   printf("XMapRaised returned: %x\n", ret);
@@ -74,7 +75,17 @@ int main(int argc, char **argv)
           CGContextRestoreGState(ctx);
         }
         break;
-
+      case ConfigureNotify:
+        {
+          if (cr.size.width != e.xconfigure.width || cr.size.height != e.xconfigure.height)
+          {
+            cr.size.width = e.xconfigure.width;
+            cr.size.height = e.xconfigure.height;
+            NSLog(@"New rect: %f x %f", (float)cr.size.width, (float)cr.size.height);
+            opal_XWindowContexSetSize(ctx, cr.size);
+          }
+        }
+        break;
       case ButtonRelease:
         /* Finish program */
         CGContextRelease(ctx);
