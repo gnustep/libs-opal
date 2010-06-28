@@ -57,7 +57,6 @@ static NSMutableArray *sourceClasses = nil;
 - (CGImageSourceStatus)status;
 - (CGImageSourceStatus)statusAtIndex: (size_t)index;
 - (NSString*)type;
-- (void)updateData: (NSData*)data finalUpdate: (bool)finalUpdate;
 - (void)updateDataProvider: (CGDataProviderRef)provider finalUpdate: (bool)finalUpdate;
 
 @end
@@ -132,10 +131,6 @@ static NSMutableArray *sourceClasses = nil;
   [self doesNotRecognizeSelector: _cmd];
   return nil;
 }
-- (void)updateData: (NSData*)data finalUpdate: (bool)finalUpdate
-{
-  [self doesNotRecognizeSelector: _cmd];
-}
 - (void)updateDataProvider: (CGDataProviderRef)provider finalUpdate: (bool)finalUpdate
 {
   [self doesNotRecognizeSelector: _cmd];
@@ -143,13 +138,101 @@ static NSMutableArray *sourceClasses = nil;
 
 @end
 
+/** 
+ * Proxy class used to implement CGImageSourceCreateIncremental.
+ * It simply waits for enough data from CGImageSourceUpdateData[Provider] calls
+ * to create a real CGImageSource, then forwards messages to the real 
+ * image source.
+ */
+@interface CGImageSourceIncremental : CGImageSource
+{
+  CGImageSource *real;
+  CFDictionaryRef opts;
+}
+
+@end
+
+@implementation CGImageSourceIncremental
+
+- (id)initWithOptions: (CFDictionaryRef)o
+{
+  self = [super init];
+  opts = CFRetain(o);
+  return self;
+}
+- (void)dealloc
+{
+  [real release];
+  CFRelease(opts);
+  [super dealloc];
+}
+- (CGImageSource*)realSource
+{
+  return real;
+}
+- (NSDictionary*)propertiesWithOptions: (NSDictionary*)opts
+{
+  return [[self realSource] propertiesWithOptions: opts];
+}
+- (NSDictionary*)propertiesWithOptions: (NSDictionary*)opts atIndex: (size_t)index
+{
+  return [[self realSource] propertiesWithOptions: opts atIndex: index];
+}
+- (size_t)count
+{
+  return [[self realSource] count];
+}
+- (CGImageRef)createImageAtIndex: (size_t)index options: (NSDictionary*)opts
+{
+  return [[self realSource] createImageAtIndex: index options: opts];
+}
+- (CGImageRef)createThumbnailAtIndex: (size_t)index options: (NSDictionary*)opts
+{
+  return [[self realSource] createThumbnailAtIndex: index options: opts];
+}
+- (CGImageSourceStatus)status
+{
+  if (![self realSource])
+  {
+     return kCGImageStatusReadingHeader; // FIXME ??
+  }
+  return [[self realSource] status];
+}
+- (CGImageSourceStatus)statusAtIndex: (size_t)index
+{
+  if (![self realSource])
+  {
+     return kCGImageStatusReadingHeader; // FIXME ??
+  }
+  return [[self realSource] statusAtIndex: index];
+}
+- (NSString*)type
+{
+  return [[self realSource] type];
+}
+- (void)updateDataProvider: (CGDataProviderRef)provider finalUpdate: (bool)finalUpdate
+{
+  if (![self realSource])
+  {
+    // See if there is enough data to create a real image source
+    real = CGImageSourceCreateWithDataProvider(provider, opts);
+  }
+  else
+  {
+    [[self realSource] updateDataProvider: provider finalUpdate: finalUpdate];
+  }
+}
+
+@end
+
+
 /* Functions */
 
 /* Creating */
 
 CGImageSourceRef CGImageSourceCreateIncremental(CFDictionaryRef opts)
 {
-  return nil;//FIXME
+  return [[CGImageSourceIncremental alloc] initWithOptions: opts];
 }
 
 CGImageSourceRef CGImageSourceCreateWithData(
@@ -279,7 +362,9 @@ void CGImageSourceUpdateData(
   CFDataRef data,
   bool finalUpdate)
 {
-  [(CGImageSource*)source updateData: (NSData*)data finalUpdate: finalUpdate];
+  CGDataProviderRef provider = CGDataProviderCreateWithCFData(data);
+  CGImageSourceUpdateDataProvider(source, provider, finalUpdate);
+  CGDataProviderRelease(provider);
 }
 
 void CGImageSourceUpdateDataProvider(
