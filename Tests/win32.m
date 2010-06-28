@@ -15,15 +15,17 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
     {       
     case WM_PAINT:
       {
-	PAINTSTRUCT ps;
-	HDC hdc = BeginPaint(hwnd, &ps);
+        PAINTSTRUCT ps;
+	      RECT r;
+      	GetClientRect(hwnd, &r);
+	      HDC hdc = BeginPaint(hwnd, &ps);
 	
-	CGContextRef ctx = opal_Win32ContextCreate(hdc);
-	draw(ctx, CGRectMake(0, 0, 640, 480));
-	CGContextRelease(ctx);
+      	CGContextRef ctx = opal_Win32ContextCreate(hdc);
+	      draw(ctx, CGRectMake(0, 0, r.right - r.left, r.bottom - r.top));
+	      CGContextRelease(ctx);
 	
-	EndPaint(hwnd, &ps);
-	break;
+	      EndPaint(hwnd, &ps);
+	      break;
       }
       
     case WM_DESTROY: 

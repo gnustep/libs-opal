@@ -29,6 +29,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+// for off_t
+#include <sys/types.h>
+
 #ifdef CGFLOAT_DEFINED
 #warning CGFloat already defined - the definition must match that in CGBase.h
 #endif
@@ -53,17 +56,11 @@ typedef CGFLOAT_TYPE CGFloat;
 
 
 #ifndef MAX
-#define MAX(a,b) \
-       ({typeof(a) _MAX_a = (a); typeof(b) _MAX_b = (b);  \
-         _MAX_a > _MAX_b ? _MAX_a : _MAX_b; })
-#define	GS_DEFINED_MAX
+#define MAX(a,b) ((a)>(b)?(a):(b))
 #endif
 
 #ifndef MIN
-#define MIN(a,b) \
-       ({typeof(a) _MIN_a = (a); typeof(b) _MIN_b = (b);  \
-         _MIN_a < _MIN_b ? _MIN_a : _MIN_b; })
-#define	GS_DEFINED_MIN
+#define MIN(a,b) ((a)<(b)?(a):(b))
 #endif
  
 #endif

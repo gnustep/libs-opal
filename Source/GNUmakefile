@@ -19,13 +19,27 @@ $(LIBRARY_NAME)_HEADER_FILES = \
 	CGFont.h \
 	CGFunction.h \
 	CGGeometry.h \
+	CGGradient.h \
 	CGImage.h \
+	CGImageDestination.h \
+	CGImageSource.h \
 	CGLayer.h \
-	CGPDFContext.h \
-	CGPDFDocument.h \
 	CGPath.h \
 	CGPattern.h \
-	CGShading.h
+	CGPDFArray.h \
+	CGPDFContentStream.h \
+	CGPDFContext.h \
+	CGPDFDictionary.h \
+	CGPDFDocument.h \
+	CGPDFObject.h \
+	CGPDFOperatorTable.h \
+	CGPDFPage.h \
+	CGPDFScanner.h \
+	CGPDFString.h \
+	CGPDFStream.h \
+	CGPSConverter.h \
+	CGShading.h \
+	CoreGraphics.h
 
 ADDITIONAL_OBJCFLAGS += -Wall -g -std=gnu99
 ADDITIONAL_CPPFLAGS += $(shell pkg-config --cflags cairo)

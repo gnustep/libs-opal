@@ -180,7 +180,7 @@
   }
   else if (getBytesAtPositionCallback)
   {
-    return getBytesAtPositionCallback(info, buffer, position, count);
+    return getBytesAtPositionCallback(info, buffer, (int)position, count);
   }
   return 0;
 }
