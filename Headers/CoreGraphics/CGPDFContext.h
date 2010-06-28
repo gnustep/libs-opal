@@ -75,13 +75,13 @@ void CGPDFContextClose(CGContextRef ctx);
 CGContextRef CGPDFContextCreate(
   CGDataConsumerRef consumer,
   const CGRect *mediaBox,
-  CFDictionaryRef *auxiliaryInfo /* ignored */
+  CFDictionaryRef auxiliaryInfo
 );
 
 CGContextRef CGPDFContextCreateWithURL(
   CFURLRef url,
   const CGRect *mediaBox,
-  CFDictionaryRef auxiliaryInfo /* ignored */
+  CFDictionaryRef auxiliaryInfo
 );
 
 void CGPDFContextEndPage(CGContextRef ctx);

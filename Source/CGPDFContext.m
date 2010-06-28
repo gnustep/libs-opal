@@ -93,15 +93,14 @@ cairo_status_t opal_CGPDFContextWriteFunction(
   unsigned char *data,
   unsigned int length)
 {
-  CGDataConsumerRef consumer = (CGDataConsumerRef)closure;
-  // FIXME: send the data to consumer
+  OPDataConsumerPutBytes((CGDataConsumerRef)closure, data, length);
   return CAIRO_STATUS_SUCCESS;
 }
 
 CGContextRef CGPDFContextCreate(
   CGDataConsumerRef consumer,
   const CGRect *mediaBox,
-  CFDictionaryRef *auxiliaryInfo)
+  CFDictionaryRef auxiliaryInfo)
 {
   CGRect box;
   if (mediaBox == NULL) {
