@@ -27,14 +27,47 @@
 
 @interface CGBitmapContext : CGContext
 {
-  
+@public
+  CGColorSpaceRef cs;
+  void *data;
+  void *releaseInfo;
+  CGBitmapContextReleaseDataCallback cb;
 }
+- (id) initWithSurface: (cairo_surface_t *)target
+            colorspace: (CGColorSpaceRef)colorspace
+                  data: (void*)d
+           releaseInfo: (void*)i
+       releaseCallback: (CGBitmapContextReleaseDataCallback)releaseCallback;     
 @end
 
 @implementation CGBitmapContext
 
+- (id) initWithSurface: (cairo_surface_t *)target
+            colorspace: (CGColorSpaceRef)colorspace
+                  data: (void*)d
+           releaseInfo: (void*)i
+       releaseCallback: (CGBitmapContextReleaseDataCallback)releaseCallback;     
+{
+  CGSize size = CGSizeMake(cairo_image_surface_get_width(target),
+                           cairo_image_surface_get_height(target));
+  if (nil == (self = [super initWithSurface: target size: size]))
+  {
+    return nil;
+  }
+  cs = CGColorSpaceRetain(colorspace);
+  data = d;
+  releaseInfo = i;
+  cb = releaseCallback;
+  return self;
+}
+
 - (void) dealloc
 {
+  CGColorSpaceRelease(cs);
+  if (cb)
+  {
+  	cb(releaseInfo, data);
+  }
   [super dealloc];    
 }
 
@@ -47,10 +80,16 @@ CGContextRef CGBitmapContextCreate(
   size_t height,
   size_t bitsPerComponent,
   size_t bytesPerRow,
-  CGColorSpaceRef colorspace,
-  CGImageAlphaInfo alphaInfo)
+  CGColorSpaceRef cs,
+  CGBitmapInfo info)
 {
+  return CGBitmapContextCreateWithData(data, width, height, bitsPerComponent,
+    bytesPerRow, cs, info, NULL, NULL);
+}
 
+static void OPBitmapDataReleaseCallback(void *info, void *data)
+{
+  free(data);
 }
 
 CGContextRef CGBitmapContextCreateWithData(
@@ -64,56 +103,218 @@ CGContextRef CGBitmapContextCreateWithData(
   CGBitmapContextReleaseDataCallback callback,
   void *releaseInfo)
 {
+  cairo_format_t format;
+  cairo_surface_t *surf;  
 
+  if (0 != (info & kCGBitmapFloatComponents))
+  {
+  	errlog("%s:%d:Float components not supported\n", __FILE__, __LINE__); 
+    return nil;
+  }
+  
+  const int order = info & kCGBitmapByteOrderMask;
+  if (!((CFByteOrderGetCurrent() == CFByteOrderLittleEndian) && (order == kCGBitmapByteOrder32Little))
+    && !((CFByteOrderGetCurrent() == CFByteOrderBigEndian) && (order == kCGBitmapByteOrder32Big))
+	&& !(order == kCGBitmapByteOrderDefault))
+  {
+  	errlog("%s:%d:Bitmap context must be native-endiand\n", __FILE__, __LINE__);
+    return nil;
+  }
+
+  const int alpha = info &  kCGBitmapAlphaInfoMask;
+  const CGColorSpaceModel model = CGColorSpaceGetModel(cs);
+  const size_t numComps = CGColorSpaceGetNumberOfComponents(cs);
+  
+  if (bitsPerComponent == 8
+      && numComps == 3
+      && model == kCGColorSpaceModelRGB
+      && alpha == kCGImageAlphaPremultipliedFirst)
+  {
+  	format = CAIRO_FORMAT_ARGB32;
+  }
+  else if (bitsPerComponent == 8
+      && numComps == 3
+      && model == kCGColorSpaceModelRGB
+      && alpha == kCGImageAlphaNoneSkipFirst)
+  {
+  	format = CAIRO_FORMAT_RGB24;
+  }
+  else if (bitsPerComponent == 8 && alpha == kCGImageAlphaOnly)
+  {
+  	format = CAIRO_FORMAT_A8;
+  }
+  else if (bitsPerComponent == 1 && alpha == kCGImageAlphaOnly)
+  {
+  	format = CAIRO_FORMAT_A1;
+  }
+  else
+  {
+  	errlog("%s:%d:Unsupported bitmap format\n", __FILE__, __LINE__); 
+    return nil;
+  }
+  
+  
+  if (data == NULL)
+  {
+  	data = malloc(height * bytesPerRow); // FIXME: checks
+  	callback = (CGBitmapContextReleaseDataCallback)OPBitmapDataReleaseCallback;
+  }
+
+  surf = cairo_image_surface_create_for_data(data, format, width, height, bytesPerRow);
+  
+  return [[CGBitmapContext alloc] initWithSurface: surf
+                                       colorspace: cs
+                                             data: data
+                                      releaseInfo: releaseInfo
+		                          releaseCallback: callback];
 }
 
 
 CGImageAlphaInfo CGBitmapContextGetAlphaInfo(CGContextRef ctx)
 {
-
+  if ([ctx isKindOfClass: [CGBitmapContext class]])
+  {
+    switch (cairo_image_surface_get_format(cairo_get_target(ctx->ct)))
+	{
+	  case CAIRO_FORMAT_ARGB32:
+	    return kCGImageAlphaPremultipliedFirst;
+	  case CAIRO_FORMAT_RGB24:
+	    return kCGImageAlphaNoneSkipFirst;
+	  case CAIRO_FORMAT_A8:
+	  case CAIRO_FORMAT_A1:
+	    return kCGImageAlphaOnly;
+	  default:
+	    return kCGImageAlphaNone;
+	}
+  }
+  return kCGImageAlphaNone;
 }
 
-CGBitmapInfo CGBitmapContextGetBitmapInfo(CGContextRef context)
+CGBitmapInfo CGBitmapContextGetBitmapInfo(CGContextRef ctx)
 {
-
+  if ([ctx isKindOfClass: [CGBitmapContext class]])
+  {
+    return cairo_image_surface_get_stride(cairo_get_target(ctx->ct));
+  }
+  return 0;
 }
 
 size_t CGBitmapContextGetBitsPerComponent(CGContextRef ctx)
 {
-
+  if ([ctx isKindOfClass: [CGBitmapContext class]])
+  {
+    switch (cairo_image_surface_get_format(cairo_get_target(ctx->ct)))
+	{
+	  case CAIRO_FORMAT_ARGB32:
+	  case CAIRO_FORMAT_RGB24:
+	  case CAIRO_FORMAT_A8:
+	    return 8;
+	  case CAIRO_FORMAT_A1:
+	    return 1;
+	  default:
+	    return 0;
+	}
+  }
+  return 0;
 }
 
 size_t CGBitmapContextGetBitsPerPixel(CGContextRef ctx)
 {
-
+  if ([ctx isKindOfClass: [CGBitmapContext class]])
+  {
+    switch (cairo_image_surface_get_format(cairo_get_target(ctx->ct)))
+	{
+	  case CAIRO_FORMAT_ARGB32:
+	  case CAIRO_FORMAT_RGB24:
+	    return 32;
+	  case CAIRO_FORMAT_A8:
+	    return 8;
+	  case CAIRO_FORMAT_A1:
+	    return 1;
+	  default:
+	    return 0;
+	}
+  }
+  return 0;
 }
 
 size_t CGBitmapContextGetBytesPerRow(CGContextRef ctx)
 {
-
+  if ([ctx isKindOfClass: [CGBitmapContext class]])
+  {
+    return cairo_image_surface_get_stride(cairo_get_target(ctx->ct));
+  }
+  return 0;
 }
 
 CGColorSpaceRef CGBitmapContextGetColorSpace(CGContextRef ctx)
 {
-
+  if ([ctx isKindOfClass: [CGBitmapContext class]])
+  {
+  	return ((CGBitmapContext*)ctx)->cs;
+  }
+  return nil;
 }
 
 void *CGBitmapContextGetData(CGContextRef ctx)
 {
-
+  if ([ctx isKindOfClass: [CGBitmapContext class]])
+  {
+    return cairo_image_surface_get_data(cairo_get_target(ctx->ct));
+  }
+  return 0;
 }
 
 size_t CGBitmapContextGetHeight(CGContextRef ctx)
 {
-
+  if ([ctx isKindOfClass: [CGBitmapContext class]])
+  {
+    return cairo_image_surface_get_height(cairo_get_target(ctx->ct));
+  }
+  return 0;
 }
 
 size_t CGBitmapContextGetWidth(CGContextRef ctx)
 {
+  if ([ctx isKindOfClass: [CGBitmapContext class]])
+  {
+    return cairo_image_surface_get_width(cairo_get_target(ctx->ct));
+  }
+  return 0;
+}
 
+static void OpalReleaseContext(void *info, const void *data, size_t size)
+{
+  CGContextRelease(info);
 }
 
 CGImageRef CGBitmapContextCreateImage(CGContextRef ctx)
 {
-
+  if ([ctx isKindOfClass: [CGBitmapContext class]])
+  {
+    CGDataProviderRef dp = CGDataProviderCreateWithData(
+      CGContextRetain(ctx),
+      CGBitmapContextGetData(ctx),
+      CGBitmapContextGetBytesPerRow(ctx) * CGBitmapContextGetHeight(ctx),
+      OpalReleaseContext
+    );
+    
+    CGImageRef img = CGImageCreate(
+      CGBitmapContextGetWidth(ctx), 
+      CGBitmapContextGetHeight(ctx), 
+      CGBitmapContextGetBitsPerComponent(ctx),
+      CGBitmapContextGetBitsPerPixel(ctx),
+      CGBitmapContextGetBytesPerRow(ctx),
+      CGBitmapContextGetColorSpace(ctx),
+      CGBitmapContextGetBitmapInfo(ctx),
+      dp,
+      NULL,
+      true,
+      kCGRenderingIntentDefault
+    );
+    
+    CGDataProviderRelease(dp);
+    return img;
+  }
+  return nil;
 }

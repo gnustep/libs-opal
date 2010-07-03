@@ -44,7 +44,7 @@ CGContextRef CGBitmapContextCreate(
   size_t bitsPerComponent,
   size_t bytesPerRow,
   CGColorSpaceRef colorspace,
-  CGImageAlphaInfo alphaInfo
+  CGBitmapInfo info
 );
 
 CGContextRef CGBitmapContextCreateWithData(

@@ -59,7 +59,7 @@ struct ct_additions
   CGFloat scale_factor;
   CGSize device_size;
 }
-
+- (id) initWithSurface: (cairo_surface_t *)target size: (CGSize)size;
 @end
 
 
