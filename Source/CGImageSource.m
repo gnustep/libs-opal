@@ -22,8 +22,11 @@
 
 #include "CoreGraphics/CGImageSource.h"
 
+#import <Foundation/NSException.h>
 #import <Foundation/NSArray.h>
 #import <Foundation/NSSet.h>
+
+#include "CGImageSource-private.h"
 
 /* Constants */
 
@@ -38,29 +41,6 @@ const CFStringRef kCGImageSourceCreateThumbnailWithTransform = @"kCGImageSourceC
 
 static NSMutableArray *sourceClasses = nil;
 
-@interface CGImageSource : NSObject
-{
-}
-
-+ (void) registerSourceClass: (Class)cls;
-+ (NSArray*) sourceClasses;
-+ (Class) sourceClassForType: (NSString*)type;
-
-+ (NSArray *)typeIdentifiers;
-+ (BOOL)canDecodeData: (CGDataProviderRef)provider;
-- (id)initWitProvider: (CGDataProviderRef)provider;
-- (NSDictionary*)propertiesWithOptions: (NSDictionary*)opts;
-- (NSDictionary*)propertiesWithOptions: (NSDictionary*)opts atIndex: (size_t)index;
-- (size_t)count;
-- (CGImageRef)createImageAtIndex: (size_t)index options: (NSDictionary*)opts;
-- (CGImageRef)createThumbnailAtIndex: (size_t)index options: (NSDictionary*)opts;
-- (CGImageSourceStatus)status;
-- (CGImageSourceStatus)statusAtIndex: (size_t)index;
-- (NSString*)type;
-- (void)updateDataProvider: (CGDataProviderRef)provider finalUpdate: (bool)finalUpdate;
-
-@end
-
 @implementation CGImageSource
 
 + (void) registerSourceClass: (Class)cls
@@ -69,7 +49,14 @@ static NSMutableArray *sourceClasses = nil;
   {
     sourceClasses = [[NSMutableArray alloc] init];
   }
-  [sourceClasses addObject: cls];
+  if ([cls isSubclassOfClass: [CGImageSource class]])
+  {
+    [sourceClasses addObject: cls];
+  }
+  else
+  {
+    [NSException raise: NSInvalidArgumentException format: @"+[CGImageSource registerSourceClass:] called with invalid class"];
+  }  
 }
 + (NSArray*) sourceClasses
 {
@@ -86,7 +73,7 @@ static NSMutableArray *sourceClasses = nil;
   [self doesNotRecognizeSelector: _cmd];
   return NO;
 }
-- (id)initWitProvider: (CGDataProviderRef)provider
+- (id)initWithProvider: (CGDataProviderRef)provider
 {
   [self doesNotRecognizeSelector: _cmd];
   return nil;
@@ -250,24 +237,34 @@ CGImageSourceRef CGImageSourceCreateWithDataProvider(
   CGDataProviderRef provider,
   CFDictionaryRef opts)
 {
+  const NSUInteger cnt = [sourceClasses count];
   NSString *possibleType = [(NSDictionary*)opts valueForKey:
     (NSString*)kCGImageSourceTypeIdentifierHint];
+    
   if (possibleType)
   {
-    Class cls = [CGImageSource sourceClassForType: possibleType]; 
-    if ([cls canDecodeData: provider])
-    {
-      return [[cls alloc] initWithProvider: provider];
-    } 
+    for (NSUInteger i=0; i<cnt; i++)
+    {    
+      Class cls = [sourceClasses objectAtIndex: i];
+      if ([[cls typeIdentifiers] containsObject: possibleType])
+      {
+        CGImageSource *src = [[cls alloc] initWithProvider: provider];
+        if (src)
+        {
+          return src;
+        }
+      }
+    }
   }
   
-  NSUInteger cnt = [sourceClasses count];
   for (NSUInteger i=0; i<cnt; i++)
   {    
     Class cls = [sourceClasses objectAtIndex: i];
-    if ([cls canDecodeData: provider])
+    
+    CGImageSource *src = [[cls alloc] initWithProvider: provider];
+    if (src)
     {
-      return [[cls alloc] initWithProvider: provider];
+      return src;
     }
   }
   

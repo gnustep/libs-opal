@@ -23,24 +23,13 @@
    */
 
 #include "CoreGraphics/CGImage.h"
+#include "CoreGraphics/CGImageSource.h"
 #include "CGDataProvider-private.h"
 #import <Foundation/NSString.h>
+#import <Foundation/NSDictionary.h>
 #include <stdlib.h>
 #include <cairo.h>
 #include "opal.h"
-
-
-static cairo_status_t cairo_opal_read_func(
-  void *closure,
-  unsigned char *data,
-  unsigned int length)
-{
-  printf("cairo_opal_read_func %d", length);
-  if (length == OPDataProviderGetBytes((CGDataProviderRef)closure, data, length))
-    return CAIRO_STATUS_SUCCESS;
-  else
-    return CAIRO_STATUS_SUCCESS;
-}
 
 
 @interface CGImage : NSObject
@@ -68,6 +57,11 @@ static cairo_status_t cairo_opal_read_func(
 
 @implementation CGImage
 
+- (id) copyWithZone: (NSZone*)zone
+{
+  return [self retain];    
+}
+
 - (void) dealloc
 {
   CGColorSpaceRelease(self->cspace);
@@ -90,15 +84,15 @@ static inline CGImageRef opal_CreateImage(
   CGImage *img;
 
   if (bitsPerComponent != 8 && bitsPerComponent != 4 &&
-      bitsPerComponent != 2 && bitsPerComponent != 1) {
-    errlog("%s:%d: Invalid bitsPerComponent (allowed: 1,2,4,8)\n",
-      __FILE__, __LINE__);
+      bitsPerComponent != 2 && bitsPerComponent != 1)
+  {
+    NSLog(@"Unsupported bitsPerComponent: %d (allowed: 1,2,4,8)", bitsPerComponent);
     return NULL;
   }
   if (bitsPerPixel != 32 && bitsPerPixel != 16 &&
-      bitsPerPixel != 8) {
-    errlog("%s:%d: Unsupported bitsPerPixel (allowed: 8, 16, 32)\n",
-      __FILE__, __LINE__);
+      bitsPerPixel != 8)
+  {
+    NSLog(@"Unsupported bitsPerPixel: %d (allowed: 8, 16, 32)", bitsPerPixel);
     return NULL;
   }
   if (bitsPerPixel < bitsPerComponent * (numComponents + (hasAlpha ? 1 : 0))) {
@@ -197,12 +191,18 @@ CGImageRef CGImageMaskCreate(
 
 CGImageRef CGImageCreateCopy(CGImageRef image)
 {
+  return (CGImageRef)[(CGImage *)image retain];
+}
+
+
+CGImageRef CGImageCreateCopyWithColorSpace(
+  CGImageRef image,
+  CGColorSpaceRef colorspace)
+{
   CGImageRef new;
   
   if (image->ismask) {
-    new = CGImageMaskCreate(image->width, image->height,
-      image->bitsPerComponent, image->bitsPerPixel, image->bytesPerRow,
-      image->dp, image->decode, image->shouldInterpolate);
+    return nil;
   } else {
     new = CGImageCreate(image->width, image->height,
       image->bitsPerComponent, image->bitsPerPixel, image->bytesPerRow,
@@ -216,16 +216,6 @@ CGImageRef CGImageCreateCopy(CGImageRef image)
   if (image->surf) {
     new->surf = cairo_surface_reference(image->surf);
   }
-  return new;
-}
-
-
-CGImageRef CGImageCreateCopyWithColorSpace(
-  CGImageRef image,
-  CGColorSpaceRef colorspace)
-{
-  CGImageRef new = CGImageCreateCopy(image);
-  if (!new) return NULL;
     
   CGColorSpaceRelease(new->cspace);
   new->cspace = CGColorSpaceRetain(colorspace);
@@ -248,47 +238,143 @@ CGImageRef CGImageCreateWithImageInRect(
   return new;
 }
 
-CGImageRef CGImageCreateWithJPEGDataProvider (
-  CGDataProviderRef source,
-  const CGFloat decode[],
-  bool shouldInterpolate,
-  CGColorRenderingIntent intent)
-{
-  //FIXME: Implement
-}
-
 CGImageRef CGImageCreateWithMaskingColors (
   CGImageRef image,
   const CGFloat components[])
 {
   //FIXME: Implement
+  return nil;
 }
 
-CGImageRef CGImageCreateWithPNGDataProvider (
+static CGImageRef createWithDataProvider(
+  CGDataProviderRef provider,
+  const CGFloat decode[],
+  bool shouldInterpolate,
+  CGColorRenderingIntent intent,
+  CFStringRef type)
+{
+  CFDictionaryRef opts = (CFDictionaryRef)[[NSDictionary alloc] initWithObjectsAndKeys: 
+    type, kCGImageSourceTypeIdentifierHint,
+    nil];
+  
+  CGImageSourceRef src = CGImageSourceCreateWithDataProvider(provider, opts);
+  CGImageRef img = nil;
+  if (CFEqual(CGImageSourceGetType(src), type))
+  {
+    if (CGImageSourceGetCount(src) >= 1)
+    {
+      img = CGImageSourceCreateImageAtIndex(src, 0, opts);
+    }
+    else
+    {
+      NSLog(@"No images found");
+    } 
+  }
+  else
+  {
+    NSLog(@"Unexpected type of image. expected %@, found %@", (NSString*)type, (NSString*)CGImageSourceGetType(src));
+  }
+  CFRelease(src);
+  CFRelease(opts);
+  
+  if (img)
+  {
+    img->shouldInterpolate = shouldInterpolate;
+    img->intent = intent;
+    // FIXME: decode array???
+  }
+  
+    #if 0
+  cairo_format_t cformat;
+  unsigned char *data;
+  size_t datalen;
+  size_t numComponents = 0;
+  int alphaLast = 0;
+  int mask;
+
+  // Return the cached surface if it already exists
+  if (NULL != img->surf)
+    return img->surf;
+
+  /* The target is always 8 BPC 32 BPP for Cairo so should convert to this */
+  /* (see also QA1037) */
+  if (img->cspace)
+    numComponents = CGColorSpaceGetNumberOfComponents(img->cspace);
+
+  switch (CGImageGetAlphaInfo(img)) {
+    case kCGImageAlphaNone:
+    case kCGImageAlphaNoneSkipLast:
+      alphaLast = 1;
+    case kCGImageAlphaNoneSkipFirst:
+      break;
+    case kCGImageAlphaLast:
+      alphaLast = 1;
+    case kCGImageAlphaFirst:
+      numComponents++;
+      break;
+    case kCGImageAlphaPremultipliedLast:
+    case kCGImageAlphaPremultipliedFirst:
+      errlog("%s:%d: FIXME: premultiplied alpha is not supported\n",
+        __FILE__, __LINE__);
+      return NULL;
+      break;
+    case kCGImageAlphaOnly:
+      numComponents = 1;
+  }
+
+  datalen = img->bytesPerRow * img->height;
+
+  // FIXME: ???
+  mask = (1 << img->bitsPerComponent) - 1;
+
+  // FIXME: the following is just a rough sketch
+  data = malloc(datalen);
+
+  int read = 0;
+  while (read < datalen)
+  {
+    read += OPDataProviderGetBytes(img->dp, data, 10000000);
+  }
+  NSLog(@"Read %d bytes from dp %@", read, img->dp);
+  img->surf = cairo_image_surface_create_for_data(data,
+						CAIRO_FORMAT_ARGB32,
+						img->width,
+						img->height,
+						cairo_format_stride_for_width(CAIRO_FORMAT_ARGB32, img->width));
+            
+  if (cairo_surface_status(img->surf) != CAIRO_STATUS_SUCCESS)
+  {
+    errlog("%s:%d: Cairo error creating surface\n", __FILE__, __LINE__);
+  }
+
+  // FIXME: If cairo 1.9.x or greater, and the image is a PNG or JPEG, attach the
+  // compressed data to the surface with cairo_surface_set_mime_data (so embedding
+  // images in to PDF/SVG output works optimally)
+
+  free(data);
+  return img->surf;
+  #endif
+  
+  return img;
+}
+
+
+CGImageRef CGImageCreateWithJPEGDataProvider(
   CGDataProviderRef source,
   const CGFloat decode[],
   bool shouldInterpolate,
   CGColorRenderingIntent intent)
 {
-  cairo_surface_t *png;
-  png = cairo_image_surface_create_from_png_stream(cairo_opal_read_func, source);
-  printf("read status: %s\n", cairo_status_to_string(cairo_surface_status(png)));
-  
-  CGImage *img = [[CGImage alloc] init];
+  return createWithDataProvider(source, decode, shouldInterpolate, intent, CFSTR("public.jpeg"));
+}
 
-  img->width = cairo_image_surface_get_width(png);
-  img->height = cairo_image_surface_get_height(png);
-  img->bitsPerComponent = 8;
-  img->bitsPerPixel = 32;
-  img->bytesPerRow = 0;
-  img->dp = CGDataProviderRetain(source);
-  img->shouldInterpolate = YES;
-  img->crop = CGRectNull;
-  img->surf = png;
-  
-  return (CGImageRef)img;
-  
-  return nil;
+CGImageRef CGImageCreateWithPNGDataProvider(
+  CGDataProviderRef source,
+  const CGFloat decode[],
+  bool shouldInterpolate,
+  CGColorRenderingIntent intent)
+{
+  return createWithDataProvider(source, decode, shouldInterpolate, intent, CFSTR("public.png"));
 }
 
 CFTypeID CGImageGetTypeID()
@@ -368,73 +454,6 @@ CGColorRenderingIntent CGImageGetRenderingIntent(CGImageRef image)
 
 cairo_surface_t *opal_CGImageGetSurfaceForImage(CGImageRef img)
 {
-  cairo_format_t cformat;
-  unsigned char *data;
-  size_t datalen;
-  size_t numComponents = 0;
-  int alphaLast = 0;
-  int mask;
-
-  // Return the cached surface if it already exists
-  if (NULL != img->surf)
-    return img->surf;
-
-  /* The target is always 8 BPC 32 BPP for Cairo so should convert to this */
-  /* (see also QA1037) */
-  if (img->cspace)
-    numComponents = CGColorSpaceGetNumberOfComponents(img->cspace);
-
-  switch (CGImageGetAlphaInfo(img)) {
-    case kCGImageAlphaNone:
-    case kCGImageAlphaNoneSkipLast:
-      alphaLast = 1;
-    case kCGImageAlphaNoneSkipFirst:
-      break;
-    case kCGImageAlphaLast:
-      alphaLast = 1;
-    case kCGImageAlphaFirst:
-      numComponents++;
-      break;
-    case kCGImageAlphaPremultipliedLast:
-    case kCGImageAlphaPremultipliedFirst:
-      errlog("%s:%d: FIXME: premultiplied alpha is not supported\n",
-        __FILE__, __LINE__);
-      return NULL;
-      break;
-    case kCGImageAlphaOnly:
-      numComponents = 1;
-  }
-
-  datalen = img->bytesPerRow * img->height;
-
-  // FIXME: ???
-  mask = (1 << img->bitsPerComponent) - 1;
-
-  // FIXME: the following is just a rough sketch
-  data = malloc(datalen);
-
-  int read = 0;
-  while (read < datalen)
-  {
-    read += OPDataProviderGetBytes(img->dp, data, 10000000);
-  }
-  NSLog(@"Read %d bytes from dp %@", read, img->dp);
-  img->surf = cairo_image_surface_create_for_data(data,
-						CAIRO_FORMAT_ARGB32,
-						img->width,
-						img->height,
-						cairo_format_stride_for_width(CAIRO_FORMAT_ARGB32, img->width));
-            
-  if (cairo_surface_status(img->surf) != CAIRO_STATUS_SUCCESS)
-  {
-    errlog("%s:%d: Cairo error creating surface\n", __FILE__, __LINE__);
-  }
-
-  // FIXME: If cairo 1.9.x or greater, and the image is a PNG or JPEG, attach the
-  // compressed data to the surface with cairo_surface_set_mime_data (so embedding
-  // images in to PDF/SVG output works optimally)
-
-  free(data);
   return img->surf;
 }
 
