@@ -27,7 +27,12 @@
 
 /* Data Types */
 
-typedef struct CGColor * CGColorRef;
+#ifdef __OBJC__
+@class CGColor;
+typedef CGColor* CGColorRef;
+#else
+typedef struct CGColor* CGColorRef;
+#endif
 
 #include <CoreFoundation/CoreFoundation.h>
 #include <CoreGraphics/CGBase.h>

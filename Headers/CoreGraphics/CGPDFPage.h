@@ -26,7 +26,12 @@
 
 /* Data Types */
 
-typedef struct CGPDFPage *CGPDFPageRef;
+#ifdef __OBJC__
+@class CGPDFPage;
+typedef CGPDFPage* CGPDFPageRef;
+#else
+typedef struct CGPDFPage* CGPDFPageRef;
+#endif
 
 #include <CoreGraphics/CGBase.h>
 #include <CoreGraphics/CGPDFDocument.h>

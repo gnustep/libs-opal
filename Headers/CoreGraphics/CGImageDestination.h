@@ -37,7 +37,12 @@ extern const CFStringRef kCGImageDestinationBackgroundColor;
 
 /* Data Types */
 
-typedef struct CGImageDestination *CGImageDestinationRef;
+#ifdef __OBJC__
+@class CGImageDestination;
+typedef CGImageDestination* CGImageDestinationRef;
+#else
+typedef struct CGImageDestination* CGImageDestinationRef;
+#endif
 
 #include <CoreGraphics/CGImage.h>
 #include <CoreGraphics/CGImageSource.h>

@@ -27,7 +27,12 @@
 
 /* Data Types */
 
-typedef void * CGPDFDocumentRef;
+#ifdef __OBJC__
+@class CGPDFDocument;
+typedef CGPDFDocument* CGPDFDocumentRef;
+#else
+typedef struct CGPDFDocument* CGPDFDocumentRef;
+#endif
 
 #include <CoreGraphics/CGBase.h>
 #include <CoreGraphics/CGGeometry.h>

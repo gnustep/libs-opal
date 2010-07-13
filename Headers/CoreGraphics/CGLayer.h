@@ -27,7 +27,12 @@
 
 /* Data Types */
 
-typedef struct CGLayer *CGLayerRef;
+#ifdef __OBJC__
+@class CGLayer;
+typedef CGLayer* CGLayerRef;
+#else
+typedef struct CGLayer* CGLayerRef;
+#endif
 
 #include <CoreFoundation/CFDictionary.h>
 #include <CoreGraphics/CGBase.h>

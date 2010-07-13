@@ -63,8 +63,8 @@ void OPDataConsumerPutBytes(CGDataConsumerRef dc, const void *buffer, size_t cou
 {
   if (NULL != dc)
   {
-    ((CGDataConsumer*)dc)->cb.putBytes(
-      ((CGDataConsumer*)dc)->info, 
+    dc->cb.putBytes(
+      dc->info, 
       buffer,
       count);
   }
@@ -124,7 +124,7 @@ CGDataConsumerRef CGDataConsumerCreateWithCFData(CFMutableDataRef data)
   CGDataConsumerCallbacks opal_CFDataConsumerCallbacks = {
     opal_CFDataConsumerPutBytes, opal_CFDataConsumerReleaseInfo 
   };
-  return CGDataConsumerCreate([(NSData*)data retain], &opal_CFDataConsumerCallbacks);
+  return CGDataConsumerCreate([data retain], &opal_CFDataConsumerCallbacks);
 }
 
 CGDataConsumerRef CGDataConsumerCreateWithURL(CFURLRef url)
@@ -143,10 +143,10 @@ CFTypeID CGDataConsumerGetTypeID()
 
 void CGDataConsumerRelease(CGDataConsumerRef consumer)
 {
-  [(CGDataConsumer*)consumer release];
+  [consumer release];
 }
 
 CGDataConsumerRef CGDataConsumerRetain(CGDataConsumerRef consumer)
 {
-  return [(CGDataConsumer*)consumer retain];
+  return [consumer retain];
 }

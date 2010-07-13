@@ -92,7 +92,7 @@
 
 - (CFDataRef)copyData
 {
-  return (CFDataRef)[[NSData alloc] initWithBytes: [self bytePointer] length: [self size]];
+  return [[NSData alloc] initWithBytes: [self bytePointer] length: [self size]];
 }
 
 @end
@@ -299,17 +299,17 @@
 
 size_t OPDataProviderGetBytes(CGDataProviderRef dp, void *buffer, size_t count)
 {
-  return [(CGDataProvider*)dp getBytes: buffer count: count];
+  return [dp getBytes: buffer count: count];
 }
 
 off_t OPDataProviderSkipForward(CGDataProviderRef dp, off_t count)
 {
-  return [(CGDataProvider*)dp skipForward: count];
+  return [dp skipForward: count];
 }
 
 void OPDataProviderRewind(CGDataProviderRef dp)
 {
-  [(CGDataProvider*)dp rewind];
+  [dp rewind];
 }
 
 
@@ -317,17 +317,17 @@ void OPDataProviderRewind(CGDataProviderRef dp)
 
 size_t OPDataProviderGetSize(CGDataProviderRef dp)
 {
-  return [(CGDataProvider*)dp size];
+  return [dp size];
 }
 
 const void *OPDataProviderGetBytePointer(CGDataProviderRef dp)
 {
-  return [(CGDataProvider*)dp bytePointer];
+  return [dp bytePointer];
 }
 
 void OPDataProviderReleaseBytePointer(CGDataProviderRef dp, const void *pointer)
 {
-  [(CGDataProvider*)dp releaseBytePointer: pointer];
+  [dp releaseBytePointer: pointer];
 }
 
 size_t OPDataProviderGetBytesAtPositionCallback(
@@ -336,7 +336,7 @@ size_t OPDataProviderGetBytesAtPositionCallback(
   off_t position,
   size_t count)
 {
-  return [(CGDataProvider*)dp getBytes: buffer atPosition: position count: count];
+  return [dp getBytes: buffer atPosition: position count: count];
 }
 
 
@@ -479,7 +479,7 @@ CGDataProviderRef CGDataProviderCreateDirect(
   provider->getBytesAtPositionCallback = callbacks->getBytesAtPosition;
   provider->releaseInfoCallback = callbacks->releaseInfo;
     
-  return (CGDataProviderRef)provider;
+  return provider;
 }
 
 /**
@@ -498,7 +498,7 @@ CGDataProviderRef CGDataProviderCreateDirectAccess(
   provider->getBytesAtOffsetCallback = callbacks->getBytes;
   provider->releaseInfoCallback = callbacks->releaseProvider;
     
-  return (CGDataProviderRef)provider;
+  return provider;
 }
 
 CGDataProviderRef CGDataProviderCreateSequential(
@@ -512,7 +512,7 @@ CGDataProviderRef CGDataProviderCreateSequential(
   provider->rewindCallback = callbacks->rewind;
   provider->releaseInfoCallback = callbacks->releaseInfo;
     
-  return (CGDataProviderRef)provider;
+  return provider;
 }
 
 
@@ -530,7 +530,7 @@ CGDataProviderRef CGDataProviderCreate(
   provider->rewindCallback = callbacks->rewind;
   provider->releaseInfoCallback = callbacks->releaseProvider;
     
-  return (CGDataProviderRef)provider;
+  return provider;
 }
 
 CGDataProviderRef CGDataProviderCreateWithData(
@@ -569,12 +569,12 @@ CGDataProviderRef CGDataProviderCreateWithFilename(const char *filename)
 
 CGDataProviderRef CGDataProviderRetain(CGDataProviderRef provider)
 {
-  return (CGDataProviderRef)[(CGDataProvider *)provider retain];
+  return [provider retain];
 }
 
 void CGDataProviderRelease(CGDataProviderRef provider)
 {
-  [(CGDataProvider *)provider release];
+  [provider release];
 }
 
 CFTypeID CGDataProviderGetTypeID()

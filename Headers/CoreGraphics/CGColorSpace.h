@@ -27,7 +27,12 @@
 
 /* Data Types */
 
-typedef struct CGColorSpace * CGColorSpaceRef;
+#ifdef __OBJC__
+@class CGColorSpace;
+typedef CGColorSpace* CGColorSpaceRef;
+#else
+typedef struct CGColorSpace* CGColorSpaceRef;
+#endif
 
 #include <CoreFoundation/CoreFoundation.h>
 #include <CoreGraphics/CGBase.h>

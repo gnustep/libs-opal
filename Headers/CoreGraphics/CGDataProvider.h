@@ -27,7 +27,13 @@
 
 /* Data Types */
 
-typedef struct CGDataProvider *  CGDataProviderRef;
+#ifdef __OBJC__
+@class CGDataProvider;
+typedef CGDataProvider* CGDataProviderRef;
+#else
+typedef struct CGDataProvider* CGDataProviderRef;
+#endif
+
 
 #include <CoreFoundation/CFURL.h>
 #include <CoreFoundation/CFData.h>

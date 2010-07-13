@@ -117,12 +117,12 @@ static CGColorSpaceRef _deviceCMYK;
 
 CFDataRef CGColorSpaceCopyICCProfile(CGColorSpaceRef cs)
 {
-  return NULL;
+  return nil;
 }
 
 CFStringRef CGColorSpaceCopyName(CGColorSpaceRef cs)
 {
-  return NULL;
+  return nil;
 }
 
 CGColorSpaceRef CGColorSpaceCreateCalibratedGray(
@@ -210,7 +210,7 @@ CGColorSpaceRef CGColorSpaceCreateWithName(CFStringRef name)
   {
     errlog("%s:%d: Unknown colorspace name\n", __FILE__, __LINE__);
   }
-  return NULL;
+  return nil;
 }
 
 CGColorSpaceRef CGColorSpaceCreateWithPlatformColorSpace(
@@ -235,27 +235,27 @@ size_t CGColorSpaceGetColorTableCount(CGColorSpaceRef cs)
 
 CGColorSpaceModel CGColorSpaceGetModel(CGColorSpaceRef cs)
 {
-  return ((CGColorSpace *)cs)->model;
+  return cs->model;
 }
 
 size_t CGColorSpaceGetNumberOfComponents(CGColorSpaceRef cs)
 {
-  return ((CGColorSpace *)cs)->numcomps;
+  return cs->numcomps;
 }
 
 CFTypeID CGColorSpaceGetTypeID()
 {
-  return [CGColorSpace class]; 
+  return (CFTypeID)[CGColorSpace class]; 
 }
 
 CGColorSpaceRef CGColorSpaceRetain(CGColorSpaceRef cs)
 {
-  return (CGColorSpaceRef)[(CGColorSpace *)cs retain];
+  return [cs retain];
 }
 
 void CGColorSpaceRelease(CGColorSpaceRef cs)
 {
-  [(CGColorSpace *)cs release];
+  [cs release];
 }
 
 static void opal_todev_rgb(CGFloat *dest, const CGFloat comps[])
@@ -288,5 +288,5 @@ static void opal_todev_cmyk(CGFloat *dest, const CGFloat comps[])
  * but Cairo only knows about RGBA, so we convert to that */
 void opal_cspace_todev(CGColorSpaceRef cs, CGFloat *dest, const CGFloat comps[])
 {
-  ((CGColorSpace *)cs)->todevice(dest, comps);
+  cs->todevice(dest, comps);
 }

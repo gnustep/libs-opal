@@ -51,41 +51,49 @@
 - (bool) canCreatePostScriptSubset: (CGFontPostScriptFormat)format
 {
   [self doesNotRecognizeSelector: _cmd];
+  return false;
 }
 
 - (CFStringRef) copyGlyphNameForGlyph: (CGGlyph)glyph
 {
   [self doesNotRecognizeSelector: _cmd];
+  return nil;
 }
 
 - (CFDataRef) copyTableForTag: (uint32_t)tag
 {
   [self doesNotRecognizeSelector: _cmd];
+  return nil;
 }
 
 - (CFArrayRef) copyTableTags
 {
   [self doesNotRecognizeSelector: _cmd];
+  return nil;
 }
 
 - (CFArrayRef) copyVariationAxes
 {
   [self doesNotRecognizeSelector: _cmd];
+  return nil;
 }
 
 - (CFDictionaryRef) copyVariations
 {
   [self doesNotRecognizeSelector: _cmd];
+  return nil;
 }
 
 - (CGFontRef) createCopyWithVariations: (CFDictionaryRef)variations
 {
   [self doesNotRecognizeSelector: _cmd];
+  return nil;
 }
 
 - (CFDataRef) createPostScriptEncoding: (const CGGlyph[])encoding
 {
   [self doesNotRecognizeSelector: _cmd];
+  return nil;
 }
 
 - (CFDataRef) createPostScriptSubset: (CFStringRef)name
@@ -95,21 +103,25 @@
                                     : (const CGGlyph[])encoding
 {
   [self doesNotRecognizeSelector: _cmd];
+  return nil;
 }
 
 + (CGFontRef) createWithDataProvider: (CGDataProviderRef)provider
 {
   [self doesNotRecognizeSelector: _cmd];
+  return nil;
 }
 
 + (CGFontRef) createWithFontName: (CFStringRef)name
 {
   [self doesNotRecognizeSelector: _cmd];
+  return nil;
 }
 
 + (CGFontRef) createWithPlatformFont: (void *)platformFontReference
 {
   [self doesNotRecognizeSelector: _cmd];
+  return nil;
 }
 
 - (bool) getGlyphAdvances: (const CGGlyph[])glyphs
@@ -117,6 +129,7 @@
                          : (int[]) advances
 {
   [self doesNotRecognizeSelector: _cmd];
+  return nil;
 }
 
 - (bool) getGlyphBBoxes: (const CGGlyph[])glyphs
@@ -124,11 +137,13 @@
                        : (CGRect[])bboxes
 {
   [self doesNotRecognizeSelector: _cmd];
+  return nil;
 }
 
 - (CGGlyph) glyphWithGlyphName: (CFStringRef)glyphName
 {
   [self doesNotRecognizeSelector: _cmd];
+  return nil;
 }
 
 @end
@@ -139,56 +154,56 @@ bool CGFontCanCreatePostScriptSubset(
   CGFontRef font,
   CGFontPostScriptFormat format)
 {
-  return [(CGFont*)font canCreatePostScriptSubset: format];
+  return [font canCreatePostScriptSubset: format];
 }
 
 CFStringRef CGFontCopyFullName(CGFontRef font)
 {
-  return ((CGFont*)font)->fullName;
+  return font->fullName;
 }
 
 CFStringRef CGFontCopyGlyphNameForGlyph(CGFontRef font, CGGlyph glyph)
 {
-  return [(CGFont*)font copyGlyphNameForGlyph: glyph];
+  return [font copyGlyphNameForGlyph: glyph];
 }
 
 CFStringRef CGFontCopyPostScriptName(CGFontRef font)
 {
-  return ((CGFont*)font)->postScriptName;
+  return font->postScriptName;
 }
 
 CFDataRef CGFontCopyTableForTag(CGFontRef font, uint32_t tag)
 {
-  return [(CGFont*)font copyTableForTag: tag];
+  return [font copyTableForTag: tag];
 }
 
 CFArrayRef CGFontCopyTableTags(CGFontRef font)
 {
-  return [(CGFont*)font copyTableTags];
+  return [font copyTableTags];
 }
 
 CFArrayRef CGFontCopyVariationAxes(CGFontRef font)
 {
-  return [(CGFont*)font copyVariationAxes];
+  return [font copyVariationAxes];
 }
 
 CFDictionaryRef CGFontCopyVariations(CGFontRef font)
 {
-  return [(CGFont*)font copyVariations];
+  return [font copyVariations];
 }
 
 CGFontRef CGFontCreateCopyWithVariations(
   CGFontRef font,
   CFDictionaryRef variations)
 {
-  return [(CGFont*)font createCopyWithVariations: variations];
+  return [font createCopyWithVariations: variations];
 }
 
 CFDataRef CGFontCreatePostScriptEncoding(
   CGFontRef font,
   const CGGlyph encoding[256])
 {
-  return [(CGFont*)font createPostScriptEncoding: encoding];
+  return [font createPostScriptEncoding: encoding];
 }
 
 CFDataRef CGFontCreatePostScriptSubset(
@@ -199,7 +214,7 @@ CFDataRef CGFontCreatePostScriptSubset(
   size_t count,
   const CGGlyph encoding[256])
 {
-  return [(CGFont*)font createPostScriptSubset: name : format : glyphs : count : encoding];
+  return [font createPostScriptSubset: name : format : glyphs : count : encoding];
 }
 
 CGFontRef CGFontCreateWithDataProvider(CGDataProviderRef provider)
@@ -219,22 +234,22 @@ CGFontRef CGFontCreateWithPlatformFont(void *platformFontReference)
 
 int CGFontGetAscent(CGFontRef font)
 {
-  return ((CGFont*)font)->ascent;
+  return font->ascent;
 }
 
 int CGFontGetCapHeight(CGFontRef font)
 {
-  return ((CGFont*)font)->capHeight;
+  return font->capHeight;
 }
 
 int CGFontGetDescent(CGFontRef font)
 {
-  return ((CGFont*)font)->descent;
+  return font->descent;
 }
 
 CGRect CGFontGetFontBBox(CGFontRef font)
 {
-  return ((CGFont*)font)->fontBBox;
+  return font->fontBBox;
 }
 
 bool CGFontGetGlyphAdvances(
@@ -243,7 +258,7 @@ bool CGFontGetGlyphAdvances(
   size_t count,
   int advances[])
 {
-  return [(CGFont*)font getGlyphAdvances: glyphs : count : advances];
+  return [font getGlyphAdvances: glyphs : count : advances];
 }
 
 bool CGFontGetGlyphBBoxes(
@@ -252,32 +267,32 @@ bool CGFontGetGlyphBBoxes(
   size_t count,
   CGRect bboxes[])
 {
-  return [(CGFont*)font getGlyphBBoxes: glyphs : count : bboxes];
+  return [font getGlyphBBoxes: glyphs : count : bboxes];
 }
 
 CGGlyph CGFontGetGlyphWithGlyphName(CGFontRef font, CFStringRef glyphName)
 {
-  return [(CGFont*)font glyphWithGlyphName: glyphName];
+  return [font glyphWithGlyphName: glyphName];
 }
 
 CGFloat CGFontGetItalicAngle(CGFontRef font)
 {
-  return ((CGFont*)font)->italicAngle;
+  return font->italicAngle;
 }
 
 int CGFontGetLeading(CGFontRef font)
 {
-  return ((CGFont*)font)->leading;
+  return font->leading;
 }
 
 size_t CGFontGetNumberOfGlyphs(CGFontRef font)
 {
-  return ((CGFont*)font)->numberOfGlyphs;
+  return font->numberOfGlyphs;
 }
 
 CGFloat CGFontGetStemV(CGFontRef font)
 {
-  return ((CGFont*)font)->stemV;
+  return font->stemV;
 }
 
 CFTypeID CGFontGetTypeID()
@@ -288,20 +303,20 @@ CFTypeID CGFontGetTypeID()
 
 int CGFontGetUnitsPerEm(CGFontRef font)
 {
-  return ((CGFont*)font)->unitsPerEm;
+  return font->unitsPerEm;
 }
 
 int CGFontGetXHeight(CGFontRef font)
 {
-  return ((CGFont*)font)->xHeight;
+  return font->xHeight;
 }
 
 CGFontRef CGFontRetain(CGFontRef font)
 {
-  return (CGFontRef)[(CGFont*)font retain];
+  return [font retain];
 }
 
 void CGFontRelease(CGFontRef font)
 {
-  [(CGFont*)font release];
+  [font release];
 }

@@ -26,7 +26,12 @@
 
 /* Data Types */
 
-typedef struct CGPDFDictionary *CGPDFDictionaryRef;
+#ifdef __OBJC__
+@class CGPDFDictionary;
+typedef CGPDFDictionary* CGPDFDictionaryRef;
+#else
+typedef struct CGPDFDictionary* CGPDFDictionaryRef;
+#endif
 
 #include <CoreGraphics/CGBase.h>
 #include <CoreGraphics/CGPDFObject.h>

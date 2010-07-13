@@ -27,7 +27,12 @@
 
 /* Data Types */
 
-typedef struct CGShading * CGShadingRef;
+#ifdef __OBJC__
+@class CGShading;
+typedef CGShading* CGShadingRef;
+#else
+typedef struct CGShading* CGShadingRef;
+#endif
 
 #include <CoreGraphics/CGBase.h>
 #include <CoreGraphics/CGFunction.h>

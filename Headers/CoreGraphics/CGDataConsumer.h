@@ -27,7 +27,13 @@
 
 /* Data Types */
 
-typedef void * CGDataConsumerRef;
+#ifdef __OBJC__
+@class CGDataConsumer;
+typedef CGDataConsumer* CGDataConsumerRef;
+#else
+typedef struct CGDataConsumer* CGDataConsumerRef;
+#endif
+
 
 #include <CoreFoundation/CFURL.h>
 #include <CoreFoundation/CFData.h>

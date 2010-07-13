@@ -27,7 +27,13 @@
 
 /* Data Types */
 
-typedef struct CGContext * CGContextRef;
+#ifdef __OBJC__
+@class CGContext;
+typedef CGContext* CGContextRef;
+#else
+typedef struct CGContext* CGContextRef;
+#endif
+
 
 #include <CoreFoundation/CoreFoundation.h>
 #include <CoreGraphics/CGAffineTransform.h>

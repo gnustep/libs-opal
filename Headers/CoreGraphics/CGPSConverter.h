@@ -66,7 +66,13 @@ typedef struct CGPSConverterCallbacks {
     CGPSConverterReleaseInfoCallback releaseInfo;
 } CGPSConverterCallbacks;
 
-typedef struct CGPSConverter *CGPSConverterRef;
+
+#ifdef __OBJC__
+@class CGPSConverter;
+typedef CGPSConverter* CGPSConverterRef;
+#else
+typedef struct CGPSConverter* CGPSConverterRef;
+#endif
 
 /* Functions */
 

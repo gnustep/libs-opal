@@ -26,7 +26,12 @@
 
 /* Data Types */
 
-typedef struct CGPDFScanner *CGPDFScannerRef;
+#ifdef __OBJC__
+@class CGPDFScanner;
+typedef CGPDFScanner* CGPDFScannerRef;
+#else
+typedef struct CGPDFScanner* CGPDFScannerRef;
+#endif
 
 #include <CoreGraphics/CGBase.h>
 #include <CoreGraphics/CGPDFContentStream.h>

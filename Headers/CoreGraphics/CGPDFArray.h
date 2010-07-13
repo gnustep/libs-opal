@@ -26,7 +26,12 @@
 
 /* Data Types */
 
-typedef struct CGPDFArray *CGPDFArrayRef;
+#ifdef __OBJC__
+@class CGPDFArray;
+typedef CGPDFArray* CGPDFArrayRef;
+#else
+typedef struct CGPDFArray* CGPDFArrayRef;
+#endif
 
 #include <CoreGraphics/CGBase.h>
 #include <CoreGraphics/CGPDFObject.h>

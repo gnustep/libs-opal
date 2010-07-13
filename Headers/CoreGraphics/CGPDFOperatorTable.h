@@ -26,7 +26,12 @@
 
 /* Data Types */
 
-typedef struct CGPDFOperatorTable *CGPDFOperatorTableRef;
+#ifdef __OBJC__
+@class CGPDFOperatorTable;
+typedef CGPDFOperatorTable* CGPDFOperatorTableRef;
+#else
+typedef struct CGPDFOperatorTable* CGPDFOperatorTableRef;
+#endif
 
 #include <CoreGraphics/CGBase.h>
 #include <CoreGraphics/CGPDFScanner.h>

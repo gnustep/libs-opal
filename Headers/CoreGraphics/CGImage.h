@@ -27,7 +27,13 @@
 
 /* Data Types */
 
-typedef struct CGImage *  CGImageRef;
+#ifdef __OBJC__
+@class CGImage;
+typedef CGImage* CGImageRef;
+#else
+typedef struct CGImage* CGImageRef;
+#endif
+
 
 #include <CoreGraphics/CGBase.h>
 #include <CoreGraphics/CGColorSpace.h>

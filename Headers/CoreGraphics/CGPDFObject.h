@@ -34,7 +34,12 @@ typedef long int CGPDFInteger;
 
 typedef CGFloat CGPDFReal;
 
-typedef union CGPDFObject *CGPDFObjectRef;
+#ifdef __OBJC__
+@class CGPDFObject;
+typedef CGPDFObject* CGPDFObjectRef;
+#else
+typedef struct CGPDFObject* CGPDFObjectRef;
+#endif
 
 /* Constants */
 

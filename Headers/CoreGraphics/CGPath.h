@@ -40,9 +40,19 @@ typedef enum CGPathElementType {
 
 /* Data Types */
 
-typedef struct CGPath *CGPathRef;
+#ifdef __OBJC__
+@class CGPath;
+typedef CGPath* CGPathRef;
+#else
+typedef struct CGPath* CGPathRef;
+#endif
 
-typedef struct CGPath *CGMutablePathRef;
+#ifdef __OBJC__
+@class CGMutablePath;
+typedef CGMutablePath* CGMutablePathRef;
+#else
+typedef struct CGMutablePath* CGMutablePathRef;
+#endif
 
 typedef struct CGPathElement {
   CGPathElementType type;

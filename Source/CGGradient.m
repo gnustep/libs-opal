@@ -74,19 +74,19 @@
 
 CGColorSpaceRef OPGradientGetColorSpace(CGGradientRef g)
 {
-  return ((CGGradient*)g)->cs;
+  return g->cs;
 }
 const CGFloat *OPGradientGetComponents(CGGradientRef g)
 {
-  return ((CGGradient*)g)->components;
+  return g->components;
 }
 const CGFloat *OPGradientGetLocations(CGGradientRef g)
 {
-  return ((CGGradient*)g)->locations; 
+  return g->locations; 
 }
 size_t OPGradientGetCount(CGGradientRef g)
 {
-  return ((CGGradient*)g)->count;
+  return g->count;
 }
 
 
@@ -107,7 +107,7 @@ CGGradientRef CGGradientCreateWithColors(
   CFArrayRef colors,
   const CGFloat locations[])
 {
-  size_t count = CFArrayGetCount(colors);
+  size_t count = [colors count];
   size_t cs_numcomps = CGColorSpaceGetNumberOfComponents(cs) + 1;
   CGFloat components[count * cs_numcomps];
   for (int i=0; i<count; i++)
@@ -124,10 +124,10 @@ CFTypeID CGGradientGetTypeID()
 
 CGGradientRef CGGradientRetain(CGGradientRef grad)
 {
-  return (CGGradientRef)[(CGGradient*)grad retain];
+  return [grad retain];
 }
 
 void CGGradientRelease(CGGradientRef grad)
 {
-  [(CGGradient*)grad release];
+  [grad release];
 }

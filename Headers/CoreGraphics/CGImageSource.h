@@ -51,7 +51,12 @@ const extern CFStringRef kCGImageSourceCreateThumbnailWithTransform;
 
 /* Data Types */
 
-typedef struct CGImageSource *CGImageSourceRef;
+#ifdef __OBJC__
+@class CGImageSource;
+typedef CGImageSource* CGImageSourceRef;
+#else
+typedef struct CGImageSource* CGImageSourceRef;
+#endif
 
 #include <CoreGraphics/CGImage.h>
 

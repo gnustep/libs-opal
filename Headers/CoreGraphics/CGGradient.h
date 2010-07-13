@@ -26,7 +26,12 @@
 
 /* Data Types */
 
-typedef struct CGGradient *CGGradientRef;
+#ifdef __OBJC__
+@class CGGradient;
+typedef CGGradient* CGGradientRef;
+#else
+typedef struct CGGradient* CGGradientRef;
+#endif
 
 #include <CoreFoundation/CFArray.h>
 #include <CoreGraphics/CGBase.h>

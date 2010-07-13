@@ -149,7 +149,7 @@ void OPContextSetSize(CGContextRef ctxt, CGSize size)
 CGContextRef opal_new_CGContext(cairo_surface_t *target, CGSize device_size)
 {
   CGContext *ctx = [[CGContext alloc] initWithSurface: target size: device_size];
-  return (CGContextRef)ctx;
+  return ctx;
 }
 
 CFTypeID CGContextGetTypeID()
@@ -159,12 +159,12 @@ CFTypeID CGContextGetTypeID()
 
 CGContextRef CGContextRetain(CGContextRef ctx)
 {
-  return (CGContextRef)[(CGContext *)ctx retain];
+  return [ctx retain];
 }
 
 void CGContextRelease(CGContextRef ctx)
 {
-  [(CGContext*)ctx release];
+  [ctx release];
 }
 
 void CGContextFlush(CGContextRef ctx)
@@ -1031,7 +1031,7 @@ void CGContextDrawPDFPage(CGContextRef ctx, CGPDFPageRef page)
 static void opal_AddStops(cairo_pattern_t *pat, CGGradientRef grad)
 {
   // FIXME: support other colorspaces by converting to deviceRGB
-  if (!CFEqual(CGColorSpaceCreateDeviceRGB(), OPGradientGetColorSpace(grad)))
+  if (![CGColorSpaceCreateDeviceRGB() isEqual: OPGradientGetColorSpace(grad)])
   {
     errlog("Only DeviceRGB supported for gradients");
     return;
@@ -1115,7 +1115,7 @@ void CGContextSelectFont(
   CGTextEncoding textEncoding)
 {
   /* FIXME: textEncoding is ignored */
-  CGContextSetFont(ctx, CGFontCreateWithFontName(CFStringCreateWithCString(NULL, name, kCFStringEncodingASCII)));
+  CGContextSetFont(ctx, CGFontCreateWithFontName([name UTF8String]));
   CGContextSetFontSize(ctx, size);
 }
 

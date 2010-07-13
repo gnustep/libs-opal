@@ -26,7 +26,12 @@
 
 /* Data Types */
 
-typedef struct CGPDFStream *CGPDFStreamRef;
+#ifdef __OBJC__
+@class CGPDFStream;
+typedef CGPDFStream* CGPDFStreamRef;
+#else
+typedef struct CGPDFStream* CGPDFStreamRef;
+#endif
 
 #include <CoreFoundation/CFData.h>
 #include <CoreGraphics/CGPDFDictionary.h>

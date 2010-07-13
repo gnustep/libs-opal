@@ -26,7 +26,12 @@
 
 /* Data Types */
 
-typedef struct CGPDFContentStream *CGPDFContentStreamRef;
+#ifdef __OBJC__
+@class CGPDFContentStream;
+typedef CGPDFContentStream* CGPDFContentStreamRef;
+#else
+typedef struct CGPDFContentStream* CGPDFContentStreamRef;
+#endif
 
 #include <CoreFoundation/CFArray.h>
 #include <CoreGraphics/CGBase.h>

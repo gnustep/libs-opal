@@ -238,8 +238,8 @@ CGImageSourceRef CGImageSourceCreateWithDataProvider(
   CFDictionaryRef opts)
 {
   const NSUInteger cnt = [sourceClasses count];
-  NSString *possibleType = [(NSDictionary*)opts valueForKey:
-    (NSString*)kCGImageSourceTypeIdentifierHint];
+  NSString *possibleType = [opts valueForKey:
+    kCGImageSourceTypeIdentifierHint];
     
   if (possibleType)
   {
@@ -289,7 +289,7 @@ CFDictionaryRef CGImageSourceCopyProperties(
   CGImageSourceRef source,
   CFDictionaryRef opts)
 {
-  return (CFDictionaryRef)[source propertiesWithOptions: (NSDictionary*)opts];
+  return [source propertiesWithOptions: opts];
 }
 
 CFDictionaryRef CGImageSourceCopyPropertiesAtIndex(
@@ -297,7 +297,7 @@ CFDictionaryRef CGImageSourceCopyPropertiesAtIndex(
   size_t index,
   CFDictionaryRef opts)
 {
-  return (CFDictionaryRef)[source propertiesWithOptions: (NSDictionary*)opts atIndex: index];
+  return [source propertiesWithOptions: opts atIndex: index];
 }
 
 /* Getting Supported Image Types */
@@ -311,14 +311,14 @@ CFArrayRef CGImageSourceCopyTypeIdentifiers()
   {    
     [set addObjectsFromArray: [[classes objectAtIndex: i] typeIdentifiers]];
   }
-  return (CFArrayRef)[[set allObjects] retain];
+  return [[set allObjects] retain];
 }
 
 /* Accessing Images */
 
 size_t CGImageSourceGetCount(CGImageSourceRef source)
 {
-  return [(CGImageSource*)source count];
+  return [source count];
 }
 
 CGImageRef CGImageSourceCreateImageAtIndex(
@@ -326,7 +326,7 @@ CGImageRef CGImageSourceCreateImageAtIndex(
   size_t index,
   CFDictionaryRef opts)
 {
-  return [(CGImageSource*)source createImageAtIndex: index options: (NSDictionary*)opts];
+  return [source createImageAtIndex: index options: opts];
 }
 
 CGImageRef CGImageSourceCreateThumbnailAtIndex(
@@ -334,24 +334,24 @@ CGImageRef CGImageSourceCreateThumbnailAtIndex(
   size_t index,
   CFDictionaryRef opts)
 {
-  return [(CGImageSource*)source createThumbnailAtIndex: index options: (NSDictionary*)opts];
+  return [source createThumbnailAtIndex: index options: opts];
 }
 
 CGImageSourceStatus CGImageSourceGetStatus(CGImageSourceRef source)
 {
-  return [(CGImageSource*)source status];  
+  return [source status];  
 }
 
 CGImageSourceStatus CGImageSourceGetStatusAtIndex(
   CGImageSourceRef source,
   size_t index)
 {
-  return [(CGImageSource*)source statusAtIndex: index];
+  return [source statusAtIndex: index];
 }
 
 CFStringRef CGImageSourceGetType(CGImageSourceRef source)
 {
-  return [(CGImageSource*)source type];
+  return [source type];
 }
 
 void CGImageSourceUpdateData(
@@ -369,7 +369,7 @@ void CGImageSourceUpdateDataProvider(
   CGDataProviderRef provider,
   bool finalUpdate)
 {
-  [(CGImageSource*)source updateDataProvider: provider finalUpdate: finalUpdate];
+  [source updateDataProvider: provider finalUpdate: finalUpdate];
 }
 
 CFTypeID CGImageSourceGetTypeID()

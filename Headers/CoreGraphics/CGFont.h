@@ -27,7 +27,13 @@
 
 /* Data Types */
 
-typedef struct CGFont * CGFontRef;
+#ifdef __OBJC__
+@class CGFont;
+typedef CGFont* CGFontRef;
+#else
+typedef struct CGFont* CGFontRef;
+#endif
+
 
 #include <CoreFoundation/CFData.h>
 #include <CoreFoundation/CFDictionary.h>

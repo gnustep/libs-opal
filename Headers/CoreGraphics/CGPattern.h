@@ -27,7 +27,12 @@
 
 /* Data Types */
 
-typedef struct CGPattern *CGPatternRef;
+#ifdef __OBJC__
+@class CGPattern;
+typedef CGPattern* CGPatternRef;
+#else
+typedef struct CGPattern* CGPatternRef;
+#endif
 
 #include <CoreGraphics/CGBase.h>
 #include <CoreGraphics/CGContext.h>

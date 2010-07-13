@@ -27,7 +27,12 @@
 
 /* Data Types */
 
-typedef struct CGFunction *CGFunctionRef;
+#ifdef __OBJC__
+@class CGFunction;
+typedef CGFunction* CGFunctionRef;
+#else
+typedef struct CGFunction* CGFunctionRef;
+#endif
 
 #include <CoreGraphics/CGBase.h>
 

@@ -68,32 +68,32 @@ CGLayerRef CGLayerCreateWithContext(
   layer->ctxt = opal_new_CGContext(layerSurface, CGSizeMake(ceil(fabs(w)), ceil(fabs(h))));
   layer->size = size;
   
-  return (CGLayerRef)layer;
+  return layer;
 }
 
 CFTypeID CGLayerGetTypeID()
 {
-  return [CGLayer class];
+  return (CFTypeID)[CGLayer class];
 }
 
 CGLayerRef CGLayerRetain(CGLayerRef layer)
 {
-  return (CGLayerRef)[(CGLayer *)layer retain];
+  return [layer retain];
 }
 
 void CGLayerRelease(CGLayerRef layer)
 {
-  [(CGLayer *)layer release];
+  [layer release];
 }
 
 CGSize CGLayerGetSize(CGLayerRef layer)
 {
-  return ((CGLayer *)layer)->size;
+  return layer->size;
 }
 
 CGContextRef CGLayerGetContext(CGLayerRef layer)
 {
-  return ((CGLayer *)layer)->ctxt;
+  return layer->ctxt;
 }
 
 void CGContextDrawLayerInRect(
@@ -101,8 +101,8 @@ void CGContextDrawLayerInRect(
   CGRect rect,
   CGLayerRef layer)
 {
-  opal_draw_surface_in_rect(destCtxt, rect, cairo_get_target(((CGContext *)((CGLayer *)layer)->ctxt)->ct),
-    CGRectMake(0, 0, ((CGLayer *)layer)->size.width, ((CGLayer *)layer)->size.height));
+  opal_draw_surface_in_rect(destCtxt, rect, cairo_get_target(layer->ctxt->ct),
+    CGRectMake(0, 0, layer->size.width, layer->size.height));
 }
 
 void CGContextDrawLayerAtPoint(
@@ -111,7 +111,7 @@ void CGContextDrawLayerAtPoint(
   CGLayerRef layer)
 {
   CGContextDrawLayerInRect(destCtxt,
-    CGRectMake(point.x, point.y, ((CGLayer *)layer)->size.width, ((CGLayer *)layer)->size.height),
+    CGRectMake(point.x, point.y, layer->size.width, layer->size.height),
     layer);
 }
 

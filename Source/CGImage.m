@@ -87,22 +87,22 @@ static inline CGImageRef opal_CreateImage(
       bitsPerComponent != 2 && bitsPerComponent != 1)
   {
     NSLog(@"Unsupported bitsPerComponent: %d (allowed: 1,2,4,8)", bitsPerComponent);
-    return NULL;
+    return nil;
   }
   if (bitsPerPixel != 32 && bitsPerPixel != 16 &&
       bitsPerPixel != 8)
   {
     NSLog(@"Unsupported bitsPerPixel: %d (allowed: 8, 16, 32)", bitsPerPixel);
-    return NULL;
+    return nil;
   }
   if (bitsPerPixel < bitsPerComponent * (numComponents + (hasAlpha ? 1 : 0))) {
     errlog("%s:%d: Too few bitsPerPixel for bitsPerComponent\n",
       __FILE__, __LINE__);
-    return NULL;
+    return nil;
   }
 
   img = [[CGImage alloc] init];
-  if (!img) return NULL;
+  if (!img) return nil;
   if(decode && numComponents) {
     size_t i;
 
@@ -110,7 +110,7 @@ static inline CGImageRef opal_CreateImage(
     if (!img->decode) {
       errlog("%s:%d: malloc failed\n", __FILE__, __LINE__);
       free(img);
-      return NULL;
+      return nil;
     }
     for(i=0; i<2*numComponents; i++) img->decode[i] = decode[i];
   }
@@ -125,7 +125,7 @@ static inline CGImageRef opal_CreateImage(
   img->crop = CGRectNull;
   img->surf = NULL;
   
-  return (CGImageRef)img;
+  return img;
 }
 
 CGImageRef CGImageCreate(
@@ -191,7 +191,7 @@ CGImageRef CGImageMaskCreate(
 
 CGImageRef CGImageCreateCopy(CGImageRef image)
 {
-  return (CGImageRef)[(CGImage *)image retain];
+  return [image retain];
 }
 
 
@@ -253,13 +253,13 @@ static CGImageRef createWithDataProvider(
   CGColorRenderingIntent intent,
   CFStringRef type)
 {
-  CFDictionaryRef opts = (CFDictionaryRef)[[NSDictionary alloc] initWithObjectsAndKeys: 
+  NSDictionary *opts = [[NSDictionary alloc] initWithObjectsAndKeys: 
     type, kCGImageSourceTypeIdentifierHint,
     nil];
   
   CGImageSourceRef src = CGImageSourceCreateWithDataProvider(provider, opts);
   CGImageRef img = nil;
-  if (CFEqual(CGImageSourceGetType(src), type))
+  if ([CGImageSourceGetType(src) isEqual: type])
   {
     if (CGImageSourceGetCount(src) >= 1)
     {
@@ -274,8 +274,8 @@ static CGImageRef createWithDataProvider(
   {
     NSLog(@"Unexpected type of image. expected %@, found %@", (NSString*)type, (NSString*)CGImageSourceGetType(src));
   }
-  CFRelease(src);
-  CFRelease(opts);
+  [src release];
+  [opts release];
   
   if (img)
   {
@@ -365,7 +365,7 @@ CGImageRef CGImageCreateWithJPEGDataProvider(
   bool shouldInterpolate,
   CGColorRenderingIntent intent)
 {
-  return createWithDataProvider(source, decode, shouldInterpolate, intent, CFSTR("public.jpeg"));
+  return createWithDataProvider(source, decode, shouldInterpolate, intent, @"public.jpeg");
 }
 
 CGImageRef CGImageCreateWithPNGDataProvider(
@@ -374,7 +374,7 @@ CGImageRef CGImageCreateWithPNGDataProvider(
   bool shouldInterpolate,
   CGColorRenderingIntent intent)
 {
-  return createWithDataProvider(source, decode, shouldInterpolate, intent, CFSTR("public.png"));
+  return createWithDataProvider(source, decode, shouldInterpolate, intent, @"public.png");
 }
 
 CFTypeID CGImageGetTypeID()
@@ -384,12 +384,12 @@ CFTypeID CGImageGetTypeID()
 
 CGImageRef CGImageRetain(CGImageRef image)
 {
-  return (CGImageRef)[(CGImage *)image retain];
+  return [image retain];
 }
 
 void CGImageRelease(CGImageRef image)
 {
-  [(CGImage *)image release];
+  [image release];
 }
 
 bool CGImageIsMask(CGImageRef image)

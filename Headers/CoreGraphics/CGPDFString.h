@@ -26,7 +26,12 @@
 
 /* Data Types */
 
-typedef struct CGPDFString *CGPDFStringRef;
+#ifdef __OBJC__
+@class CGPDFString;
+typedef CGPDFString* CGPDFStringRef;
+#else
+typedef struct CGPDFString* CGPDFStringRef;
+#endif
 
 #include <CoreFoundation/CFString.h>
 #include <CoreFoundation/CFDate.h>

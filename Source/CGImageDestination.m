@@ -169,7 +169,7 @@ void CGImageDestinationSetProperties(
   CGImageDestinationRef dest,
   CFDictionaryRef properties)
 {
-  [(CGImageDestination*)dest setProperties: properties];
+  [dest setProperties: properties];
 }
 
 /* Adding Images */
@@ -179,7 +179,7 @@ void CGImageDestinationAddImage(
   CGImageRef image,
   CFDictionaryRef properties)
 {
-  [(CGImageDestination*)dest addImage: (CGImageRef)image properties: properties];
+  [dest addImage: (CGImageRef)image properties: properties];
 }
 
 void CGImageDestinationAddImageFromSource(
@@ -194,7 +194,7 @@ void CGImageDestinationAddImageFromSource(
 
 bool CGImageDestinationFinalize(CGImageDestinationRef dest)
 {
-  return [(CGImageDestination*)dest finalize];
+  return [dest finalize];
 }
 
 CFTypeID CGImageDestinationGetTypeID()

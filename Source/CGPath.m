@@ -80,7 +80,7 @@
 
 CGPathRef CGPathCreateCopy(CGPathRef path)
 {
-  return [(CGPath*)path copy];
+  return [path copy];
 }
 
 CGMutablePathRef CGPathCreateMutable()
@@ -95,17 +95,17 @@ CGMutablePathRef CGPathCreateMutableCopy(CGPathRef path)
 
 CGPathRef CGPathRetain(CGPathRef path)
 {
-  return [(CGPath*)path retain];
+  return [path retain];
 }
 
 void CGPathRelease(CGPathRef path)
 {
-  [(CGPath*)path release];
+  [path release];
 }
 
 bool CGPathIsEmpty(CGPathRef path)
 {
-  return [(CGPath*)path count] == 0;
+  return [path count] == 0;
 }
 
 bool CGPathEqualToPath(CGPathRef path1, CGPathRef path2)
@@ -114,8 +114,8 @@ bool CGPathEqualToPath(CGPathRef path1, CGPathRef path2)
   {
     return true;
   }
-  NSUInteger count1 = [(CGPath*)path1 count];
-  NSUInteger count2 = [(CGPath*)path2 count];
+  NSUInteger count1 = [path1 count];
+  NSUInteger count2 = [path2 count];
   
   if (count1 != count2)
   {
@@ -126,8 +126,8 @@ bool CGPathEqualToPath(CGPathRef path1, CGPathRef path2)
   {
     CGPoint points1[3];
     CGPoint points2[3];
-    CGPathElementType type1 = [(CGPath*)path1 elementTypeAtIndex: i points: points1];
-    CGPathElementType type2 = [(CGPath*)path2 elementTypeAtIndex: i points: points2];
+    CGPathElementType type1 = [path1 elementTypeAtIndex: i points: points1];
+    CGPathElementType type2 = [path2 elementTypeAtIndex: i points: points2];
     
     if (type1 != type2)
     {
@@ -175,7 +175,7 @@ bool CGPathIsRect(CGPathRef path, CGRect *rect)
 
 CGRect CGPathGetBoundingBox(CGPathRef path)
 {
-  NSUInteger count = [(CGPath*)path count];
+  NSUInteger count = [path count];
   CGFloat minX = 0.0;
   CGFloat minY = 0.0;
   CGFloat maxX = 0.0;
@@ -184,7 +184,7 @@ CGRect CGPathGetBoundingBox(CGPathRef path)
   for (NSUInteger i=0; i<count; i++)
   {
     CGPoint points[3];
-    CGPathElementType type =[(CGPath*)path elementTypeAtIndex: i points: points];
+    CGPathElementType type =[path elementTypeAtIndex: i points: points];
 
     NSUInteger numPoints;
     switch (type)
@@ -238,12 +238,12 @@ CGPoint CGPathGetCurrentPoint(CGPathRef path)
     return CGPointZero;
   }
   
-  NSUInteger count = [(CGPath*)path count];
+  NSUInteger count = [path count];
   // FIXME: ugly loop
   for (NSUInteger i=(count-1); i>=0 && i<count; i--)
   {
     CGPoint points[3];
-    CGPathElementType type =[(CGPath*)path elementTypeAtIndex: i points: points];
+    CGPathElementType type =[path elementTypeAtIndex: i points: points];
     
     switch (type)
     {
@@ -342,11 +342,11 @@ void CGPathAddPath(
   const CGAffineTransform *m,
   CGPathRef path2)
 {
-  NSUInteger count = [(CGPath*)path2 count];
+  NSUInteger count = [path2 count];
   for (NSUInteger i=0; i<count; i++)
   {
     CGPoint points[3];
-    CGPathElementType type = [(CGPath*)path2 elementTypeAtIndex: i points: points];
+    CGPathElementType type = [path2 elementTypeAtIndex: i points: points];
     if (m)
     {
       for (NSUInteger j=0; j<3; j++)
@@ -409,12 +409,12 @@ void CGPathApply(
   void *info,
   CGPathApplierFunction function)
 {
-  NSUInteger count = [(CGPath*)path count];
+  NSUInteger count = [path count];
   for (NSUInteger i=0; i<count; i++)
   {
     CGPoint points[3];
     CGPathElement e;
-    e.type = [(CGPath*)path elementTypeAtIndex: i points: points];
+    e.type = [path elementTypeAtIndex: i points: points];
     e.points = points;
     function(info, &e); 
   }
