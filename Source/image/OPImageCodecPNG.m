@@ -160,6 +160,7 @@ static bool opal_has_png_header(CGDataProviderRef dp)
   OPDataProviderRewind(dp);
   
   NS_DURING
+  {
     png_struct = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, opal_png_error_fn, opal_png_warning_fn);
     if (!png_struct)
       {
@@ -262,11 +263,13 @@ static bool opal_has_png_header(CGDataProviderRef dp)
 
     CGColorSpaceRelease(cs);
     CGDataProviderRelease(imgDataProvider);
-  
+  }
   NS_HANDLER
+  {
     RELEASE(self);
     png_destroy_read_struct(&png_struct, &png_info, &png_end_info);
     NS_VALUERETURN(nil, CGImageRef);
+  }
   NS_ENDHANDLER
   
   png_destroy_read_struct(&png_struct, &png_info, &png_end_info);
@@ -364,33 +367,6 @@ static bool opal_has_png_header(CGDataProviderRef dp)
   png_structp png_struct;
   png_infop png_info;
 
-/*
- int width, height, depth;
-  unsigned char * bitmapData;
-  int bytes_per_row;
-  NSString * colorspace;
-  NSMutableData * PNGRep = nil;
-  int type = -1;	// illegal value
-  int interlace = PNG_INTERLACE_NONE;
-  int transforms = PNG_TRANSFORM_IDENTITY;	// no transformations
-  NSNumber * gammaNumber = nil;
-  double gamma = 0.0;
-  
-  // get the image parameters
-
-
-  if ([[properties objectForKey: NSImageInterlaced] boolValue])
-    interlace = PNG_INTERLACE_ADAM7;
-
-  if ([colorspace isEqualToString: NSCalibratedWhiteColorSpace] ||
-      [colorspace isEqualToString: NSDeviceWhiteColorSpace])
-    type = PNG_COLOR_TYPE_GRAY;
-  if ([colorspace isEqualToString: NSCalibratedRGBColorSpace] ||
-      [colorspace isEqualToString: NSDeviceRGBColorSpace])
-    type = PNG_COLOR_TYPE_RGB;
-  if ([self hasAlpha]) type = type | PNG_COLOR_MASK_ALPHA;
-  */
-
   // make the PNG structures
   png_struct = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, opal_png_error_fn, opal_png_warning_fn);
   if (!png_struct)
@@ -406,8 +382,7 @@ static bool opal_has_png_header(CGDataProviderRef dp)
   }
 
   NS_DURING  
-    //
-  
+  {
     const bool interlace = false;
     const int width = CGImageGetWidth(img);
     const int height = CGImageGetHeight(img);
@@ -487,10 +462,12 @@ static bool opal_has_png_header(CGDataProviderRef dp)
     free(rowdata);
     
     png_write_end(png_struct, png_info);
-    
+  }
   NS_HANDLER
+  {
     png_destroy_write_struct(&png_struct, &png_info);
     NS_VALUERETURN(false, bool);
+  }
   NS_ENDHANDLER
               
   png_destroy_write_struct(&png_struct, &png_info);

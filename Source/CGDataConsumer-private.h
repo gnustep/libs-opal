@@ -24,4 +24,4 @@
 
 #include "CoreGraphics/CGDataConsumer.h"
 
-void OPDataConsumerPutBytes(CGDataConsumerRef dc, const void *buffer, size_t count);
+size_t OPDataConsumerPutBytes(CGDataConsumerRef dc, const void *buffer, size_t count);

@@ -59,15 +59,16 @@
 
 /* Opal-internal access */
 
-void OPDataConsumerPutBytes(CGDataConsumerRef dc, const void *buffer, size_t count)
+size_t OPDataConsumerPutBytes(CGDataConsumerRef dc, const void *buffer, size_t count)
 {
   if (NULL != dc)
   {
-    dc->cb.putBytes(
+    return dc->cb.putBytes(
       dc->info, 
       buffer,
       count);
   }
+  return 0;
 }
 
 /* URL consumer */

@@ -101,7 +101,7 @@ static void gs_jpeg_output_message(j_common_ptr cinfo)
 
   (*cinfo->err->format_message)(cinfo, msgBuffer);
   myerr->message = [NSString stringWithCString: msgBuffer];
-  
+  NSLog(@"Message %@", myerr->message);
   // FIXME: Do something with warnings?
 }
 
@@ -340,12 +340,16 @@ static void gs_jpeg_memory_dest_destroy (j_compress_ptr cinfo)
   gs_jpeg_memory_src_create(&cinfo, dp);
 
   NS_DURING
+  {
     jpeg_read_header(&cinfo, TRUE);
+  }
   NS_HANDLER
+  {
     gs_jpeg_memory_src_destroy(&cinfo);
     jpeg_destroy_decompress(&cinfo);
     [self release];
     NS_VALUERETURN(nil, id);
+  }
   NS_ENDHANDLER
   
   gs_jpeg_memory_src_destroy(&cinfo);
@@ -388,6 +392,7 @@ static void gs_jpeg_memory_dest_destroy (j_compress_ptr cinfo)
   gs_jpeg_error_mgr_create((j_common_ptr)&cinfo, &jerrMgr);
   
   NS_DURING
+  {
     /* jpeg-decompression */
     JDIMENSION sclcount, i, j;
     JSAMPARRAY sclbuffer = NULL;
@@ -470,11 +475,13 @@ static void gs_jpeg_memory_dest_destroy (j_compress_ptr cinfo)
 
     CGColorSpaceRelease(cs);
     CGDataProviderRelease(imgDataProvider);
-    
+  } 
   NS_HANDLER
+  {
     gs_jpeg_memory_src_destroy(&cinfo);
     jpeg_destroy_decompress(&cinfo);
     NS_VALUERETURN(NULL, CGImageRef);
+  }
   NS_ENDHANDLER
 
   gs_jpeg_memory_src_destroy(&cinfo);
