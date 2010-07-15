@@ -27,7 +27,8 @@
 
 @interface CairoFont : CGFont
 {
-  cairo_scaled_font_t *cairofont;
+	@public
+	cairo_scaled_font_t *cairofont;
 }
 
 @end

@@ -4,7 +4,7 @@ LIBRARY_NAME = opal
 
 $(LIBRARY_NAME)_OBJC_FILES = $(wildcard *.m)
 $(LIBRARY_NAME)_OBJC_FILES += $(wildcard cairo/*.m)
-$(LIBRARY_NAME)_OBJC_FILES += $(wildcard image/*.m)
+#$(LIBRARY_NAME)_OBJC_FILES += $(wildcard image/*.m)
 
 $(LIBRARY_NAME)_HEADER_FILES_DIR = ../Headers/CoreGraphics
 $(LIBRARY_NAME)_INCLUDE_DIRS = -I../Headers

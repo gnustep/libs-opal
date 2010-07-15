@@ -335,6 +335,7 @@ void CGContextSetFlatness(CGContextRef ctx, CGFloat flatness)
 
 CGInterpolationQuality CGContextGetInterpolationQuality(CGContextRef ctx)
 {
+	return 0;
 }
 
 void CGContextSetInterpolationQuality(
@@ -688,7 +689,7 @@ void CGContextStrokeLineSegments(
 
 bool CGContextIsPathEmpty(CGContextRef ctx)
 {
-
+	return 0;
 }
 
 CGPoint CGContextGetPathCurrentPoint(CGContextRef ctx)
@@ -1114,9 +1115,10 @@ void CGContextSelectFont(
   CGFloat size,
   CGTextEncoding textEncoding)
 {
-  /* FIXME: textEncoding is ignored */
-  CGContextSetFont(ctx, CGFontCreateWithFontName([name UTF8String]));
+  NSString *n = [[NSString alloc] initWithUTF8String: name];
+  CGContextSetFont(ctx, CGFontCreateWithFontName(n));
   CGContextSetFontSize(ctx, size);
+  [n release];
 }
 
 void CGContextSetCharacterSpacing(CGContextRef ctx, CGFloat spacing)
