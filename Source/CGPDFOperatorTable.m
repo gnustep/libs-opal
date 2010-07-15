@@ -22,11 +22,12 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
+#import <Foundation/NSObject.h>
 #include "CoreGraphics/CGPDFOperatorTable.h"
 
 CGPDFOperatorTableRef CGPDFOperatorTableCreate()
 {
-  
+  return nil;
 }
 
 void CGPDFOperatorTableSetCallback(
@@ -39,7 +40,7 @@ void CGPDFOperatorTableSetCallback(
 
 CGPDFOperatorTableRef CGPDFOperatorTableRetain(CGPDFOperatorTableRef table)
 {
-  
+  return nil;
 }
 
 void CGPDFOperatorTableRelease(CGPDFOperatorTableRef table)

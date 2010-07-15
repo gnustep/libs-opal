@@ -133,7 +133,7 @@ typedef struct 	_longHorMetric {
     glyphNameIndex -= 258; // Use this as an index into the list of pascal strings
   }
   
-  CHAR *names = (CHAR*)(&(data->glyphNameIndex) + CFSwapInt16BigToHost(data->numberOfGlyphs));
+  unsigned char *names = (unsigned char *)(&(data->glyphNameIndex) + CFSwapInt16BigToHost(data->numberOfGlyphs));
 
   int index = 0;
   for (unsigned char *ptr = names; (ptr - (unsigned char *)data) < size; )
@@ -173,7 +173,7 @@ typedef struct 	_longHorMetric {
   {
     printf("CGFontGetGlyphWithGlyphName: GDI error getting 'post' table");
     DeleteDC(hdc);
-    return nil;
+    return 0;
   }
     
   struct post_table *data = malloc(size);
@@ -183,7 +183,7 @@ typedef struct 	_longHorMetric {
     printf("CGFontGetGlyphWithGlyphName: Getting 'post' table contents failed");
     DeleteDC(hdc);
     free(data);
-    return nil;
+    return 0;
   }
   
   if (CFSwapInt16BigToHost(data->Version) != 2)
@@ -212,12 +212,12 @@ typedef struct 	_longHorMetric {
         }
       }
       
-      printf("CGFontGetGlyphWithGlyphName: Warning, %s is a standard glyph name but it is not present in the font\n");
+      printf("CGFontGetGlyphWithGlyphName: Warning, %s is a standard glyph name but it is not present in the font\n", glyphNameCString);
       break;
     }
   }
    
-  CHAR *names = (CHAR*)(&(data->glyphNameIndex) + self->numberOfGlyphs);
+  unsigned char *names = (unsigned char*)(&(data->glyphNameIndex) + self->numberOfGlyphs);
   
   int index = 0;
   for (unsigned char *ptr = names; (ptr - (unsigned char *)data) < size; )
@@ -239,7 +239,7 @@ typedef struct 	_longHorMetric {
         }
       }
       
-      printf("CGFontGetGlyphWithGlyphName: Warning, %s is in the font glyph name dictionary but it is not assigned to any glyph in the font\n");
+      printf("CGFontGetGlyphWithGlyphName: Warning, %s is in the font glyph name dictionary but it is not assigned to any glyph in the font\n", glyphNameCString);
       break;
     }
     else

@@ -92,7 +92,8 @@ static CGColorSpaceRef _deviceCMYK;
 }
 
 - (void) dealloc
-{    
+{
+  [super dealloc];    
 }
 
 - (BOOL) isEqual: (id)other

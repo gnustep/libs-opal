@@ -22,14 +22,15 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
+#import <Foundation/NSObject.h>
 #include "CoreGraphics/CGPDFObject.h"
 
 CGPDFObjectType CGPDFObjectGetType(CGPDFObjectRef object)
 {
-  
+  return kCGPDFObjectTypeNull;
 }
 
 bool CGPDFObjectGetValue(CGPDFObjectRef object, CGPDFObjectType type, void *value)
 {
-  
+  return false;
 }

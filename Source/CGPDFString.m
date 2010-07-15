@@ -21,25 +21,26 @@
  License along with this library; if not, write to the Free Software
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
-
+ 
+#import <Foundation/NSObject.h>
 #include "CoreGraphics/CGPDFString.h"
 
 size_t CGPDFStringGetLength(CGPDFStringRef string)
 {
-  
+  return 0;
 }
 
 const unsigned char *CGPDFStringGetBytePtr(CGPDFStringRef string)
 {
-  
+  return NULL;
 }
 
 CFStringRef CGPDFStringCopyTextString(CGPDFStringRef string)
 {
-  
+  return nil;
 }
 
 CFDateRef CGPDFStringCopyDate(CGPDFStringRef string)
 {
-  
+  return nil;
 }

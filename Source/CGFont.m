@@ -143,7 +143,7 @@
 - (CGGlyph) glyphWithGlyphName: (CFStringRef)glyphName
 {
   [self doesNotRecognizeSelector: _cmd];
-  return nil;
+  return 0;
 }
 
 @end
@@ -298,7 +298,7 @@ CGFloat CGFontGetStemV(CGFontRef font)
 CFTypeID CGFontGetTypeID()
 {
   // FIXME: correct subclass?
-  return [CGFont fontClass];
+  return (CFTypeID)[CGFont fontClass];
 }
 
 int CGFontGetUnitsPerEm(CGFontRef font)

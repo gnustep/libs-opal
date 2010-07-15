@@ -22,7 +22,10 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
    */
 
-#include <Foundation/NSString.h>
+#import <Foundation/NSString.h>
+#import <Foundation/NSURL.h>
+#import <Foundation/NSDictionary.h>
+
 #include "CoreGraphics/OPPostScriptContext.h"
 #include "CoreGraphics/CGDataConsumer.h"
 #include "CGContext-private.h"
@@ -60,7 +63,7 @@ void OPPostScriptContextClose(CGContextRef ctx)
 
 cairo_status_t opal_OPPostScriptContextWriteFunction(
   void *closure,
-  unsigned char *data,
+  const unsigned char *data,
   unsigned int length)
 {
   OPDataConsumerPutBytes((CGDataConsumerRef)closure, data, length);
@@ -114,23 +117,9 @@ CGContextRef OPPostScriptContextCreateWithURL(
   const CGRect *mediaBox,
   CFDictionaryRef auxiliaryInfo)
 {
-  CGRect box;
-  if (mediaBox == NULL) {
-    box = CGRectMake(0, 0, 8.5 * 72, 11 * 72);
-  } else {
-    box = *mediaBox;
-  }
-  
-  //FIXME: We ignore the origin of mediaBox.. is that correct?
-  
-  cairo_surface_t *surf = cairo_pdf_surface_create(
-    [[url path] UTF8String],
-    box.size.width,
-    box.size.height);
-  
-  opal_setProperties(surf, auxiliaryInfo);
- 
-  CGContextRef ctx = opal_new_CGContext(surf, box.size);
+  CGDataConsumerRef dc = CGDataConsumerCreateWithURL(url);
+  CGContextRef ctx = OPPostScriptContextCreate(dc, mediaBox, auxiliaryInfo);
+  CGDataConsumerRelease(dc);
   return ctx;
 }
 

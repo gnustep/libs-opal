@@ -45,7 +45,7 @@ CGPatternRef CGPatternCreate(
   int isColored,
   const CGPatternCallbacks *callbacks)
 {
-  CGPatternRef pattern = NULL;
+  CGPatternRef pattern = nil;
   
   // FIXME
 
@@ -54,7 +54,7 @@ CGPatternRef CGPatternCreate(
 
 CFTypeID CGPatternGetTypeID()
 {
-  return [CGPattern class];
+  return (CFTypeID)[CGPattern class];
 }
 
 CGPatternRef CGPatternRetain(CGPatternRef pattern)

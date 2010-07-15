@@ -22,8 +22,10 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#include "CoreGraphics/CGGradient.h"
 #import <Foundation/NSObject.h>
+#import <Foundation/NSArray.h>
+#include "CoreGraphics/CGGradient.h"
+#include "CoreGraphics/CGColor.h"
  
 @interface CGGradient : NSObject
 {
@@ -112,7 +114,8 @@ CGGradientRef CGGradientCreateWithColors(
   CGFloat components[count * cs_numcomps];
   for (int i=0; i<count; i++)
   {
-    memcpy(&components[i*cs_numcomps], CGColorGetComponents(), cs_numcomps * sizeof(CGFloat));
+    CGColorRef clr = [colors objectAtIndex: i];
+    memcpy(&components[i*cs_numcomps], CGColorGetComponents(clr), cs_numcomps * sizeof(CGFloat));
   }
   return CGGradientCreateWithColorComponents(cs, components, locations, count);
 }

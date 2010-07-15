@@ -22,12 +22,14 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
    */
 
-#include <Foundation/NSString.h>
+#import <Foundation/NSString.h>
+#import <Foundation/NSURL.h>
+
 #include "CoreGraphics/CGPDFContext.h"
 #include "CoreGraphics/CGDataConsumer.h"
 #include "CGContext-private.h"
+#include "CGDataConsumer-private.h"
 
-#include <CoreFoundation/CoreFoundation.h>
 #include <cairo.h>
 #include <cairo-pdf.h>
 #include "opal.h"
@@ -90,9 +92,10 @@ void CGPDFContextClose(CGContextRef ctx)
 
 cairo_status_t opal_CGPDFContextWriteFunction(
   void *closure,
-  unsigned char *data,
+  const unsigned char *data,
   unsigned int length)
 {
+  printf("write func with consumer %p", closure);
   OPDataConsumerPutBytes((CGDataConsumerRef)closure, data, length);
   return CAIRO_STATUS_SUCCESS;
 }
@@ -110,7 +113,7 @@ CGContextRef CGPDFContextCreate(
   }
   
   //FIXME: We ignore the origin of mediaBox.. is that correct?
-  
+    printf("creating with consumer %p", consumer);
   cairo_surface_t *surf = cairo_pdf_surface_create_for_stream(
     opal_CGPDFContextWriteFunction,
     consumer,
@@ -126,21 +129,9 @@ CGContextRef CGPDFContextCreateWithURL(
   const CGRect *mediaBox,
   CFDictionaryRef auxiliaryInfo)
 {
-  CGRect box;
-  if (mediaBox == NULL) {
-    box = CGRectMake(0, 0, 8.5 * 72, 11 * 72);
-  } else {
-    box = *mediaBox;
-  }
-  
-  //FIXME: We ignore the origin of mediaBox.. is that correct?
-  
-  cairo_surface_t *surf = cairo_pdf_surface_create(
-    [[url path] UTF8String],
-    box.size.width,
-    box.size.height);
-  
-  CGContextRef ctx = opal_new_CGContext(surf, box.size);
+  CGDataConsumerRef dc = CGDataConsumerCreateWithURL(url);
+  CGContextRef ctx = CGPDFContextCreate(dc, mediaBox, auxiliaryInfo);
+  CGDataConsumerRelease(dc);
   return ctx;
 }
 

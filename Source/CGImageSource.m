@@ -78,12 +78,12 @@ static NSMutableArray *sourceClasses = nil;
   [self doesNotRecognizeSelector: _cmd];
   return nil;
 }
-- (NSDictionary*)propertiesWithOptions: (NSDictionary*)opts
+- (NSDictionary*)propertiesWithOptions: (NSDictionary*)options
 {
   [self doesNotRecognizeSelector: _cmd];
   return nil;
 }
-- (NSDictionary*)propertiesWithOptions: (NSDictionary*)opts atIndex: (size_t)index
+- (NSDictionary*)propertiesWithOptions: (NSDictionary*)options atIndex: (size_t)index
 {
   [self doesNotRecognizeSelector: _cmd];
   return nil;
@@ -93,12 +93,12 @@ static NSMutableArray *sourceClasses = nil;
   [self doesNotRecognizeSelector: _cmd];
   return 0;
 }
-- (CGImageRef)createImageAtIndex: (size_t)index options: (NSDictionary*)opts
+- (CGImageRef)createImageAtIndex: (size_t)index options: (NSDictionary*)options
 {
   [self doesNotRecognizeSelector: _cmd];
   return nil;
 }
-- (CGImageRef)createThumbnailAtIndex: (size_t)index options: (NSDictionary*)opts
+- (CGImageRef)createThumbnailAtIndex: (size_t)index options: (NSDictionary*)options
 {
   [self doesNotRecognizeSelector: _cmd];
   return nil;
@@ -157,25 +157,25 @@ static NSMutableArray *sourceClasses = nil;
 {
   return real;
 }
-- (NSDictionary*)propertiesWithOptions: (NSDictionary*)opts
+- (NSDictionary*)propertiesWithOptions: (NSDictionary*)options
 {
-  return [[self realSource] propertiesWithOptions: opts];
+  return [[self realSource] propertiesWithOptions: options];
 }
-- (NSDictionary*)propertiesWithOptions: (NSDictionary*)opts atIndex: (size_t)index
+- (NSDictionary*)propertiesWithOptions: (NSDictionary*)options atIndex: (size_t)index
 {
-  return [[self realSource] propertiesWithOptions: opts atIndex: index];
+  return [[self realSource] propertiesWithOptions: options atIndex: index];
 }
 - (size_t)count
 {
   return [[self realSource] count];
 }
-- (CGImageRef)createImageAtIndex: (size_t)index options: (NSDictionary*)opts
+- (CGImageRef)createImageAtIndex: (size_t)index options: (NSDictionary*)options
 {
-  return [[self realSource] createImageAtIndex: index options: opts];
+  return [[self realSource] createImageAtIndex: index options: options];
 }
-- (CGImageRef)createThumbnailAtIndex: (size_t)index options: (NSDictionary*)opts
+- (CGImageRef)createThumbnailAtIndex: (size_t)index options: (NSDictionary*)options
 {
-  return [[self realSource] createThumbnailAtIndex: index options: opts];
+  return [[self realSource] createThumbnailAtIndex: index options: options];
 }
 - (CGImageSourceStatus)status
 {
@@ -217,28 +217,28 @@ static NSMutableArray *sourceClasses = nil;
 
 /* Creating */
 
-CGImageSourceRef CGImageSourceCreateIncremental(CFDictionaryRef opts)
+CGImageSourceRef CGImageSourceCreateIncremental(CFDictionaryRef options)
 {
-  return [[CGImageSourceIncremental alloc] initWithOptions: opts];
+  return [[CGImageSourceIncremental alloc] initWithOptions: options];
 }
 
 CGImageSourceRef CGImageSourceCreateWithData(
   CFDataRef data,
-  CFDictionaryRef opts)
+  CFDictionaryRef options)
 {
   CGDataProviderRef provider = CGDataProviderCreateWithCFData(data);
   CGImageSourceRef source;
-  source = CGImageSourceCreateWithDataProvider(provider, opts);
+  source = CGImageSourceCreateWithDataProvider(provider, options);
   CGDataProviderRelease(provider);
   return source;
 }
 
 CGImageSourceRef CGImageSourceCreateWithDataProvider(
   CGDataProviderRef provider,
-  CFDictionaryRef opts)
+  CFDictionaryRef options)
 {
   const NSUInteger cnt = [sourceClasses count];
-  NSString *possibleType = [opts valueForKey:
+  NSString *possibleType = [options valueForKey:
     kCGImageSourceTypeIdentifierHint];
     
   if (possibleType)
@@ -273,11 +273,11 @@ CGImageSourceRef CGImageSourceCreateWithDataProvider(
 
 CGImageSourceRef CGImageSourceCreateWithURL(
   CFURLRef url,
-  CFDictionaryRef opts)
+  CFDictionaryRef options)
 {
   CGDataProviderRef provider = CGDataProviderCreateWithURL(url);
   CGImageSourceRef source;
-  source = CGImageSourceCreateWithDataProvider(provider, opts);
+  source = CGImageSourceCreateWithDataProvider(provider, options);
   CGDataProviderRelease(provider);
   return source;
 }
@@ -287,17 +287,17 @@ CGImageSourceRef CGImageSourceCreateWithURL(
 
 CFDictionaryRef CGImageSourceCopyProperties(
   CGImageSourceRef source,
-  CFDictionaryRef opts)
+  CFDictionaryRef options)
 {
-  return [source propertiesWithOptions: opts];
+  return [source propertiesWithOptions: options];
 }
 
 CFDictionaryRef CGImageSourceCopyPropertiesAtIndex(
   CGImageSourceRef source,
   size_t index,
-  CFDictionaryRef opts)
+  CFDictionaryRef options)
 {
-  return [source propertiesWithOptions: opts atIndex: index];
+  return [source propertiesWithOptions: options atIndex: index];
 }
 
 /* Getting Supported Image Types */
@@ -324,17 +324,17 @@ size_t CGImageSourceGetCount(CGImageSourceRef source)
 CGImageRef CGImageSourceCreateImageAtIndex(
   CGImageSourceRef source,
   size_t index,
-  CFDictionaryRef opts)
+  CFDictionaryRef options)
 {
-  return [source createImageAtIndex: index options: opts];
+  return [source createImageAtIndex: index options: options];
 }
 
 CGImageRef CGImageSourceCreateThumbnailAtIndex(
   CGImageSourceRef source,
   size_t index,
-  CFDictionaryRef opts)
+  CFDictionaryRef options)
 {
-  return [source createThumbnailAtIndex: index options: opts];
+  return [source createThumbnailAtIndex: index options: options];
 }
 
 CGImageSourceStatus CGImageSourceGetStatus(CGImageSourceRef source)

@@ -22,6 +22,7 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
+#import <Foundation/NSObject.h>
 #include "CoreGraphics/CGPDFScanner.h"
 
 CGPDFScannerRef CGPDFScannerCreate(
@@ -29,67 +30,67 @@ CGPDFScannerRef CGPDFScannerCreate(
   CGPDFOperatorTableRef table,
   void *info)
 {
-  
+  return nil;
 }
 
 bool CGPDFScannerScan(CGPDFScannerRef scanner)
 {
-  
+  return false;
 }
 
 CGPDFContentStreamRef CGPDFScannerGetContentStream(CGPDFScannerRef scanner)
 {
-  
+  return nil;
 }
 
 bool CGPDFScannerPopArray(CGPDFScannerRef scanner, CGPDFArrayRef *value)
 {
-  
+  return false;
 }
 
 bool CGPDFScannerPopBoolean(CGPDFScannerRef scanner, CGPDFBoolean *value)
 {
-  
+  return false;
 }
 
 bool CGPDFScannerPopDictionary(CGPDFScannerRef scanner, CGPDFDictionaryRef *value)
 {
-  
+  return false;
 }
 
 bool CGPDFScannerPopInteger(CGPDFScannerRef scanner, CGPDFInteger *value)
 {
-  
+  return false;
 }
 
 bool CGPDFScannerPopName(CGPDFScannerRef scanner, const char **value)
 {
-  
+  return false;
 }
 
 bool CGPDFScannerPopNumber(CGPDFScannerRef scanner, CGPDFReal *value)
 {
-  
+  return false;
 }
 
 bool CGPDFScannerPopObject(CGPDFScannerRef scanner, CGPDFObjectRef *value)
 {
-  
+  return false;
 }
 
 bool CGPDFScannerPopStream(CGPDFScannerRef scanner, CGPDFStreamRef *value)
 {
-  
+  return false;
 }
 
 bool CGPDFScannerPopString(CGPDFScannerRef scanner, CGPDFStringRef *value)
 {
-  
+  return false;
 }
 
 CGPDFScannerRef CGPDFScannerRetain(CGPDFScannerRef scanner)
 {
-  
+  return nil;
 }
 
 void CGPDFScannerRelease(CGPDFScannerRef scanner)

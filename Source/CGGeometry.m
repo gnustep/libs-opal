@@ -22,6 +22,8 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
    */
 
+#import <Foundation/NSObject.h>
+
 /* Define IN_CGGEOMETRY_C so that the header can provide non-inline
  * versions of the function implementations for us.
  */
@@ -98,9 +100,9 @@ CGRect CGRectIntersection(CGRect r1, CGRect r2)
     rect.size.width = r2.origin.x + r2.size.width - rect.origin.x;
 
   if (r1.origin.y + r1.size.height < r2.origin.y + r2.size.height)
-    rect.size.width = r1.origin.y + r1.size.height - rect.origin.y;
+    rect.size.height = r1.origin.y + r1.size.height - rect.origin.y;
   else
-    rect.size.width = r2.origin.y + r2.size.height - rect.origin.y;
+    rect.size.height = r2.origin.y + r2.size.height - rect.origin.y;
 
   return rect;
 }
@@ -186,29 +188,35 @@ CGRect CGRectUnion(CGRect r1, CGRect r2)
 CFDictionaryRef CGPointCreateDictionaryRepresentation(CGPoint point)
 {
   // FIXME: implement
+  return nil;
 }  
 
 bool CGPointMakeWithDictionaryRepresentation(CFDictionaryRef dict, CGPoint *point)
 {
   // FIXME: implement
+  return false;
 }
 
 CFDictionaryRef CGSizeCreateDictionaryRepresentation(CGSize size)
 {
   // FIXME: implement
+  return nil;
 }
 
 bool CGSizeMakeWithDictionaryRepresentation(CFDictionaryRef dict, CGSize *size)
 {
   // FIXME: implement
+  return false;
 }
 
 CFDictionaryRef CGRectCreateDictionaryRepresentation(CGRect rect)
 {
   // FIXME: implement
+  return nil;
 }
 
 bool CGRectMakeWithDictionaryRepresentation(CFDictionaryRef dict, CGRect *rect)
 {
   // FIXME: implement
+  return false;
 }

@@ -50,6 +50,7 @@
 + (CGFontRef) createWithDataProvider: (CGDataProviderRef)provider
 {
   // FIXME: implement
+  return nil;
 }
 
 @end

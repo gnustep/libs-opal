@@ -22,6 +22,7 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
+#import <Foundation/NSObject.h>
 #include "CoreGraphics/CGPDFDictionary.h"
 
 
@@ -32,50 +33,50 @@ void CGPDFDictionaryApplyFunction(CGPDFDictionaryRef dict, CGPDFDictionaryApplie
 
 size_t CGPDFDictionaryGetCount(CGPDFDictionaryRef dict)
 {
-  
+  return 0;
 }
 
 bool CGPDFDictionaryGetArray(CGPDFDictionaryRef dict, const char *key, CGPDFArrayRef *value)
 {
-  
+  return false;
 }
 
 bool CGPDFDictionaryGetBoolean(CGPDFDictionaryRef dict, const char *key, CGPDFBoolean *value)
 {
-  
+  return false;
 }
 
 bool CGPDFDictionaryGetDictionary(CGPDFDictionaryRef dict, const char *key, CGPDFDictionaryRef *value)
 {
-  
+  return false;
 }
 
 bool CGPDFDictionaryGetInteger(CGPDFDictionaryRef dict, const char *key, CGPDFInteger *value)
 {
-  
+  return false;
 }
 
 bool CGPDFDictionaryGetName(CGPDFDictionaryRef dict, const char *key, const char **value)
 {
-  
+  return false;
 }
 
 bool CGPDFDictionaryGetNumber(CGPDFDictionaryRef dict, const char *key, CGPDFReal *value)
 {
-  
+  return false;
 }
 
 bool CGPDFDictionaryGetObject(CGPDFDictionaryRef dict, const char *key, CGPDFObjectRef *value)
 {
-  
+  return false;
 }
 
 bool CGPDFDictionaryGetStream(CGPDFDictionaryRef dict, const char *key, CGPDFStreamRef *value)
 {
-  
+  return false;
 }
 
 bool CGPDFDictionaryGetString(CGPDFDictionaryRef dict, const char *key, CGPDFStringRef *value)
 {
-  
+  return false;
 }

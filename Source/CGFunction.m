@@ -45,7 +45,7 @@ CGFunctionRef CGFunctionCreate(
   const CGFloat *range,
   const CGFunctionCallbacks *callbacks)
 {
-  CGFunctionRef func = (CGFunctionRef)[[CGFunction alloc] init];
+  CGFunctionRef func = [[CGFunction alloc] init];
   
   //FIXME
   
@@ -54,7 +54,7 @@ CGFunctionRef CGFunctionCreate(
 
 CGFunctionRef CGFunctionRetain(CGFunctionRef function)
 {
-  [function retain];
+  return [function retain];
 }
 
 void CGFunctionRelease(CGFunctionRef function)

@@ -4,6 +4,8 @@
 #include <CoreGraphics/CoreGraphics.h>
 #endif
 
+#include <stdio.h>
+
 #define pi 3.14159265358979323846
 
 CGLayerRef makeSampleLayer(CGContextRef ctx){

@@ -31,6 +31,7 @@
 
 - (NSUInteger) count;
 - (CGPathElementType) elementTypeAtIndex: (NSUInteger)index points: (CGPoint*)outPoints;
+- (id) initWithPath: (CGPathRef)path;
 
 @end
 
@@ -41,9 +42,22 @@
   return [self retain];    
 }
 
+- (id) initWithPath: (CGPathRef)path
+{
+  [self doesNotRecognizeSelector: _cmd];
+  return nil;
+}
+
+- (NSUInteger) count
+{
+  [self doesNotRecognizeSelector: _cmd];
+  return 0;
+}
+
 - (CGPathElementType) elementTypeAtIndex: (NSUInteger)index points: (CGPoint*)outPoints
 {
   [self doesNotRecognizeSelector: _cmd];
+  return (CGPathElementType)0;
 }
 
 @end
@@ -53,8 +67,6 @@
 {  
 }
 
-- (NSUInteger) count;
-- (CGPathElementType) elementTypeAtIndex: (NSUInteger)index points: (CGPoint*)outPoints;
 - (void) addElementWithType: (CGPathElementType)type points: (CGPoint[])points;
 
 @end
@@ -69,6 +81,7 @@
 - (id) copyWithZone: (NSZone*)zone
 {
   [self doesNotRecognizeSelector: _cmd];
+  return nil;
 }
 
 @end
@@ -269,6 +282,7 @@ bool CGPathContainsPoint(
   int eoFill)
 {
   // FIXME: use cairo function 
+  return false;
 }
 
 void CGPathAddArc(

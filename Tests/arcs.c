@@ -141,8 +141,6 @@ arcAngle : The angle indicating the arc’s extent.
 
 void paintArc(CGContextRef context, CGRect r, int startAngle, int arcAngle)
 {
-    CGFloat start, end;
-	
 	// Signal the start of a path
     CGContextBeginPath(context);
 	

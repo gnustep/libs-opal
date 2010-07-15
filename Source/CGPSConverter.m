@@ -30,7 +30,7 @@ CGPSConverterRef CGPSConverterCreate(
   const CGPSConverterCallbacks *callbacks,
   CFDictionaryRef options)
 {
-  
+  return nil;
 }
 
 bool CGPSConverterConvert(
@@ -39,7 +39,7 @@ bool CGPSConverterConvert(
   CGDataConsumerRef consumer,
   CFDictionaryRef options)
 {
-  CGContextRef ctx = CGPDFContextCreate(consumer, NULL, NULL);
+  //CGContextRef ctx = CGPDFContextCreate(consumer, NULL, NULL);
   
   // Read postscript from the data provider, and draw on ctx
   
@@ -48,15 +48,15 @@ bool CGPSConverterConvert(
 
 bool CGPSConverterAbort(CGPSConverterRef converter)
 {
-  
+  return false;
 }
 
 bool CGPSConverterIsConverting(CGPSConverterRef converter)
 {
-  
+  return false;
 }
 
 CFTypeID CGPSConverterGetTypeID()
 {
-  
+  return (CFTypeID)nil;
 }

@@ -22,26 +22,27 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
+#import <Foundation/NSObject.h>
 #include "CoreGraphics/CGPDFPage.h"
 
 CGPDFDocumentRef CGPDFPageGetDocument(CGPDFPageRef page)
 {
-  
+  return nil;
 }
 
 size_t CGPDFPageGetPageNumber(CGPDFPageRef page)
 {
-  
+  return 0;
 }
 
 CGRect CGPDFPageGetBoxRect(CGPDFPageRef page, CGPDFBox box)
 {
-  
+  return CGRectNull;
 }
 
 int CGPDFPageGetRotationAngle(CGPDFPageRef page)
 {
-  
+  return 0;
 }
 
 CGAffineTransform CGPDFPageGetDrawingTransform(
@@ -51,22 +52,22 @@ CGAffineTransform CGPDFPageGetDrawingTransform(
   int rotate,
   bool preserveAspectRatio)
 {
-  
+  return CGAffineTransformIdentity;
 }
 
 CGPDFDictionaryRef CGPDFPageGetDictionary(CGPDFPageRef page)
 {
-  
+  return nil;
 }
 
 CFTypeID CGPDFPageGetTypeID(void)
 {
-  
+  return (CFTypeID)nil;
 }
 
 CGPDFPageRef CGPDFPageRetain(CGPDFPageRef page)
 {
-  
+  return nil;  
 }
 
 void CGPDFPageRelease(CGPDFPageRef page)

@@ -32,9 +32,9 @@
 // for off_t
 #include <sys/types.h>
 
-#ifdef CGFLOAT_DEFINED
-#warning CGFloat already defined - the definition must match that in CGBase.h
-#endif
+//#ifdef CGFLOAT_DEFINED
+//#warning CGFloat already defined - the definition must match that in CGBase.h
+//#endif
 
 #ifndef CGFLOAT_DEFINED
 #define CGFLOAT_DEFINED 1

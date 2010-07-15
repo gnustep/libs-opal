@@ -24,6 +24,7 @@
 
 #import "CairoFont.h"
 #include <windows.h>
+#include <cairo-win32.h>
 
 @interface CairoFontWin32 : CairoFont
 {

@@ -8,7 +8,6 @@
 
 + (void) registerSourceClass: (Class)cls;
 + (NSArray*) sourceClasses;
-+ (Class) sourceClassForType: (NSString*)type;
 
 + (NSArray *)typeIdentifiers;
 - (id)initWithProvider: (CGDataProviderRef)provider;

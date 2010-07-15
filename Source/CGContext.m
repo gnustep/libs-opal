@@ -741,7 +741,7 @@ CGPathRef CGContextCopyPath(CGContextRef ctx)
     }
   }
   cairo_path_destroy(cairopath);
-  return path;
+  return (CGPathRef)path;
 }
 
 void CGContextClip(CGContextRef ctx)
@@ -783,7 +783,7 @@ void CGContextClipToMask(CGContextRef ctx, CGRect rect, CGImageRef mask)
 
 CGRect CGContextGetClipBoundingBox(CGContextRef ctx)
 {
-
+  return CGRectNull;
 }
 
 static inline void set_color(cairo_pattern_t **cp, CGColorRef clr, double alpha)
@@ -1547,7 +1547,6 @@ static void start_shadow(CGContextRef ctx)
  */
 static void end_shadow(CGContextRef ctx, CGRect bounds)
 {
-  float radius = ctx->add->shadow_radius;
   cairo_pattern_t *pattern = cairo_pop_group(ctx->ct);
   
  // writeOut(pattern);

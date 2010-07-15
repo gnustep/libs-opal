@@ -22,14 +22,15 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
+#import <Foundation/NSObject.h>
 #include "CoreGraphics/CGPDFStream.h"
 
 CGPDFDictionaryRef CGPDFStreamGetDictionary(CGPDFStreamRef stream)
 {
-
+  return nil;
 }
 
 CFDataRef CGPDFStreamCopyData(CGPDFStreamRef stream, CGPDFDataFormat *format)
 {
-  
+  return nil;
 }

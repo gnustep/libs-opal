@@ -41,7 +41,7 @@ CGShadingRef CGShadingCreateAxial(
   int extendStart,
   int extendEnd)
 {
-  
+  return nil;
 }
 
 CGShadingRef CGShadingCreateRadial(
@@ -54,12 +54,12 @@ CGShadingRef CGShadingCreateRadial(
   int extendStart,
   int extendEnd)
 {
-  
+  return nil;
 }
 
 CFTypeID CGShadingGetTypeID()
 {
-  return [CGShading class];    
+  return (CFTypeID)[CGShading class];    
 }
 
 CGShadingRef CGShadingRetain(CGShadingRef shading)

@@ -22,11 +22,12 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
+#import <Foundation/NSObject.h>
 #include "CoreGraphics/CGPDFContentStream.h"
 
 CGPDFContentStreamRef CGPDFContentStreamCreateWithPage(CGPDFPageRef page)
 {
-    
+    return nil;
 }
 
 CGPDFContentStreamRef CGPDFContentStreamCreateWithStream(
@@ -34,7 +35,7 @@ CGPDFContentStreamRef CGPDFContentStreamCreateWithStream(
   CGPDFDictionaryRef streamResources,
   CGPDFContentStreamRef parent)
 {
-  
+  return nil;
 }
 
 CGPDFObjectRef CGPDFContentStreamGetResource(
@@ -42,17 +43,17 @@ CGPDFObjectRef CGPDFContentStreamGetResource(
   const char *category,
   const char *name)
 {
-  
+  return nil;
 }
 
 CFArrayRef CGPDFContentStreamGetStreams(CGPDFContentStreamRef stream)
 {
-  
+  return nil;
 }
 
 CGPDFContentStreamRef CGPDFContentStreamRetain(CGPDFContentStreamRef stream)
 {
-  
+  return nil;
 }
 
 void CGPDFContentStreamRelease(CGPDFContentStreamRef stream)

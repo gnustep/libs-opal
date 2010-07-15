@@ -68,6 +68,7 @@ static NSMutableArray *destinationClasses = nil;
       return cls;
     }
   }
+  return Nil;
 }
 
 + (NSArray *)typeIdentifiers
@@ -105,6 +106,7 @@ static NSMutableArray *destinationClasses = nil;
 - (bool) finalize
 {
   [self doesNotRecognizeSelector: _cmd];
+  return false;
 }
 
 @end

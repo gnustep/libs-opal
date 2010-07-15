@@ -22,21 +22,22 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
+#import <Foundation/NSObject.h>
 #include "CoreGraphics/CGPDFDocument.h"
 
 CGPDFDocumentRef CGPDFDocumentCreateWithProvider(CGDataProviderRef provider)
 {
-  
+  return nil;
 }
 
 CGPDFDocumentRef CGPDFDocumentCreateWithURL(CFURLRef url)
 {
-  
+  return nil;
 }
 
 CGPDFDocumentRef CGPDFDocumentRetain(CGPDFDocumentRef document)
 {
-  
+  return nil;
 }
 
 void CGPDFDocumentRelease(CGPDFDocumentRef document)
@@ -46,35 +47,35 @@ void CGPDFDocumentRelease(CGPDFDocumentRef document)
 
 int CGPDFDocumentGetNumberOfPages(CGPDFDocumentRef document)
 {
-  
+  return 0;
 }
 
 CGRect CGPDFDocumentGetMediaBox(CGPDFDocumentRef document, int page)
 {
-  
+  return CGRectNull;
 }
 
 CGRect CGPDFDocumentGetCropBox(CGPDFDocumentRef document, int page)
 {
-  
+  return CGRectNull;
 }
 
 CGRect CGPDFDocumentGetBleedBox(CGPDFDocumentRef document, int page)
 {
-  
+  return CGRectNull;
 }
 
 CGRect CGPDFDocumentGetTrimBox(CGPDFDocumentRef document, int page)
 {
-  
+  return CGRectNull;
 }
 
 CGRect CGPDFDocumentGetArtBox(CGPDFDocumentRef document, int page)
 {
-  
+  return CGRectNull;
 }
 
 int CGPDFDocumentGetRotationAngle(CGPDFDocumentRef document, int page)
 {
-  
+  return 0;
 }
