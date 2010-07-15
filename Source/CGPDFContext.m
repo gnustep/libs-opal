@@ -90,7 +90,7 @@ void CGPDFContextClose(CGContextRef ctx)
   }
 }
 
-cairo_status_t opal_CGPDFContextWriteFunction(
+static cairo_status_t opal_CGPDFContextWriteFunction(
   void *closure,
   const unsigned char *data,
   unsigned int length)
@@ -98,6 +98,13 @@ cairo_status_t opal_CGPDFContextWriteFunction(
   printf("write func with consumer %p", closure);
   OPDataConsumerPutBytes((CGDataConsumerRef)closure, data, length);
   return CAIRO_STATUS_SUCCESS;
+}
+
+static cairo_user_data_key_t OpalDataConsumerKey;
+
+static void opal_SurfaceDestoryFunc(void *data)
+{
+  CGDataConsumerRelease((CGDataConsumerRef)data);
 }
 
 CGContextRef CGPDFContextCreate(
@@ -113,13 +120,15 @@ CGContextRef CGPDFContextCreate(
   }
   
   //FIXME: We ignore the origin of mediaBox.. is that correct?
-    printf("creating with consumer %p", consumer);
+
   cairo_surface_t *surf = cairo_pdf_surface_create_for_stream(
     opal_CGPDFContextWriteFunction,
-    consumer,
+    CGDataConsumerRetain(consumer),
     box.size.width,
     box.size.height);
   
+  cairo_surface_set_user_data(surf, &OpalDataConsumerKey, consumer, opal_SurfaceDestoryFunc);
+    
   CGContextRef ctx = opal_new_CGContext(surf, box.size);
   return ctx;
 }

@@ -86,6 +86,14 @@ static void  opal_setProperties(cairo_surface_t *surf, CFDictionaryRef auxiliary
   }
 }
 
+static cairo_user_data_key_t OpalDataConsumerKey;
+
+static void opal_SurfaceDestoryFunc(void *data)
+{
+  CGDataConsumerRelease((CGDataConsumerRef)data);
+}
+
+
 CGContextRef OPPostScriptContextCreate(
   CGDataConsumerRef consumer,
   const CGRect *mediaBox,
@@ -102,9 +110,11 @@ CGContextRef OPPostScriptContextCreate(
   
   cairo_surface_t *surf = cairo_ps_surface_create_for_stream(
     opal_OPPostScriptContextWriteFunction,
-    consumer,
+    CGDataConsumerRetain(consumer),
     box.size.width,
     box.size.height);
+
+  cairo_surface_set_user_data(surf, &OpalDataConsumerKey, consumer, opal_SurfaceDestoryFunc);
 
   opal_setProperties(surf, auxiliaryInfo);
  

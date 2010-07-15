@@ -81,6 +81,15 @@ static void opal_setProperties(cairo_surface_t *surf, CFDictionaryRef auxiliaryI
   }
 }
 
+
+static cairo_user_data_key_t OpalDataConsumerKey;
+
+static void opal_SurfaceDestoryFunc(void *data)
+{
+  CGDataConsumerRelease((CGDataConsumerRef)data);
+}
+
+
 CGContextRef OPSVGContextCreate(
   CGDataConsumerRef consumer,
   const CGRect *mediaBox,
@@ -97,10 +106,12 @@ CGContextRef OPSVGContextCreate(
   
   cairo_surface_t *surf = cairo_svg_surface_create_for_stream(
     opal_OPSVGContextWriteFunction,
-    consumer,
+    CGDataConsumerRetain(consumer),
     box.size.width,
     box.size.height);
   
+  cairo_surface_set_user_data(surf, &OpalDataConsumerKey, consumer, opal_SurfaceDestoryFunc);
+    
   opal_setProperties(surf, auxiliaryInfo);
 
   CGContextRef ctx = opal_new_CGContext(surf, box.size);
