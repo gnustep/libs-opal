@@ -26,6 +26,7 @@
    Boston, MA 02110-1301, USA.
 */
 
+#if 0
 
 #include <tiff.h>
 
@@ -1354,3 +1355,4 @@ int NSTiffIsCodecConfigured(unsigned int codec)
   </deflist>
 */
 
+#endif

@@ -6,8 +6,9 @@
 #include <CoreFoundation/CoreFoundation.h>
 #include <Foundation/Foundation.h>
 
+#ifndef MIN
 #define MIN(x,y) ((x)<(y)?(x):(y))
-
+#endif
 
 void draw(CGContextRef ctx, CGRect rect)
 {
@@ -17,7 +18,7 @@ void draw(CGContextRef ctx, CGRect rect)
   CGDataProviderRef pngData = CGDataProviderCreateWithFilename("test.png");
   CGImageRef png = CGImageCreateWithPNGDataProvider(pngData, NULL, YES, kCGRenderingIntentDefault);
   CGDataProviderRelease(pngData);
-  CGRect pngRect = CGRectMake(0,0,rect.size.width,rect.size.height);
+  CGRect pngRect = CGRectMake(0,0,rect.size.width/2,rect.size.height);
   CGContextDrawImage(ctx, pngRect, png);
   CGImageRelease(png);
     
@@ -26,6 +27,5 @@ void draw(CGContextRef ctx, CGRect rect)
   CGDataProviderRelease(jpegData);
   CGRect jpegRect = CGRectMake(rect.size.width/2,0,rect.size.width/2, rect.size.height);
   CGContextDrawImage(ctx, jpegRect, jpeg);
-  CGDataProviderRelease(jpegData);
   CGImageRelease(jpeg);
 }

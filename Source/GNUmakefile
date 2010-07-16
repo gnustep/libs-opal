@@ -4,7 +4,7 @@ LIBRARY_NAME = opal
 
 $(LIBRARY_NAME)_OBJC_FILES = $(wildcard *.m)
 $(LIBRARY_NAME)_OBJC_FILES += $(wildcard cairo/*.m)
-#$(LIBRARY_NAME)_OBJC_FILES += $(wildcard image/*.m)
+$(LIBRARY_NAME)_OBJC_FILES += $(wildcard image/*.m)
 
 $(LIBRARY_NAME)_HEADER_FILES_DIR = ../Headers/CoreGraphics
 $(LIBRARY_NAME)_INCLUDE_DIRS = -I../Headers
@@ -43,9 +43,9 @@ $(LIBRARY_NAME)_HEADER_FILES = \
 	CGShading.h \
 	CoreGraphics.h
 
-ADDITIONAL_OBJCFLAGS += -Wall -g -std=gnu99
+ADDITIONAL_OBJCFLAGS += -Wall -g -O0 -std=gnu99
 ADDITIONAL_CPPFLAGS += $(shell pkg-config --cflags cairo)
-
+ADDITIONAL_CPPFLAGS += $(shell pkg-config --cflags lcms)
 
 ifneq ($(GNUSTEP_TARGET_OS), mingw32)
 ADDITIONAL_CPPFLAGS += $(shell pkg-config --cflags freetype2)
@@ -56,6 +56,7 @@ ADDITIONAL_CPPFLAGS += -D__MINGW__
 LIBRARIES_DEPEND_UPON = -lgdi32 -lcairo -lgnustep-corebase
 endif
 
+LIBRARIES_DEPEND_UPON += $(shell pkg-config --libs lcms)
 LIBRARIES_DEPEND_UPON += $(shell pkg-config --libs libpng)
 LIBRARIES_DEPEND_UPON += -ljpeg
 

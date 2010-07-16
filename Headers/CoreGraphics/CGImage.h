@@ -158,6 +158,8 @@ CGColorSpaceRef CGImageGetColorSpace(CGImageRef image);
 
 CGImageAlphaInfo CGImageGetAlphaInfo(CGImageRef image);
 
+CGBitmapInfo CGImageGetBitmapInfo(CGImageRef image);
+
 CGDataProviderRef CGImageGetDataProvider(CGImageRef image);
 
 const CGFloat *CGImageGetDecode(CGImageRef image);

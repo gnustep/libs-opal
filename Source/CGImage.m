@@ -30,6 +30,7 @@
 #include <stdlib.h>
 #include <cairo.h>
 #include "opal.h"
+#include "image/OPImageConversion.h"
 
 
 @interface CGImage : NSObject
@@ -331,6 +332,10 @@ CGImageRef CGImageCreateWithJPEGDataProvider(
   bool shouldInterpolate,
   CGColorRenderingIntent intent)
 {
+  // FIXME: If cairo 1.9.x or greater, and the image is a PNG or JPEG, attach the
+  // compressed data to the surface with cairo_surface_set_mime_data (so embedding
+  // images in to PDF/SVG output works optimally)
+
   return createWithDataProvider(source, decode, shouldInterpolate, intent, @"public.jpeg");
 }
 
@@ -398,6 +403,11 @@ CGImageAlphaInfo CGImageGetAlphaInfo(CGImageRef image)
   return image->bitmapInfo & kCGBitmapAlphaInfoMask;
 }
 
+CGBitmapInfo CGImageGetBitmapInfo(CGImageRef image)
+{
+  return image->bitmapInfo;
+}
+
 CGDataProviderRef CGImageGetDataProvider(CGImageRef image)
 {
   return image->dp;
@@ -418,81 +428,67 @@ CGColorRenderingIntent CGImageGetRenderingIntent(CGImageRef image)
   return image->intent;
 }
 
+/**
+ * Use OPImageConvert to convert whatever image data the CGImage holds
+ * into Cairo's format (premultiplied ARGB32), and cache this 
+ * surface. Hopefully cairo uploads image surfaces created with
+ * cairo_image_surface_create to the graphics card.
+ */
 cairo_surface_t *opal_CGImageGetSurfaceForImage(CGImageRef img)
 {
-  NSLog(@"Requesting surface %p for %@", img->surf, img);
-  
-  return img->surf;
-      #if 0
-  cairo_format_t cformat;
-  unsigned char *data;
-  size_t datalen;
-  size_t numComponents = 0;
-  int alphaLast = 0;
-  int mask;
-
-  // Return the cached surface if it already exists
-  if (NULL != img->surf)
-    return img->surf;
-
-  /* The target is always 8 BPC 32 BPP for Cairo so should convert to this */
-  /* (see also QA1037) */
-  if (img->cspace)
-    numComponents = CGColorSpaceGetNumberOfComponents(img->cspace);
-
-  switch (CGImageGetAlphaInfo(img)) {
-    case kCGImageAlphaNone:
-    case kCGImageAlphaNoneSkipLast:
-      alphaLast = 1;
-    case kCGImageAlphaNoneSkipFirst:
-      break;
-    case kCGImageAlphaLast:
-      alphaLast = 1;
-    case kCGImageAlphaFirst:
-      numComponents++;
-      break;
-    case kCGImageAlphaPremultipliedLast:
-    case kCGImageAlphaPremultipliedFirst:
-      errlog("%s:%d: FIXME: premultiplied alpha is not supported\n",
-        __FILE__, __LINE__);
+  if (NULL == img->surf)
+  {
+    img->surf = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 
+                                           CGImageGetWidth(img),
+                                           CGImageGetHeight(img));
+    if (cairo_surface_status(img->surf) != CAIRO_STATUS_SUCCESS)
+    {
+      NSLog(@"Cairo error creating image\n");
       return NULL;
-      break;
-    case kCGImageAlphaOnly:
-      numComponents = 1;
+    }
+
+    cairo_surface_flush(img->surf); // going to modify the surface outside of cairo
+
+    const unsigned char *srcData = OPDataProviderGetBytePointer(img->dp);
+    const size_t srcWidth = CGImageGetWidth(img);
+    const size_t srcHeight = CGImageGetHeight(img);
+    const size_t srcBitsPerComponent = CGImageGetBitsPerComponent(img);
+    const size_t srcBitsPerPixel = CGImageGetBitsPerPixel(img);
+    const size_t srcBytesPerRow = CGImageGetBytesPerRow(img);
+    const CGBitmapInfo srcBitmapInfo = CGImageGetBitmapInfo(img);
+    const CGColorSpaceRef srcColorSpace = CGImageGetColorSpace(img);
+    const CGColorRenderingIntent srcIntent = CGImageGetRenderingIntent(img);
+ 
+    unsigned char *dstData = cairo_image_surface_get_data(img->surf);
+    const size_t dstBitsPerComponent = 8;
+    const size_t dstBitsPerPixel = 32;
+    const size_t dstBytesPerRow = cairo_image_surface_get_stride(img->surf);
+    const CGBitmapInfo dstBitmapInfo = kCGBitmapByteOrderDefault | kCGImageAlphaPremultipliedFirst;
+    const CGColorSpaceRef dstColorSpace = srcColorSpace;
+    
+    bool ok = OPImageConvert(
+      dstData, srcData, 
+      srcWidth, srcHeight,
+      dstBitsPerComponent, srcBitsPerComponent,
+      dstBitsPerPixel, srcBitsPerPixel,
+      dstBytesPerRow, srcBytesPerRow,
+      dstBitmapInfo, srcBitmapInfo,
+      dstColorSpace, srcColorSpace,
+      srcIntent);
+    
+    OPDataProviderReleaseBytePointer(img->dp, srcData);
+
+    cairo_surface_mark_dirty(img->surf); // done modifying the surface outside of cairo
+    
+    if (!ok)
+    {
+      cairo_surface_destroy(img->surf);
+      img->surf = NULL;
+      NSLog(@"Image conversion to cairo surface failed.");
+    }
   }
-
-  datalen = img->bytesPerRow * img->height;
-
-  // FIXME: ???
-  mask = (1 << img->bitsPerComponent) - 1;
-
-  // FIXME: the following is just a rough sketch
-  data = malloc(datalen);
-
-  int read = 0;
-  while (read < datalen)
-  {
-    read += OPDataProviderGetBytes(img->dp, data, 10000000);
-  }
-  NSLog(@"Read %d bytes from dp %@", read, img->dp);
-  img->surf = cairo_image_surface_create_for_data(data,
-						CAIRO_FORMAT_ARGB32,
-						img->width,
-						img->height,
-						cairo_format_stride_for_width(CAIRO_FORMAT_ARGB32, img->width));
-            
-  if (cairo_surface_status(img->surf) != CAIRO_STATUS_SUCCESS)
-  {
-    errlog("%s:%d: Cairo error creating surface\n", __FILE__, __LINE__);
-  }
-
-  // FIXME: If cairo 1.9.x or greater, and the image is a PNG or JPEG, attach the
-  // compressed data to the surface with cairo_surface_set_mime_data (so embedding
-  // images in to PDF/SVG output works optimally)
-
-  free(data);
+ 
   return img->surf;
-  #endif
 }
 
 CGRect opal_CGImageGetSourceRect(CGImageRef image)

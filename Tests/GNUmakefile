@@ -29,8 +29,8 @@ else
 ADDITIONAL_LDFLAGS += -lgdi32
 endif
 
-ADDITIONAL_OBJCFLAGS += -Wall -g -std=gnu99
-ADDITIONAL_CFLAGS += -Wall -g -std=gnu99
+ADDITIONAL_OBJCFLAGS += -Wall -g -O0 -std=gnu99
+ADDITIONAL_CFLAGS += -Wall -g -O0 -std=gnu99
 ADDITIONAL_LDFLAGS += -L../Source/obj 
 ADDITIONAL_TOOL_LIBS = -lopal -lgnustep-corebase
 ADDITIONAL_INCLUDE_DIRS = -I../Headers
