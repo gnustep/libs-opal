@@ -34,7 +34,6 @@ typedef CGLayer* CGLayerRef;
 typedef struct CGLayer* CGLayerRef;
 #endif
 
-#include <CoreFoundation/CFDictionary.h>
 #include <CoreGraphics/CGBase.h>
 #include <CoreGraphics/CGContext.h>
 

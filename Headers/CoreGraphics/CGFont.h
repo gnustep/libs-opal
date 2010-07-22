@@ -34,11 +34,6 @@ typedef CGFont* CGFontRef;
 typedef struct CGFont* CGFontRef;
 #endif
 
-
-#include <CoreFoundation/CFData.h>
-#include <CoreFoundation/CFDictionary.h>
-#include <CoreFoundation/CFString.h>
-#include <CoreFoundation/CFArray.h>
 #include <CoreGraphics/CGBase.h>
 #include <CoreGraphics/CGGeometry.h>
 #include <CoreGraphics/CGDataProvider.h>

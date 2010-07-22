@@ -25,7 +25,6 @@
 #ifndef OPAL_CGGeometry_h
 #define OPAL_CGGeometry_h
 
-#include <CoreFoundation/CFDictionary.h>
 #include <CoreGraphics/CGBase.h>
 
 /* Data Types */
@@ -82,36 +81,36 @@ extern const CGRect CGRectInfinite;
  * declared inline.
  */
 #ifdef IN_CGGEOMETRY_C
-#define	GS_GEOM_SCOPE	extern
-#define GS_GEOM_ATTR	
+#define	OP_GEOM_SCOPE	extern
+#define OP_GEOM_ATTR	
 #else
-#define	GS_GEOM_SCOPE	static inline
-#define GS_GEOM_ATTR	__attribute__((unused))
+#define	OP_GEOM_SCOPE	static inline
+#define OP_GEOM_ATTR	__attribute__((unused))
 #endif
 
 /* Creating and modifying Geometric Forms */
 
 /** Returns a CGPoint having x-coordinate x and y-coordinate y. */
-GS_GEOM_SCOPE CGPoint CGPointMake(CGFloat x, CGFloat y) GS_GEOM_ATTR;
+OP_GEOM_SCOPE CGPoint CGPointMake(CGFloat x, CGFloat y) OP_GEOM_ATTR;
 
 /** Returns a CGSize having width width and height height. */
-GS_GEOM_SCOPE CGSize CGSizeMake(CGFloat width, CGFloat height) GS_GEOM_ATTR;
+OP_GEOM_SCOPE CGSize CGSizeMake(CGFloat width, CGFloat height) OP_GEOM_ATTR;
 
 /** Returns a CGRect having point of origin (x, y) and size (width, height). */
-GS_GEOM_SCOPE CGRect CGRectMake(CGFloat x, CGFloat y, CGFloat width, CGFloat height) GS_GEOM_ATTR;
+OP_GEOM_SCOPE CGRect CGRectMake(CGFloat x, CGFloat y, CGFloat width, CGFloat height) OP_GEOM_ATTR;
 
 /** Returns an equivalent rect which has positive width and heght. */
-GS_GEOM_SCOPE CGRect CGRectStandardize(CGRect rect) GS_GEOM_ATTR;
+OP_GEOM_SCOPE CGRect CGRectStandardize(CGRect rect) OP_GEOM_ATTR;
 
 /** Returns the rectangle obtained by translating rect
  * horizontally by dx and vertically by dy. */
-GS_GEOM_SCOPE CGRect CGRectOffset(CGRect rect, CGFloat dx, CGFloat dy) GS_GEOM_ATTR;
+OP_GEOM_SCOPE CGRect CGRectOffset(CGRect rect, CGFloat dx, CGFloat dy) OP_GEOM_ATTR;
 
 /** Returns the rectangle obtained by moving each of rect's
  * horizontal sides inward by dy and each of rect's vertical
  * sides inward by dx with the center point preserved. A larger
  * rectangle can be created by using negative values. */
-GS_GEOM_SCOPE CGRect CGRectInset(CGRect rect, CGFloat dx, CGFloat dy) GS_GEOM_ATTR;
+OP_GEOM_SCOPE CGRect CGRectInset(CGRect rect, CGFloat dx, CGFloat dy) OP_GEOM_ATTR;
 
 /** Returns a rectangle obtained by expanding rect minimally
  * so that all four of its defining components are integers. */
@@ -139,56 +138,56 @@ void CGRectDivide(CGRect rect, CGRect *slice, CGRect *remainder,
 /* Accessing Geometric Attributes */
 
 /** Returns the least x-coordinate value still inside rect. */
-GS_GEOM_SCOPE CGFloat CGRectGetMinX(CGRect rect) GS_GEOM_ATTR;
+OP_GEOM_SCOPE CGFloat CGRectGetMinX(CGRect rect) OP_GEOM_ATTR;
 
 /** Returns the x-coordinate of rect's middle point. */
-GS_GEOM_SCOPE CGFloat CGRectGetMidX(CGRect rect) GS_GEOM_ATTR;
+OP_GEOM_SCOPE CGFloat CGRectGetMidX(CGRect rect) OP_GEOM_ATTR;
 
 /** Returns the greatest x-coordinate value still inside rect. */
-GS_GEOM_SCOPE CGFloat CGRectGetMaxX(CGRect rect) GS_GEOM_ATTR;
+OP_GEOM_SCOPE CGFloat CGRectGetMaxX(CGRect rect) OP_GEOM_ATTR;
 
 /** Returns the least y-coordinate value still inside rect. */
-GS_GEOM_SCOPE CGFloat CGRectGetMinY(CGRect rect) GS_GEOM_ATTR;
+OP_GEOM_SCOPE CGFloat CGRectGetMinY(CGRect rect) OP_GEOM_ATTR;
 
 /** Returns the y-coordinate of rect's middle point. */
-GS_GEOM_SCOPE CGFloat CGRectGetMidY(CGRect rect) GS_GEOM_ATTR;
+OP_GEOM_SCOPE CGFloat CGRectGetMidY(CGRect rect) OP_GEOM_ATTR;
 
 /** Returns the greatest y-coordinate value still inside rect. */
-GS_GEOM_SCOPE CGFloat CGRectGetMaxY(CGRect rect) GS_GEOM_ATTR;
+OP_GEOM_SCOPE CGFloat CGRectGetMaxY(CGRect rect) OP_GEOM_ATTR;
 
 /** Returns rect's width. */
-GS_GEOM_SCOPE CGFloat CGRectGetWidth(CGRect rect) GS_GEOM_ATTR;
+OP_GEOM_SCOPE CGFloat CGRectGetWidth(CGRect rect) OP_GEOM_ATTR;
 
 /** Returns rect's height. */
-GS_GEOM_SCOPE CGFloat CGRectGetHeight(CGRect rect) GS_GEOM_ATTR;
+OP_GEOM_SCOPE CGFloat CGRectGetHeight(CGRect rect) OP_GEOM_ATTR;
 
 /** Returns 1 iff the rect is invalid. */
 int CGRectIsNull(CGRect rect);
 
 /** Returns 1 iff the area of rect is zero (i.e., iff either
  * of rect's width or height is zero or is an invalid rectangle). */
-GS_GEOM_SCOPE int CGRectIsEmpty(CGRect rect) GS_GEOM_ATTR;
+OP_GEOM_SCOPE int CGRectIsEmpty(CGRect rect) OP_GEOM_ATTR;
 
 /** Returns 1 iff the rect is infinite. */
 int CGRectIsInfinite(CGRect rect);
 
 /** Returns 1 iff rect1 and rect2 are intersecting. */
-GS_GEOM_SCOPE int CGRectIntersectsRect(CGRect rect1, CGRect rect2) GS_GEOM_ATTR;
+OP_GEOM_SCOPE int CGRectIntersectsRect(CGRect rect1, CGRect rect2) OP_GEOM_ATTR;
 
 /** Returns 1 iff rect1 contains rect2. */
-GS_GEOM_SCOPE int CGRectContainsRect(CGRect rect1, CGRect rect2) GS_GEOM_ATTR;
+OP_GEOM_SCOPE int CGRectContainsRect(CGRect rect1, CGRect rect2) OP_GEOM_ATTR;
 
 /** Returns 1 iff point is inside rect. */
-GS_GEOM_SCOPE int CGRectContainsPoint(CGRect rect, CGPoint point) GS_GEOM_ATTR;
+OP_GEOM_SCOPE int CGRectContainsPoint(CGRect rect, CGPoint point) OP_GEOM_ATTR;
 
 /** Returns 1 iff rect1's and rect2's origin and size are the same. */
-GS_GEOM_SCOPE int CGRectEqualToRect(CGRect rect1, CGRect rect2) GS_GEOM_ATTR;
+OP_GEOM_SCOPE int CGRectEqualToRect(CGRect rect1, CGRect rect2) OP_GEOM_ATTR;
 
 /** Returns 1 iff size1's and size2's width and height are the same. */
-GS_GEOM_SCOPE int CGSizeEqualToSize(CGSize size1, CGSize size2) GS_GEOM_ATTR;
+OP_GEOM_SCOPE int CGSizeEqualToSize(CGSize size1, CGSize size2) OP_GEOM_ATTR;
 
 /** Returns 1 iff point1's and point2's x- and y-coordinates are the same. */
-GS_GEOM_SCOPE int CGPointEqualToPoint(CGPoint point1, CGPoint point2) GS_GEOM_ATTR;
+OP_GEOM_SCOPE int CGPointEqualToPoint(CGPoint point1, CGPoint point2) OP_GEOM_ATTR;
 
 CFDictionaryRef CGPointCreateDictionaryRepresentation(CGPoint point);
   
@@ -204,7 +203,7 @@ bool CGRectMakeWithDictionaryRepresentation(CFDictionaryRef dict, CGRect *rect);
 
 /* Inlined functions */
 
-GS_GEOM_SCOPE CGFloat CGRectGetMinX(CGRect rect)
+OP_GEOM_SCOPE CGFloat CGRectGetMinX(CGRect rect)
 {
   if (rect.size.width < 0)
     return rect.origin.x + rect.size.width;
@@ -212,12 +211,12 @@ GS_GEOM_SCOPE CGFloat CGRectGetMinX(CGRect rect)
     return rect.origin.x;
 }
 
-GS_GEOM_SCOPE CGFloat CGRectGetMidX(CGRect rect)
+OP_GEOM_SCOPE CGFloat CGRectGetMidX(CGRect rect)
 {
   return rect.origin.x + (rect.size.width / 2.0);
 }
 
-GS_GEOM_SCOPE CGFloat CGRectGetMaxX(CGRect rect)
+OP_GEOM_SCOPE CGFloat CGRectGetMaxX(CGRect rect)
 {
   if (rect.size.width < 0)
     return rect.origin.x;
@@ -225,7 +224,7 @@ GS_GEOM_SCOPE CGFloat CGRectGetMaxX(CGRect rect)
     return rect.origin.x + rect.size.width;
 }
 
-GS_GEOM_SCOPE CGFloat CGRectGetMinY(CGRect rect)
+OP_GEOM_SCOPE CGFloat CGRectGetMinY(CGRect rect)
 {
   if (rect.size.height < 0)
     return rect.origin.y + rect.size.height;
@@ -233,12 +232,12 @@ GS_GEOM_SCOPE CGFloat CGRectGetMinY(CGRect rect)
     return rect.origin.y;
 }
 
-GS_GEOM_SCOPE CGFloat CGRectGetMidY(CGRect rect)
+OP_GEOM_SCOPE CGFloat CGRectGetMidY(CGRect rect)
 {
   return rect.origin.y + (rect.size.height / 2.0);
 }
 
-GS_GEOM_SCOPE CGFloat CGRectGetMaxY(CGRect rect)
+OP_GEOM_SCOPE CGFloat CGRectGetMaxY(CGRect rect)
 {
   if (rect.size.height < 0)
     return rect.origin.y;
@@ -246,34 +245,34 @@ GS_GEOM_SCOPE CGFloat CGRectGetMaxY(CGRect rect)
     return rect.origin.y + rect.size.height;
 }
 
-GS_GEOM_SCOPE CGFloat CGRectGetWidth(CGRect rect)
+OP_GEOM_SCOPE CGFloat CGRectGetWidth(CGRect rect)
 {
   return rect.size.width;
 }
 
-GS_GEOM_SCOPE CGFloat CGRectGetHeight(CGRect rect)
+OP_GEOM_SCOPE CGFloat CGRectGetHeight(CGRect rect)
 {
   return rect.size.height;
 }
 
-GS_GEOM_SCOPE int CGRectIsEmpty(CGRect rect)
+OP_GEOM_SCOPE int CGRectIsEmpty(CGRect rect)
 {
   if (CGRectIsNull(rect))
     return 1;
   return ((rect.size.width == 0) || (rect.size.height == 0)) ? 1 : 0;
 }
 
-GS_GEOM_SCOPE int CGRectIntersectsRect(CGRect rect1, CGRect rect2)
+OP_GEOM_SCOPE int CGRectIntersectsRect(CGRect rect1, CGRect rect2)
 {
   return (CGRectIsNull(CGRectIntersection(rect1, rect2)) ? 0 : 1);
 }
 
-GS_GEOM_SCOPE int CGRectContainsRect(CGRect rect1, CGRect rect2)
+OP_GEOM_SCOPE int CGRectContainsRect(CGRect rect1, CGRect rect2)
 {
   return CGRectEqualToRect(rect1, CGRectUnion(rect1, rect2));
 }
 
-GS_GEOM_SCOPE int CGRectContainsPoint(CGRect rect, CGPoint point)
+OP_GEOM_SCOPE int CGRectContainsPoint(CGRect rect, CGPoint point)
 {
   rect = CGRectStandardize(rect);
   return ((point.x >= rect.origin.x) &&
@@ -282,7 +281,7 @@ GS_GEOM_SCOPE int CGRectContainsPoint(CGRect rect, CGPoint point)
           (point.y <= rect.origin.y + rect.size.height)) ? 1 : 0;
 }
 
-GS_GEOM_SCOPE int CGRectEqualToRect(CGRect rect1, CGRect rect2)
+OP_GEOM_SCOPE int CGRectEqualToRect(CGRect rect1, CGRect rect2)
 {
   /* FIXME: It is not clear from the docs if {{0,0},{1,1}} and {{1,1},{-1,-1}}
      are equal or not. (The text seem to imply that they aren't.) */
@@ -292,18 +291,18 @@ GS_GEOM_SCOPE int CGRectEqualToRect(CGRect rect1, CGRect rect2)
           (rect1.size.height == rect2.size.height)) ? 1 : 0;
 }
 
-GS_GEOM_SCOPE int CGSizeEqualToSize(CGSize size1, CGSize size2)
+OP_GEOM_SCOPE int CGSizeEqualToSize(CGSize size1, CGSize size2)
 {
   return ((size1.width == size2.width) &&
           (size1.height == size2.height)) ? 1 : 0;
 }
 
-GS_GEOM_SCOPE int CGPointEqualToPoint(CGPoint point1, CGPoint point2)
+OP_GEOM_SCOPE int CGPointEqualToPoint(CGPoint point1, CGPoint point2)
 {
   return ((point1.x == point2.x) && (point1.y == point2.y)) ? 1 : 0;
 }
 
-GS_GEOM_SCOPE CGPoint CGPointMake(CGFloat x, CGFloat y)
+OP_GEOM_SCOPE CGPoint CGPointMake(CGFloat x, CGFloat y)
 {
   CGPoint point;
 
@@ -312,7 +311,7 @@ GS_GEOM_SCOPE CGPoint CGPointMake(CGFloat x, CGFloat y)
   return point;
 }
 
-GS_GEOM_SCOPE CGSize CGSizeMake(CGFloat width, CGFloat height)
+OP_GEOM_SCOPE CGSize CGSizeMake(CGFloat width, CGFloat height)
 {
   CGSize size;
 
@@ -321,7 +320,7 @@ GS_GEOM_SCOPE CGSize CGSizeMake(CGFloat width, CGFloat height)
   return size;
 }
 
-GS_GEOM_SCOPE CGRect CGRectMake(CGFloat x, CGFloat y, CGFloat width, CGFloat height)
+OP_GEOM_SCOPE CGRect CGRectMake(CGFloat x, CGFloat y, CGFloat width, CGFloat height)
 {
   CGRect rect;
 
@@ -332,7 +331,7 @@ GS_GEOM_SCOPE CGRect CGRectMake(CGFloat x, CGFloat y, CGFloat width, CGFloat hei
   return rect;
 }
 
-GS_GEOM_SCOPE CGRect CGRectStandardize(CGRect rect)
+OP_GEOM_SCOPE CGRect CGRectStandardize(CGRect rect)
 {
   if (rect.size.width < 0) {
     rect.origin.x += rect.size.width;
@@ -345,14 +344,14 @@ GS_GEOM_SCOPE CGRect CGRectStandardize(CGRect rect)
   return rect;
 }
 
-GS_GEOM_SCOPE CGRect CGRectOffset(CGRect rect, CGFloat dx, CGFloat dy)
+OP_GEOM_SCOPE CGRect CGRectOffset(CGRect rect, CGFloat dx, CGFloat dy)
 {
   rect.origin.x += dx;
   rect.origin.y += dy;
   return rect;
 }
 
-GS_GEOM_SCOPE CGRect CGRectInset(CGRect rect, CGFloat dx, CGFloat dy)
+OP_GEOM_SCOPE CGRect CGRectInset(CGRect rect, CGFloat dx, CGFloat dy)
 {
   rect = CGRectStandardize(rect);
   rect.origin.x += dx;

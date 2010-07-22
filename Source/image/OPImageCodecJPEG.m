@@ -561,7 +561,7 @@ static void gs_jpeg_memory_dest_destroy (j_compress_ptr cinfo)
     return nil;
   }
   
-  dc = CFRetain(consumer);
+  dc = [consumer retain];
   
   return self;
 }
@@ -569,20 +569,20 @@ static void gs_jpeg_memory_dest_destroy (j_compress_ptr cinfo)
 - (void)dealloc
 {
   CGDataConsumerRelease(dc);
-  CFRelease(props);
+  [props release];
   CGImageRelease(img);
   [super dealloc];    
 }
 
 - (void) setProperties: (CFDictionaryRef)properties
 {
-  props = CFRetain(properties);
+  ASSIGN(props, properties);
 }
 
 - (void) addImage: (CGImageRef)image properties: (CFDictionaryRef)properties
 {
   img = CGImageRetain(image);
-  props = CFRetain(properties);
+  ASSIGN(props, properties);
 }
 
 - (bool) finalize

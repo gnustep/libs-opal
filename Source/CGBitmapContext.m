@@ -113,8 +113,8 @@ CGContextRef CGBitmapContextCreateWithData(
   }
   
   const int order = info & kCGBitmapByteOrderMask;
-  if (!((CFByteOrderGetCurrent() == CFByteOrderLittleEndian) && (order == kCGBitmapByteOrder32Little))
-    && !((CFByteOrderGetCurrent() == CFByteOrderBigEndian) && (order == kCGBitmapByteOrder32Big))
+  if (!((NSHostByteOrder() == NS_LittleEndian) && (order == kCGBitmapByteOrder32Little))
+    && !((NSHostByteOrder() == NS_BigEndian) && (order == kCGBitmapByteOrder32Big))
 	&& !(order == kCGBitmapByteOrderDefault))
   {
   	errlog("%s:%d:Bitmap context must be native-endiand\n", __FILE__, __LINE__);

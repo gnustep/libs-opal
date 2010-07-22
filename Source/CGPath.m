@@ -31,7 +31,7 @@
 
 - (NSUInteger) count;
 - (CGPathElementType) elementTypeAtIndex: (NSUInteger)index points: (CGPoint*)outPoints;
-- (id) initWithPath: (CGPathRef)path;
+- (id) initWithCGPath: (CGPathRef)path;
 
 @end
 
@@ -42,7 +42,7 @@
   return [self retain];    
 }
 
-- (id) initWithPath: (CGPathRef)path
+- (id) initWithCGPath: (CGPathRef)path
 {
   [self doesNotRecognizeSelector: _cmd];
   return nil;
@@ -103,7 +103,7 @@ CGMutablePathRef CGPathCreateMutable()
 
 CGMutablePathRef CGPathCreateMutableCopy(CGPathRef path)
 {
-  return [[CGMutablePath alloc] initWithPath: path];
+  return [[CGMutablePath alloc] initWithCGPath: path];
 }
 
 CGPathRef CGPathRetain(CGPathRef path)
@@ -384,6 +384,7 @@ void CGPathAddQuadCurveToPoint(
   CGPoint points[2] = {
     CGPointMake(cx, cy),
     CGPointMake(x, y)
+
   };
   if (m)
   {

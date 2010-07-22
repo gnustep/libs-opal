@@ -34,9 +34,6 @@ typedef CGDataProvider* CGDataProviderRef;
 typedef struct CGDataProvider* CGDataProviderRef;
 #endif
 
-
-#include <CoreFoundation/CFURL.h>
-#include <CoreFoundation/CFData.h>
 #include <CoreGraphics/CGBase.h>
 
 /* Callbacks */

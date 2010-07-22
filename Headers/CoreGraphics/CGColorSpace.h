@@ -34,7 +34,6 @@ typedef CGColorSpace* CGColorSpaceRef;
 typedef struct CGColorSpace* CGColorSpaceRef;
 #endif
 
-#include <CoreFoundation/CoreFoundation.h>
 #include <CoreGraphics/CGBase.h>
 #include <CoreGraphics/CGDataProvider.h>
 

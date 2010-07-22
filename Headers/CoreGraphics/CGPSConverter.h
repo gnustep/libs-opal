@@ -24,7 +24,6 @@
 #ifndef OPAL_CGPSConverter_h
 #define OPAL_CGPSConverter_h
 
-#include <CoreFoundation/CFDictionary.h>
 #include <CoreGraphics/CGBase.h>
 #include <CoreGraphics/CGDataProvider.h>
 #include <CoreGraphics/CGDataConsumer.h>

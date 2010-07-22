@@ -31,7 +31,6 @@
 #include "CGContext-private.h"
 #include "CGDataConsumer-private.h"
 
-#include <CoreFoundation/CoreFoundation.h>
 #include <cairo.h>
 #include <cairo-ps.h>
 #include "opal.h"

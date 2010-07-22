@@ -33,7 +33,6 @@ typedef CGGradient* CGGradientRef;
 typedef struct CGGradient* CGGradientRef;
 #endif
 
-#include <CoreFoundation/CFArray.h>
 #include <CoreGraphics/CGBase.h>
 #include <CoreGraphics/CGColorSpace.h>
 

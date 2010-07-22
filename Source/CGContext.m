@@ -27,8 +27,6 @@
 #include "CGContext-private.h"
 #include "CGGradient-private.h"
 
-#include <CoreFoundation/CoreFoundation.h>
-#include <stdlib.h>
 #include <math.h>
 #include <cairo.h>
 #include "opal.h"

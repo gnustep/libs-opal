@@ -34,8 +34,6 @@ typedef CGContext* CGContextRef;
 typedef struct CGContext* CGContextRef;
 #endif
 
-
-#include <CoreFoundation/CoreFoundation.h>
 #include <CoreGraphics/CGAffineTransform.h>
 #include <CoreGraphics/CGBase.h>
 #include <CoreGraphics/CGBitmapContext.h>

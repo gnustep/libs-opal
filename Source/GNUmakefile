@@ -50,10 +50,10 @@ ADDITIONAL_CPPFLAGS += $(shell pkg-config --cflags lcms)
 ifneq ($(GNUSTEP_TARGET_OS), mingw32)
 ADDITIONAL_CPPFLAGS += $(shell pkg-config --cflags freetype2)
 ADDITIONAL_LDFLAGS += $(shell pkg-config --libs freetype2) -lfontconfig -lX11 -lXrender -lm 
-ADDITIONAL_LDFLAGS += $(shell pkg-config --libs cairo) -lgnustep-corebase
+ADDITIONAL_LDFLAGS += $(shell pkg-config --libs cairo)
 else
 ADDITIONAL_CPPFLAGS += -D__MINGW__
-LIBRARIES_DEPEND_UPON = -lgdi32 -lcairo -lgnustep-corebase
+LIBRARIES_DEPEND_UPON = -lgdi32 -lcairo
 endif
 
 LIBRARIES_DEPEND_UPON += $(shell pkg-config --libs lcms)

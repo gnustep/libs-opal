@@ -160,22 +160,22 @@ static FcPattern *opal_FcPatternCacheLookup(const char *name)
     {
       if (nameStruct.platform_id == TT_PLATFORM_APPLE_UNICODE)
       {
-        result = CFStringCreateWithBytes(NULL, nameStruct.string, nameStruct.string_len, kCFStringEncodingUTF16BE, false);  
+        result = [[NSString alloc] initWithBytes: nameStruct.string length: nameStruct.string_len encoding: NSUTF16BigEndianStringEncoding];
       }
       else if (nameStruct.platform_id == TT_PLATFORM_MACINTOSH &&
                nameStruct.encoding_id == TT_MAC_ID_ROMAN)
       {
-        result = CFStringCreateWithBytes(NULL, nameStruct.string, nameStruct.string_len, kCFStringEncodingMacRoman, false);        
+        result = [[NSString alloc] initWithBytes: nameStruct.string length: nameStruct.string_len encoding: NSMacOSRomanStringEncoding];
       }
       else if (nameStruct.platform_id == TT_PLATFORM_MICROSOFT &&
                nameStruct.encoding_id == TT_MS_ID_UNICODE_CS)
       {
-        result = CFStringCreateWithBytes(NULL, nameStruct.string, nameStruct.string_len, kCFStringEncodingUTF16BE, false);        
+        result = [[NSString alloc] initWithBytes: nameStruct.string length: nameStruct.string_len encoding: NSUTF16BigEndianStringEncoding];
       }
     }
     
     if (NULL != ft_face->family_name) {
-      result = CFStringCreateWithCString(NULL, ft_face->family_name, kCFStringEncodingASCII);
+      result = [[NSString alloc] initWithUTF8String: ft_face->family_name];
     }
   }
   
@@ -191,7 +191,7 @@ static FcPattern *opal_FcPatternCacheLookup(const char *name)
   if (ft_face) {
     char buffer[256];
     FT_Get_Glyph_Name(ft_face, glyph, buffer, 256);
-    result = CFStringCreateWithCString(NULL, buffer, kCFStringEncodingASCII);
+    result = [[NSString alloc] initWithUTF8String: buffer];
   }
   
   cairo_ft_scaled_font_unlock_face(self->cairofont);
@@ -206,7 +206,7 @@ static FcPattern *opal_FcPatternCacheLookup(const char *name)
   if (ft_face) {
     const char *psname = FT_Get_Postscript_Name(ft_face);
     if (NULL != psname) {
-      result = CFStringCreateWithCString(NULL, psname, kCFStringEncodingASCII);
+      result = [[NSString alloc] initWithUTF8String: psname];
     } 
   }
   
@@ -227,7 +227,7 @@ static FcPattern *opal_FcPatternCacheLookup(const char *name)
       buffer = malloc(length);
       if (buffer) {
         if (0 == FT_Load_Sfnt_Table(ft_face, tag, 0, buffer, &length)) {
-          result = CFDataCreate(NULL, buffer, length);
+          result = [[NSData alloc] initWithBytes: buffer length: length];
         }
         free(buffer);
       }
@@ -241,7 +241,7 @@ static FcPattern *opal_FcPatternCacheLookup(const char *name)
 - (CFArrayRef) copyTableTags;
 {
   FT_Face ft_face = cairo_ft_scaled_font_lock_face(self->cairofont);
-  CFArrayRef result = CFArrayCreateMutable(NULL, 0, NULL);
+  CFMutableArrayRef result = [[NSMutableArray alloc] init];
   
   if (ft_face) {
     unsigned int i = 0;
@@ -250,7 +250,8 @@ static FcPattern *opal_FcPatternCacheLookup(const char *name)
     while (FT_Err_Table_Missing !=
            FT_Sfnt_Table_Info(ft_face, i, &tag, &length))
     {
-      CFArrayAppendValue(result, (void *)tag);    
+      // FIXME: see CGFontCopyTableTags reference, the CFArray should contain raw tags and not NSNumbers
+      [result addObject: [NSNumber numberWithInt: tag]];
       i++;
     }
   }
@@ -331,11 +332,8 @@ static FcPattern *opal_FcPatternCacheLookup(const char *name)
   FT_Face ft_face = cairo_ft_scaled_font_lock_face(self->cairofont);
   CGGlyph result = 0;
   
-  char name[256];
-  if (CFStringGetCString(glyphName, name, 256, kCFStringEncodingASCII))
-  {
-    result = (CGGlyph)FT_Get_Name_Index(ft_face, (FT_String*)name);
-  }
+  const char *name = [glyphName UTF8String];
+  result = (CGGlyph)FT_Get_Name_Index(ft_face, (FT_String*)name);
   
   cairo_ft_scaled_font_unlock_face(self->cairofont);
   return result;

@@ -34,9 +34,6 @@ typedef CGDataConsumer* CGDataConsumerRef;
 typedef struct CGDataConsumer* CGDataConsumerRef;
 #endif
 
-
-#include <CoreFoundation/CFURL.h>
-#include <CoreFoundation/CFData.h>
 #include <CoreGraphics/CGBase.h>
 
 /* Callbacks */

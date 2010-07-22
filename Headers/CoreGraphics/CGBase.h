@@ -32,28 +32,9 @@
 // for off_t
 #include <sys/types.h>
 
-//#ifdef CGFLOAT_DEFINED
-//#warning CGFloat already defined - the definition must match that in CGBase.h
-//#endif
+// Note: GNUstep Foundation defines CGFloat
 
-#ifndef CGFLOAT_DEFINED
-#define CGFLOAT_DEFINED 1
-
-#if INTPTR_MAX == INT64_MAX
-#define CGFLOAT_TYPE double
-#define CGFLOAT_IS_DOUBLE 1
-#define CGFLOAT_MIN DBL_MIN
-#define CGFLOAT_MAX DBL_MAX
-#else
-#define CGFLOAT_TYPE float
-#define CGFLOAT_IS_DOUBLE 0
-#define CGFLOAT_MIN FLT_MIN
-#define CGFLOAT_MAX FLT_MAX
-#endif
-
-typedef CGFLOAT_TYPE CGFloat;
-#endif
-
+#import <Foundation/Foundation.h>
 
 #ifndef MAX
 #define MAX(a,b) ((a)>(b)?(a):(b))
@@ -63,5 +44,66 @@ typedef CGFLOAT_TYPE CGFloat;
 #define MIN(a,b) ((a)<(b)?(a):(b))
 #endif
  
+/* Typedefs for CoreFoundation types */
+
+typedef unsigned long CFTypeID;
+
+#ifdef __OBJC__
+@class NSString;
+@class NSMutableString;
+typedef NSString* CFStringRef;
+typedef NSMutableString* CFMutableStringRef;
+#else
+typedef const struct __CFString * CFStringRef;
+typedef struct __CFString * CFMutableStringRef;
 #endif
+
+#ifdef __OBJC__
+@class NSArray;
+@class NSMutableArray;
+typedef NSArray* CFArrayRef;
+typedef NSMutableArray* CFMutableArrayRef;
+#else
+typedef struct CFArray *CFArrayRef;
+typedef struct CFArray *CFMutableArrayRef;
+#endif
+
+#ifdef __OBJC__
+@class NSData;
+@class NSMutableData;
+typedef NSData* CFDataRef;
+typedef NSMutableData* CFMutableDataRef;
+#else
+typedef struct CFData *CFDataRef;
+typedef struct CFMutableData *CFMutableDataRef;
+#endif
+
+#ifdef __OBJC__
+@class NSDate;
+@class NSTimeZone;
+typedef NSDate* CFDateRef;
+typedef NSTimeZone* CFTimeZoneRef;
+#else
+typedef struct CFDate *CFDateRef;
+typedef struct CFTimeZone *CFTimeZoneRef;
+#endif
+
+#ifdef __OBJC__
+@class NSDictionary;
+@class NSMutableDictionary;
+typedef NSDictionary* CFDictionaryRef;
+typedef NSMutableDictionary* CFMutableDictionaryRef;
+#else
+typedef struct CFDictionary * CFDictionaryRef;
+typedef struct CFDictionary * CFMutableDictionaryRef;
+#endif
+
+#ifdef __OBJC__
+@class NSURL;
+typedef NSURL *CFURLRef;
+#else
+typedef struct CFURL *CFURLRef;
+#endif
+
+#endif /* OPAL_CGBase_h */
 

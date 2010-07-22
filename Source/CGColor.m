@@ -22,10 +22,6 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
    */
 
-//FIXME: should not need
-#import <Foundation/NSString.h>
-#import <Foundation/NSObject.h>
-#include <CoreFoundation/CFString.h>
 #include "CoreGraphics/CGContext.h"
 #include "CoreGraphics/CGColor.h"
 #include "opal.h"

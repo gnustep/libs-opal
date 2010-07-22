@@ -25,10 +25,6 @@
 
 #include <CoreGraphics/CGBase.h>
 #include <CoreGraphics/CGDataProvider.h>
-#include <CoreFoundation/CFString.h>
-#include <CoreFoundation/CFDictionary.h>
-#include <CoreFoundation/CFData.h>
-#include <CoreFoundation/CFURL.h>
 
 /* Constants */
 

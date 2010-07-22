@@ -985,7 +985,7 @@ int NSTiffIsCodecConfigured(unsigned int codec)
 {
   self = [super init];
   
-  if (!CFEqual(type, CFSTR("public.tiff")) || count != 1)
+  if (!CFEqual(type, @"public.tiff") || count != 1)
   {
     [self release];
     return nil;

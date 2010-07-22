@@ -141,16 +141,16 @@ static NSMutableArray *sourceClasses = nil;
 
 @implementation CGImageSourceIncremental
 
-- (id)initWithOptions: (CFDictionaryRef)o
+- (id)initWithIncrementalOptions: (CFDictionaryRef)o
 {
   self = [super init];
-  opts = CFRetain(o);
+  opts = [o retain];
   return self;
 }
 - (void)dealloc
 {
   [real release];
-  CFRelease(opts);
+  [opts release];
   [super dealloc];
 }
 - (CGImageSource*)realSource
@@ -219,7 +219,7 @@ static NSMutableArray *sourceClasses = nil;
 
 CGImageSourceRef CGImageSourceCreateIncremental(CFDictionaryRef options)
 {
-  return [[CGImageSourceIncremental alloc] initWithOptions: options];
+  return [[CGImageSourceIncremental alloc] initWithIncrementalOptions: options];
 }
 
 CGImageSourceRef CGImageSourceCreateWithData(

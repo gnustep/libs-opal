@@ -332,13 +332,13 @@ static bool opal_has_png_header(CGDataProviderRef dp)
 {
   self = [super init];
   
-  if (!CFEqual(type, CFSTR("public.png")) || count != 1)
+  if ([type isEqualToString: @"public.png"] || count != 1)
   {
     [self release];
     return nil;
   }
   
-  dc = CFRetain(consumer);
+  dc = [consumer retain];
   
   return self;
 }
@@ -346,20 +346,20 @@ static bool opal_has_png_header(CGDataProviderRef dp)
 - (void)dealloc
 {
   CGDataConsumerRelease(dc);
-  CFRelease(props);
+  [props release];
   CGImageRelease(img);
   [super dealloc];    
 }
 
 - (void) setProperties: (CFDictionaryRef)properties
 {
-  props = CFRetain(properties);
+  ASSIGN(props, properties);
 }
 
 - (void) addImage: (CGImageRef)image properties: (CFDictionaryRef)properties
 {
   img = CGImageRetain(image);
-  props = CFRetain(properties);
+  ASSIGN(props, properties);
 }
 
 - (bool) finalize

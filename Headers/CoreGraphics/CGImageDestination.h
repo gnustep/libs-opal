@@ -24,10 +24,6 @@
 #define OPAL_CGImageDestination_h
 
 #include <CoreGraphics/CGBase.h>
-#include <CoreFoundation/CFString.h>
-#include <CoreFoundation/CFData.h>
-#include <CoreFoundation/CFDictionary.h>
-#include <CoreFoundation/CFURL.h>
 #include <CoreGraphics/CGDataConsumer.h>
 
 /* Constants */

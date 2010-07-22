@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <CoreGraphics/CGContext.h>
 #include <CoreGraphics/CGPDFContext.h>
-#include <CoreFoundation/CoreFoundation.h>
 #include <Foundation/Foundation.h>
 
 #define pi 3.14159265358979323846

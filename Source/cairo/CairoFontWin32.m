@@ -27,7 +27,6 @@
 
 #import "CairoFontWin32.h"
 #import "StandardGlyphNames.h"
-#include <CoreFoundation/CFByteOrder.h>
 
 typedef uint32_t Fixed;
 typedef int16_t FWord; 
@@ -91,7 +90,7 @@ typedef struct 	_longHorMetric {
   
   // See http://www.microsoft.com/typography/otspec150/post.htm
    
-  DWORD tableName = CFSwapInt32BigToHost('post');
+  DWORD tableName = GSSwapBigI32ToHost('post');
   DWORD size = GetFontData(hdc, tableName, 0, NULL, 0);
   if (size == GDI_ERROR)
   {
@@ -110,7 +109,7 @@ typedef struct 	_longHorMetric {
     return nil;
   }
   
-  if (CFSwapInt32BigToHost(data->Version) != 0x00020000)
+  if (GSSwapBigI32ToHost(data->Version) != 0x00020000)
   {
     // FIXME: handle other versions.
     printf("CGFontCopyGlyphNameForGlyph: 'post' table version != 2");
@@ -119,12 +118,12 @@ typedef struct 	_longHorMetric {
     return nil;
   }
   
-  USHORT glyphNameIndex = CFSwapInt16BigToHost((&(data->glyphNameIndex))[glyph]);
+  USHORT glyphNameIndex = GSSwapBigI16ToHost((&(data->glyphNameIndex))[glyph]);
   
   if (glyphNameIndex < 258)
   {
     DeleteDC(hdc);
-    CFStringRef ret = CFStringCreateWithCString(NULL, StandardGlyphNames[glyphNameIndex], kCFStringEncodingASCII);
+    CFStringRef ret = [[NSString alloc] initWithUTF8String: StandardGlyphNames[glyphNameIndex]]; 
     free(data);
     return ret;
   }
@@ -133,7 +132,7 @@ typedef struct 	_longHorMetric {
     glyphNameIndex -= 258; // Use this as an index into the list of pascal strings
   }
   
-  unsigned char *names = (unsigned char *)(&(data->glyphNameIndex) + CFSwapInt16BigToHost(data->numberOfGlyphs));
+  unsigned char *names = (unsigned char *)(&(data->glyphNameIndex) + GSSwapBigI16ToHost(data->numberOfGlyphs));
 
   int index = 0;
   for (unsigned char *ptr = names; (ptr - (unsigned char *)data) < size; )
@@ -144,7 +143,7 @@ typedef struct 	_longHorMetric {
     if (index == glyphNameIndex)
     {
       DeleteDC(hdc);
-      CFStringRef ret = CFStringCreateWithBytes(NULL, ptr, count, kCFStringEncodingASCII, false);
+      CFStringRef ret = [[NSString alloc] initWithBytes: ptr length: count encoding: NSASCIIStringEncoding];
       free(data);
       return ret;
     }
@@ -167,7 +166,7 @@ typedef struct 	_longHorMetric {
   
   // See http://www.microsoft.com/typography/otspec150/post.htm
    
-  DWORD tableName = CFSwapInt32BigToHost('post');
+  DWORD tableName = GSSwapBigI32ToHost('post');
   DWORD size = GetFontData(hdc, tableName, 0, NULL, 0);
   if (size == GDI_ERROR)
   {
@@ -186,7 +185,7 @@ typedef struct 	_longHorMetric {
     return 0;
   }
   
-  if (CFSwapInt16BigToHost(data->Version) != 2)
+  if (GSSwapBigI16ToHost(data->Version) != 2)
   {
     // FIXME: handle other versions.
     printf("CGFontGetGlyphWithGlyphName: 'post' table version != 2");
@@ -204,7 +203,7 @@ typedef struct 	_longHorMetric {
     {
       for (CFIndex j=0; j<self->numberOfGlyphs; j++)
       {
-        if (CFSwapInt16BigToHost((&(data->glyphNameIndex))[j]) == i)
+        if (GSSwapBigI16ToHost((&(data->glyphNameIndex))[j]) == i)
         {
           DeleteDC(hdc);
           free(data);
@@ -231,7 +230,7 @@ typedef struct 	_longHorMetric {
       // Search for the glyph with this glyphNameIndex
       for (CFIndex j=0; j<self->numberOfGlyphs; j++)
       {
-        if (CFSwapInt16BigToHost((&(data->glyphNameIndex))[j]) == glyphNameIndex)
+        if (GSSwapBigI16ToHost((&(data->glyphNameIndex))[j]) == glyphNameIndex)
         {
           DeleteDC(hdc);
           free(data);
@@ -261,7 +260,7 @@ typedef struct 	_longHorMetric {
   HDC hdc = CreateCompatibleDC(NULL);
   SelectObject(hdc, hfont);
 
-  DWORD tableName = CFSwapInt32BigToHost('hhea');
+  DWORD tableName = GSSwapBigI32ToHost('hhea');
   DWORD size = GetFontData(hdc, tableName, 0, NULL, 0);
   if (size == GDI_ERROR)
   {
@@ -280,9 +279,9 @@ typedef struct 	_longHorMetric {
     return false;      
   }
   
-  UINT numHMetrics = CFSwapInt16BigToHost(data->numberOfHMetrics);
+  UINT numHMetrics = GSSwapBigI16ToHost(data->numberOfHMetrics);
   
-  DWORD tableName2 = CFSwapInt32BigToHost('hmtx');
+  DWORD tableName2 = GSSwapBigI32ToHost('hmtx');
   DWORD size2 = GetFontData(hdc, tableName2, 0, NULL, 0);
   if (size2 == GDI_ERROR)
   {
@@ -311,7 +310,7 @@ typedef struct 	_longHorMetric {
       indexToUse = numHMetrics - 1;
     else
       indexToUse = g;
-    advances[i] = CFSwapInt16BigToHost(data2[indexToUse].advanceWidth);
+    advances[i] = GSSwapBigI16ToHost(data2[indexToUse].advanceWidth);
   }
   
   DeleteDC(hdc);
@@ -425,14 +424,14 @@ typedef struct 	_longHorMetric {
 
   font->numberOfGlyphs = 0;
 
-  DWORD tableName = CFSwapInt32BigToHost('post');
+  DWORD tableName = GSSwapBigI32ToHost('post');
   DWORD size = GetFontData(hdc, tableName, 0, NULL, 0);  
   if (size != GDI_ERROR)
   {
     struct post_table *data = malloc(size);
     if (size == GetFontData(hdc, tableName, 0, data, size))
     {
-      font->numberOfGlyphs = CFSwapInt16BigToHost(data->numberOfGlyphs);  
+      font->numberOfGlyphs = GSSwapBigI16ToHost(data->numberOfGlyphs);  
     }
   }
 

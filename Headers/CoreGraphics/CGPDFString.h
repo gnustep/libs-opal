@@ -33,8 +33,6 @@ typedef CGPDFString* CGPDFStringRef;
 typedef struct CGPDFString* CGPDFStringRef;
 #endif
 
-#include <CoreFoundation/CFString.h>
-#include <CoreFoundation/CFDate.h>
 #include <CoreGraphics/CGBase.h>
 
 /* Functions */

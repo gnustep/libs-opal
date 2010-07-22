@@ -3,7 +3,6 @@
 #else
 #include <CoreGraphics/CoreGraphics.h>
 #endif
-#include <CoreFoundation/CoreFoundation.h>
 #include <Foundation/Foundation.h>
 #include <assert.h>
 
@@ -21,12 +20,11 @@ static int len;
  */
 void getGlyphs(CGFontRef font, CGFloat size, CFStringRef str)
 {
-  len = CFStringGetLength(str);
+  len = [str length];
   for (int i=0; i<len; i++)
   {
-    CFStringRef chr = CFStringCreateWithSubstring(NULL, str, CFRangeMake(i, 1));
+    CFStringRef chr = [str substringWithRange: NSMakeRange(i, 1)];
     glyphs[i] = CGFontGetGlyphWithGlyphName(font, chr);
-    CFRelease(chr);
   }
   CGFontGetGlyphAdvances(font, glyphs, len, advances);
   
@@ -39,29 +37,22 @@ void getGlyphs(CGFontRef font, CGFloat size, CFStringRef str)
   }
 }
 
-static char string[256];
-char *getString(CFStringRef s)
-{
-  CFStringGetCString(s, string, 256, kCFStringEncodingUTF8);
-  return string;
-}
-
 void dumpGlpyhNames(CGFontRef f)
 {
   int nglyphs = CGFontGetNumberOfGlyphs(f);
   printf("Dumping glpyhs for %p, %d glyphs:\n", f, nglyphs);
   for (int i=0; i<nglyphs; i++){
     CFStringRef str = CGFontCopyGlyphNameForGlyph(f, i);
-    //printf("Glyph %d = '%s'\n", i, getString(str));
-    CFRelease(str);
+    //printf("Glyph %d = '%s'\n", i, [str UTF8String]);
+    [str release];
   }
 }
 
 void dumpFontInfo(CGFontRef f)
 {
   printf("Dumping font info for %p\n", f);
-  printf("CGFontCopyFullName: %s\n", getString(CGFontCopyFullName(f)));
-  printf("CGFontCopyPostScriptName: %s\n", getString(CGFontCopyPostScriptName(f)));
+  printf("CGFontCopyFullName: %s\n", [CGFontCopyFullName(f) UTF8String]);
+  printf("CGFontCopyPostScriptName: %s\n", [CGFontCopyPostScriptName(f) UTF8String]);
   printf("CGFontCanCreatePostScriptSubset type1: %d\n", (int)CGFontCanCreatePostScriptSubset(f, kCGFontPostScriptFormatType1));
   printf("CGFontCanCreatePostScriptSubset type3: %d\n", (int)CGFontCanCreatePostScriptSubset(f, kCGFontPostScriptFormatType3));
   printf("CGFontCanCreatePostScriptSubset type42: %d\n", (int)CGFontCanCreatePostScriptSubset(f, kCGFontPostScriptFormatType42));
@@ -77,9 +68,9 @@ void dumpFontInfo(CGFontRef f)
     int g = CGFontGetGlyphWithGlyphName(f, name);
     if (g != i)
     {
-      printf("!!! glyph %d has name '%s' = glyph %d\n", i, getString(name), g);
+      printf("!!! glyph %d has name '%s' = glyph %d\n", i, [name UTF8String], g);
     }
-    CFRelease(name);
+    [name release];
   }
   printf("CGFontGetItalicAngle: %f\n", (float)CGFontGetItalicAngle(f));  
   printf("CGFontGetLeading: %d\n", CGFontGetLeading(f));
@@ -138,33 +129,33 @@ void draw(CGContextRef ctx, CGRect rect)
 
   // Test CGContextSetFont / SetFontSize / CGContextShowGlyphsWithAdvances
   
-  CGFontRef f = CGFontCreateWithFontName(CFSTR("Helvetica"));
+  CGFontRef f = CGFontCreateWithFontName(@"Helvetica");
   dumpFontInfo(f);  
   CGContextSetFont(ctx, f);
   CGContextSetFontSize(ctx, 20);
-  getGlyphs(f, 20, CFSTR("ShowGlpyhsWithAdvances"));
+  getGlyphs(f, 20, @"ShowGlpyhsWithAdvances");
   CGContextShowGlyphsWithAdvances(ctx, glyphs, sizeAdvances, len);
-  getGlyphs(f, 20, CFSTR("IJ"));
+  getGlyphs(f, 20, @"IJ");
   CGContextShowGlyphsWithAdvances(ctx, glyphs, sizeAdvances, len);
-  getGlyphs(f, 20, CFSTR("KL"));
+  getGlyphs(f, 20, @"KL");
   CGContextShowGlyphs(ctx, glyphs, len);
-  getGlyphs(f, 20, CFSTR("MNO"));
+  getGlyphs(f, 20, @"MNO");
   CGContextShowGlyphsWithAdvances(ctx, glyphs, sizeAdvances, len);
  
 
   // Try some fancy glyphs
-  CGFontRef f2 = CGFontCreateWithFontName(CFSTR("Times-Roman"));
+  CGFontRef f2 = CGFontCreateWithFontName(@"Times-Roman");
   dumpFontInfo(f2);
   CGContextSetFont(ctx, f2);
   dumpGlpyhNames(f2);
-  CGGlyph ligatures[2] = {CGFontGetGlyphWithGlyphName(f, CFSTR("fl")),
-    CGFontGetGlyphWithGlyphName(f2, CFSTR("fi"))};
+  CGGlyph ligatures[2] = {CGFontGetGlyphWithGlyphName(f, @"fl"),
+    CGFontGetGlyphWithGlyphName(f2, @"fi")};
   CGContextShowGlyphsAtPoint(ctx, 10, 80, ligatures, 2);
   CGContextShowGlyphs(ctx, ligatures, 2);
   
   // Test out the text matrix.
-  CGGlyph AEligatures[2] = {CGFontGetGlyphWithGlyphName(f, CFSTR("AE")),
-    CGFontGetGlyphWithGlyphName(f2, CFSTR("ae"))};
+  CGGlyph AEligatures[2] = {CGFontGetGlyphWithGlyphName(f, @"AE"),
+    CGFontGetGlyphWithGlyphName(f2, @"ae")};
 
   CGAffineTransform xform = CGAffineTransformIdentity;
   xform = CGAffineTransformTranslate(xform, 10, 100);
@@ -178,13 +169,13 @@ void draw(CGContextRef ctx, CGRect rect)
   CGContextSetFontSize(ctx, 20); // This line should do nothing because the text matrix and font size are independent
   CGContextShowGlyphs(ctx, AEligatures, 2);
 
-  getGlyphs(f, 40, CFSTR("NoOverlap"));
+  getGlyphs(f, 40, @"NoOverlap");
   CGContextShowGlyphs(ctx, glyphs, len);
 
   CGContextShowGlyphsWithAdvances(ctx, glyphs, sizeAdvances, len);
 
   {
-   getGlyphs(f, 20, CFSTR("abc"));
+   getGlyphs(f, 20, @"abc");
   CGPoint points[] = {CGPointMake(10, 0), CGPointMake(30, 0), CGPointMake(50, 0)};
   CGContextShowGlyphsAtPositions(ctx, glyphs, points, len);
   }
@@ -195,13 +186,13 @@ void draw(CGContextRef ctx, CGRect rect)
   // Note that it ignores the current text position (and doesn't change it),
   // unlike the otehr ShowGlpyhs functions which all update it.
   CGContextSetTextMatrix(ctx, CGAffineTransformIdentity);
-  getGlyphs(f, 20, CFSTR("abc"));
+  getGlyphs(f, 20, @"abc");
   CGPoint points[] = {CGPointMake(10, 160), CGPointMake(30, 180), CGPointMake(50, 200)};
   CGContextShowGlyphsAtPositions(ctx, glyphs, points, len);
 
   assert(CGContextGetTextPosition(ctx).x == 0.0f);
   assert(CGContextGetTextPosition(ctx).y == 0.0f);
   
-  getGlyphs(f, 20, CFSTR("origin"));
+  getGlyphs(f, 20, @"origin");
   CGContextShowGlyphsWithAdvances(ctx, glyphs, sizeAdvances, len);  
 }

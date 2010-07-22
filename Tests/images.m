@@ -3,7 +3,7 @@
 #else
 #include <CoreGraphics/CoreGraphics.h>
 #endif
-#include <CoreFoundation/CoreFoundation.h>
+
 #include <Foundation/Foundation.h>
 
 #ifndef MIN
