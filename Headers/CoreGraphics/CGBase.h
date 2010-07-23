@@ -46,6 +46,7 @@
  
 /* Typedefs for CoreFoundation types */
 
+typedef signed long CFIndex;
 typedef unsigned long CFTypeID;
 
 #ifdef __OBJC__
