@@ -29,7 +29,6 @@
 #import <Foundation/NSDictionary.h>
 #include <stdlib.h>
 #include <cairo.h>
-#include "opal.h"
 #include "image/OPImageConversion.h"
 
 

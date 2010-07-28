@@ -24,7 +24,6 @@
 
 #import <Foundation/NSObject.h>
 #include "CoreGraphics/CGPattern.h"
-#include "opal.h"
 
 @interface CGPattern : NSObject
 {

@@ -30,7 +30,6 @@
 #include <cairo-xlib.h>
 #include "CoreGraphics/CGContext.h"
 #include "CGContext-private.h"
-#include "opal.h"
 
 /* Internal cairo API, declare it here to avoid dependencies of cairoint.h */
 extern void _cairo_surface_set_device_scale(cairo_surface_t *surface,
@@ -48,7 +47,7 @@ CGContextRef opal_XWindowContextCreate(Display *d, Window w)
 
   ret = XGetWindowAttributes(d, w, &wa);
   if (!ret) {
-    errlog("%s:%d: XGetWindowAttributes returned %d\n", __FILE__, __LINE__, ret);
+    NSLog(@"XGetWindowAttributes returned %d", ret);
     return NULL;
   }
 
@@ -57,8 +56,7 @@ CGContextRef opal_XWindowContextCreate(Display *d, Window w)
   /* May not need this but left here for reference */
   ret = cairo_surface_set_user_data(target, &XWindow, (void *)w, NULL);
   if (ret) {
-    errlog("%s:%d: cairo_surface_set_user_data %d\n",
-            __FILE__, __LINE__, cairo_status_to_string(CAIRO_STATUS_NO_MEMORY));
+    NSLog(@"cairo_surface_set_user_data %s", cairo_status_to_string(CAIRO_STATUS_NO_MEMORY));
     cairo_surface_destroy(target);
     return NULL;
   }

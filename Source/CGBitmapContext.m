@@ -108,7 +108,7 @@ CGContextRef CGBitmapContextCreateWithData(
 
   if (0 != (info & kCGBitmapFloatComponents))
   {
-  	errlog("%s:%d:Float components not supported\n", __FILE__, __LINE__); 
+  	NSLog(@"Float components not supported"); 
     return nil;
   }
   
@@ -117,7 +117,7 @@ CGContextRef CGBitmapContextCreateWithData(
     && !((NSHostByteOrder() == NS_BigEndian) && (order == kCGBitmapByteOrder32Big))
 	&& !(order == kCGBitmapByteOrderDefault))
   {
-  	errlog("%s:%d:Bitmap context must be native-endiand\n", __FILE__, __LINE__);
+  	NSLog(@"Bitmap context must be native-endiand");
     return nil;
   }
 
@@ -149,7 +149,7 @@ CGContextRef CGBitmapContextCreateWithData(
   }
   else
   {
-  	errlog("%s:%d:Unsupported bitmap format\n", __FILE__, __LINE__); 
+  	NSLog(@"Unsupported bitmap format");
     return nil;
   }
   

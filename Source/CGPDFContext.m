@@ -32,7 +32,6 @@
 
 #include <cairo.h>
 #include <cairo-pdf.h>
-#include "opal.h"
 
 /* Constants */
 
@@ -69,7 +68,7 @@ void CGPDFContextAddDestinationAtPoint(
   CFStringRef name,
   CGPoint point)
 {
-  errlog("CGPDFContextAddDestinationAtPoint not supported.");
+  NSLog(@"CGPDFContextAddDestinationAtPoint not supported.");
 }
 
 void CGPDFContextBeginPage(CGContextRef ctx, CFDictionaryRef pageInfo)
@@ -84,8 +83,7 @@ void CGPDFContextClose(CGContextRef ctx)
   
   cret = cairo_status(ctx->ct);
   if (cret) {
-    errlog("%s:%d: CGPDFContextClose status: %s\n",
-           __FILE__, __LINE__, cairo_status_to_string(cret));
+    NSLog(@"CGPDFContextClose status: %s", cairo_status_to_string(cret));
     return;
   }
 }
@@ -151,8 +149,7 @@ void CGPDFContextEndPage(CGContextRef ctx)
   
   cret = cairo_status(ctx->ct);
   if (cret) {
-    errlog("%s:%d: CGPDFContextEndPage status: %s\n",
-           __FILE__, __LINE__, cairo_status_to_string(cret));
+    NSLog(@"CGPDFContextEndPage status: %s", cairo_status_to_string(cret));
     return;
   }
 }
@@ -162,10 +159,10 @@ void CGPDFContextSetDestinationForRect(
   CFStringRef name,
   CGRect rect)
 {
-  errlog("CGPDFContextSetDestinationForRect not supported.");
+  NSLog(@"CGPDFContextSetDestinationForRect not supported.");
 }
 
 void CGPDFContextSetURLForRect(CGContextRef ctx, CFURLRef url, CGRect rect)
 {
-  errlog("CGPDFContextSetURLForRect not supported.");
+  NSLog(@"CGPDFContextSetURLForRect not supported.");
 }

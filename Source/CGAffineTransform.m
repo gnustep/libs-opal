@@ -25,8 +25,9 @@
 #define IN_CGAFFINETRANSFORM_C
 #include "CoreGraphics/CGAffineTransform.h"
 #undef IN_CGAFFINETRANSFORM_C
+
+#import <Foundation/Foundation.h>
 #include <math.h>
-#include "opal.h"
 
 const CGAffineTransform CGAffineTransformIdentity = {1,0,0,1,0,0};
 
@@ -51,8 +52,7 @@ CGAffineTransform CGAffineTransformInvert(CGAffineTransform t)
 
   det = t.a * t.d - t.b *t.c;
   if (det == 0) {
-    errlog("%s:%d: Cannot invert matrix, determinant is 0\n",
-           __FILE__, __LINE__);
+    NSLog(@"Cannot invert matrix, determinant is 0");
     return t;
   }
 

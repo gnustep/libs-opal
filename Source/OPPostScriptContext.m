@@ -33,7 +33,6 @@
 
 #include <cairo.h>
 #include <cairo-ps.h>
-#include "opal.h"
 
 /* Constants */
 
@@ -54,8 +53,8 @@ void OPPostScriptContextClose(CGContextRef ctx)
   
   cret = cairo_status(ctx->ct);
   if (cret) {
-    errlog("%s:%d: OPPostScriptContextClose status: %s\n",
-           __FILE__, __LINE__, cairo_status_to_string(cret));
+    NSLog(@"OPPostScriptContextClose status: %s",
+          cairo_status_to_string(cret));
     return;
   }
 }
@@ -142,8 +141,8 @@ void OPPostScriptContextEndPage(CGContextRef ctx)
   
     cret = cairo_status(ctx->ct);
     if (cret) {
-      errlog("%s:%d: OPPostScriptContextEndPage status: %s\n",
-             __FILE__, __LINE__, cairo_status_to_string(cret));
+      NSLog(@"OPPostScriptContextEndPage status: %s",
+             cairo_status_to_string(cret));
       return;
     }
   }

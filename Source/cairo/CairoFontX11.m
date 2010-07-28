@@ -125,7 +125,7 @@ static FcPattern *opal_FcPatternCacheLookup(const char *name)
 
     entry = calloc(1, sizeof(*entry));
     if (!entry) {
-      errlog("%s:%d: calloc failed\n", __FILE__, __LINE__);
+      NSLog(@"calloc failed");
       return state.pat;
     }
     entry->hash = state.hash;
@@ -540,7 +540,7 @@ static FcPattern *opal_FcPatternCreateFromName(const char *name)
   return pat;
 
 error:
-  errlog("%s:%d: opal_FcPatternCreateFromName failed\n", __FILE__, __LINE__);
+  NSLog(@"opal_FcPatternCreateFromName failed");
   if (family) free (family);
   if (pat) FcPatternDestroy(pat);
   return NULL;

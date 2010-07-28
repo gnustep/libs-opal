@@ -29,10 +29,9 @@
  * We should properly implement this once Cairo supports color management.
  */
 
-#import <Foundation/NSString.h>
+#import <Foundation/Foundation.h>
 
 #include "CoreGraphics/CGColorSpace.h"
-#include "opal.h"
 
 const CFStringRef kCGColorSpaceGenericGray = @"kCGColorSpaceGenericGray";
 const CFStringRef kCGColorSpaceGenericRGB = @"kCGColorSpaceGenericRGB";
@@ -209,7 +208,7 @@ CGColorSpaceRef CGColorSpaceCreateWithName(CFStringRef name)
   }
   else
   {
-    errlog("%s:%d: Unknown colorspace name\n", __FILE__, __LINE__);
+    NSLog(@"Unknown colorspace name");
   }
   return nil;
 }

@@ -24,7 +24,6 @@
 
 #include "CoreGraphics/CGContext.h"
 #include "CoreGraphics/CGColor.h"
-#include "opal.h"
 
 const CFStringRef kCGColorWhite = @"kCGColorWhite";
 const CFStringRef kCGColorBlack = @"kCGColorBlack";
@@ -55,7 +54,7 @@ static CGColorRef _clearColor;
   nc = CGColorSpaceGetNumberOfComponents(cs);
   self->comps = malloc((nc+1)*sizeof(CGFloat));
   if (NULL == self->comps) {
-    errlog("%s:%d: malloc failed\n", __FILE__, __LINE__);
+    NSLog(@"malloc failed");
     [self release];
     return nil;
   }

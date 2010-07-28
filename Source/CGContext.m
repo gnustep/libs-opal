@@ -29,7 +29,6 @@
 
 #include <math.h>
 #include <cairo.h>
-#include "opal.h"
 
 #import "cairo/CairoFont.h"
 
@@ -61,15 +60,15 @@ static void end_shadow(CGContextRef ctx, CGRect bounds);
   self->ct = cairo_create(target);
   cret = cairo_status(self->ct);
   if (cret) {
-    errlog("%s:%d: cairo_create status: %s\n",
-           __FILE__, __LINE__, cairo_status_to_string(cret));
+    NSLog(@"cairo_create status: %s",
+           cairo_status_to_string(cret));
     [self release];
     return NULL;
   }
 
   self->add = calloc(1, sizeof(struct ct_additions));
   if (!self->add) {
-    errlog("%s:%d: calloc failed\n", __FILE__, __LINE__);
+    NSLog(@"calloc failed");
     [self release];
     return NULL;
   }
@@ -246,15 +245,15 @@ void CGContextSaveGState(CGContextRef ctx)
 
   ctadd = calloc(1, sizeof(struct ct_additions));
   if (!ctadd) {
-    errlog("%s:%d: calloc failed\n", __FILE__, __LINE__);
+    NSLog(@"calloc failed");
     return;
   }
 
   cairo_save(ctx->ct);
   cret = cairo_status(ctx->ct);
   if (cret) {
-    errlog("%s:%d: cairo_save status: %s\n",
-           __FILE__, __LINE__, cairo_status_to_string(cret));
+    NSLog(@"cairo_save status: %s",
+          cairo_status_to_string(cret));
     free(ctadd);
     return;
   }
@@ -576,8 +575,8 @@ void CGContextStrokePath(CGContextRef ctx)
   
   cret = cairo_status(ctx->ct);
   if (cret)
-    errlog("%s:%d: cairo_stroke status: %s\n",
-           __FILE__, __LINE__, cairo_status_to_string(cret));
+    NSLog(@"cairo_stroke status: %s",
+          cairo_status_to_string(cret));
 }
 
 static void fill_path(CGContextRef ctx, int eorule, int preserve)
@@ -608,8 +607,8 @@ static void fill_path(CGContextRef ctx, int eorule, int preserve)
   
   cret = cairo_status(ctx->ct);
   if (cret)
-    errlog("%s:%d: cairo_fill status: %s\n",
-           __FILE__, __LINE__, cairo_status_to_string(cret));
+    NSLog(@"cairo_fill status: %s",
+          cairo_status_to_string(cret));
 }
 
 void CGContextFillPath(CGContextRef ctx)
@@ -637,8 +636,7 @@ void CGContextDrawPath(CGContextRef ctx, CGPathDrawingMode mode)
       CGContextStrokePath(ctx);
       break;
     default:
-      errlog("%s:%d: CGContextDrawPath invalid CGPathDrawingMode: %d\n",
-             __FILE__, __LINE__, mode);
+      NSLog(@"CGContextDrawPath invalid CGPathDrawingMode: %d", mode);
   }
 }
 
@@ -797,8 +795,8 @@ static inline void set_color(cairo_pattern_t **cp, CGColorRef clr, double alpha)
   newcp = cairo_pattern_create_rgba(cc[0], cc[1], cc[2], cc[3]*alpha);
   cret = cairo_pattern_status(newcp);
   if (cret) {
-    errlog("%s:%d: cairo_pattern_create_rgba status: %s\n",
-           __FILE__, __LINE__, cairo_status_to_string(cret));
+    NSLog(@" cairo_pattern_create_rgba status: %s",
+          cairo_status_to_string(cret));
     return;
   }
   cairo_pattern_destroy(*cp);
@@ -844,7 +842,7 @@ void CGContextSetFillColorSpace(CGContextRef ctx, CGColorSpaceRef colorspace)
   nc = CGColorSpaceGetNumberOfComponents(colorspace);
   components = calloc(nc+1, sizeof(CGFloat));
   if (components) {
-    errlog("%s:%d: calloc failed\n", __FILE__, __LINE__);
+    NSLog(@"calloc failed");
     return;
   }
   /* Default is an opaque, zero intensity color (usually black) */
@@ -864,7 +862,7 @@ void CGContextSetStrokeColorSpace(CGContextRef ctx, CGColorSpaceRef colorspace)
   nc = CGColorSpaceGetNumberOfComponents(colorspace);
   components = calloc(nc+1, sizeof(CGFloat));
   if (components) {
-    errlog("%s:%d: calloc failed\n", __FILE__, __LINE__);
+    NSLog(@"calloc failed");
     return;
   }
   /* Default is an opaque, zero intensity color (usually black) */
@@ -1032,7 +1030,7 @@ static void opal_AddStops(cairo_pattern_t *pat, CGGradientRef grad)
   // FIXME: support other colorspaces by converting to deviceRGB
   if (![CGColorSpaceCreateDeviceRGB() isEqual: OPGradientGetColorSpace(grad)])
   {
-    errlog("Only DeviceRGB supported for gradients");
+    NSLog(@"Only DeviceRGB supported for gradients");
     return;
   }
     
@@ -1095,7 +1093,7 @@ void CGContextDrawShading(
 void CGContextSetFont(CGContextRef ctx, CGFontRef font)
 {
   if (!font) {
-    errlog("%s:%d: CGContextSetFont got NULL\n", __FILE__, __LINE__);
+    NSLog(@" CGContextSetFont got NULL");
     return;
   }
   cairo_set_font_face(ctx->ct, cairo_scaled_font_get_font_face(((CairoFont*)font)->cairofont));

@@ -26,7 +26,6 @@
 #include <math.h>
 #include "CoreGraphics/CGLayer.h"
 #include "CGContext-private.h"
-#include "opal.h"
 
 @interface CGLayer : NSObject
 {

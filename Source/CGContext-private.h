@@ -29,7 +29,6 @@
 
 #include "CoreGraphics/CGContext.h"
 #include <cairo.h>
-#include "opal.h"
 
 typedef struct ct_additions ct_additions;
 struct ct_additions

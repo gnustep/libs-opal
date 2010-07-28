@@ -33,7 +33,6 @@
 
 #include <cairo.h>
 #include <cairo-svg.h>
-#include "opal.h"
 
 /* Constants */
 
@@ -53,8 +52,8 @@ void OPSVGContextClose(CGContextRef ctx)
   
   cret = cairo_status(ctx->ct);
   if (cret) {
-    errlog("%s:%d: OPSVGContextClose status: %s\n",
-           __FILE__, __LINE__, cairo_status_to_string(cret));
+    NSLog(@"OPSVGContextClose status: %s",
+           cairo_status_to_string(cret));
     return;
   }
 }
@@ -135,8 +134,8 @@ void OPSVGContextEndPage(CGContextRef ctx)
   
   cret = cairo_status(ctx->ct);
   if (cret) {
-    errlog("%s:%d: OPSVGContextEndPage status: %s\n",
-           __FILE__, __LINE__, cairo_status_to_string(cret));
+    NSLog(@"OPSVGContextEndPage status: %s",
+          cairo_status_to_string(cret));
     return;
   }
 }

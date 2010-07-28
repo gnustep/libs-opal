@@ -30,7 +30,6 @@
 #include <cairo-win32.h>
 #include "CoreGraphics/CGContext.h"
 #include "CGContext-private.h"
-#include "opal.h"
 
 CGContextRef opal_Win32ContextCreate(HDC hdc)
 {
