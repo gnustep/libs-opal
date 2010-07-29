@@ -12,8 +12,22 @@
 
 void draw(CGContextRef ctx, CGRect rect)
 {
-  CGContextSetRGBFillColor(ctx, 0.5, 0.5, 0.5, 1.0);
+  CGContextSetRGBFillColor(ctx, 0.6, 0.6, 0.6, 1.0);
   CGContextFillRect(ctx, rect);
+  
+  // Draw a checkerboard
+  CGContextSetRGBFillColor(ctx, 0.4, 0.4, 0.4, 1.0);
+	unsigned int x, y;
+	for (x=0; x<rect.size.width; x+=10)
+	{
+		for (y=0; y<rect.size.height; y+=10)
+		{
+			if (((x % 20) == 0) != ((y % 20) == 0))
+			{
+  			CGContextFillRect(ctx,  CGRectMake(x, y, 10, 10));
+			}
+  	}	
+  }
   
   CGDataProviderRef pngData = CGDataProviderCreateWithFilename("test.png");
   CGImageRef png = CGImageCreateWithPNGDataProvider(pngData, NULL, YES, kCGRenderingIntentDefault);
