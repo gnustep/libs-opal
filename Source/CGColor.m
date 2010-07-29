@@ -124,9 +124,6 @@ static CGColorRef _clearColor;
   [xform transformPixelData: originalComps
                      output: tranformedComps];
   
-	// FIXME: hack, OPColorTransform doesn't yet copy the alpha
-	tranformedComps[CGColorSpaceGetNumberOfComponents(destSpace)] = CGColorGetAlpha(self);
- 
   CGFloat cgfloatTransformedComps[CGColorSpaceGetNumberOfComponents(destSpace) + 1];
   for (size_t i=0; i < CGColorSpaceGetNumberOfComponents(destSpace) + 1; i++)
   {

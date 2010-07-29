@@ -183,9 +183,18 @@ static DWORD LcmsFormatForOPImageFormat(OPImageFormat opalFormat, CGColorSpaceRe
   const size_t totalComponentsIn = sourceFormat.colorComponents + (sourceFormat.hasAlpha ? 1 : 0);
   const size_t totalComponentsOut = destFormat.colorComponents + (destFormat.hasAlpha ? 1 : 0);
 
+  const bool destIntermediateIs16bpc = (destFormat.compFormat == kOPComponentFormatFloat32bpc
+      	|| destFormat.compFormat == kOPComponentFormat32bpc
+	      || destFormat.compFormat == kOPComponentFormat16bpc);
+
+	const bool sourceIntermediateIs16bpc = (sourceFormat.compFormat == kOPComponentFormatFloat32bpc
+      	|| sourceFormat.compFormat == kOPComponentFormat32bpc
+	      || sourceFormat.compFormat == kOPComponentFormat16bpc);
+
   //NSLog(@"Transform %d pixels %d comps in %d out", pixelCount, totalComponentsIn, totalComponentsOut);
 
   // Special case for kOPComponentFormatFloat32bpc, which LCMS 1 doesn't support directly
+	// Copy to temp input buffer
   if (sourceFormat.compFormat == kOPComponentFormatFloat32bpc)
   {
     for (size_t i=0; i<pixelCount; i++)
@@ -241,47 +250,57 @@ static DWORD LcmsFormatForOPImageFormat(OPImageFormat opalFormat, CGColorSpaceRe
     }
   }
 
+  // generate a output alpha channel of alpha=100% if necessary
+
+  if (!sourceFormat.hasAlpha && destFormat.hasAlpha)
+	{
+		size_t destIntermediateBytesPerComponent = (destIntermediateIs16bpc ? 2 : 1);
+		size_t destIntermediateTotalComponentsPerPixel = (destFormat.colorComponents + (destFormat.hasAlpha ? 1 : 0));
+		size_t destIntermediateBytesPerRow = pixelCount * destIntermediateTotalComponentsPerPixel * destIntermediateBytesPerComponent;
+		memset(tempOutput, 0xff, destIntermediateBytesPerRow);
+  }
+ 
+  // get LCMS to do the main conversion of the color channels
+    
   cmsDoTransform(xform, (void*)input, tempOutput, pixelCount);
  
-  if (destFormat.compFormat == kOPComponentFormatFloat32bpc
-      || destFormat.compFormat == kOPComponentFormat32bpc
-      || destFormat.compFormat == kOPComponentFormat16bpc)
-  {
-      for (size_t j=0; j<totalComponentsIn; j++)
-      {
-        //NSLog(@"Transformed comp: %d => %d", ((uint16_t*)input[j]), (uint16_t*)tempOutput[j]);
-      }
-  }
+  // copy alpha from source to dest if necessary
 
-  // Now copy the alpha
+	if (sourceFormat.hasAlpha && destFormat.hasAlpha)
+	{ 
+    const size_t sourceAlphaCompIndex = (sourceFormat.isAlphaLast ? sourceFormat.colorComponents : 0);
+    const size_t destAlphaCompIndex = (destFormat.isAlphaLast ? destFormat.colorComponents : 0);
+    
+		if (sourceIntermediateIs16bpc && destIntermediateIs16bpc)  /* 16 bit -> 16 bit */
+	    for (size_t i=0; i<pixelCount; i++)
+	    {
+	     ((uint16_t*)tempOutput)[i*totalComponentsOut + destAlphaCompIndex] = ((uint16_t*)input)[i*totalComponentsIn + sourceAlphaCompIndex];
+	    }
+	  else if (!sourceIntermediateIs16bpc && destIntermediateIs16bpc)  /* 8 bit -> 16 bit */
+	  {
+	    for (size_t i=0; i<pixelCount; i++)
+	    {
+	      ((uint16_t*)tempOutput)[i*totalComponentsOut + destAlphaCompIndex] = ((uint8_t*)input)[i*totalComponentsIn + sourceAlphaCompIndex] << 16;
+	    }
+	  }
+		else if (sourceIntermediateIs16bpc && !destIntermediateIs16bpc)  /* 16 bit -> 8 bit */
+	  {
+	    for (size_t i=0; i<pixelCount; i++)
+	    {
+	      ((uint8_t*)tempOutput)[i*totalComponentsOut + destAlphaCompIndex] = ((uint16_t*)input)[i*totalComponentsIn + sourceAlphaCompIndex] >> 16;
+	    }
+	  }
+	  else /* 8 bit -> 8 bit */
+	  {
+	    for (size_t i=0; i<pixelCount; i++)
+	    {
+	    	((uint8_t*)tempOutput)[i*totalComponentsOut + destAlphaCompIndex] = ((uint8_t*)input)[i*totalComponentsIn + sourceAlphaCompIndex];
+	    }
+	  }
+	}
 
-  #if 0
-  if (destFormat.compFormat == kOPComponentFormatFloat32bpc
-      || destFormat.compFormat == kOPComponentFormat32bpc
-      || destFormat.compFormat == kOPComponentFormat16bpc)
-  {
-    for (size_t i=0; i<pixelCount; i++)
-    {
-      for (size_t j=0; j<totalComponentsOut; j++)
-      {
-        ((uint16_t*)tempOutput)[i*totalComponentsOut + j] = ((uint16_t*)tempBuffer2)[i*totalComponentsOut + j] / ((float)UINT16_MAX);
-      }
-    }
-  }
-  else
-  {
-    for (size_t i=0; i<pixelCount; i++)
-    {
-      for (size_t j=0; j<totalComponentsOut; j++)
-      {
-        ((float*)output)[i*totalComponentsOut + j] = ((uint16_t*)tempBuffer2)[i*totalComponentsOut + j] / ((float)UINT16_MAX);
-      }
-    }
-  }
-	#endif
+  // Premultiply alpha in output buffer if necessary
 
-
-  // Premultiply alpha in output
   if (destFormat.isAlphaPremultiplied)
   {
     OPImageFormat fake = sourceFormat;
@@ -292,6 +311,8 @@ static DWORD LcmsFormatForOPImageFormat(OPImageFormat opalFormat, CGColorSpaceRe
     }
     OPPremultiplyAlpha(tempOutput, pixelCount, fake, false);
   }
+
+	// If using a 16-bit intermediate output, copy & convert to the real destination format
 
   if (destFormat.compFormat == kOPComponentFormatFloat32bpc)
   {
