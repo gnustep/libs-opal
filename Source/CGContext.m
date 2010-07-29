@@ -24,12 +24,13 @@
 
 
 #include "CoreGraphics/CGGeometry.h"
-#include "CGContext-private.h"
-#include "CGGradient-private.h"
 
 #include <math.h>
 #include <cairo.h>
 
+#import "CGContext-private.h"
+#import "CGGradient-private.h"
+#import "CGColor-private.h"
 #import "cairo/CairoFont.h"
 
 /* The default (opaque black) color in a Cairo context,
@@ -37,7 +38,6 @@
 static cairo_pattern_t *default_cp;
 
 extern void opal_surface_flush(cairo_surface_t *target);
-extern void opal_cspace_todev(CGColorSpaceRef cs, CGFloat *dest, const CGFloat comps[]);
 
 extern cairo_surface_t *opal_CGImageGetSurfaceForImage(CGImageRef img);
 extern CGRect opal_CGImageGetSourceRect(CGImageRef image);
@@ -784,14 +784,17 @@ CGRect CGContextGetClipBoundingBox(CGContextRef ctx)
 
 static inline void set_color(cairo_pattern_t **cp, CGColorRef clr, double alpha)
 {
-  CGFloat cc[4];
   // FIXME: check why this might be called with a NULL clr
   if (!clr) return;
   cairo_pattern_t *newcp;
   cairo_status_t cret;
-  
-  opal_cspace_todev(CGColorGetColorSpace(clr), cc, CGColorGetComponents(clr));
-    
+
+  CGColorSpaceRef srgb = CGColorSpaceCreateWithName(kCGColorSpaceSRGB);
+  CGColorRef srgbClr = OPColorGetTransformedToSpace(clr, srgb, kCGRenderingIntentRelativeColorimetric);
+  CGColorSpaceRelease(srgb);
+
+  CGFloat *cc = CGColorGetComponents(srgbClr);
+  NSLog(@"Set color with %f %f %f %f", (float)cc[0], (float)cc[1], (float)cc[2], (float)cc[3]*alpha);
   newcp = cairo_pattern_create_rgba(cc[0], cc[1], cc[2], cc[3]*alpha);
   cret = cairo_pattern_status(newcp);
   if (cret) {
@@ -799,7 +802,11 @@ static inline void set_color(cairo_pattern_t **cp, CGColorRef clr, double alpha)
           cairo_status_to_string(cret));
     return;
   }
-  cairo_pattern_destroy(*cp);
+
+  if (*cp != NULL)
+  {
+    cairo_pattern_destroy(*cp);
+  }
   *cp = newcp;
 }
 

@@ -25,6 +25,10 @@
 #include "CoreGraphics/CGContext.h"
 #include "CoreGraphics/CGColor.h"
 
+#import "CGColor-private.h"
+#import "CGColorSpace-private.h"
+#import "OPImageConversion.h"
+
 const CFStringRef kCGColorWhite = @"kCGColorWhite";
 const CFStringRef kCGColorBlack = @"kCGColorBlack";
 const CFStringRef kCGColorClear = @"kCGColorClear";
@@ -33,15 +37,6 @@ static CGColorRef _whiteColor;
 static CGColorRef _blackColor;
 static CGColorRef _clearColor;
 
-
-@interface CGColor : NSObject
-{
-@public
-  CGColorSpaceRef cspace;
-  CGFloat *comps;
-  CGPatternRef pattern;
-}
-@end
 
 @implementation CGColor
 
@@ -52,6 +47,7 @@ static CGColorRef _clearColor;
 
   size_t nc, i;
   nc = CGColorSpaceGetNumberOfComponents(cs);
+  NSLog(@"Create color with %d comps", nc);
   self->comps = malloc((nc+1)*sizeof(CGFloat));
   if (NULL == self->comps) {
     NSLog(@"malloc failed");
@@ -88,6 +84,57 @@ static CGColorRef _clearColor;
       return NO;
   }
   return YES;
+}
+
+- (CGColor*) transformToColorSpace: (CGColorSpaceRef)destSpace withRenderingIntent: (CGColorRenderingIntent)intent
+{
+  CGColorSpaceRef sourceSpace = CGColorGetColorSpace(self);
+
+  // FIXME: this is ugly because CGColor uses CGFloats, but OPColorTransform only accepts
+  // 32-bit float components.
+
+  float originalComps[CGColorSpaceGetNumberOfComponents(sourceSpace) + 1];
+  float tranformedComps[CGColorSpaceGetNumberOfComponents(destSpace) + 1];
+
+  for (size_t i=0; i < CGColorSpaceGetNumberOfComponents(sourceSpace) + 1; i++)
+  {
+    originalComps[i] = comps[i];
+  }
+
+  OPImageFormat sourceFormat;
+  sourceFormat.compFormat = kOPComponentFormatFloat32bpc;
+  sourceFormat.colorComponents = CGColorSpaceGetNumberOfComponents(sourceSpace);
+  sourceFormat.hasAlpha = true;
+  sourceFormat.isAlphaPremultiplied = false;
+  sourceFormat.isAlphaLast = true;
+
+  OPImageFormat destFormat;
+  destFormat.compFormat = kOPComponentFormatFloat32bpc;
+  destFormat.colorComponents = CGColorSpaceGetNumberOfComponents(destSpace);
+  destFormat.hasAlpha = true;
+  destFormat.isAlphaPremultiplied = false;
+  destFormat.isAlphaLast = true;
+
+  OPColorTransform *xform = [sourceSpace colorTransformTo: destSpace
+                                             sourceFormat: sourceFormat
+                                        destinationFormat: destFormat
+                                          renderingIntent: intent
+                                               pixelCount: 1];
+
+  [xform transformPixelData: originalComps
+                     output: tranformedComps];
+  
+	// FIXME: hack, OPColorTransform doesn't yet copy the alpha
+	tranformedComps[CGColorSpaceGetNumberOfComponents(destSpace)] = CGColorGetAlpha(self);
+ 
+  CGFloat cgfloatTransformedComps[CGColorSpaceGetNumberOfComponents(destSpace) + 1];
+  for (size_t i=0; i < CGColorSpaceGetNumberOfComponents(destSpace) + 1; i++)
+  {
+    cgfloatTransformedComps[i] = tranformedComps[i];
+  }
+ // FIXME: release xform?
+
+  return [[[CGColor alloc] initWithColorSpace: destSpace components: cgfloatTransformedComps] autorelease];
 }
 
 @end
@@ -213,7 +260,7 @@ CGColorRef CGColorGetConstantColor(CFStringRef name)
     {
       _blackColor = CGColorCreateGenericGray(0, 1);
     }
-    return _whiteColor;
+    return _blackColor;
   }
   else if ([name isEqual: kCGColorClear])
   {
@@ -234,4 +281,9 @@ size_t CGColorGetNumberOfComponents(CGColorRef clr)
 CGPatternRef CGColorGetPattern(CGColorRef clr)
 {
   return clr->pattern;
+}
+
+CGColorRef OPColorGetTransformedToSpace(CGColorRef clr, CGColorSpaceRef space, CGColorRenderingIntent intent)
+{
+  return [clr transformToColorSpace: space withRenderingIntent: intent];
 }

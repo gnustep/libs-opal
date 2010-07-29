@@ -29,7 +29,8 @@
 #import <Foundation/NSDictionary.h>
 #include <stdlib.h>
 #include <cairo.h>
-#include "image/OPImageConversion.h"
+
+#import "OPImageConversion.h"
 
 
 @interface CGImage : NSObject
@@ -95,14 +96,22 @@
 
   const size_t numComponentsIncludingAlpha = numComponents + (hasAlpha ? 1 : 0);
 
-  if (aBitsPerComponent < 1)
+  if (aBitsPerComponent < 1 || aBitsPerComponent > 32)
   {
     NSLog(@"Unsupported bitsPerComponent: %d", aBitsPerComponent);
     [self release];
     return nil;
   }
+  if ((aBitmapInfo & kCGBitmapFloatComponents) != 0 && aBitsPerComponent != 32)
+  {
+    NSLog(@"Only 32 bitsPerComponents supported for float components");
+    [self release];
+    return nil;
+  }
   if (aBitsPerPixel < aBitsPerComponent * numComponentsIncludingAlpha)
   {
+    // Note if an alpha channel is requrested, we require it to be the same size 
+    // as the other components
     NSLog(@"Too few bitsPerPixel for bitsPerComponent");
     [self release];
     return nil;
@@ -469,7 +478,7 @@ cairo_surface_t *opal_CGImageGetSurfaceForImage(CGImageRef img)
     const CGBitmapInfo dstBitmapInfo = kCGBitmapByteOrderDefault | kCGImageAlphaPremultipliedFirst;
     const CGColorSpaceRef dstColorSpace = srcColorSpace;
 
-    bool ok = OPImageConvert(
+    OPImageConvert(
       dstData, srcData,
       srcWidth, srcHeight,
       dstBitsPerComponent, srcBitsPerComponent,
@@ -482,13 +491,6 @@ cairo_surface_t *opal_CGImageGetSurfaceForImage(CGImageRef img)
     OPDataProviderReleaseBytePointer(img->dp, srcData);
 
     cairo_surface_mark_dirty(img->surf); // done modifying the surface outside of cairo
-
-    if (!ok)
-    {
-      cairo_surface_destroy(img->surf);
-      img->surf = NULL;
-      NSLog(@"Image conversion to cairo surface failed.");
-    }
   }
 
   return img->surf;

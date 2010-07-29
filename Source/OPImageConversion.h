@@ -22,7 +22,33 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
    */
 
-bool OPImageConvert(
+#include <CoreGraphics/CGColorSpace.h>
+#include <CoreGraphics/CGImage.h>
+
+/**
+ * To make the internals sane and fast, we only work with these four pixel components
+ * internally. They are all native-endian.
+ */
+typedef enum OPComponentFormat
+{
+  kOPComponentFormat8bpc,
+  kOPComponentFormat16bpc,
+  kOPComponentFormat32bpc,
+  kOPComponentFormatFloat32bpc
+} OPComponentFormat;
+
+typedef struct OPImageFormat
+{
+  OPComponentFormat compFormat;
+  size_t colorComponents;
+  bool hasAlpha;
+  bool isAlphaPremultiplied;
+  bool isAlphaLast;
+} OPImageFormat;
+
+size_t OPComponentNumberOfBytes(OPComponentFormat fmt);
+
+void OPImageConvert(
   unsigned char *dstData,
   const unsigned char *srcData, 
   size_t width,

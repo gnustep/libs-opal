@@ -2,8 +2,10 @@
 
    <abstract>C Interface to graphics drawing library</abstract>
 
-   Copyright <copy>(C) 2006 Free Software Foundation, Inc.</copy>
+   Copyright <copy>(C) 2010 Free Software Foundation, Inc.</copy>
 
+   Author: Eric Wasylishen <ewasylishen@gmail.com>
+   Date: July, 2010
    Author: BALATON Zoltan <balaton@eik.bme.hu>
    Date: 2006
 
@@ -22,16 +24,12 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
    */
 
-/* FIXME: Color Management is not implemented yet. Consequently, color spaces
- * are usually ignored and assumed to be deviceRGB. With most current equipment
- * supporting the sRGB color space, this may be OK in most cases, though.
- *
- * We should properly implement this once Cairo supports color management.
- */
-
-#import <Foundation/Foundation.h>
+#import <Foundation/NSString.h>
 
 #include "CoreGraphics/CGColorSpace.h"
+
+#import "CGColorSpace-private.h"
+#import "OPColorSpaceIndexed.h"
 
 const CFStringRef kCGColorSpaceGenericGray = @"kCGColorSpaceGenericGray";
 const CFStringRef kCGColorSpaceGenericRGB = @"kCGColorSpaceGenericRGB";
@@ -41,53 +39,13 @@ const CFStringRef kCGColorSpaceAdobeRGB1998 = @"kCGColorSpaceAdobeRGB1998";
 const CFStringRef kCGColorSpaceSRGB = @"kCGColorSpaceSRGB";
 const CFStringRef kCGColorSpaceGenericGrayGamma2_2 = @"kCGColorSpaceGenericGrayGamma2_2";
 
-static void opal_todev_rgb(CGFloat *dest, const CGFloat comps[]);
-static void opal_todev_gray(CGFloat *dest, const CGFloat comps[]);
-static void opal_todev_cmyk(CGFloat *dest, const CGFloat comps[]);
-
-static CGColorSpaceRef _deviceRGB;
-static CGColorSpaceRef _deviceGray;
-static CGColorSpaceRef _deviceCMYK;
-
-
-
-@interface CGColorSpace : NSObject
-{
-@public
-  CGColorSpaceRef cspace;
-  int numcomps;
-  CGColorSpaceModel model;
-  void (*todevice)(CGFloat *dest, const CGFloat comps[]);
-}
-@end
 
 @implementation CGColorSpace
 
-+ (void) load
++ (Class) colorSpaceClass
 {
-  _deviceRGB = [[CGColorSpace alloc] init];
-  _deviceRGB->numcomps = 3;
-  _deviceRGB->model = kCGColorSpaceModelRGB;
-  _deviceRGB->todevice = opal_todev_rgb;
-  
-  _deviceGray = [[CGColorSpace alloc] init];
-  _deviceGray->numcomps = 1;
-  _deviceGray->model = kCGColorSpaceModelMonochrome;
-  _deviceGray->todevice = opal_todev_gray;
-  
-  _deviceCMYK = [[CGColorSpace alloc] init];
-  _deviceCMYK->numcomps = 4;
-  _deviceCMYK->model = kCGColorSpaceModelCMYK;
-  _deviceCMYK->todevice = opal_todev_cmyk;  
-} 
-
-- (id) retain
-{
-  return self; 
-}
-
-- (void) release
-{
+  // FIXME:
+  return NSClassFromString(@"OPColorSpaceLCMS");
 }
 
 - (void) dealloc
@@ -95,169 +53,61 @@ static CGColorSpaceRef _deviceCMYK;
   [super dealloc];    
 }
 
-- (BOOL) isEqual: (id)other
-{
-  if (![other isKindOfClass: [CGColorSpace class]])
-  {
-    return NO;
-  }
-  
-  CGColorSpace *otherCS = (CGColorSpace *)other;
-   
-  return (otherCS->numcomps == self->numcomps
-    && otherCS->model == self->model
-    && otherCS->cspace == self->cspace
-    && otherCS->todevice == self->todevice); // FIXME: will not accomodate all colorspace types
-}
-
-@end
-
-
-
-
-CFDataRef CGColorSpaceCopyICCProfile(CGColorSpaceRef cs)
-{
-  return nil;
-}
-
-CFStringRef CGColorSpaceCopyName(CGColorSpaceRef cs)
-{
-  return nil;
-}
-
-CGColorSpaceRef CGColorSpaceCreateCalibratedGray(
-  const CGFloat *whitePoint,
-  const CGFloat *blackPoint,
-  CGFloat gamma)
-{
-  return _deviceGray;
-}
-
-CGColorSpaceRef CGColorSpaceCreateCalibratedRGB(
-  const CGFloat *whitePoint,
-  const CGFloat *blackPoint,
-  const CGFloat *gamma,
-  const CGFloat *matrix)
-{
-  return _deviceRGB;  
-}
-
-CGColorSpaceRef CGColorSpaceCreateDeviceCMYK()
-{
-  return _deviceCMYK;  
-}
-
-CGColorSpaceRef CGColorSpaceCreateDeviceGray()
-{
-  return _deviceGray;  
-}
-
-CGColorSpaceRef CGColorSpaceCreateDeviceRGB()
-{
-  return _deviceRGB;  
-}
-
-CGColorSpaceRef CGColorSpaceCreateICCBased(
-  size_t nComponents,
-  const CGFloat *range,
-  CGDataProviderRef profile,
-  CGColorSpaceRef alternateSpace)
-{
-  return _deviceRGB;  
-}
-
-CGColorSpaceRef CGColorSpaceCreateIndexed(
-  CGColorSpaceRef baseSpace,
-  size_t lastIndex,
-  const unsigned char *colorTable)
-{
-  return _deviceRGB;  
-}  
-
-CGColorSpaceRef CGColorSpaceCreateLab(
-  const CGFloat *whitePoint,
-  const CGFloat *blackPoint,
-  const CGFloat *range)
-{
-  return _deviceRGB;  
-}
-
-CGColorSpaceRef CGColorSpaceCreatePattern(CGColorSpaceRef baseSpace)
-{
-  return baseSpace;
-}
-
-CGColorSpaceRef CGColorSpaceCreateWithICCProfile(CFDataRef data)
-{
-  return _deviceRGB;  
-}
-
-CGColorSpaceRef CGColorSpaceCreateWithName(CFStringRef name)
-{
-  if ([name isEqualToString: kCGColorSpaceGenericGray])
-  {
-    return CGColorSpaceCreateDeviceGray();
-  }
-  else if ([name isEqualToString: kCGColorSpaceGenericRGB])
-  {
-    return CGColorSpaceCreateDeviceRGB();
-  }
-  else if ([name isEqualToString: kCGColorSpaceGenericCMYK])
-  {
-    return CGColorSpaceCreateDeviceCMYK();
-  }
-  else
-  {
-    NSLog(@"Unknown colorspace name");
-  }
-  return nil;
-}
-
-CGColorSpaceRef CGColorSpaceCreateWithPlatformColorSpace(
-  void *platformColorSpace)
-{
-  return _deviceRGB;  
-}
-
-CGColorSpaceRef CGColorSpaceGetBaseColorSpace(CGColorSpaceRef cs)
-{
-  return cs;  
-}
-
-void CGColorSpaceGetColorTable(CGColorSpaceRef cs, unsigned char *table)
+- (void) getColorTable: (uint8_t*)table
 {
 }
 
-size_t CGColorSpaceGetColorTableCount(CGColorSpaceRef cs)
+- (size_t) colorTableCount
 {
   return 0;
 }
 
-CGColorSpaceModel CGColorSpaceGetModel(CGColorSpaceRef cs)
++ (CGColorSpaceRef) createWithName: (NSString *)name
 {
-  return cs->model;
+  if ([name isEqualToString: kCGColorSpaceGenericGray])
+  {
+		return [[[self class] colorSpaceGenericGray] retain];
+  }
+  else if ([name isEqualToString: kCGColorSpaceGenericRGB])
+  {
+    return [[[self class] colorSpaceGenericRGB] retain];
+  }
+  else if ([name isEqualToString: kCGColorSpaceGenericCMYK])
+  {
+    return [[[self class] colorSpaceGenericCMYK] retain];
+  }
+  else if ([name isEqualToString: kCGColorSpaceGenericRGBLinear])
+  {
+    return [[[self class] colorSpaceGenericRGBLinear] retain];
+  }
+  else if ([name isEqualToString: kCGColorSpaceAdobeRGB1998])
+  {
+    return [[[self class] colorSpaceAdobeRGB1998] retain];
+  }
+  else if ([name isEqualToString: kCGColorSpaceSRGB])
+  {
+    return [[[self class] colorSpaceSRGB] retain];
+  }
+  else if ([name isEqualToString: kCGColorSpaceGenericGrayGamma2_2])
+  {
+    return [[[self class] colorSpaceGenericGrayGamma2_2] retain];
+  }
+  else
+  {
+    return nil;
+  }
 }
 
-size_t CGColorSpaceGetNumberOfComponents(CGColorSpaceRef cs)
-{
-  return cs->numcomps;
-}
+@end
 
-CFTypeID CGColorSpaceGetTypeID()
-{
-  return (CFTypeID)[CGColorSpace class]; 
-}
+@implementation OPColorTransform 
+@end
 
-CGColorSpaceRef CGColorSpaceRetain(CGColorSpaceRef cs)
-{
-  return [cs retain];
-}
-
-void CGColorSpaceRelease(CGColorSpaceRef cs)
-{
-  [cs release];
-}
-
+/**
+ * This is a fallback only used when building Opal without LittleCMS.
+ * Note that it doesn't do any color management.
+ */
+#if 0
 static void opal_todev_rgb(CGFloat *dest, const CGFloat comps[])
 {
   dest[0] = comps[0];
@@ -284,9 +134,149 @@ static void opal_todev_cmyk(CGFloat *dest, const CGFloat comps[])
   dest[3] = comps[4];
 }
 
-/* FIXME: This sould really convert to the color space of the device,
- * but Cairo only knows about RGBA, so we convert to that */
-void opal_cspace_todev(CGColorSpaceRef cs, CGFloat *dest, const CGFloat comps[])
+#endif
+
+
+CFDataRef CGColorSpaceCopyICCProfile(CGColorSpaceRef cs)
 {
-  cs->todevice(dest, comps);
+  return [cs IICProfile];
 }
+
+CFStringRef CGColorSpaceCopyName(CGColorSpaceRef cs)
+{
+  return [cs name];
+}
+
+CGColorSpaceRef CGColorSpaceCreateCalibratedGray(
+  const CGFloat *whitePoint,
+  const CGFloat *blackPoint,
+  CGFloat gamma)
+{
+  return [[[CGColorSpace colorSpaceClass] alloc]
+             initWithCalibratedGrayWithWhitePoint: whitePoint
+                                       blackPoint: blackPoint
+                                            gamma: gamma];
+
+}
+
+CGColorSpaceRef CGColorSpaceCreateCalibratedRGB(
+  const CGFloat *whitePoint,
+  const CGFloat *blackPoint,
+  const CGFloat *gamma,
+  const CGFloat *matrix)
+{
+  return [[[CGColorSpace colorSpaceClass] alloc] 
+      initWithCalibratedRGBWithWhitePoint: whitePoint
+                               blackPoint: blackPoint
+                                    gamma: gamma
+                                   matrix: matrix]; 
+}
+
+CGColorSpaceRef CGColorSpaceCreateDeviceCMYK()
+{
+  return [[[CGColorSpace colorSpaceClass] colorSpaceGenericCMYK] retain];
+}
+
+CGColorSpaceRef CGColorSpaceCreateDeviceGray()
+{
+  return [[[CGColorSpace colorSpaceClass] colorSpaceGenericGray] retain];
+}
+
+CGColorSpaceRef CGColorSpaceCreateDeviceRGB()
+{
+  return [[[CGColorSpace colorSpaceClass] colorSpaceSRGB] retain];
+}
+
+CGColorSpaceRef CGColorSpaceCreateICCBased(
+  size_t nComponents,
+  const CGFloat *range,
+  CGDataProviderRef profile,
+  CGColorSpaceRef alternateSpace)
+{
+  return [[[CGColorSpace colorSpaceClass] alloc] initICCBasedWithComponents: nComponents
+                           range: range
+                         profile: profile
+                  alternateSpace: alternateSpace]; 
+}
+
+CGColorSpaceRef CGColorSpaceCreateIndexed(
+  CGColorSpaceRef baseSpace,
+  size_t lastIndex,
+  const unsigned char *colorTable)
+{
+  return [[OPColorSpaceIndexed alloc] initWithBaseSpace: baseSpace
+                                              lastIndex: lastIndex
+                                             colorTable: colorTable];
+}  
+
+CGColorSpaceRef CGColorSpaceCreateLab(
+  const CGFloat *whitePoint,
+  const CGFloat *blackPoint,
+  const CGFloat *range)
+{
+  return [[[CGColorSpace colorSpaceClass] alloc] initLabWithWhitePoint: whitePoint
+                                                            blackPoint: blackPoint
+                                                                 range: range];
+}
+
+CGColorSpaceRef CGColorSpaceCreatePattern(CGColorSpaceRef baseSpace)
+{
+  return [[[CGColorSpace colorSpaceClass] alloc] initPatternWithBaseSpace: baseSpace];
+}
+
+CGColorSpaceRef CGColorSpaceCreateWithICCProfile(CFDataRef data)
+{
+  return [[[CGColorSpace colorSpaceClass] alloc] initWithICCProfile: data];
+}
+
+CGColorSpaceRef CGColorSpaceCreateWithName(CFStringRef name)
+{
+  return [[CGColorSpace colorSpaceClass] createWithName: name];
+}
+
+CGColorSpaceRef CGColorSpaceCreateWithPlatformColorSpace(
+  void *platformColorSpace)
+{
+  return [[[CGColorSpace colorSpaceClass] alloc] initWithPlatformColorSpace: platformColorSpace];
+}
+
+CGColorSpaceRef CGColorSpaceGetBaseColorSpace(CGColorSpaceRef cs)
+{
+  return [cs baseColorSpace];  
+}
+
+void CGColorSpaceGetColorTable(CGColorSpaceRef cs, unsigned char *table)
+{
+  [cs getColorTable: table];
+}
+
+size_t CGColorSpaceGetColorTableCount(CGColorSpaceRef cs)
+{
+  return [cs colorTableCount];
+}
+
+CGColorSpaceModel CGColorSpaceGetModel(CGColorSpaceRef cs)
+{
+  return [cs model];
+}
+
+size_t CGColorSpaceGetNumberOfComponents(CGColorSpaceRef cs)
+{
+  return [cs numberOfComponents];
+}
+
+CFTypeID CGColorSpaceGetTypeID()
+{
+  return (CFTypeID)[CGColorSpace class]; 
+}
+
+CGColorSpaceRef CGColorSpaceRetain(CGColorSpaceRef cs)
+{
+  return [cs retain];
+}
+
+void CGColorSpaceRelease(CGColorSpaceRef cs)
+{
+  [cs release];
+}
+
