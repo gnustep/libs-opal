@@ -449,8 +449,10 @@ CGColorRenderingIntent CGImageGetRenderingIntent(CGImageRef image)
  * into Cairo's format (premultiplied ARGB32), and cache this
  * surface. Hopefully cairo uploads image surfaces created with
  * cairo_image_surface_create to the graphics card.
+ *
+ *
  */
-cairo_surface_t *opal_CGImageGetSurfaceForImage(CGImageRef img)
+cairo_surface_t *opal_CGImageGetSurfaceForImage(CGImageRef img, cairo_surface_t *contextSurface)
 {
   if (NULL == img)
   {
@@ -458,16 +460,16 @@ cairo_surface_t *opal_CGImageGetSurfaceForImage(CGImageRef img)
   }
   if (NULL == img->surf)
   {
-    img->surf = cairo_image_surface_create(CAIRO_FORMAT_ARGB32,
+    cairo_surface_t *memSurf = cairo_image_surface_create(CAIRO_FORMAT_ARGB32,
                                            CGImageGetWidth(img),
                                            CGImageGetHeight(img));
-    if (cairo_surface_status(img->surf) != CAIRO_STATUS_SUCCESS)
+    if (cairo_surface_status(memSurf) != CAIRO_STATUS_SUCCESS)
     {
       NSLog(@"Cairo error creating image\n");
       return NULL;
     }
 
-    cairo_surface_flush(img->surf); // going to modify the surface outside of cairo
+    cairo_surface_flush(memSurf); // going to modify the surface outside of cairo
 
     const unsigned char *srcData = OPDataProviderGetBytePointer(img->dp);
     const size_t srcWidth = CGImageGetWidth(img);
@@ -479,10 +481,10 @@ cairo_surface_t *opal_CGImageGetSurfaceForImage(CGImageRef img)
     const CGColorSpaceRef srcColorSpace = CGImageGetColorSpace(img);
     const CGColorRenderingIntent srcIntent = CGImageGetRenderingIntent(img);
 
-    unsigned char *dstData = cairo_image_surface_get_data(img->surf);
+    unsigned char *dstData = cairo_image_surface_get_data(memSurf);
     const size_t dstBitsPerComponent = 8;
     const size_t dstBitsPerPixel = 32;
-    const size_t dstBytesPerRow = cairo_image_surface_get_stride(img->surf);
+    const size_t dstBytesPerRow = cairo_image_surface_get_stride(memSurf);
     
     CGBitmapInfo dstBitmapInfo = kCGImageAlphaPremultipliedFirst;
     if (NSHostByteOrder() == NS_LittleEndian)
@@ -510,7 +512,20 @@ cairo_surface_t *opal_CGImageGetSurfaceForImage(CGImageRef img)
 		
     OPDataProviderReleaseBytePointer(img->dp, srcData);
 
-    cairo_surface_mark_dirty(img->surf); // done modifying the surface outside of cairo
+    cairo_surface_mark_dirty(memSurf); // done modifying the surface outside of cairo
+
+
+    // Now, draw the image into (hopefully) a surface on the window server
+
+    img->surf = cairo_surface_create_similar(contextSurface,
+                                 CAIRO_CONTENT_COLOR_ALPHA,
+                                 CGImageGetWidth(img),
+                                 CGImageGetHeight(img));
+    cairo_t *ctx = cairo_create(img->surf);
+		cairo_set_source_surface(ctx, memSurf, 0, 0);
+    cairo_paint(ctx);
+    cairo_destroy(ctx);
+		cairo_surface_destroy(memSurf);
   }
 
   return img->surf;

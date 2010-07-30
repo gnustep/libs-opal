@@ -39,7 +39,7 @@ static cairo_pattern_t *default_cp;
 
 extern void opal_surface_flush(cairo_surface_t *target);
 
-extern cairo_surface_t *opal_CGImageGetSurfaceForImage(CGImageRef img);
+extern cairo_surface_t *opal_CGImageGetSurfaceForImage(CGImageRef img, cairo_surface_t *contextSurface);
 extern CGRect opal_CGImageGetSourceRect(CGImageRef image);
 
 static inline void set_color(cairo_pattern_t **cp, CGColorRef clr, double alpha);
@@ -1009,7 +1009,7 @@ void opal_draw_surface_in_rect(CGContextRef ctxt, CGRect rect, cairo_surface_t *
 
 void CGContextDrawImage(CGContextRef ctx, CGRect rect, CGImageRef image)
 {
-  opal_draw_surface_in_rect(ctx, rect, opal_CGImageGetSurfaceForImage(image),
+  opal_draw_surface_in_rect(ctx, rect, opal_CGImageGetSurfaceForImage(image, cairo_get_target(ctx->ct)),
     opal_CGImageGetSourceRect(image));
 }
 
