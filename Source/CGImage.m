@@ -32,6 +32,14 @@
 
 #import "OPImageConversion.h"
 
+void DumpPixel(void *data, NSString *msg)
+	{
+	
+    NSLog(@"%@: (%02x,%02x,%02x,%02x)", msg, (int)(((unsigned char*)data)[0]), 
+      (int)(((unsigned char*)data)[1]),
+      (int)(((unsigned char*)data)[2]),
+	    (int)(((unsigned char*)data)[3]));
+		}
 
 @interface CGImage : NSObject
 {
@@ -475,7 +483,16 @@ cairo_surface_t *opal_CGImageGetSurfaceForImage(CGImageRef img)
     const size_t dstBitsPerComponent = 8;
     const size_t dstBitsPerPixel = 32;
     const size_t dstBytesPerRow = cairo_image_surface_get_stride(img->surf);
-    const CGBitmapInfo dstBitmapInfo = kCGBitmapByteOrderDefault | kCGImageAlphaPremultipliedFirst;
+    
+    CGBitmapInfo dstBitmapInfo = kCGImageAlphaPremultipliedFirst;
+    if (NSHostByteOrder() == NS_LittleEndian)
+	  {
+    	dstBitmapInfo |= kCGBitmapByteOrder32Little;
+    }
+    else if (NSHostByteOrder() == NS_BigEndian)
+		{
+			dstBitmapInfo |= kCGBitmapByteOrder32Big;
+		}
     const CGColorSpaceRef dstColorSpace = srcColorSpace;
 
     OPImageConvert(
@@ -488,6 +505,9 @@ cairo_surface_t *opal_CGImageGetSurfaceForImage(CGImageRef img)
       dstColorSpace, srcColorSpace,
       srcIntent);
 
+		DumpPixel(srcData, @"OPImageConvert src (expecting R G B A)");
+		DumpPixel(dstData, @"OPImageConvert dst (expecting A R G B premult)");
+		
     OPDataProviderReleaseBytePointer(img->dp, srcData);
 
     cairo_surface_mark_dirty(img->surf); // done modifying the surface outside of cairo

@@ -261,6 +261,8 @@ static bool opal_has_png_header(CGDataProviderRef dp)
       true,
       kCGRenderingIntentDefault);
 
+		DumpPixel([imgData bytes], @"read from png: (expecting R G B A)");
+
     CGColorSpaceRelease(cs);
     CGDataProviderRelease(imgDataProvider);
   }

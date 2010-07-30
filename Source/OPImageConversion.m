@@ -46,6 +46,28 @@ size_t OPComponentNumberOfBytes(OPComponentFormat fmt)
   }
 }
 
+void OPImageFormatLog(OPImageFormat fmt, NSString *msg)
+{
+	NSString *compFormatString = nil;
+	switch (fmt.compFormat)
+	{
+		case kOPComponentFormat8bpc:
+			compFormatString = @"kOPComponentFormat8bpc";
+			break;
+	  case kOPComponentFormat16bpc:
+			compFormatString = @"kOPComponentFormat16bpc";
+			break;
+  	case kOPComponentFormat32bpc:
+			compFormatString = @"kOPComponentFormat32bpc";
+			break;
+  	case kOPComponentFormatFloat32bpc:
+			compFormatString = @"kOPComponentFormatFloat32bpc";
+			break;
+	}
+	NSLog(@"%@: <%@, color components=%d, alpha?=%d, premul?=%d, alpha last?=%d>", 
+		msg, compFormatString, fmt.colorComponents, fmt.hasAlpha, fmt.isAlphaPremultiplied, fmt.isAlphaLast);
+}
+
 static inline uint64_t swap64(uint64_t val)
 {
   char out[8];
@@ -230,21 +252,48 @@ void OPImageConvert(
   {
     NSLog(@"Input format not supported");
   }
-  if (!OPImageFormatForCGFormat(srcBitsPerComponent, srcBitsPerPixel, srcBitmapInfo, srcColorSpace, &dstFormat))
+  if (!OPImageFormatForCGFormat(dstBitsPerComponent, dstBitsPerPixel, dstBitmapInfo, dstColorSpace, &dstFormat))
   {
     NSLog(@"Output format not supported");
   }
+  
+  OPImageFormatLog(srcFormat, @"OPImageConversion source");
+  OPImageFormatLog(dstFormat, @"OPImageConversion dest");
   
   OPColorTransform *xform = [srcColorSpace colorTransformTo: dstColorSpace
                                                sourceFormat: srcFormat
                                           destinationFormat: dstFormat
                                             renderingIntent: intent
                                                  pixelCount: width];
+
+  char *tempInput = malloc(srcBytesPerRow);
+  
   for (size_t row=0; row<height; row++)
   {
-    // FIXME: alpha
-    [xform transformPixelData: srcData + (row * srcBytesPerRow)
+  	char *input = srcData + (row * srcBytesPerRow);
+  	
+    if (srcBitmapInfo & kCGBitmapByteOrder32Little)
+		{
+			for (size_t i=0; i<width; i++)
+		  {
+			  ((uint32_t*)tempInput)[i] = GSSwapI32(((uint32_t*)(srcData + (row * srcBytesPerRow)))[i]);
+			}
+			input = tempInput;
+		}
+
+    [xform transformPixelData: input
                        output: dstData + (row * dstBytesPerRow)];
+    
+    if (dstBitmapInfo & kCGBitmapByteOrder32Little)
+		{
+			for (uint32_t *pixel = dstData + (row * dstBytesPerRow);
+			     pixel < dstData + (row * dstBytesPerRow) + dstBytesPerRow;
+			     pixel++)
+		  {
+			  *pixel = GSSwapI32(*pixel);
+			}
+		}
   }
   
+  free(tempInput);
 }

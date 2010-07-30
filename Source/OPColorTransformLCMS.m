@@ -76,9 +76,6 @@ static DWORD LcmsFormatForOPImageFormat(OPImageFormat opalFormat, CGColorSpaceRe
 {    
   DWORD cmsFormat = 0;
   
-  NSLog(@"LcmsFormatForOPImageFormat pixel comp format %d, channels %d, has alpha %d, is alpha last %d", 
-    opalFormat.compFormat, opalFormat.colorComponents, opalFormat.hasAlpha, opalFormat.isAlphaLast);
-
   switch (opalFormat.compFormat)
   {
     case kOPComponentFormat8bpc:
@@ -303,9 +300,9 @@ static DWORD LcmsFormatForOPImageFormat(OPImageFormat opalFormat, CGColorSpaceRe
 
   if (destFormat.isAlphaPremultiplied)
   {
-    OPImageFormat fake = sourceFormat;
-    if (sourceFormat.compFormat == kOPComponentFormatFloat32bpc
-         || sourceFormat.compFormat == kOPComponentFormat32bpc)
+    OPImageFormat fake = destFormat;
+    if (destFormat.compFormat == kOPComponentFormatFloat32bpc
+         || destFormat.compFormat == kOPComponentFormat32bpc)
     {  
       fake.compFormat = kOPComponentFormat16bpc;
     }

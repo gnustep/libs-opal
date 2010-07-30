@@ -25,15 +25,16 @@
 #import "OPPremultiplyAlpha.h"
 
 #define _OPPremultiplyAlpha(format, compType, compMax, rowStart, comps, pixels, unPremultiply) \
-  for (compType *comp = (compType*)rowStart; comp < ((compType*)rowStart)+(pixels * comps); comp += comps) \
+  for (size_t pixel = 0; pixel<pixels; pixel++) \
   { \
+		compType *pixelPtr = (compType *)(rowStart + ((sizeof(compType)*comps) * pixel)); \
     const size_t firstComp = (format.isAlphaLast ? 0 : 1); \
     const size_t lastComp = (format.isAlphaLast ? (comps - 2) : (comps - 1)); \
     const size_t alphaComp = (format.isAlphaLast ? (comps - 1) : 0); \
-    const float alphaValue = comp[alphaComp] / (float)compMax; \
+    const float alphaValue = pixelPtr[alphaComp] / (float)compMax; \
     for (size_t i = firstComp; i<=lastComp; i++) \
     { \
-      comp[i] *= (unPremultiply ? (1.0/alphaValue) : alphaValue); \
+      pixelPtr[i] *= (unPremultiply ? (1.0/alphaValue) : alphaValue); \
     } \
   }
   
@@ -43,9 +44,11 @@ void OPPremultiplyAlpha(
   OPImageFormat format,
   bool unPremultiply)
 {
-  if (unPremultiply == !format.isAlphaPremultiplied || !format.hasAlpha)
+  if (!format.hasAlpha)
+	{
+		NSLog(@"Warning, unnecessary call to OPPremultiplyAlpha");
     return;
-
+	}
   const size_t comps = (format.colorComponents + 1);
 
   switch (format.compFormat)

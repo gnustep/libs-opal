@@ -48,6 +48,8 @@ typedef struct OPImageFormat
 
 size_t OPComponentNumberOfBytes(OPComponentFormat fmt);
 
+void OPImageFormatLog(OPImageFormat fmt, NSString *msg);
+
 void OPImageConvert(
   unsigned char *dstData,
   const unsigned char *srcData, 
