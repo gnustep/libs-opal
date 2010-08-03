@@ -46,6 +46,15 @@ size_t OPComponentNumberOfBytes(OPComponentFormat fmt)
   }
 }
 
+size_t OPPixelTotalComponents(OPImageFormat fmt)
+{
+  return fmt.colorComponents + (fmt.hasAlpha ? 1 : 0);
+}
+size_t OPPixelNumberOfBytes(OPImageFormat fmt)
+{
+  return OPComponentNumberOfBytes(fmt.compFormat) * OPPixelTotalComponents(fmt);
+}
+
 void OPImageFormatLog(OPImageFormat fmt, NSString *msg)
 {
 	NSString *compFormatString = nil;

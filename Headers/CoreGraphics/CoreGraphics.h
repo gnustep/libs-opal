@@ -37,6 +37,8 @@
 #include <CoreGraphics/CGGeometry.h>
 #include <CoreGraphics/CGGradient.h>
 #include <CoreGraphics/CGImage.h>
+#include <CoreGraphics/CGImageSource.h>
+#include <CoreGraphics/CGImageDestination.h>
 #include <CoreGraphics/CGLayer.h>
 #include <CoreGraphics/CGPDFArray.h>
 #include <CoreGraphics/CGPDFContentStream.h>

@@ -10,11 +10,11 @@
 #define MIN(x,y) ((x)<(y)?(x):(y))
 #endif
 
-static CGImageRef png, jpeg;
+static CGImageRef png, jpeg, tiff;
 
 void draw(CGContextRef ctx, CGRect rect)
 {
-  CGContextSetRGBFillColor(ctx, 0.6, 0.6, 0.6, 1.0);
+  CGContextSetRGBFillColor(ctx, 0.45, 0.45, 0.45, 1.0);
   CGContextFillRect(ctx, rect);
   
   // Draw a checkerboard
@@ -38,7 +38,7 @@ void draw(CGContextRef ctx, CGRect rect)
     CGDataProviderRelease(pngData);
   }
 
-  CGRect pngRect = CGRectMake(0,0,rect.size.width/2,rect.size.height);
+  CGRect pngRect = CGRectMake(0,0,rect.size.width/3,rect.size.height);
   CGContextDrawImage(ctx, pngRect, png);
    
   if (nil == jpeg)
@@ -48,6 +48,20 @@ void draw(CGContextRef ctx, CGRect rect)
     CGDataProviderRelease(jpegData);
   }
 
-  CGRect jpegRect = CGRectMake(rect.size.width/2,0,rect.size.width/2, rect.size.height);
+  CGRect jpegRect = CGRectMake(rect.size.width/3,0,rect.size.width/3, rect.size.height);
   CGContextDrawImage(ctx, jpegRect, jpeg);
+
+  if (nil == tiff)
+  { 
+    CGDataProviderRef tiffData = CGDataProviderCreateWithFilename("test.tiff");
+    CGImageSourceRef tiffSource = CGImageSourceCreateWithDataProvider(tiffData, nil);
+    
+    tiff = CGImageSourceCreateImageAtIndex(tiffSource, 0, nil);
+
+    CGDataProviderRelease(tiffData);
+    [tiffSource release];
+  }
+
+  CGRect tiffRect = CGRectMake((2*rect.size.width)/3,0,rect.size.width/3, rect.size.height);
+  CGContextDrawImage(ctx, tiffRect, tiff);
 }

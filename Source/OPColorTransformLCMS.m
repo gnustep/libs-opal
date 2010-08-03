@@ -144,13 +144,14 @@ static DWORD LcmsFormatForOPImageFormat(OPImageFormat opalFormat, CGColorSpaceRe
   }
   else if (sourceFormat.isAlphaPremultiplied)
   {
-    tempBuffer1 = malloc(OPComponentNumberOfBytes(sourceFormat.compFormat) * pixelCount);
+    // FIXME: Don't do unnecessary premul->unpremul->premul conversions
+    tempBuffer1 = malloc(OPPixelNumberOfBytes(sourceFormat) * pixelCount);
   }
 
   if (destFormat.compFormat == kOPComponentFormatFloat32bpc
       || destFormat.compFormat == kOPComponentFormat32bpc) 
   {
-    tempBuffer2 = malloc(OPComponentNumberOfBytes(destFormat.compFormat) * pixelCount);
+    tempBuffer2 = malloc(OPPixelNumberOfBytes(destFormat) * pixelCount);
   }
 
   return self;
@@ -240,7 +241,7 @@ static DWORD LcmsFormatForOPImageFormat(OPImageFormat opalFormat, CGColorSpaceRe
     }
     else
     {
-      const size_t numBytes = OPComponentNumberOfBytes(sourceFormat.compFormat) * pixelCount;
+      const size_t numBytes = OPPixelNumberOfBytes(sourceFormat) * pixelCount;
       memmove(tempBuffer1, input, numBytes);
       OPPremultiplyAlpha(tempBuffer1, pixelCount, sourceFormat, true);
       input = tempBuffer1;

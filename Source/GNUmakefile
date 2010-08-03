@@ -58,7 +58,7 @@ endif
 
 LIBRARIES_DEPEND_UPON += $(shell pkg-config --libs lcms)
 LIBRARIES_DEPEND_UPON += $(shell pkg-config --libs libpng)
-LIBRARIES_DEPEND_UPON += -ljpeg
+LIBRARIES_DEPEND_UPON += -ljpeg -ltiff
 
 -include GNUmakefile.preamble
 include $(GNUSTEP_MAKEFILES)/library.make

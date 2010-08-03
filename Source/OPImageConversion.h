@@ -47,6 +47,9 @@ typedef struct OPImageFormat
 } OPImageFormat;
 
 size_t OPComponentNumberOfBytes(OPComponentFormat fmt);
+size_t OPPixelTotalComponents(OPImageFormat fmt);
+size_t OPPixelNumberOfBytes(OPImageFormat fmt);
+
 
 void OPImageFormatLog(OPImageFormat fmt, NSString *msg);
 
