@@ -793,7 +793,7 @@ static inline void set_color(cairo_pattern_t **cp, CGColorRef clr, double alpha)
   CGColorRef srgbClr = OPColorGetTransformedToSpace(clr, srgb, kCGRenderingIntentRelativeColorimetric);
   CGColorSpaceRelease(srgb);
 
-  CGFloat *cc = CGColorGetComponents(srgbClr);
+  const CGFloat *cc = CGColorGetComponents(srgbClr);
   NSLog(@"Set color with %f %f %f %f", (float)cc[0], (float)cc[1], (float)cc[2], (float)cc[3]*alpha);
   newcp = cairo_pattern_create_rgba(cc[0], cc[1], cc[2], cc[3]*alpha);
   cret = cairo_pattern_status(newcp);

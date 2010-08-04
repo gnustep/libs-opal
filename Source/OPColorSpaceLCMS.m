@@ -33,23 +33,23 @@
 
 @implementation OPColorSpaceLCMS
 
-static CGColorSpace *colorSpaceSRGB;
-static CGColorSpace *colorSpaceGenericRGBLinear;
-static CGColorSpace *colorSpaceGenericCMYK;
-static CGColorSpace *colorSpaceAdobeRGB1998;
-static CGColorSpace *colorSpaceGenericGrayGamma2_2;
+static OPColorSpaceLCMS *colorSpaceSRGB;
+static OPColorSpaceLCMS *colorSpaceGenericRGBLinear;
+static OPColorSpaceLCMS *colorSpaceGenericCMYK;
+static OPColorSpaceLCMS *colorSpaceAdobeRGB1998;
+static OPColorSpaceLCMS *colorSpaceGenericGrayGamma2_2;
 
 /**
  * Returns a generic RGB color space
  */ 
-+ (CGColorSpace *)colorSpaceGenericRGB
++ (id<CGColorSpace>)colorSpaceGenericRGB
 {
   return [self colorSpaceSRGB];
 }
 /**
  * Returns a generic RGB color space with a gamma of 1.0
  */ 
-+ (CGColorSpace *)colorSpaceGenericRGBLinear
++ (id<CGColorSpace>)colorSpaceGenericRGBLinear
 {
   if (nil == colorSpaceGenericRGBLinear)
   {
@@ -70,7 +70,7 @@ static CGColorSpace *colorSpaceGenericGrayGamma2_2;
 /**
  * Returns a CMYK colorspace following the FOGRA39L specification.
  */
-+ (CGColorSpace *)colorSpaceGenericCMYK
++ (id<CGColorSpace>)colorSpaceGenericCMYK
 {
   if (nil == colorSpaceGenericCMYK)
   {
@@ -85,7 +85,7 @@ static CGColorSpace *colorSpaceGenericGrayGamma2_2;
 /**
  * Returns an Adobe RGB compatible color space
  */
-+ (CGColorSpace *)colorSpaceAdobeRGB1998
++ (id<CGColorSpace>)colorSpaceAdobeRGB1998
 {
   if (nil == colorSpaceAdobeRGB1998)
   {
@@ -105,7 +105,7 @@ static CGColorSpace *colorSpaceGenericGrayGamma2_2;
 /**
  * Returns an sRGB compatible color space
  */
-+ (CGColorSpace *)colorSpaceSRGB
++ (id<CGColorSpace>)colorSpaceSRGB
 {
   if (nil == colorSpaceSRGB)
   {
@@ -116,14 +116,14 @@ static CGColorSpace *colorSpaceGenericGrayGamma2_2;
 /**
  * Returns a grayscale color space with a D65 white point
  */
-+ (CGColorSpace *)colorSpaceGenericGray
++ (id<CGColorSpace>)colorSpaceGenericGray
 {
   return [self colorSpaceGenericGrayGamma2_2];
 }
 /**
  * Returns a grayscale color space with gamma 2.2 and a D65 white point
  */
-+ (CGColorSpace *)colorSpaceGenericGrayGamma2_2
++ (id<CGColorSpace>)colorSpaceGenericGrayGamma2_2
 {
   if (nil == colorSpaceGenericGrayGamma2_2)
   {
@@ -269,7 +269,7 @@ static inline cmsCIExyY CIEXYZToCIExyY(const CGFloat point[3])
 {
   self = [super init];
   self->data = [profileData retain];
-	self->profile = cmsOpenProfileFromMem([profileData bytes], [profileData length]);
+	self->profile = cmsOpenProfileFromMem((LPVOID)[profileData bytes], [profileData length]);
   return self;
 }
 
@@ -306,7 +306,7 @@ static CGColorSpaceModel CGColorSpaceModelForSignature(icColorSpaceSignature sig
   return _cmsChannelsOf(cmsGetColorSpace(profile));
 }
 
-- (OPColorTransform*) colorTransformTo: (CGColorSpace *)aColorSpace
+- (id<OPColorTransform>) colorTransformTo: (id<CGColorSpace>)aColorSpace
                           sourceFormat: (OPImageFormat)aSourceFormat
                      destinationFormat: (OPImageFormat)aDestFormat
                        renderingIntent: (CGColorRenderingIntent)anIntent
@@ -319,6 +319,16 @@ static CGColorSpaceModel CGColorSpaceModelForSignature(icColorSpaceSignature sig
          destinationFormat: aDestFormat
            renderingIntent: anIntent
                 pixelCount: aPixelCount];
+}
+
+- (BOOL)isEqual: (id)other
+{
+  if ([other isKindOfClass: [OPColorSpaceLCMS class]])
+  {
+    // FIXME: Maybe there is a simple way to compare the profiles?
+    return ((OPColorSpaceLCMS*)other)->profile == self->profile;
+  }
+  return NO;
 }
 
 @end

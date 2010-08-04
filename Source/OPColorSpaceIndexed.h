@@ -27,35 +27,35 @@
 #include "CoreGraphics/CGColorSpace.h"
 #import "CGColorSpace-private.h"
 
-@interface OPColorSpaceIndexed : CGColorSpace
+@interface OPColorSpaceIndexed : NSObject
 {
 @public
   CGColorSpaceRef base;
   size_t lastIndex;
-  const unsigned char *table;
+  unsigned char *table;
 }
 
 - (id)initWithBaseSpace: (CGColorSpaceRef)aBaseSpace
               lastIndex: (size_t)aLastIndex
              colorTable: (const unsigned char *)aColorTable;
 - (size_t) tableSize;
-
-- (void) getColorTable: (uint8_t*)table;
+- (CGColorSpaceRef) baseColorSpace;
+- (void) getColorTable: (uint8_t*)tableOut;
 - (size_t) colorTableCount;
 
-- (OPColorTransform*) colorTransformTo: (CGColorSpace *)otherColor
-                          sourceFormat: (OPImageFormat)sourceFormat
-                     destinationFormat: (OPImageFormat)destFormat;
+- (id<OPColorTransform>) colorTransformTo: (id<CGColorSpace>)otherColor
+                             sourceFormat: (OPImageFormat)sourceFormat
+                        destinationFormat: (OPImageFormat)destFormat;
 
 @end
 
-@interface OPColorTransformIndexed : OPColorTransform
+@interface OPColorTransformIndexed : NSObject <OPColorTransform>
 {
-  OPColorTransform *baseTransform;
+  id<OPColorTransform> baseTransform;
 }
 
 - (void) transformPixelData: (const unsigned char *)input
-                     output: (char *)output;
+                     output: (unsigned char *)output;
 
 @end
 

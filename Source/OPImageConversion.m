@@ -44,6 +44,7 @@ size_t OPComponentNumberOfBytes(OPComponentFormat fmt)
     case kOPComponentFormatFloat32bpc:
       return 4;
   }
+  return 0;
 }
 
 size_t OPPixelTotalComponents(OPImageFormat fmt)
@@ -269,17 +270,17 @@ void OPImageConvert(
   OPImageFormatLog(srcFormat, @"OPImageConversion source");
   OPImageFormatLog(dstFormat, @"OPImageConversion dest");
   
-  OPColorTransform *xform = [srcColorSpace colorTransformTo: dstColorSpace
+  id<OPColorTransform> xform = [srcColorSpace colorTransformTo: dstColorSpace
                                                sourceFormat: srcFormat
                                           destinationFormat: dstFormat
                                             renderingIntent: intent
                                                  pixelCount: width];
 
-  char *tempInput = malloc(srcBytesPerRow);
+  unsigned char *tempInput = malloc(srcBytesPerRow);
   
   for (size_t row=0; row<height; row++)
   {
-  	char *input = srcData + (row * srcBytesPerRow);
+  	const unsigned char *input = srcData + (row * srcBytesPerRow);
   	
     if (srcBitmapInfo & kCGBitmapByteOrder32Little)
 		{
@@ -295,8 +296,8 @@ void OPImageConvert(
     
     if (dstBitmapInfo & kCGBitmapByteOrder32Little)
 		{
-			for (uint32_t *pixel = dstData + (row * dstBytesPerRow);
-			     pixel < dstData + (row * dstBytesPerRow) + dstBytesPerRow;
+			for (uint32_t *pixel = (uint32_t*) (dstData + (row * dstBytesPerRow));
+			     pixel < (uint32_t*) (dstData + (row * dstBytesPerRow) + dstBytesPerRow);
 			     pixel++)
 		  {
 			  *pixel = GSSwapI32(*pixel);

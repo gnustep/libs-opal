@@ -115,14 +115,14 @@ static CGColorRef _clearColor;
   destFormat.isAlphaPremultiplied = false;
   destFormat.isAlphaLast = true;
 
-  OPColorTransform *xform = [sourceSpace colorTransformTo: destSpace
+  id<OPColorTransform> xform = [sourceSpace colorTransformTo: destSpace
                                              sourceFormat: sourceFormat
                                         destinationFormat: destFormat
                                           renderingIntent: intent
                                                pixelCount: 1];
 
-  [xform transformPixelData: originalComps
-                     output: tranformedComps];
+  [xform transformPixelData: (const unsigned char *)originalComps
+                     output: (unsigned char *)tranformedComps];
   
   CGFloat cgfloatTransformedComps[CGColorSpaceGetNumberOfComponents(destSpace) + 1];
   for (size_t i=0; i < CGColorSpaceGetNumberOfComponents(destSpace) + 1; i++)

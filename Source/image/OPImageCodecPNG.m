@@ -57,6 +57,7 @@
 #  define PNG_gAMA 0
 #endif
 
+extern void DumpPixel(const void *data, NSString *msg);
 
 static void opal_png_error_fn(png_structp png_ptr, png_const_charp error_msg)
 {
@@ -449,7 +450,7 @@ static bool opal_has_png_header(CGDataProviderRef dp)
   
     png_write_info(png_struct, png_info);
     
-    char *rowdata = malloc(bytes_per_row);
+    unsigned char *rowdata = malloc(bytes_per_row);
     CGDataProviderRef dp = CGImageGetDataProvider(img);
     const int times = interlace ? png_set_interlace_handling(png_struct) : 1;
     for (int i=0; i<times; i++)

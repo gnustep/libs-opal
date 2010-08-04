@@ -682,8 +682,8 @@ static void gs_jpeg_memory_dest_destroy (j_compress_ptr cinfo)
 
     }*/
 
-    char *rowdata = malloc(row_stride);
-    const JSAMPROW row_pointer[1] = {rowdata};
+    unsigned char *rowdata = malloc(row_stride);
+    JSAMPROW row_pointer[1] = {rowdata};
     CGDataProviderRef dp = CGImageGetDataProvider(img);
     OPDataProviderRewind(dp);
     while (cinfo.next_scanline < cinfo.image_height)

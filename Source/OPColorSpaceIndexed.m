@@ -58,7 +58,7 @@
 }
 - (NSData*)ICCProfile
 {
-	return [base IICProfile]; // FIXME: ???
+	return [base ICCProfile]; // FIXME: ???
 }
 - (NSString*)name
 {
@@ -72,9 +72,9 @@
 {
   return [base numberOfComponents];
 }
-- (void) getColorTable: (uint8_t*)table
+- (void) getColorTable: (uint8_t*)tableOut
 {
-  memmove(table, self->table, [self tableSize]);
+  memmove(tableOut, self->table, [self tableSize]);
 }
 - (size_t) colorTableCount
 {
@@ -98,7 +98,7 @@
   return NO;
 }
 
-- (OPColorTransform*) colorTransformTo: (CGColorSpace *)otherColor
+- (id<OPColorTransform>) colorTransformTo: (id<CGColorSpace>)otherColor
                           sourceFormat: (OPImageFormat)sourceFormat
                      destinationFormat: (OPImageFormat)destFormat
 {
@@ -110,8 +110,7 @@
 @implementation OPColorTransformIndexed
 
 - (void) transformPixelData: (const unsigned char *)input
-                     output: (char *)output
-                 pixelCount: (size_t)count
+                     output: (unsigned char *)output
 {
 	// FIXME:
 }

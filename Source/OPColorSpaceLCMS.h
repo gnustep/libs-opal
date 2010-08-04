@@ -28,7 +28,7 @@
 
 #import "CGColorSpace-private.h"
 
-@interface OPColorSpaceLCMS : CGColorSpace
+@interface OPColorSpaceLCMS : NSObject <CGColorSpace>
 {
 @public
 	cmsHPROFILE profile;
@@ -38,36 +38,36 @@
 /**
  * Returns a generic RGB color space
  */ 
-+ (CGColorSpace *)colorSpaceGenericRGB;
++ (id<CGColorSpace>)colorSpaceGenericRGB;
 
 /**
  * Returns a generic RGB color space with a gamma of 1.0
  */ 
-+ (CGColorSpace *)colorSpaceGenericRGBLinear;
++ (id<CGColorSpace>)colorSpaceGenericRGBLinear;
 
 /**
  * Returns a CMYK colorspace following the FOGRA39L specification.
  */
-+ (CGColorSpace *)colorSpaceGenericCMYK;
++ (id<CGColorSpace>)colorSpaceGenericCMYK;
 
 /**
  * Returns an Adobe RGB compatible color space
  */
-+ (CGColorSpace *)colorSpaceAdobeRGB1998;
++ (id<CGColorSpace>)colorSpaceAdobeRGB1998;
 
 /**
  * Returns an sRGB compatible color space
  */
-+ (CGColorSpace *)colorSpaceSRGB;
++ (id<CGColorSpace>)colorSpaceSRGB;
 
 /**
  * Returns a grayscale color space with a D65 white point
  */
-+ (CGColorSpace *)colorSpaceGenericGray;
++ (id<CGColorSpace>)colorSpaceGenericGray;
 /**
  * Returns a grayscale color space with gamma 2.2 and a D65 white point
  */
-+ (CGColorSpace *)colorSpaceGenericGrayGamma2_2;
++ (id<CGColorSpace>)colorSpaceGenericGrayGamma2_2;
 
 // Initializers
 
@@ -104,10 +104,6 @@
                          profile: (CGDataProviderRef)profile
                   alternateSpace: (CGColorSpaceRef)alternateSpace;
 
-- (CGColorSpaceRef) initIndexedWithBaseSpace: (CGColorSpaceRef)baseSpace
-                                   lastIndex: (size_t)lastIndex
-                                  colorTable: (const unsigned char *)colorTable;
-
 - (CGColorSpaceRef) initLabWithWhitePoint: (const CGFloat*)whitePoint
                                blackPoint: (const CGFloat*)blackPoint
                                     range: (const CGFloat*)range;
@@ -120,11 +116,11 @@
 
 - (size_t) numberOfComponents;
 
-- (OPColorTransform*) colorTransformTo: (CGColorSpace *)aColorSpace
-                          sourceFormat: (OPImageFormat)aSourceFormat
-                     destinationFormat: (OPImageFormat)aDestFormat
-                       renderingIntent: (CGColorRenderingIntent)anIntent
-                            pixelCount: (size_t)aPixelCount;
+- (id<OPColorTransform>) colorTransformTo: (id<CGColorSpace>)aColorSpace
+                             sourceFormat: (OPImageFormat)aSourceFormat
+                        destinationFormat: (OPImageFormat)aDestFormat
+                          renderingIntent: (CGColorRenderingIntent)anIntent
+                               pixelCount: (size_t)aPixelCount;
 
 @end
 

@@ -174,9 +174,9 @@ static DWORD LcmsFormatForOPImageFormat(OPImageFormat opalFormat, CGColorSpaceRe
 }
 
 - (void) transformPixelData: (const unsigned char *)input
-                     output: (char *)output
+                     output: (unsigned char *)output
 {
-  char *tempOutput = output;
+  unsigned char *tempOutput = output;
 
   const size_t totalComponentsIn = sourceFormat.colorComponents + (sourceFormat.hasAlpha ? 1 : 0);
   const size_t totalComponentsOut = destFormat.colorComponents + (destFormat.hasAlpha ? 1 : 0);
@@ -207,7 +207,7 @@ static DWORD LcmsFormatForOPImageFormat(OPImageFormat opalFormat, CGColorSpaceRe
  }
       }
     }
-    input = tempBuffer1;
+    input = (const unsigned char *)tempBuffer1;
   }
   else if (sourceFormat.compFormat == kOPComponentFormat32bpc)
   {

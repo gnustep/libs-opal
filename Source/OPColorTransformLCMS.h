@@ -29,14 +29,14 @@
 #import "CGColorSpace-private.h"
 #import "OPColorSpaceLCMS.h"
 
-@interface OPColorTransformLCMS : OPColorTransform
+@interface OPColorTransformLCMS : NSObject <OPColorTransform>
 {
   cmsHTRANSFORM xform;
-  CGColorSpace *source, *dest;
+  OPColorSpaceLCMS *source, *dest;
   OPImageFormat sourceFormat, destFormat;
   CGColorRenderingIntent renderingIntent;
   size_t pixelCount;
-  char *tempBuffer1, *tempBuffer2; 
+  unsigned char *tempBuffer1, *tempBuffer2; 
 }
 
 - (id) initWithSourceSpace: (OPColorSpaceLCMS *)aSourceSpace
@@ -47,6 +47,6 @@
                 pixelCount: (size_t)aPixelCount;
 
 - (void) transformPixelData: (const unsigned char *)input
-                     output: (char *)output;
+                     output: (unsigned char *)output;
 
 @end

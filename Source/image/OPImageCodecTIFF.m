@@ -36,6 +36,8 @@
 #import "CGDataProvider-private.h"
 #import "CGDataConsumer-private.h"
 
+extern void DumpPixel(const void *data, NSString *msg);
+
 @interface OPTIFFHandle : NSObject
 {
 	NSData *data;
