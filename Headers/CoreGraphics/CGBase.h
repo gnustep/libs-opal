@@ -48,6 +48,15 @@
 
 typedef signed long CFIndex;
 typedef unsigned long CFTypeID;
+typedef NSRange CFRange;
+typedef NSComparisonResult CFComparisonResult;
+
+#ifdef __OBJC__
+@class NSObject;
+typedef NSObject *CFTypeRef;
+#else
+typedef struct NSObject * CFTypeRef;
+#endif
 
 #ifdef __OBJC__
 @class NSString;
@@ -60,6 +69,16 @@ typedef struct __CFString * CFMutableStringRef;
 #endif
 
 #ifdef __OBJC__
+@class NSAttributedString;
+@class NSMutableAttributedString;
+typedef NSAttributedString* CFAttributedStringRef;
+typedef NSMutableAttributedString* CFMutableAttributedStringRef;
+#else
+typedef struct CFAttributedString * CFAttributedStringRef;
+typedef struct CFMutableAttributedString * CFMutableAttributedStringRef;
+#endif
+
+#ifdef __OBJC__
 @class NSArray;
 @class NSMutableArray;
 typedef NSArray* CFArrayRef;
@@ -67,6 +86,13 @@ typedef NSMutableArray* CFMutableArrayRef;
 #else
 typedef struct CFArray *CFArrayRef;
 typedef struct CFArray *CFMutableArrayRef;
+#endif
+
+#ifdef __OBJC__
+@class NSCharacterSet;
+typedef NSCharacterSet* CFCharacterSetRef;
+#else
+typedef struct CFCharacterSet * CFCharacterSetRef;
 #endif
 
 #ifdef __OBJC__
@@ -96,7 +122,31 @@ typedef NSDictionary* CFDictionaryRef;
 typedef NSMutableDictionary* CFMutableDictionaryRef;
 #else
 typedef struct CFDictionary * CFDictionaryRef;
-typedef struct CFDictionary * CFMutableDictionaryRef;
+typedef struct CFMutableDictionary * CFMutableDictionaryRef;
+#endif
+
+#ifdef __OBJC__
+@class NSError;
+typedef NSError* CFErrorRef;
+#else
+typedef struct CFError *CFErrorRef;
+#endif
+
+#ifdef __OBJC__
+@class NSNumber;
+typedef NSNumber* CFNumberRef;
+#else
+typedef struct NSNumber * CFNumberRef;
+#endif
+
+#ifdef __OBJC__
+@class NSSet;
+@class NSMutableSet;
+typedef NSSet* CFSetRef;
+typedef NSMutableSet* CFMutableSetRef;
+#else
+typedef struct CFSet * CFSetRef;
+typedef struct CFMutableSet * CFMutableSetRef;
 #endif
 
 #ifdef __OBJC__
