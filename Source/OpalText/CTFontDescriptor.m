@@ -35,7 +35,7 @@ const CFStringRef kCTFontDisplayNameAttribute = @"kCTFontDisplayNameAttribute";
 const CFStringRef kCTFontFamilyNameAttribute = @"kCTFontFamilyNameAttribute";
 const CFStringRef kCTFontStyleNameAttribute = @"kCTFontStyleNameAttribute";
 const CFStringRef kCTFontTraitsAttribute = @"kCTFontTraitsAttribute";
-const CFStringRef kCTFontVariationAttriute = @"kCTFontVariationAttriute";
+const CFStringRef kCTFontVariationAttribute = @"kCTFontVariationAttribute";
 const CFStringRef kCTFontSizeAttribute = @"kCTFontSizeAttribute";
 const CFStringRef kCTFontMatrixAttribute = @"kCTFontMatrixAttribute";
 const CFStringRef kCTFontCascadeListAttribute = @"kCTFontCascadeListAttribute";
@@ -107,13 +107,13 @@ const CFStringRef kCTFontPriorityAttribute = @"kCTFontPriorityAttribute";
 - (id)copyWithVariationIdentifier: (NSNumber*)identifier value: (CGFloat)value
 {
   NSMutableDictionary *newAttributes = [_attributes mutableCopy];
-  NSMutableDictionary *newVariation = [[_attributes objectForKey: kCTFontVariationAttriute] mutableCopy];
+  NSMutableDictionary *newVariation = [[_attributes objectForKey: kCTFontVariationAttribute] mutableCopy];
   if (nil == newVariation)
   {
     newVariation = [[NSMutableDictionary alloc] init];
   }
   [newVariation setObject: [NSNumber numberWithFloat: value] forKey: identifier];
-  [newAttributes setObject: newVariation forKey: kCTFontVariationAttriute];
+  [newAttributes setObject: newVariation forKey: kCTFontVariationAttribute];
 
   CTFontDescriptor *new = [[CTFontDescriptor alloc] initWithAttributes: newAttributes];
   [newAttributes release];
@@ -187,9 +187,15 @@ const CFStringRef kCTFontPriorityAttribute = @"kCTFontPriorityAttribute";
 
 CTFontDescriptorRef CTFontDescriptorCreateWithNameAndSize(
   CFStringRef name,
-  CGFloat size);
+  CGFloat size)
+{
+  return nil;
+}
 
-CTFontDescriptorRef CTFontDescriptorCreateWithAttributes(CFDictionaryRef attributes);
+CTFontDescriptorRef CTFontDescriptorCreateWithAttributes(CFDictionaryRef attributes)
+{
+  return nil;
+}
   
 CTFontDescriptorRef CTFontDescriptorCreateCopyWithAttributes(
   CTFontDescriptorRef original,

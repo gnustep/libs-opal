@@ -255,7 +255,7 @@ void draw(CGContextRef ctx, CGRect rect)
   NSAttributedString *as = [[[NSMutableAttributedString alloc] initWithString: hamlet] autorelease];
   CTFramesetterRef fs = [CTFramesetterCreateWithAttributedString(as) autorelease];
 
-  CTFrameRef frame = [CTFramesetterCreateFrame(fs, CFRangeMake(0,0), path, NULL) autorelease];
+  CTFrameRef frame = [CTFramesetterCreateFrame(fs, NSMakeRange(0,0), path, NULL) autorelease];
   CTFrameDraw(frame, ctx);
   
   

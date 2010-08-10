@@ -22,7 +22,7 @@ $(LIBRARY_NAME)_HEADER_FILES = \
 	CTLine.h\
 	CTParagraphStyle.h\
 	CTRun.h\
-	CTStringAttribute.h\
+	CTStringAttributes.h\
 	CTTextTab.h\
 	CTTypesetter.h
 
