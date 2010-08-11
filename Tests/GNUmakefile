@@ -14,7 +14,6 @@ shapes_OBJC_FILES = $(main_file) arcs.m ovals.m rects.m shapes.m
 layers_OBJC_FILES = $(main_file) layers.m
 texttest_OBJC_FILES = $(main_file) texttest.m
 textlayout_OBJC_FILES = $(main_file) textlayout.m
-textlayout_TOOL_LIBS = -lopal -lopaltext
 pdf_OBJC_FILES = pdf.m arcs.m ovals.m rects.m
 images_OBJC_FILES = $(main_file) images.m
 images_RESOURCE_FILES = test.png test.jpg
