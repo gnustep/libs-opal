@@ -201,6 +201,84 @@ bool CTFontGetGlyphsForCharacters(
 }
 
 
+void enumerateBySerifStyle()
+{
+  NSLog(@"Listing fonts sorted by serif style:");
+  
+  CTFontDescriptorRef dummyDescriptor = [CTFontDescriptorCreateWithAttributes([NSDictionary dictionary]) autorelease];
+  NSArray *allDescriptors = [CTFontDescriptorCreateMatchingFontDescriptors(dummyDescriptor, nil) autorelease];
+
+
+  NSMutableDictionary *dict = [NSMutableDictionary dictionary];
+  
+  NSEnumerator *enumerator = [allDescriptors objectEnumerator];
+  CTFontDescriptorRef descriptor;
+  while (descriptor = [enumerator nextObject])
+  {
+    CTFontSymbolicTraits t = [[[descriptor objectForKey: kCTFontTraitsAttribute] objectForKey: kCTFontSymbolicTrait] intValue];
+    t &= kCTFontClassMaskTrait;
+    
+    NSString *symbolicTraitString;
+    switch (t)
+    {
+      default:
+      case kCTFontUnknownClass:
+        symbolicTraitString = @"kCTFontUnknownClass";
+        break;
+      case kCTFontOldStyleSerifsClass:
+        symbolicTraitString = @"kCTFontOldStyleSerifsClass";
+        break;
+      case kCTFontTransitionalSerifsClass:
+        symbolicTraitString = @"kCTFontTransitionalSerifsClass"; 
+        break;
+      case kCTFontModernSerifsClass:
+        symbolicTraitString = @"kCTFontModernSerifsClass"; 
+        break;
+      case kCTFontClarendonSerifsClass:
+        symbolicTraitString = @"kCTFontClarendonSerifsClass"; 
+        break;
+      case kCTFontSlabSerifsClass:
+        symbolicTraitString = @"kCTFontSlabSerifsClass"; 
+        break;
+      case kCTFontFreeformSerifsClass:
+        symbolicTraitString = @"kCTFontFreeformSerifsClass"; 
+        break;
+      case kCTFontSansSerifClass:
+        symbolicTraitString = @"kCTFontSansSerifClass"; 
+        break;
+      case kCTFontOrnamentalsClass:
+        symbolicTraitString = @"kCTFontOrnamentalsClass"; 
+        break;
+      case kCTFontScriptsClass:
+        symbolicTraitString = @"kCTFontScriptsClass"; 
+        break;
+      case kCTFontSymbolicClass:
+        symbolicTraitString = @"kCTFontSymbolicClass"; 
+        break;
+    }
+    
+    if (nil == [dict objectForKey: symbolicTraitString])
+    {
+      [dict setObject: [NSMutableArray array] forKey: symbolicTraitString];
+    }
+    [[dict objectForKey: symbolicTraitString] addObject: descriptor];
+  }
+  
+  enumerator = [dict keyEnumerator];
+  NSString *symbolicTraitString;
+  while (symbolicTraitString = [enumerator nextObject])
+  {
+    NSArray *descriptors = [dict objectForKey: symbolicTraitString];
+    NSLog(@"%@ fonts: (%d)", symbolicTraitString, [descriptors count]);
+    
+    NSEnumerator *enumerator2 = [descriptors objectEnumerator];
+    while (descriptor = [enumerator2 nextObject])
+    {
+      NSLog(@"\t%@", [descriptor objectForKey: kCTFontDisplayNameAttribute]);
+    }
+  }
+}
+
 void draw(CGContextRef ctx, CGRect rect)
 {
   CTFontDescriptorRef desc = [CTFontDescriptorCreateWithAttributes([NSDictionary dictionaryWithObjectsAndKeys:
@@ -260,4 +338,6 @@ void draw(CGContextRef ctx, CGRect rect)
   
   
   dumpFontInfo(font);
+
+  enumerateBySerifStyle();
 }
