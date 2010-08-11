@@ -25,70 +25,7 @@
 #import <Foundation/NSObject.h>
 #include "CoreGraphics/CGPath.h"
 
-@interface CGPath : NSObject
-{
-}
-
-- (NSUInteger) count;
-- (CGPathElementType) elementTypeAtIndex: (NSUInteger)index points: (CGPoint*)outPoints;
-- (id) initWithCGPath: (CGPathRef)path;
-
-@end
-
-@implementation CGPath
-
-- (id) copyWithZone: (NSZone*)zone
-{
-  return [self retain];    
-}
-
-- (id) initWithCGPath: (CGPathRef)path
-{
-  [self doesNotRecognizeSelector: _cmd];
-  return nil;
-}
-
-- (NSUInteger) count
-{
-  [self doesNotRecognizeSelector: _cmd];
-  return 0;
-}
-
-- (CGPathElementType) elementTypeAtIndex: (NSUInteger)index points: (CGPoint*)outPoints
-{
-  [self doesNotRecognizeSelector: _cmd];
-  return (CGPathElementType)0;
-}
-
-@end
-
-
-@interface CGMutablePath : CGPath
-{  
-}
-
-- (void) addElementWithType: (CGPathElementType)type points: (CGPoint[])points;
-
-@end
-
-@implementation CGMutablePath
-
-- (void) addElementWithType: (CGPathElementType)type points: (CGPoint[])points
-{
-  [self doesNotRecognizeSelector: _cmd];
-}
-
-- (id) copyWithZone: (NSZone*)zone
-{
-  [self doesNotRecognizeSelector: _cmd];
-  return nil;
-}
-
-@end
-
-// FIXME: implement concrete subclasses
-
-
+#import "OPPath.h"
 
 
 CGPathRef CGPathCreateCopy(CGPathRef path)
@@ -123,67 +60,12 @@ bool CGPathIsEmpty(CGPathRef path)
 
 bool CGPathEqualToPath(CGPathRef path1, CGPathRef path2)
 {
-  if (path1 == path2)
-  {
-    return true;
-  }
-  NSUInteger count1 = [path1 count];
-  NSUInteger count2 = [path2 count];
-  
-  if (count1 != count2)
-  {
-    return false;
-  }
-    
-  for (NSUInteger i=0; i<count1; i++)
-  {
-    CGPoint points1[3];
-    CGPoint points2[3];
-    CGPathElementType type1 = [path1 elementTypeAtIndex: i points: points1];
-    CGPathElementType type2 = [path2 elementTypeAtIndex: i points: points2];
-    
-    if (type1 != type2)
-    {
-      return false;
-    }
-    
-    // FIXME: factor this out
-    NSUInteger numPoints;
-    switch (type1)
-    {
-      case kCGPathElementMoveToPoint:
-        numPoints = 1;
-        break;
-      case kCGPathElementAddLineToPoint:
-        numPoints = 1;
-        break;
-      case kCGPathElementAddQuadCurveToPoint:
-        numPoints = 2;
-        break;
-      case kCGPathElementAddCurveToPoint:
-        numPoints = 3;
-        break;
-      case kCGPathElementCloseSubpath:
-      default:
-        numPoints = 0;
-        break;
-    }
-    
-    for (NSUInteger p=0; p<numPoints; p++)
-    {
-      if (!CGPointEqualToPoint(points1[p], points2[p]))
-      {
-        return false;
-      }
-    }
-  }
-  return true;
+  return [path1 isEqual: path2];
 }
 
 bool CGPathIsRect(CGPathRef path, CGRect *rect)
 {
-  // FIXME:
-  return NO;
+  return [path isRect: rect];
 }
 
 CGRect CGPathGetBoundingBox(CGPathRef path)

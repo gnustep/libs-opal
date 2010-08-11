@@ -468,6 +468,19 @@ void CGContextAddCurveToPoint(
   cairo_curve_to(ctx->ct, cp1x, cp1y, cp2x, cp2y, x, y);
 }
 
+void CGContextAddQuadCurveToPoint(
+  CGContextRef ctx,
+  CGFloat cpx,
+  CGFloat cpy,
+  CGFloat x,
+  CGFloat y)
+{
+  CGPoint curr = CGContextGetPathCurrentPoint(ctx);
+  CGContextAddCurveToPoint(ctx, (curr.x/3.0) + (2.0*cpx/3.0), (curr.y/3.0) + (2.0*cpy/3.0),
+                                (2.0*cpx/3.0) + (x/3.0), (2.0*cpy/3.0) + (y/3.0),
+                                x, y);
+}
+
 void CGContextAddRect(CGContextRef ctx, CGRect rect)
 {
   cairo_rectangle(ctx->ct, rect.origin.x, rect.origin.y,
@@ -542,8 +555,37 @@ void CGContextAddArcToPoint(
     radius, atan2(-n0y, -n0x), atan2(-n2y, -n2x), (san < 0));
 }
 
+static void OPAddPathApplier(void *info, const CGPathElement *elem)
+{
+  CGContextRef ctx = (CGContextRef)info;
+  switch (elem->type)
+  {
+    case kCGPathElementMoveToPoint:
+      CGContextMoveToPoint(ctx, elem->points[0].x, elem->points[0].y);
+      break;
+    case kCGPathElementAddLineToPoint:
+      CGContextAddLineToPoint(ctx, elem->points[0].x, elem->points[0].y);
+      break;
+    case kCGPathElementAddQuadCurveToPoint:
+      CGContextAddQuadCurveToPoint(ctx, elem->points[0].x, elem->points[0].y,
+                                        elem->points[1].x, elem->points[1].y);
+      break;
+    case kCGPathElementAddCurveToPoint:
+      CGContextAddCurveToPoint(ctx, elem->points[0].x, elem->points[0].y,
+                                    elem->points[1].x, elem->points[1].y,
+                                    elem->points[2].x, elem->points[2].y);
+      break;
+    case kCGPathElementCloseSubpath:
+      CGContextClosePath(ctx);
+      break;
+    default:
+      break;
+  }    
+}
+
 void CGContextAddPath(CGContextRef ctx, CGPathRef path)
 {
+  CGPathApply(path, ctx, OPAddPathApplier);
 }
 
 void CGContextAddEllipseInRect(CGContextRef ctx, CGRect rect)
