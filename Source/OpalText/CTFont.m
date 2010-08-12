@@ -23,6 +23,8 @@
    */
 
 #include <CoreText/CTFont.h>
+#include <CoreText/CTFontDescriptor.h>
+#import "NSFont.h"
 
 /* Constants */
 
@@ -72,29 +74,48 @@ CTFontRef CTFontCreateForString(
   CFStringRef str,
   CFRange range)
 {
+  NSCharacterSet *set = [NSCharacterSet characterSetWithCharactersInString:
+    [str substringWithRange: range]];
+
+  NSDictionary *attrs = [NSDictionary dictionaryWithObjectsAndKeys:
+    set, kCTFontCharacterSetAttribute,
+    nil];
+
+  NSFontDescriptor *descriptor = [NSFontDescriptor fontDescriptorWithFontAttributes: attrs];
+
+  return CTFontCreateCopyWithAttributes(base, CTFontGetSize(base), NULL, descriptor);
 }
 
 CTFontRef CTFontCreateWithFontDescriptor(
-  CTFontDescriptorRef attribs,
+  CTFontDescriptorRef descriptor,
   CGFloat size,
   const CGAffineTransform *matrix)
 {
+  return CTFontCreateWithFontDescriptorAndOptions(descriptor, size, matrix, kCTFontOptionsDefault);
 }
 
 CTFontRef CTFontCreateWithFontDescriptorAndOptions(
-  CTFontDescriptorRef attribs,
+  CTFontDescriptorRef descriptor,
   CGFloat size,
   const CGAffineTransform *matrix,
   CTFontOptions opts)
 {
+  return [[NSFont fontWithDescriptor: descriptor 
+                                size: size
+                              matrix: matrix
+                             options: opts] retain];
 }
 
 CTFontRef CTFontCreateWithGraphicsFont(
   CGFontRef cgFont,
   CGFloat size,
   const CGAffineTransform *matrix,
-  CTFontDescriptorRef attribs)
+  CTFontDescriptorRef descriptor)
 {
+  return [[NSFont fontWithGraphicsFont: cgFont
+                            size: size
+             		          matrix: matrix
+            additionalDescriptor: descriptor] retain];
 }
 
 CTFontRef CTFontCreateWithName(
@@ -102,6 +123,7 @@ CTFontRef CTFontCreateWithName(
   CGFloat size,
   const CGAffineTransform *matrix)
 {
+  CTFontCreateWithNameAndOptions(name, size, matrix, kCTFontOptionsDefault);
 }
 
 CTFontRef CTFontCreateWithNameAndOptions(
@@ -110,14 +132,22 @@ CTFontRef CTFontCreateWithNameAndOptions(
   const CGAffineTransform *matrix,
   CTFontOptions opts)
 {
+  NSDictionary *attrs = [NSDictionary dictionaryWithObjectsAndKeys:
+    name, kCTFontNameAttribute,
+    nil];
+
+  NSFontDescriptor *descriptor = [NSFontDescriptor fontDescriptorWithFontAttributes: attrs];
+
+  return CTFontCreateWithFontDescriptorAndOptions(descriptor, size, matrix, opts);
 }
 
 CTFontRef CTFontCreateWithPlatformFont(
   void *platformFont,
   CGFloat size,
   const CGAffineTransform *matrix,
-  CTFontDescriptorRef attribs)
+  CTFontDescriptorRef descriptor)
 {
+  return nil;
 }
 
 CTFontRef CTFontCreateWithQuickdrawInstance(
@@ -126,6 +156,7 @@ CTFontRef CTFontCreateWithQuickdrawInstance(
   uint8_t style,
   CGFloat size)
 {
+  return nil;
 }
 
 CTFontRef CTFontCreateUIFontForLanguage(
@@ -133,6 +164,22 @@ CTFontRef CTFontCreateUIFontForLanguage(
   CGFloat size,
   CFStringRef language)
 {
+  if ([[NSFont class] respondsToSelector:@selector(UIFontWithType:size:forLangage:)])
+  {
+    return [[NSFont UIFontWithType: type size: size language: language] retain];
+  }
+  else
+  {
+    NSLog(@"Warning, Opal delegate CTFontCreateUIFontForLanguage to GNUstep gui");
+    
+		NSDictionary *attrs = [NSDictionary dictionaryWithObjectsAndKeys:
+		  [NSArray arrayWithObject: language], kCTFontLanguagesAttribute,
+		  nil];
+
+		NSFontDescriptor *descriptor = [NSFontDescriptor fontDescriptorWithFontAttributes: attrs];
+
+		return CTFontCreateWithFontDescriptor(descriptor, size, NULL);
+  }
 }
 
 /* Copying & Conversion */
@@ -141,8 +188,9 @@ CTFontRef CTFontCreateCopyWithAttributes(
   CTFontRef font,
   CGFloat size,
   const CGAffineTransform *matrix,
-  CTFontDescriptorRef attribs)
+  CTFontDescriptorRef descriptor)
 {
+  return nil; //FIXME: set up a new descriptor...
 }
 
 CTFontRef CTFontCreateCopyWithSymbolicTraits(
@@ -152,6 +200,7 @@ CTFontRef CTFontCreateCopyWithSymbolicTraits(
   CTFontSymbolicTraits value,
   CTFontSymbolicTraits mask)
 {
+  return nil; //FIXME: set up a new descriptor...
 }
 
 CTFontRef CTFontCreateCopyWithFamily(
@@ -160,24 +209,29 @@ CTFontRef CTFontCreateCopyWithFamily(
   const CGAffineTransform *matrix,
   CFStringRef family)
 {
+  //FIXME: should return nil if the result doesn't have the desired family
+  return CTFontCreateWithFontDescriptor([[font fontDescriptor] fontDescriptorWithFamily: family], size, matrix);
 }
 
 void *CTFontGetPlatformFont(
   CTFontRef font,
   CTFontDescriptorRef *attribs)
 {
+  return NULL;
 }
 
 CGFontRef CTFontCopyGraphicsFont(
   CTFontRef font,
-  CTFontDescriptorRef *attribs)
+  CTFontDescriptorRef *descriptorOut)
 {
+  return [[font graphicsFontWithDescriptor: descriptorOut] retain];
 }
 
 /* Glyphs */
 
 CFIndex CTFontGetGlyphCount(CTFontRef font)
 {
+  return [font numberOfGlyphs];
 }
 
 CGPathRef CTFontCreatePathForGlyph(
@@ -185,6 +239,8 @@ CGPathRef CTFontCreatePathForGlyph(
   CGGlyph glyph,
   const CGAffineTransform *transform)
 {
+  return [font graphicsPathForGlyph: glyph
+                          transform: transform];
 }
 
 bool CTFontGetGlyphsForCharacters(
@@ -193,12 +249,16 @@ bool CTFontGetGlyphsForCharacters(
   CGGlyph glyphs[],
   CFIndex count)
 {
+  return [font getGraphicsGlyphsForCharacters: characters
+                               graphicsGlyphs: glyphs
+                                        count: count];
 }
 
 CGGlyph CTFontGetGlyphWithName(
   CTFontRef font,
   CFStringRef name)
 {
+  return [font glyphWithName: name];
 }
 
 double CTFontGetAdvancesForGlyphs(
@@ -208,6 +268,10 @@ double CTFontGetAdvancesForGlyphs(
   CGSize advances[],
   CFIndex count)
 {
+  return [font getAdvancesForGraphicsGlyphs: glyphs
+                                   advances: advances
+                                orientation: orientation
+                                      count: count];
 }
 
 CGRect CTFontGetBoundingRectsForGlyphs(
@@ -217,6 +281,10 @@ CGRect CTFontGetBoundingRectsForGlyphs(
   CGRect rects[],
   CFIndex count)
 {
+  return [font getBoundingRectsForGraphicsGlyphs: glyphs
+                                           rects: rects
+                                     orientation: orientation
+                                           count: count];
 }
 
 void CTFontGetVerticalTranslationsForGlyphs(
@@ -225,90 +293,125 @@ void CTFontGetVerticalTranslationsForGlyphs(
   CGSize translations[],
   CFIndex count)
 {
+  [font getVerticalTranslationForGraphicsGlyphs: glyphs
+                                    translation: translations
+                                          count: count];
 }
 
 /* Metrics */
 
 CGFloat CTFontGetAscent(CTFontRef font)
 {
+  return [font ascender];
 }
 
 CGFloat CTFontGetDescent(CTFontRef font)
 {
+  return [font descender];
 }
 
 CGFloat CTFontGetCapHeight(CTFontRef font)
 {
+  return [font capHeight];
 }
 
 CGFloat CTFontGetSize(CTFontRef font)
 {
+  return [font pointSize];
 }
 
 CGFloat CTFontGetLeading(CTFontRef font)
 {
+  return [font leading];
 }
 
 unsigned CTFontGetUnitsPerEm(CTFontRef font)
 {
+  return [font unitsPerEm];
 }
 
 CGRect CTFontGetBoundingBox(CTFontRef font)
 {
+  NSRect r = [font boundingRectForFont];
+  return CGRectMake(r.origin.x, r.origin.y, r.size.width, r.size.height);
 }
 
 CGFloat CTFontGetUnderlinePosition(CTFontRef font)
 {
+  return [font underlinePosition];
 }
 
 CGFloat CTFontGetUnderlineThickness(CTFontRef font)
 {
+  return [font underlineThickness];
 }
 
 CGFloat CTFontGetSlantAngle(CTFontRef font)
 {
+  return [font italicAngle];
 }
 
 CGFloat CTFontGetXHeight(CTFontRef font)
 {
+  return [font xHeight];
 }
 
 /* Properties */
 
 CGAffineTransform CTFontGetMatrix(CTFontRef font)
 {
+  const CGFloat *matrix = [font matrix];
+  CGAffineTransform xform;
+  xform.a = matrix[0];
+  xform.b = matrix[1];
+  xform.c = matrix[2];
+  xform.d = matrix[3];
+  xform.tx = matrix[4];
+  xform.ty = matrix[5];
+  return xform;
 }
 
 CTFontSymbolicTraits CTFontGetSymbolicTraits(CTFontRef font)
 {
+  NSDictionary *traits = CTFontCopyTraits(font);
+  int symTraits = [[traits objectForKey: kCTFontSymbolicTrait] intValue];
+  [traits release];
+
+  return (CTFontSymbolicTraits)symTraits;
 }
 
 CFTypeRef CTFontCopyAttribute(
   CTFontRef font,
   CFStringRef attrib)
 {
+  return [[[font fontDescriptor] objectForKey: attrib] retain];
 }
 
 CFArrayRef CTFontCopyAvailableTables(
   CTFontRef font,
   CTFontTableOptions opts)
 {
+  return [font availableTablesWithOptions: opts];
 }
 
 CFDictionaryRef CTFontCopyTraits(CTFontRef font)
 {
+  return CTFontCopyAttribute(font, kCTFontTraitsAttribute);
 }
 
 CFArrayRef CTFontCopyFeatures(CTFontRef font)
 {
+  return CTFontCopyAttribute(font, kCTFontFeaturesAttribute);
 }
 
 CFArrayRef CTFontCopyFeatureSettings(CTFontRef font)
 {
+  return CTFontCopyAttribute(font, kCTFontFeatureSettingsAttribute);
 }
 
 CTFontDescriptorRef CTFontCopyFontDescriptor(CTFontRef font)
 {
+  return [font fontDescriptor];
 }
 
 CFDataRef CTFontCopyTable(
@@ -316,40 +419,48 @@ CFDataRef CTFontCopyTable(
   CTFontTableTag table,
   CTFontTableOptions opts)
 {
+  return [[font tableForTag: table withOptions: opts] retain];
 }
 
 CFArrayRef CTFontCopyVariationAxes(CTFontRef font)
 {
+  return [[font variationAxes] retain];
 }
 
 CFDictionaryRef CTFontCopyVariation(CTFontRef font)
 {
+  return [[font variation] retain];
 }
 
 /* Encoding & Character Set */
 
 NSStringEncoding CTFontGetStringEncoding(CTFontRef font)
 {
+  return [font mostCompatibleStringEncoding];
 }
 
 CFCharacterSetRef CTFontCopyCharacterSet(CTFontRef font)
 {
+  return [[font coveredCharacterSet] retain];
 }
 
 CFArrayRef CTFontCopySupportedLanguages(CTFontRef font)
 {
+  return [[font supportedLanguages] retain]; 
 }
 
 /* Name */
 
 CFStringRef CTFontCopyDisplayName(CTFontRef font)
 {
+  return [[font displayName] retain];
 }
 
 CFStringRef CTFontCopyName(
   CTFontRef font,
   CFStringRef key)
 {
+  return [[font nameForKey: key] retain];
 }
 
 CFStringRef CTFontCopyLocalizedName(
@@ -357,23 +468,29 @@ CFStringRef CTFontCopyLocalizedName(
   CFStringRef key,
   CFStringRef *language)
 {
+  return [[font localizedNameForKey: key
+                           language: language] retain];
 }
 
 CFStringRef CTFontCopyPostScriptName(CTFontRef font)
 {
+  return [[font postScriptName] retain];
 }
 
 CFStringRef CTFontCopyFamilyName(CTFontRef font)
 {
+  return [[font familyName] retain];
 }
 
 CFStringRef CTFontCopyFullName(CTFontRef font)
 {
+  return CTFontCopyName(font, kCTFontFullNameKey);
 }
 
 /* CFTypeID */
 
 CFTypeID CTFontGetTypeID()
 {
+  return (CFTypeID)[NSFont class];
 }
 
