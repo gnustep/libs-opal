@@ -36,7 +36,9 @@
 #import <Foundation/NSString.h>
 #import <Foundation/NSValue.h>
 
+#include <CoreText/CTFontDescriptor.h>
 #import "NSFontDescriptor.h"
+
 
 @implementation NSFontDescriptor
 
@@ -136,37 +138,87 @@
 - (id) initWithFontAttributes: (NSDictionary *)attributes
 {
   if ((self = [super init]) != nil)
-    {
-      if (attributes)
-        _attributes = [attributes copy];
-      else
-        _attributes = [NSDictionary new];
-    }
+  {
+    if (attributes)
+      _attributes = [attributes copy];
+    else
+      _attributes = [NSDictionary new];
+  }
   return self;
+}
+
+// Private
+- (void)handleKey: (NSString*)key selector: (SEL)selector valueClass: (Class)valueClass
+{
+  id value = [[self attributes] objectForKey: key];
+  if (value)
+  {
+    if ([[value class] isKindOfClass: valueClass])
+    {
+      if ([self respondsToSelector: selector])
+      {
+        [self performSelector: selector withObject: value];
+      }
+    }
+    else
+    {
+      NSLog(@"NSFontDescriptor: Ignoring invalid value %@ for attribute %@", value, key);
+    }
+  }
+}
+
+/**
+ * Call in subclasses -initWithFontAttributes method to have custom handlers invoked
+ * for each attribute key
+ */
+- (void)handleAddValues
+{
+  [self handleKey: kCTFontURLAttribute selector: @selector(addURL:) valueClass: [NSURL class]];
+  [self handleKey: kCTFontNameAttribute selector: @selector(addName:) valueClass: [NSString class]];
+  [self handleKey: kCTFontDisplayNameAttribute selector: @selector(addDisplayName:) valueClass: [NSString class]];
+  [self handleKey: kCTFontFamilyNameAttribute selector: @selector(addFamilyName:) valueClass: [NSString class]];
+  [self handleKey: kCTFontStyleNameAttribute selector: @selector(addStyleName:) valueClass: [NSString class]];
+  [self handleKey: kCTFontTraitsAttribute selector: @selector(addTraits:) valueClass: [NSDictionary class]];
+  [self handleKey: kCTFontVariationAttribute selector: @selector(addVariation:) valueClass: [NSDictionary class]];
+  [self handleKey: kCTFontSizeAttribute selector: @selector(addSize:) valueClass: [NSNumber class]];
+  [self handleKey: kCTFontMatrixAttribute selector: @selector(addMatrix:) valueClass: [NSData class]];
+  [self handleKey: kCTFontCascadeListAttribute selector: @selector(addCascadeList:) valueClass: [NSArray class]];
+  [self handleKey: kCTFontCharacterSetAttribute selector: @selector(addCharacterSet:) valueClass: [NSCharacterSet class]];
+  [self handleKey: kCTFontLanguagesAttribute selector: @selector(addLanguages:) valueClass: [NSArray class]];
+  [self handleKey: kCTFontBaselineAdjustAttribute selector: @selector(addBaselineAdjust:) valueClass: [NSNumber class]];
+  [self handleKey: kCTFontMacintoshEncodingsAttribute selector: @selector(addMacintoshEncodings:) valueClass: [NSNumber class]];
+  [self handleKey: kCTFontFeaturesAttribute selector: @selector(addFeatures:) valueClass: [NSArray class]];
+  [self handleKey: kCTFontFeatureSettingsAttribute selector: @selector(addFeatureSettings:) valueClass: [NSArray class]];
+  [self handleKey: kCTFontFixedAdvanceAttribute selector: @selector(addFixedAdvance:) valueClass: [NSNumber class]];
+  [self handleKey: kCTFontOrientationAttribute selector: @selector(addOrientation:) valueClass: [NSNumber class]];
+  [self handleKey: kCTFontFormatAttribute selector: @selector(addFormat:) valueClass: [NSNumber class]];
+  [self handleKey: kCTFontRegistrationScopeAttribute selector: @selector(addRegistrationScope:) valueClass: [NSNumber class]];
+  [self handleKey: kCTFontPriorityAttribute selector: @selector(addPriority:) valueClass: [NSNumber class]];
+  [self handleKey: kCTFontEnabledAttribute selector: @selector(addEnabled:) valueClass: [NSNumber class]];
 }
 
 - (void) encodeWithCoder: (NSCoder *)aCoder
 {
-  if ([aCoder allowsKeyedCoding])
-    {
-      [aCoder encodeObject: _attributes forKey: @"NSAttributes"];
-    }
+	if ([aCoder allowsKeyedCoding])
+  {
+    [aCoder encodeObject: _attributes forKey: @"NSAttributes"];
+  }
   else
-    {
-      [aCoder encodeObject: _attributes];
-    }
+  {
+    [aCoder encodeObject: _attributes];
+  }
 }
 
 - (id) initWithCoder: (NSCoder *)aDecoder
 {
   if ([aDecoder allowsKeyedCoding])
-    {
-      _attributes = RETAIN([aDecoder decodeObjectForKey: @"NSAttributes"]);
-    }
+  {
+    _attributes = RETAIN([aDecoder decodeObjectForKey: @"NSAttributes"]);
+  }
   else
-    {
-      [aDecoder decodeValueOfObjCType: @encode(id) at: &_attributes];
-    }
+  {
+    [aDecoder decodeValueOfObjCType: @encode(id) at: &_attributes];
+  }
   return self;
 }
 	
@@ -181,9 +233,9 @@
   NSFontDescriptor *f = [isa allocWithZone: z];
 
   if (f != nil)
-    {
-      f->_attributes = [_attributes copyWithZone: z];
-    }
+  {
+    f->_attributes = [_attributes copyWithZone: z];
+  }
   return f;
 }
 
@@ -200,13 +252,13 @@
   NSArray *found = [self matchingFontDescriptorsWithMandatoryKeys: keys];
 
   if (found && ([found count] > 0))
-    {
-      return [found objectAtIndex: 0];
-    }
+  {
+    return [found objectAtIndex: 0];
+  }
   else
-    {
-      return nil;
-    }
+  {
+    return nil;
+  }
 }
 
 - (NSAffineTransform *) matrix

@@ -73,12 +73,18 @@ enum _NSFontTrait
   NSFontUIOptimizedTrait = 0x1000
 };
 
+// FIXME: Document these with the value type
+
 NSString *NSFontFamilyAttribute;
 NSString *NSFontNameAttribute;
 NSString *NSFontFaceAttribute;
 NSString *NSFontSizeAttribute; 
 NSString *NSFontVisibleNameAttribute; 
 NSString *NSFontColorAttribute;
+/**
+ * NOTE: NSFontMatrixAttribute is a NSAffineTransform, unlike kCTFontMatrixAttribute which 
+ * is an NSData containing a CGAffineTransform struct.
+ */
 NSString *NSFontMatrixAttribute;
 NSString *NSFontVariationAttribute;
 NSString *NSFontCharacterSetAttribute;
