@@ -158,41 +158,51 @@
 + (NSFont*) fontWithDescriptor: (NSFontDescriptor*)descriptor 
                        options: (CTFontOptions)options
 {
+	return nil;
 }
 + (NSFont*) fontWithGraphicsFont: (CGFontRef)graphics
             additionalDescriptor: (NSFontDescriptor*)descriptor
 {
+	return nil;
 }
 
 - (NSArray*) supportedLanguages
 {
+	return nil;
 }
 - (CGFloat) unitsPerEm
 {
+	return 0;
 }
 - (NSString*) nameForKey: (NSString*)nameKey
 {
+	return nil;
 }
 - (NSString*) localizedNameForKey: (NSString*)nameKey
                          language: (NSString**)languageOut
 {
+	return nil;
 }
 - (bool) getGraphicsGlyphsForCharacters: (const unichar *)characters
                          graphicsGlyphs: (const CGGlyph *)glyphs
                                   count: (CFIndex)count
 {
+	return 0;
 }
 - (double) getAdvancesForGraphicsGlyphs: (const CGGlyph *)glyphs
                                advances: (CGSize*)advances
                             orientation: (CTFontOrientation)orientation
                                   count: (CFIndex)count
 {
+	return 0;
 }
 - (CGRect) getBoundingRectsForGraphicsGlyphs: (const CGGlyph *)glyphs
                                        rects: (CGRect*)rects
                                  orientation: (CTFontOrientation)orientation
                                        count: (CFIndex)count
 {
+	CGRect r = {0};
+	return r;
 }
 - (void) getVerticalTranslationForGraphicsGlyphs: (const CGGlyph*)glyphs
                                      translation: (CGSize*)translation
@@ -202,22 +212,28 @@
 - (CGPathRef) graphicsPathForGlyph: (CGGlyph)glyph
                          transform: (const CGAffineTransform *)xform
 {
+	return nil;
 }
 - (NSArray*) variationAxes
 {
+	return nil;
 }
 - (NSDictionary*) variation
 {
+	return nil;
 }
 - (CGFontRef) graphicsFontWithDescriptor: (NSFontDescriptor**)descriptorOut
 {
+	return nil;
 }
 - (NSArray*) avaliableTablesWithOptions: (CTFontTableOptions)options
 {
+	return nil;
 }
 - (NSData*) tableForTag: (CTFontTableTag)tag
             withOptions: (CTFontTableOptions)options
 {
+	return nil;
 }
 
 //
@@ -225,12 +241,14 @@
 //
 - (NSString*) nameForGlyph: (CGGlyph)graphicsGlyph
 {
+	return nil;
 }
 + (CTFontRef) fontWithData: (NSData*)fontData
                       size: (CGFloat)size
        		          matrix: (const CGFloat*)fontMatrix
       additionalDescriptor: (NSFontDescriptor*)descriptor
 {
+	return nil;
 }
 
 @end
