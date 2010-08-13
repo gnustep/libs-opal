@@ -156,14 +156,10 @@
 // CTFont private
 //
 + (NSFont*) fontWithDescriptor: (NSFontDescriptor*)descriptor 
-                          size: (CGFloat)size
-                        matrix: (const CGAffineTransform*)fontMatrix
                        options: (CTFontOptions)options
 {
 }
 + (NSFont*) fontWithGraphicsFont: (CGFontRef)graphics
-                            size: (CGFloat)size
-             		          matrix: (const CGAffineTransform*)fontMatrix
             additionalDescriptor: (NSFontDescriptor*)descriptor
 {
 }

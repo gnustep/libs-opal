@@ -89,47 +89,85 @@ CTFontRef CTFontCreateForString(
 CTFontRef CTFontCreateWithFontDescriptor(
   CTFontDescriptorRef descriptor,
   CGFloat size,
-  const CGAffineTransform *matrix)
+  const CGAffineTransform *matrixPtr)
 {
-  return CTFontCreateWithFontDescriptorAndOptions(descriptor, size, matrix, kCTFontOptionsDefault);
+  return CTFontCreateWithFontDescriptorAndOptions(descriptor, size, matrixPtr, kCTFontOptionsDefault);
 }
 
 CTFontRef CTFontCreateWithFontDescriptorAndOptions(
   CTFontDescriptorRef descriptor,
   CGFloat size,
-  const CGAffineTransform *matrix,
+  const CGAffineTransform *matrixPtr,
   CTFontOptions opts)
 {
-  return [[NSFont fontWithDescriptor: descriptor 
-                                size: size
-                              matrix: matrix
+  NSDictionary *addedAttributes;
+
+  if (size == 0.0)
+  {
+    size = 12.0;
+  }
+
+  if (matrixPtr)
+  {
+    addedAttributes = [NSDictionary dictionaryWithObjectsAndKeys:
+      [NSNumber numberWithDouble: size], kCTFontSizeAttribute,
+      [NSData dataWithBytes: matrixPtr length: sizeof(CGAffineTransform)], kCTFontMatrixAttribute,
+      nil];
+  }
+  else
+  {
+    addedAttributes = [NSDictionary dictionaryWithObjectsAndKeys:
+      [NSNumber numberWithDouble: size], kCTFontSizeAttribute,
+      nil];
+  }
+
+  return [[NSFont fontWithDescriptor: [descriptor fontDescriptorByAddingAttributes: addedAttributes]
                              options: opts] retain];
 }
 
 CTFontRef CTFontCreateWithGraphicsFont(
   CGFontRef cgFont,
   CGFloat size,
-  const CGAffineTransform *matrix,
+  const CGAffineTransform *matrixPtr,
   CTFontDescriptorRef descriptor)
 {
+  NSDictionary *addedAttributes;
+
+  if (size == 0.0)
+  {
+    size = 12.0;
+  }
+
+  if (matrixPtr)
+  {
+    addedAttributes = [NSDictionary dictionaryWithObjectsAndKeys:
+      [NSNumber numberWithDouble: size], kCTFontSizeAttribute,
+      [NSData dataWithBytes: matrixPtr length: sizeof(CGAffineTransform)], kCTFontMatrixAttribute,
+      nil];
+  }
+  else
+  {
+    addedAttributes = [NSDictionary dictionaryWithObjectsAndKeys:
+      [NSNumber numberWithDouble: size], kCTFontSizeAttribute,
+      nil];
+  }
+
   return [[NSFont fontWithGraphicsFont: cgFont
-                            size: size
-             		          matrix: matrix
-            additionalDescriptor: descriptor] retain];
+                  additionalDescriptor: [descriptor fontDescriptorByAddingAttributes: addedAttributes]] retain];
 }
 
 CTFontRef CTFontCreateWithName(
   CFStringRef name,
   CGFloat size,
-  const CGAffineTransform *matrix)
+  const CGAffineTransform *matrixPtr)
 {
-  CTFontCreateWithNameAndOptions(name, size, matrix, kCTFontOptionsDefault);
+  CTFontCreateWithNameAndOptions(name, size, matrixPtr, kCTFontOptionsDefault);
 }
 
 CTFontRef CTFontCreateWithNameAndOptions(
   CFStringRef name,
   CGFloat size,
-  const CGAffineTransform *matrix,
+  const CGAffineTransform *matrixPtr,
   CTFontOptions opts)
 {
   NSDictionary *attrs = [NSDictionary dictionaryWithObjectsAndKeys:
@@ -138,13 +176,13 @@ CTFontRef CTFontCreateWithNameAndOptions(
 
   NSFontDescriptor *descriptor = [NSFontDescriptor fontDescriptorWithFontAttributes: attrs];
 
-  return CTFontCreateWithFontDescriptorAndOptions(descriptor, size, matrix, opts);
+  return CTFontCreateWithFontDescriptorAndOptions(descriptor, size, matrixPtr, opts);
 }
 
 CTFontRef CTFontCreateWithPlatformFont(
   void *platformFont,
   CGFloat size,
-  const CGAffineTransform *matrix,
+  const CGAffineTransform *matrixPtr,
   CTFontDescriptorRef descriptor)
 {
   return nil;
@@ -187,7 +225,7 @@ CTFontRef CTFontCreateUIFontForLanguage(
 CTFontRef CTFontCreateCopyWithAttributes(
   CTFontRef font,
   CGFloat size,
-  const CGAffineTransform *matrix,
+  const CGAffineTransform *matrixPtr,
   CTFontDescriptorRef descriptor)
 {
   return nil; //FIXME: set up a new descriptor...
@@ -196,7 +234,7 @@ CTFontRef CTFontCreateCopyWithAttributes(
 CTFontRef CTFontCreateCopyWithSymbolicTraits(
   CTFontRef font,
   CGFloat size,
-  const CGAffineTransform *matrix,
+  const CGAffineTransform *matrixPtr,
   CTFontSymbolicTraits value,
   CTFontSymbolicTraits mask)
 {
@@ -206,11 +244,11 @@ CTFontRef CTFontCreateCopyWithSymbolicTraits(
 CTFontRef CTFontCreateCopyWithFamily(
   CTFontRef font,
   CGFloat size,
-  const CGAffineTransform *matrix,
+  const CGAffineTransform *matrixPtr,
   CFStringRef family)
 {
   //FIXME: should return nil if the result doesn't have the desired family
-  return CTFontCreateWithFontDescriptor([[font fontDescriptor] fontDescriptorWithFamily: family], size, matrix);
+  return CTFontCreateWithFontDescriptor([[font fontDescriptor] fontDescriptorWithFamily: family], size, matrixPtr);
 }
 
 void *CTFontGetPlatformFont(

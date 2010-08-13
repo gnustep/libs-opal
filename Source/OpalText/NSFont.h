@@ -126,15 +126,11 @@ const CGFloat *NSFontIdentityMatrix;
 // CTFont private
 //
 + (NSFont*) fontWithDescriptor: (NSFontDescriptor*)descriptor 
-                          size: (CGFloat)size
-                        matrix: (const CGAffineTransform*)fontMatrix
                        options: (CTFontOptions)options;
 + (NSFont*) UIFontWithType: (CTFontUIFontType)type
                       size: (CGFloat)size
                forLanguage: (NSString*)languageCode;
 + (NSFont*) fontWithGraphicsFont: (CGFontRef)graphics
-                            size: (CGFloat)size
-             		          matrix: (const CGAffineTransform*)fontMatrix
             additionalDescriptor: (NSFontDescriptor*)descriptor;
 
 - (NSArray*) supportedLanguages;

@@ -42,6 +42,10 @@ typedef struct CTFont* CTFontRef;
 
 /* Constants */
 
+/**
+ * The following keys are used to retrieve different names for the font,
+ * using CTFontCopyName or CTFontCopyLocalizedName.
+ */
 extern const CFStringRef kCTFontCopyrightNameKey;
 extern const CFStringRef kCTFontFamilyNameKey;
 extern const CFStringRef kCTFontSubFamilyNameKey;
@@ -61,12 +65,22 @@ extern const CFStringRef kCTFontLicenseURLNameKey;
 extern const CFStringRef kCTFontSampleTextNameKey;
 extern const CFStringRef kCTFontPostScriptCIDNameKey;
 
+/**
+ * For use with CTFontCopyVariationAxes and CTFontCopyVariation
+ */
 extern const CFStringRef kCTFontVariationAxisIdentifierKey;
 extern const CFStringRef kCTFontVariationAxisMinimumValueKey;
 extern const CFStringRef kCTFontVariationAxisMaximumValueKey;
 extern const CFStringRef kCTFontVariationAxisDefaultValueKey;
 extern const CFStringRef kCTFontVariationAxisNameKey;
 
+/**
+ * For use with CTFontCopyFeatures and CTFontCopyFeatureSettings.
+ *
+ * These are used as keys in the feature dictionaries, which
+ * are used to query the supported OpenType features of a font,
+ * or request a feature for a range in an attributed string.
+ */
 extern const CFStringRef kCTFontFeatureTypeIdentifierKey;
 extern const CFStringRef kCTFontFeatureTypeNameKey;
 extern const CFStringRef kCTFontFeatureTypeExclusiveKey;
@@ -184,43 +198,47 @@ CTFontRef CTFontCreateForString(
   CFRange range
 );
 
+/**
+ * Creates a font with the given matrix and size.
+ * matrix
+ */
 CTFontRef CTFontCreateWithFontDescriptor(
   CTFontDescriptorRef attribs,
   CGFloat size,
-  const CGAffineTransform *matrix
+  const CGAffineTransform *matrixPtr
 );
 
 CTFontRef CTFontCreateWithFontDescriptorAndOptions(
   CTFontDescriptorRef attribs,
   CGFloat size,
-  const CGAffineTransform *matrix,
+  const CGAffineTransform *matrixPtr,
   CTFontOptions opts
 );
 
 CTFontRef CTFontCreateWithGraphicsFont(
   CGFontRef cgFont,
   CGFloat size,
-  const CGAffineTransform *matrix,
+  const CGAffineTransform *matrixPtr,
   CTFontDescriptorRef attribs
 );
 
 CTFontRef CTFontCreateWithName(
   CFStringRef name,
   CGFloat size,
-  const CGAffineTransform *matrix
+  const CGAffineTransform *matrixPtr
 );
 
 CTFontRef CTFontCreateWithNameAndOptions(
   CFStringRef name,
   CGFloat size,
-  const CGAffineTransform *matrix,
+  const CGAffineTransform *matrixPtr,
   CTFontOptions opts
 );
 
 CTFontRef CTFontCreateWithPlatformFont(
   void *platformFont,
   CGFloat size,
-  const CGAffineTransform *matrix,
+  const CGAffineTransform *matrixPtr,
   CTFontDescriptorRef attribs
 );
 
@@ -242,14 +260,14 @@ CTFontRef CTFontCreateUIFontForLanguage(
 CTFontRef CTFontCreateCopyWithAttributes(
   CTFontRef font,
   CGFloat size,
-  const CGAffineTransform *matrix,
+  const CGAffineTransform *matrixPtr,
   CTFontDescriptorRef attribs
 );
 
 CTFontRef CTFontCreateCopyWithSymbolicTraits(
   CTFontRef font,
   CGFloat size,
-  const CGAffineTransform *matrix,
+  const CGAffineTransform *matrixPtr,
   CTFontSymbolicTraits value,
   CTFontSymbolicTraits mask
 );
@@ -257,7 +275,7 @@ CTFontRef CTFontCreateCopyWithSymbolicTraits(
 CTFontRef CTFontCreateCopyWithFamily(
   CTFontRef font,
   CGFloat size,
-  const CGAffineTransform *matrix,
+  const CGAffineTransform *matrixPtr,
   CFStringRef family
 );
 
