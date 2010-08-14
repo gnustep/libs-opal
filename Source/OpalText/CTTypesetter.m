@@ -54,25 +54,21 @@ const CFStringRef kCTTypesetterOptionForcedEmbeddingLevel = @"kCTTypesetterOptio
 - (id)initWithAttributedString: (NSAttributedString*)string
                        options: (NSDictionary*)options
 {
-  [self doesNotRecognizeSelector: _cmd];
   return nil;
 }
 
 - (CTLineRef)createLineWithRange: (CFRange)range
 {
-  [self doesNotRecognizeSelector: _cmd];
   return nil;
 }
 - (CFIndex)suggestClusterBreakAtIndex: (CFIndex)start
                                 width: (double)width
 {
-  [self doesNotRecognizeSelector: _cmd];
   return 0;
 }
 - (CFIndex)suggestLineBreakAtIndex: (CFIndex)start
                              width: (double)width
 {
-  [self doesNotRecognizeSelector: _cmd];
   return 0;
 }
 

@@ -197,8 +197,12 @@ const CGFloat *NSFontIdentityMatrix;
 //
 + (NSFont*) fontWithDescriptor: (NSFontDescriptor*)descriptor 
                        options: (CTFontOptions)options
-{
-	return nil;
+{ 
+  // FIXME: placeholder code.
+  NSFont *font = [[NSFont alloc] init];
+  font->_descriptor = [descriptor retain];
+  memcpy(font->_matrix, NSFontIdentityMatrix, 6 * sizeof(CGFloat));
+  return [font autorelease];
 }
 + (NSFont*) fontWithGraphicsFont: (CGFontRef)graphics
             additionalDescriptor: (NSFontDescriptor*)descriptor
