@@ -142,7 +142,15 @@ NSString *NSFontVariationAxisNameKey;
 // CTFontDescriptor private
 //
 
-- (id) localizedObjectForKey: (NSString*)key language: (NSString**)languageOut;
+- (id) localizedObjectForKey: (NSString*)key language: (NSString*)language;
+
+//
+// CTFontDescriptor private; to be overridden in subclasses
+//
+
+- (NSArray *) matchingFontDescriptorsWithMandatoryKeys: (NSSet *)keys;
+- (id) objectFromPlatformFontPatternForKey: (NSString *)attribute;
+- (id) localizedObjectFromPlatformFontPatternForKey: (NSString*)key language: (NSString*)language;
 
 @end
 

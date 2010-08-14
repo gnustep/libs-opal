@@ -4,6 +4,7 @@ PACKAGE_NAME = opal
 SUBPROJECT_NAME = OpalText
 
 $(SUBPROJECT_NAME)_OBJC_FILES = $(wildcard *.m)
+$(SUBPROJECT_NAME)_OBJC_FILES += Fontconfig/NSFontconfigFontDescriptor.m
 
 $(SUBPROJECT_NAME)_HEADER_FILES_DIR = ../../Headers/CoreText
 $(SUBPROJECT_NAME)_INCLUDE_DIRS = -I../../Headers

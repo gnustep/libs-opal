@@ -42,9 +42,14 @@
 
 @implementation NSFontDescriptor
 
++ (Class) fontDescriptorClass
+{
+  return NSClassFromString(@"NSFontconfigFontDescriptor");
+}
+
 + (id) fontDescriptorWithFontAttributes: (NSDictionary *)attributes
 {
-  return AUTORELEASE([[self alloc] initWithFontAttributes: attributes]);
+  return AUTORELEASE([[[self fontDescriptorClass] alloc] initWithFontAttributes: attributes]);
 }
 
 + (id) fontDescriptorWithName: (NSString *)name
@@ -147,56 +152,6 @@
   return self;
 }
 
-// Private
-- (void)handleKey: (NSString*)key selector: (SEL)selector valueClass: (Class)valueClass
-{
-  id value = [[self attributes] objectForKey: key];
-  if (value)
-  {
-    if ([[value class] isKindOfClass: valueClass])
-    {
-      if ([self respondsToSelector: selector])
-      {
-        [self performSelector: selector withObject: value];
-      }
-    }
-    else
-    {
-      NSLog(@"NSFontDescriptor: Ignoring invalid value %@ for attribute %@", value, key);
-    }
-  }
-}
-
-/**
- * Call in subclasses -initWithFontAttributes method to have custom handlers invoked
- * for each attribute key
- */
-- (void)handleAddValues
-{
-  [self handleKey: kCTFontURLAttribute selector: @selector(addURL:) valueClass: [NSURL class]];
-  [self handleKey: kCTFontNameAttribute selector: @selector(addName:) valueClass: [NSString class]];
-  [self handleKey: kCTFontDisplayNameAttribute selector: @selector(addDisplayName:) valueClass: [NSString class]];
-  [self handleKey: kCTFontFamilyNameAttribute selector: @selector(addFamilyName:) valueClass: [NSString class]];
-  [self handleKey: kCTFontStyleNameAttribute selector: @selector(addStyleName:) valueClass: [NSString class]];
-  [self handleKey: kCTFontTraitsAttribute selector: @selector(addTraits:) valueClass: [NSDictionary class]];
-  [self handleKey: kCTFontVariationAttribute selector: @selector(addVariation:) valueClass: [NSDictionary class]];
-  [self handleKey: kCTFontSizeAttribute selector: @selector(addSize:) valueClass: [NSNumber class]];
-  [self handleKey: kCTFontMatrixAttribute selector: @selector(addMatrix:) valueClass: [NSData class]];
-  [self handleKey: kCTFontCascadeListAttribute selector: @selector(addCascadeList:) valueClass: [NSArray class]];
-  [self handleKey: kCTFontCharacterSetAttribute selector: @selector(addCharacterSet:) valueClass: [NSCharacterSet class]];
-  [self handleKey: kCTFontLanguagesAttribute selector: @selector(addLanguages:) valueClass: [NSArray class]];
-  [self handleKey: kCTFontBaselineAdjustAttribute selector: @selector(addBaselineAdjust:) valueClass: [NSNumber class]];
-  [self handleKey: kCTFontMacintoshEncodingsAttribute selector: @selector(addMacintoshEncodings:) valueClass: [NSNumber class]];
-  [self handleKey: kCTFontFeaturesAttribute selector: @selector(addFeatures:) valueClass: [NSArray class]];
-  [self handleKey: kCTFontFeatureSettingsAttribute selector: @selector(addFeatureSettings:) valueClass: [NSArray class]];
-  [self handleKey: kCTFontFixedAdvanceAttribute selector: @selector(addFixedAdvance:) valueClass: [NSNumber class]];
-  [self handleKey: kCTFontOrientationAttribute selector: @selector(addOrientation:) valueClass: [NSNumber class]];
-  [self handleKey: kCTFontFormatAttribute selector: @selector(addFormat:) valueClass: [NSNumber class]];
-  [self handleKey: kCTFontRegistrationScopeAttribute selector: @selector(addRegistrationScope:) valueClass: [NSNumber class]];
-  [self handleKey: kCTFontPriorityAttribute selector: @selector(addPriority:) valueClass: [NSNumber class]];
-  [self handleKey: kCTFontEnabledAttribute selector: @selector(addEnabled:) valueClass: [NSNumber class]];
-}
-
 - (void) encodeWithCoder: (NSCoder *)aCoder
 {
 	if ([aCoder allowsKeyedCoding])
@@ -247,7 +202,7 @@
   return nil;
 }
 
-- (NSFontDescriptor *) matchingFontDescriptorWithMandatoryKeys: (NSSet *)keys;
+- (NSFontDescriptor *) matchingFontDescriptorWithMandatoryKeys: (NSSet *)keys
 {
   NSArray *found = [self matchingFontDescriptorsWithMandatoryKeys: keys];
 
@@ -269,17 +224,39 @@
 /**
  * Override in subclass
  */
-- (id) objectForKey: (NSString *)attribute
+- (id) objectFromPlatformFontPatternForKey: (NSString *)attribute
 {
-  return [_attributes objectForKey: attribute];
+  return nil;
 }
 
 /**
  * Override in subclass
  */
-- (id) localizedObjectForKey: (NSString*)key language: (NSString**)languageOut
+- (id) localizedObjectFromPlatformFontPatternForKey: (NSString*)key language: (NSString*)language
 {
-  return [self objectForKey: key];
+  return nil;
+}
+
+- (id) objectForKey: (NSString *)attribute
+{
+  id object = [_attributes objectForKey: attribute];
+
+  if (nil == object)
+  {
+    return [self objectFromPlatformFontPatternForKey: attribute];
+  }
+  return object;
+}
+
+- (id) localizedObjectForKey: (NSString*)attribute language: (NSString*)language
+{
+  id object = [self localizedObjectFromPlatformFontPatternForKey: attribute language: language];
+
+  if (nil == object)
+  {
+    return [self objectForKey: attribute];
+  }
+  return object;
 }
 
 - (CGFloat) pointSize

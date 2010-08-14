@@ -154,7 +154,21 @@ CFTypeRef CTFontDescriptorCopyLocalizedAttribute(
   CFStringRef attribute,
   CFStringRef *language)
 {
-  return [[descriptor localizedObjectForKey: attribute language: language] retain];
+  NSArray *preferredLanguages = [NSLocale preferredLanguages];
+  if ([preferredLanguages count] > 0)
+  {
+    NSString *preferredLanguage = [preferredLanguages objectAtIndex: 0];
+    id localizedValue = [descriptor localizedObjectForKey: attribute language: preferredLanguage];
+    if (localizedValue)
+    {
+      if (language)
+      {
+        *language = preferredLanguage;
+      }
+      return [localizedValue retain];
+    }
+  }
+  return CTFontDescriptorCopyAttribute(descriptor, attribute);
 }
 
 CFTypeID CTFontDescriptorGetTypeID()

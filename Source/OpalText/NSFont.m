@@ -41,7 +41,7 @@
 #import "NSFont.h"
 
 @implementation NSFont
-
+#if 0
 //
 // Querying the Font
 //
@@ -250,6 +250,6 @@
 {
 	return nil;
 }
-
+#endif 
 @end
 
