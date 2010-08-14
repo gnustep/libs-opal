@@ -22,3 +22,33 @@ The sources are available from the GNUstep repository at
 *** Warning! *** This version is not yet suitable for general use.
 It may be interesting for developers only, contributions are much welcome!
 For more information see the TODO file.
+
+
+Developers
+----------
+
+- Eric Wasylishen <ewasylishen@gmail.com>
+- BALATON Zoltan <balaton@eik.bme.hu>
+
+
+Requirements
+------------
+
+- GNUstep base
+- cairo
+- libjpeg
+- libpng
+- libtiff
+- lcms (version 1)
+
+and on non-Windows platforms:
+- freetype
+- fontconfig
+
+Build and install with:
+
+make
+sudo -E make install
+
+or 'make install' on Windows, in the GNUstep MinGW environment available
+here: http://gnustep.org/experience/Windows.html
