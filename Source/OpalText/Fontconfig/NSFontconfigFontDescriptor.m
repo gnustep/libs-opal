@@ -599,6 +599,27 @@
   return self;
 }
 
+/**
+ * Private initializer. The provided pattern must have been matched, and must not
+ * be subsequently modified.
+ */
+- (id) initWithImmutableMatchedPattern: (FcPattern*)pat
+{
+  self = [super initWithFontAttributes: nil];
+  if (nil == self)
+  {
+    return nil;
+  }
+
+  FcPatternReference(pat);
+  _pat = pat;
+
+  FcPatternReference(pat);
+  _matchedPat = pat;
+
+  return self;
+}
+
 - (void)dealloc
 {
   if (_pat)
@@ -610,6 +631,13 @@
     FcPatternDestroy(_matchedPat);
   }
   [super dealloc];
+}
+
+- (NSString*)description
+{
+  return [NSString stringWithFormat: @"<NSFontconfigFontDescriptor name: %@ URL: %@>", 
+    [self objectForKey: kCTFontNameAttribute],
+    [self objectForKey: kCTFontURLAttribute]];
 }
 
 - (void)matchPattern
@@ -640,6 +668,7 @@
     }
     else
     {
+      FcPatternReference(_matchedPat);
       //NSLog(@"FcFontMatch succeeded, attributes: ");
       //FcPatternPrint(_matchedPat);
     }
@@ -651,13 +680,66 @@
  * Overridden methods:
  */
 
-- (NSArray *) matchingFontDescriptorsWithMandatoryKeys: (NSSet *)keys
+- (NSArray *) matchingFontDescriptorsWithMandatoryKeys: (NSSet *)mandatoryKeys
 {
-  //FIXME implement using FcFontSort
+  NSMutableArray *matching = [NSMutableArray array];
 
   [self matchPattern];
 
-  return [NSArray array];
+  FcResult result = FcResultMatch;
+  FcFontSet *fontSet = FcFontSort(NULL, _matchedPat, FcFalse, NULL, &result);
+  if (result == FcResultMatch)
+  {
+    for (int i=0; i<fontSet->nfont; i++)
+    {
+      FcPattern *pat = FcPatternDuplicate(fontSet->fonts[i]);
+
+      NSFontDescriptor *candidate = [[NSFontconfigFontDescriptor alloc] initWithImmutableMatchedPattern: pat];
+      BOOL acceptable = YES;
+      if (mandatoryKeys)
+      {
+   			NSEnumerator *enumerator = [mandatoryKeys objectEnumerator];
+   	    NSString *mandatoryKey;
+        while (nil != (mandatoryKey = [enumerator nextObject]))
+        {
+          id selfValue = [self objectForKey: mandatoryKey];
+          id candidateValue = [candidate objectForKey: mandatoryKey];
+          
+          if ((selfValue != nil || candidateValue != nil)
+              && ![selfValue isEqual: candidateValue])
+          {
+            // Hack: only requre kCTFontTraitsAttribute to have the same kCTFontSymbolicTrait
+            if ([mandatoryKey isEqualToString: kCTFontTraitsAttribute])
+            {
+              if ([[selfValue objectForKey: kCTFontSymbolicTrait] intValue]
+                  == [[candidateValue objectForKey: kCTFontSymbolicTrait] intValue])
+              {
+                continue; // Good enough match
+              }
+            }
+            // Otherwise, reject.
+            acceptable = NO;
+            break;
+          }
+        }
+      }
+      if (acceptable)
+      {
+        [matching addObject: candidate];
+      }
+      [candidate release];
+
+      FcPatternDestroy(pat);
+    }
+  }
+  else
+  {
+    NSLog(@"ERROR! FcFontSort failed");
+  }
+
+  FcFontSetDestroy(fontSet);
+
+  return matching;
 }
 
 static NSDictionary *ReadSelectors;
