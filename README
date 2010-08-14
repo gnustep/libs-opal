@@ -16,8 +16,8 @@ in the quartz group of minerals.
 There is a homepage (which may not be updated too frequently) at
 <http://goliat.eik.bme.hu/~balaton/gnustep/opal>
 
-The sources are available from the Étoile project repository at
-<http://gna.org/projects/etoile/>
+The sources are available from the GNUstep repository at
+<svn://svn.gna.org/svn/gnustep/libs/opal/trunk>
 
 *** Warning! *** This version is not yet suitable for general use.
 It may be interesting for developers only, contributions are much welcome!
