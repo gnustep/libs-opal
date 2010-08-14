@@ -93,7 +93,6 @@ static cairo_status_t opal_CGPDFContextWriteFunction(
   const unsigned char *data,
   unsigned int length)
 {
-  printf("write func with consumer %p", closure);
   OPDataConsumerPutBytes((CGDataConsumerRef)closure, data, length);
   return CAIRO_STATUS_SUCCESS;
 }
