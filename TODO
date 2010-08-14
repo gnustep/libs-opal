@@ -45,8 +45,9 @@ OpalText:
  - Still in very early stages. Here is a sketch of what needs to be done:
    - Finish CTFont/CTFontDescriptor/CTFontCollection/CTFontManager with 
      both Fontconfig/Freetype and Windows GDI backends.
-     (The basics of CTFontDescriptor currently with Fontconfig)
-   - Implement CTTypesetter, the core part, which requies:
+     (The basics of CTFontDescriptor are currently working with the
+      Fontconfig backend)
+   - Implement CTTypesetter, the core part, which requires:
      - Identifying permissible places to break a string with the Unicode
        linebreaking algorithm
      - Run GNU fribidi on the string if needed
@@ -62,8 +63,8 @@ OpalText:
 Design principles to follow:
 ============================
 - Build on public Cairo APIs as much as possible, use private APIs only if
-  there is no appropriate public one or would simplifiy implementation a lot
-- Avoid duplicate representatation of the same thing (should not store a copy
+  there is no appropriate public one or would simplify implementation a lot
+- Avoid duplicate representation of the same thing (should not store a copy
   of what Cairo already stores to avoid getting out of sync or too many
   conversions). Choose between Quartz or Cairo representation and convert to
   that and then stick to it.
