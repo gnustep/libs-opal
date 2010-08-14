@@ -28,7 +28,7 @@
 
 CFTypeID CTParagraphStyleGetTypeID()
 {
-  return nil;
+  return (CFTypeID)nil;
 }
 
 CTParagraphStyleRef CTParagraphStyleCreate(

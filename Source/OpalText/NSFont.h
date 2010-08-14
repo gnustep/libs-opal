@@ -35,6 +35,7 @@
 #import <Foundation/NSObject.h>
 #import <Foundation/NSGeometry.h>
 
+#import "NSFontDescriptor.h"
 
 @class NSAffineTransform;
 @class NSCharacterSet;
@@ -157,7 +158,7 @@ const CGFloat *NSFontIdentityMatrix;
 - (NSArray*) variationAxes;
 - (NSDictionary*) variation;
 - (CGFontRef) graphicsFontWithDescriptor: (NSFontDescriptor**)descriptorOut;
-- (NSArray*) avaliableTablesWithOptions: (CTFontTableOptions)options;
+- (NSArray*) availableTablesWithOptions: (CTFontTableOptions)options;
 - (NSData*) tableForTag: (CTFontTableTag)tag
             withOptions: (CTFontTableOptions)options;
 //

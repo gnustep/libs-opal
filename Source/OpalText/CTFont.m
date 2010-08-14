@@ -25,6 +25,7 @@
 #include <CoreText/CTFont.h>
 #include <CoreText/CTFontDescriptor.h>
 #import "NSFont.h"
+#import "NSFontDescriptor.h"
 
 /* Constants */
 
@@ -161,7 +162,7 @@ CTFontRef CTFontCreateWithName(
   CGFloat size,
   const CGAffineTransform *matrixPtr)
 {
-  CTFontCreateWithNameAndOptions(name, size, matrixPtr, kCTFontOptionsDefault);
+  return CTFontCreateWithNameAndOptions(name, size, matrixPtr, kCTFontOptionsDefault);
 }
 
 CTFontRef CTFontCreateWithNameAndOptions(
@@ -429,22 +430,22 @@ CFArrayRef CTFontCopyAvailableTables(
   CTFontRef font,
   CTFontTableOptions opts)
 {
-  return [font availableTablesWithOptions: opts];
+  return (CFArrayRef)[font availableTablesWithOptions: opts];
 }
 
 CFDictionaryRef CTFontCopyTraits(CTFontRef font)
 {
-  return CTFontCopyAttribute(font, kCTFontTraitsAttribute);
+  return (CFDictionaryRef)CTFontCopyAttribute(font, kCTFontTraitsAttribute);
 }
 
 CFArrayRef CTFontCopyFeatures(CTFontRef font)
 {
-  return CTFontCopyAttribute(font, kCTFontFeaturesAttribute);
+  return (CFArrayRef)CTFontCopyAttribute(font, kCTFontFeaturesAttribute);
 }
 
 CFArrayRef CTFontCopyFeatureSettings(CTFontRef font)
 {
-  return CTFontCopyAttribute(font, kCTFontFeatureSettingsAttribute);
+  return (CFArrayRef)CTFontCopyAttribute(font, kCTFontFeatureSettingsAttribute);
 }
 
 CTFontDescriptorRef CTFontCopyFontDescriptor(CTFontRef font)
@@ -512,7 +513,7 @@ CFStringRef CTFontCopyLocalizedName(
 
 CFStringRef CTFontCopyPostScriptName(CTFontRef font)
 {
-  return [[font postScriptName] retain];
+  return [[font fontName] retain];
 }
 
 CFStringRef CTFontCopyFamilyName(CTFontRef font)

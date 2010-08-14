@@ -139,7 +139,7 @@ CTFontDescriptorRef CTFontDescriptorCreateMatchingFontDescriptor(
 
 CFDictionaryRef CTFontDescriptorCopyAttributes(CTFontDescriptorRef descriptor)
 {
-  return [[descriptor attributes] retain];
+  return [[descriptor fontAttributes] retain];
 }
 
 CFTypeRef CTFontDescriptorCopyAttribute(

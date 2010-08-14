@@ -251,7 +251,7 @@
 {
 	return nil;
 }
-- (NSArray*) avaliableTablesWithOptions: (CTFontTableOptions)options
+- (NSArray*) availableTablesWithOptions: (CTFontTableOptions)options
 {
 	return nil;
 }

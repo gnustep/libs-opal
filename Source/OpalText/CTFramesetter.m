@@ -38,9 +38,9 @@
 
 - (id)initWithAttributedString: (NSAttributedString*)string;
 
-- (CTLineRef)createFrameWithRange: (CFRange)range
-                             path: (CGPathRef)path
-                       attributes: (NSDictionary*)attributes;
+- (CTFrameRef)createFrameWithRange: (CFRange)range
+                              path: (CGPathRef)path
+                        attributes: (NSDictionary*)attributes;
 - (CTTypesetterRef)typesetter;
 - (CFIndex)suggestFrameSizeWithConstraints: (CFIndex)start
 	                                   range: (CFRange)stringRange
