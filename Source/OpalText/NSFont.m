@@ -40,7 +40,15 @@
 
 #import "NSFont.h"
 
+const CGFloat *NSFontIdentityMatrix;
+
 @implementation NSFont
+
++ (void) load
+{
+  static CGFloat identity[6] = {1.0, 0.0, 1.0, 0.0, 0.0, 0.0};
+  NSFontIdentityMatrix = identity;
+}
 
 //
 // Querying the Font
@@ -67,15 +75,22 @@
 }
 - (const CGFloat*) matrix
 {
-  return NULL;
+  return _matrix;
 }
 - (NSAffineTransform*) textTransform
 {
-  return nil;
+  // FIXME: Need to implement bridging between NSFontMatrixAttribute and kCTFontMatrixAttribute somewhere
+  
+  NSAffineTransform *transform = [[self fontDescriptor] objectForKey: NSFontMatrixAttribute];
+  if (transform == nil)
+  {
+    transform = [NSAffineTransform transform];
+  }
+  return transform;
 }
 - (CGFloat) pointSize
 {
-  return 0;
+  return [[[self fontDescriptor] objectForKey: NSFontSizeAttribute] doubleValue];
 }
 - (NSFont*) printerFont
 {
@@ -127,11 +142,11 @@
 }
 - (NSCharacterSet*) coveredCharacterSet
 {
-  return nil;
+  return [[self fontDescriptor] objectForKey: kCTFontCharacterSetAttribute];
 }
 - (NSFontDescriptor*) fontDescriptor
 {
-  return nil;
+  return _descriptor;
 }
 - (NSFontRenderingMode) renderingMode
 {
@@ -187,11 +202,6 @@
 }
 + (NSFont*) fontWithGraphicsFont: (CGFontRef)graphics
             additionalDescriptor: (NSFontDescriptor*)descriptor
-{
-	return nil;
-}
-
-- (NSArray*) supportedLanguages
 {
 	return nil;
 }

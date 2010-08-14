@@ -74,8 +74,17 @@ typedef enum _NSFontRenderingMode
 
 const CGFloat *NSFontIdentityMatrix;
 
+/**
+ * The font class.
+ *
+ * Note all font/glyph metrics are in user space; that means font design units
+ * (often 2048 units per EM square) are divided by unitsPerEM, then transformed by
+ * the PostScript matrix (textTransform scaled by pointSize).
+ */
 @interface NSFont : NSObject
 {
+  NSFontDescriptor *_descriptor;
+  CGFloat _matrix[6];
 }
 
 //
@@ -86,7 +95,14 @@ const CGFloat *NSFontIdentityMatrix;
 - (NSString*) familyName;
 - (NSString*) fontName;
 - (BOOL) isFixedPitch;
+/**
+ * Returns the PostScript matrix; that is -textTransform scaled by -pointSize
+ */
 - (const CGFloat*) matrix;
+/**
+ * Returns the font matrix, normally the identity matrix. This is the same as the font
+ * descriptor's font matrix.
+ */
 - (NSAffineTransform*) textTransform;
 - (CGFloat) pointSize;
 - (NSFont*) printerFont;
@@ -133,8 +149,6 @@ const CGFloat *NSFontIdentityMatrix;
                forLanguage: (NSString*)languageCode;
 + (NSFont*) fontWithGraphicsFont: (CGFontRef)graphics
             additionalDescriptor: (NSFontDescriptor*)descriptor;
-
-- (NSArray*) supportedLanguages;
 - (CGFloat) unitsPerEm;
 - (NSString*) nameForKey: (NSString*)nameKey;
 - (NSString*) localizedNameForKey: (NSString*)nameKey

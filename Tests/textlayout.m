@@ -7,6 +7,46 @@
 
 #import <Foundation/Foundation.h>
 
+void dumpFontDescriptorInfo(CTFontDescriptorRef descriptor)
+{
+  printf("Dumping font descriptor info for %p\n", descriptor);
+
+  NSLog(@"Attribute dictionary: %@", [CTFontDescriptorCopyAttributes(descriptor) autorelease]);
+
+  NSArray *allAttributes = [NSArray arrayWithObjects:
+      kCTFontURLAttribute,
+      kCTFontNameAttribute,
+      kCTFontDisplayNameAttribute,
+      kCTFontFamilyNameAttribute,
+      kCTFontStyleNameAttribute,
+      kCTFontTraitsAttribute,
+      kCTFontVariationAttribute,
+      kCTFontSizeAttribute,
+      kCTFontMatrixAttribute,
+      kCTFontCascadeListAttribute,
+      kCTFontCharacterSetAttribute,
+      kCTFontLanguagesAttribute,
+      kCTFontBaselineAdjustAttribute,
+      kCTFontMacintoshEncodingsAttribute,
+      kCTFontFeaturesAttribute,
+      kCTFontFeatureSettingsAttribute,
+      kCTFontFixedAdvanceAttribute,
+      kCTFontOrientationAttribute,
+      kCTFontEnabledAttribute,
+      kCTFontFormatAttribute,
+      kCTFontRegistrationScopeAttribute,
+      kCTFontPriorityAttribute,
+      nil];
+
+  NSLog(@"Attributes fetched via CTFontDescriptorCopyAttribute:");
+
+  NSEnumerator *attribEnumerator = [allAttributes objectEnumerator];
+  NSString *attrib;
+  while (attrib = [attribEnumerator nextObject])
+  {
+    NSLog(@"Value for '%@': %@", attrib, [CTFontDescriptorCopyAttribute(descriptor, (CFStringRef)attrib) autorelease]);
+  }
+}
 
 void dumpFontInfo(CTFontRef font)
 {
@@ -85,38 +125,6 @@ bool CTFontGetGlyphsForCharacters(
   NSLog(@"CTFontGetMatrix %lf %lf %lf %lf %lf %lf", (double)xform.a, (double)xform.b, (double)xform.c, (double)xform.d, (double)xform.tx, (double)xform.ty);
    
   NSLog(@"CTFontGetSymbolicTraits %d", CTFontGetSymbolicTraits(font));
-
-  NSArray *allAttributes = [NSArray arrayWithObjects:
-      kCTFontURLAttribute,
-      kCTFontNameAttribute,
-      kCTFontDisplayNameAttribute,
-      kCTFontFamilyNameAttribute,
-      kCTFontStyleNameAttribute,
-      kCTFontTraitsAttribute,
-      kCTFontVariationAttribute,
-      kCTFontSizeAttribute,
-      kCTFontMatrixAttribute,
-      kCTFontCascadeListAttribute,
-      kCTFontCharacterSetAttribute,
-      kCTFontLanguagesAttribute,
-      kCTFontBaselineAdjustAttribute,
-      kCTFontMacintoshEncodingsAttribute,
-      kCTFontFeaturesAttribute,
-      kCTFontFeatureSettingsAttribute,
-      kCTFontFixedAdvanceAttribute,
-      kCTFontOrientationAttribute,
-      kCTFontEnabledAttribute,
-      kCTFontFormatAttribute,
-      kCTFontRegistrationScopeAttribute,
-      kCTFontPriorityAttribute,
-      nil];
-
-  NSEnumerator *attribEnumerator = [allAttributes objectEnumerator];
-  NSString *attrib;
-  while (attrib = [attribEnumerator nextObject])
-  {
-    NSLog(@"Value for '%@': %@", attrib, [CTFontCopyAttribute(font, (CFStringRef)attrib) autorelease]);
-  }
 
   NSLog(@"CTFontCopyAvailableTables: ");
   NSArray *availableTables = [CTFontCopyAvailableTables(font, kCTFontTableOptionNoOptions) autorelease];
@@ -282,10 +290,13 @@ void enumerateBySerifStyle()
 void draw(CGContextRef ctx, CGRect rect)
 {
   CTFontDescriptorRef desc = [CTFontDescriptorCreateWithAttributes([NSDictionary dictionaryWithObjectsAndKeys:
-    @"Times-Roman", kCTFontPostScriptNameKey,
+    @"Times-Roman", kCTFontNameAttribute,
     nil]) autorelease];
 
   NSLog(@"Times initial descriptor: %@", [desc fontAttributes]);
+
+  dumpFontDescriptorInfo(desc);
+
   /**
    * Matched with a real font.
    */
@@ -301,7 +312,6 @@ void draw(CGContextRef ctx, CGRect rect)
    */
   NSLog(@"Times font URL: %@", [CTFontCopyAttribute(font, kCTFontURLAttribute) autorelease]);
 
-
   CTFontDescriptorRef monoDesc = [CTFontDescriptorCreateWithAttributes([NSDictionary dictionaryWithObjectsAndKeys:
     [NSDictionary dictionaryWithObjectsAndKeys: 
       [NSNumber numberWithInt: kCTFontMonoSpaceTrait], kCTFontSymbolicTrait,
@@ -311,6 +321,8 @@ void draw(CGContextRef ctx, CGRect rect)
   
   
   NSLog(@"Monospaced font attributes: %@ URL: %@", [monoDesc fontAttributes], [monoDesc objectForKey: kCTFontURLAttribute]);
+
+  dumpFontDescriptorInfo(monoDesc);
 
   CTFontDescriptorRef monoDescMatching = [CTFontDescriptorCreateMatchingFontDescriptor(monoDesc, [NSSet setWithObject: kCTFontTraitsAttribute]) autorelease];
   NSLog(@"Monospaced font attribute after matching: %@ URL: %@", [monoDescMatching fontAttributes], [monoDescMatching objectForKey: kCTFontURLAttribute]);  

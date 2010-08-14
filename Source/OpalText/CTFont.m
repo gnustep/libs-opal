@@ -485,7 +485,7 @@ CFCharacterSetRef CTFontCopyCharacterSet(CTFontRef font)
 
 CFArrayRef CTFontCopySupportedLanguages(CTFontRef font)
 {
-  return [[font supportedLanguages] retain]; 
+  return [[[font fontDescriptor] objectForKey: kCTFontLanguagesAttribute] retain]; 
 }
 
 /* Name */

@@ -123,7 +123,15 @@
     }
     if (symTraits & kCTFontMonoSpaceTrait)
     {
+      // If you run "fc-match :spacing=100", you get "DejaVu Sans" even though you would 
+      // expect to get "DejaVu Sans Mono". So, we also add "monospace" as a weak family
+      // name to fix the problem.
       FcPatternAddInteger(_pat, FC_SPACING, FC_MONO);
+   
+			FcValue value;
+      value.type = FcTypeString;
+      value.u.s = (FcChar8*)"monospace";
+      FcPatternAddWeak(_pat, FC_FAMILY, value, FcTrue);
     }
     if (symTraits & kCTFontVerticalTrait)
     {
@@ -392,134 +400,77 @@
 }
 - (NSDictionary*)readTraitsFromPattern: (FcPattern*)pat
 {
-#if 0
-  if ([traits objectForKey: kCTFontSymbolicTrait])
+  NSMutableDictionary *traits = [NSMutableDictionary dictionary];
+
+  CTFontSymbolicTraits symTraits = 0;
+
+  int value;
+  if (FcResultMatch == FcPatternGetInteger(pat, FC_SLANT, 0, &value))
   {
-    CTFontSymbolicTraits symTraits = [traits objectForKey: kCTFontSymbolicTrait];
+    if (value == FC_SLANT_ITALIC)
+    {
+      symTraits |= kCTFontItalicTrait;
+    } 
+  }
+  if (FcResultMatch == FcPatternGetInteger(pat, FC_WEIGHT, 0, &value))
+  {
+    if (value >= FC_WEIGHT_BOLD)
+    {
+      symTraits |= kCTFontBoldTrait;
+    } 
 
-    if (symTraits & kCTFontItalicTrait)
+	  double weight;
+	  if (value <= FC_WEIGHT_NORMAL)
+	  {
+      weight = ((value - FC_WEIGHT_THIN) / (double)(FC_WEIGHT_NORMAL - FC_WEIGHT_THIN)) - 1.0;
+	  }
+	  else
+	  {
+      weight = (value - FC_WEIGHT_NORMAL) / (double)(FC_WEIGHT_ULTRABLACK - FC_WEIGHT_NORMAL);
+	  }
+
+    [traits setObject: [NSNumber numberWithDouble: weight]
+               forKey: kCTFontWeightTrait];
+  }
+  if (FcResultMatch == FcPatternGetInteger(pat, FC_WIDTH, 0, &value))
+  {
+    if (value >= FC_WIDTH_EXPANDED)
     {
-      // NOTE: May be overridden by kCTFontSlantTrait
-      FcPatternAddInteger(_pat, FC_SLANT, FC_SLANT_ITALIC); 
-    }
-    if (symTraits & kCTFontBoldTrait)
+      symTraits |= kCTFontExpandedTrait;
+    } 
+    if (value <= FC_WIDTH_CONDENSED)
     {
-      // NOTE: May be overridden by kCTFontWeightTrait
-      FcPatternAddInteger(_pat, FC_WEIGHT, FC_WEIGHT_BOLD); 
-    }
-    if (symTraits & kCTFontExpandedTrait)
-    {
-      // NOTE: May be overridden by kCTFontWidthTrait
-      FcPatternAddInteger(_pat, FC_WIDTH, FC_WIDTH_EXPANDED);
-    }
-    if (symTraits & kCTFontCondensedTrait)
-    {
-      // NOTE: May be overridden by kCTFontWidthTrait
-      FcPatternAddInteger(_pat, FC_WIDTH, FC_WIDTH_CONDENSED);
-    }
-    if (symTraits & kCTFontMonoSpaceTrait)
-    {
-      FcPatternAddInteger(_pat, FC_SPACING, FC_MONO);
-    }
-    if (symTraits & kCTFontVerticalTrait)
-    {
-      // FIXME: What is this supposed to mean?
-    }
-    if (symTraits & kCTFontUIOptimizedTrait)
-    {
-			// NOTE: Fontconfig can't express this
+      symTraits |= kCTFontCondensedTrait;
     }
 
-    CTFontStylisticClass class = symbolicTraits & kCTFontClassMaskTrait;
-    char *addWeakFamilyName = NULL;
-    switch (class)
+	  double width;
+	  if (value <= FC_WIDTH_NORMAL)
+	  {
+      width = ((value - FC_WIDTH_ULTRACONDENSED) / (double)(FC_WIDTH_NORMAL - FC_WIDTH_ULTRACONDENSED)) - 1.0;
+	  }
+	  else
+	  {
+      width = (value - FC_WIDTH_NORMAL) / (double)(FC_WIDTH_ULTRAEXPANDED - FC_WIDTH_NORMAL);
+	  }
+
+    [traits setObject: [NSNumber numberWithDouble: width]
+               forKey: kCTFontWidthTrait];
+  }
+  if (FcResultMatch == FcPatternGetInteger(pat, FC_SPACING, 0, &value))
+  {
+    if (value == FC_MONO)
     {
-      default:
-      case kCTFontUnknownClass:
-      case kCTFontOrnamentalsClass:
-      case kCTFontScriptsClass:
-      case kCTFontSymbolicClass:
-        // FIXME: Is there some way to convey these to Fontconfig?
-        break;
-      case kCTFontOldStyleSerifsClass:
-      case kCTFontTransitionalSerifsClass:
-      case kCTFontModernSerifsClass:
-      case kCTFontClarendonSerifsClass:
-      case kCTFontSlabSerifsClass:
-      case kCTFontFreeformSerifsClass:
-		  	addWeakFamilyName = "serif";
-        break;
-      case kCTFontSansSerifClass:
-        addWeakFamilyName = "sans";
-        break;
-    }
-    if (addWeakFamilyName)
-    {
-      FcValue value;
-      value.type = FcTypeString;
-      value.u.s = addWeakFamilyName;
-      FcPatternAddWeak(_pat, FC_FAMILY, value, FcTrue);
-    }
+      symTraits |= kCTFontMonoSpaceTrait;
+    } 
   }
 
-  if ([traits objectForKey: kCTFontWeightTrait])
+  if (symTraits != 0)
   {
-    /**
-     * Scale: -1 is thinnest, 0 is normal, 1 is heaviest
-     */
-    double weight = [[traits objectForKey: kCTFontWeightTrait] doubleValue];
-    weight = MAX(-1, MIN(1, weight));
-    int fcWeight;
-    if (weight <= 0)
-    {
-			fcWeight = FC_WEIGHT_THIN + ((weight + 1.0) * (FC_WEIGHT_NORMAL - FC_WEIGHT_THIN));
-    }
-    else
-    {
- 			fcWeight = FC_WEIGHT_NORMAL + (weight * (FC_WEIGHT_ULTRABLACK - FC_WEIGHT_NORMAL));
-    }
-    FcPatternAddInteger(_pat, FC_WEIGHT, fcWeight);
+    [traits setObject: [NSNumber numberWithUnsignedInt: symTraits]
+               forKey: kCTFontSymbolicTrait];
   }
 
-  if ([traits objectForKey: kCTFontWidthTrait])
-  {
-    /**
-     * Scale: -1 is most condensed, 0 is normal, 1 is most spread apart
-     */
-    double width = [[traits objectForKey: kCTFontWidthTrait] doubleValue];
-    width = MAX(-1, MIN(1, width));
-    int fcWidth;
-    if (width <= 0)
-    {
-			fcWidth = FC_WIDTH_ULTRACONDENSED + ((width + 1.0) * (FC_WIDTH_NORMAL - FC_WIDTH_ULTRACONDENSED));
-    }
-    else
-    {
- 			fcWidth = FC_WIDTH_NORMAL + (width * (FC_WIDTH_ULTRAEXPANDED - FC_WIDTH_NORMAL));
-    }
-    FcPatternAddInteger(_pat, FC_WIDTH, fcWidth);
-  }
-
-  if ([traits objectForKey: kCTFontSlantTrait])
-  {
-    /**
-     * Scale: -1 is 30 degree counterclockwise slant, 0 is no slant, 1
-     * is 30 degree clockwise slant
-     */
-    double slant = [[traits objectForKey: kCTFontSlantTrait] doubleValue];
-
-    // NOTE: Fontconfig can't express this as a scale
-    if (slant > 0)
-    {
-      FcPatternAddInteger(_pat, FC_SLANT, FC_SLANT_ITALIC);
-    }
-    else
-    {
-      FcPatternAddInteger(_pat, FC_SLANT, FC_SLANT_ROMAN);
-    }
-  }
-#endif
-  return nil;
+  return traits;
 }
 
 - (NSNumber*)readSizeFromPattern: (FcPattern*)pat
@@ -529,83 +480,58 @@
 
 - (NSCharacterSet*)readCharacterSetFromPattern: (FcPattern*)pat
 {
-#if 0
-  // FIXME: Keep a cache of NSCharacterSet->FcCharSet pairs, because
-  // this is really slow.
-
-  FcCharSet *fcSet = FcCharSetCreate();
-    
-  for (uint32_t plane=0; plane<=16; plane++)
-  {
-    if ([characterSet hasMemberInPlane: plane])
-    {
-       for (uint32_t codePoint = plane<<16; codePoint <= 0xffff + (plane<<16); codePoint++)
-       {
-          if ([characterSet longCharacterIsMember: codePoint])
-          {
-            FcCharSetAddChar(fcSet, codePoint);
-          }
-       }
-    }
-  }
-
-  FcPatternAddCharSet(_pat, FC_CHARSET, fcSet);
-  FcCharSetDestroy(fcSet);
-#endif
+  // FIXME: Implement
   return nil;
 }
 
 - (NSArray*)readLanguagesFromPattern: (FcPattern*)pat
 {
-#if 0
-  FcLangSet *fcLangSet = FcLangSetCreate();
+  NSMutableArray *langs = [NSMutableArray array];
 
-  NSUInteger languagesCount = [languages count];
-  for (NSUInteger i=0; i<languagesCount; i++)
+  FcLangSet *fcLangSet;
+  if (FcResultMatch == FcPatternGetLangSet(pat, FC_LANG, 0, &fcLangSet))
   {
-    FcLangSetAdd(_pat, [[languages objectAtIndex: i] UTF8String]);
+    // FIXME: Not totally clear wheter we have to destroy this
+    FcStrSet *stringSet = FcLangSetGetLangs(fcLangSet);
+    FcStrList *setIterator = FcStrListCreate(stringSet);
+    FcChar8 *str;
+    while (NULL != (str = FcStrListNext(setIterator)))
+    {
+      [langs addObject: [NSString stringWithUTF8String: (const char *)str]];
+    }
+    FcStrListDone(setIterator);
   }
-
-  FcPatternAddLangSet(_pat, FC_LANG, fcLangSet);
-  FcLangSetDestroy(fcLangSet);
-#endif
-  return nil;
+  
+  return langs;
 }
 
 - (NSNumber*)readOrientationFromPattern: (FcPattern*)pat
 {
-#if 0
-  CTFontOrientation orient = [orientation intValue];
-  switch (orient)
+  int value;
+  if (FcResultMatch == FcPatternGetBool(pat, FC_VERTICAL_LAYOUT, 0, &value))
   {
-    default:
-    case kCTFontDefaultOrientation:
-    case kCTFontHorizontalOrientation:
-      break;
-    case kCTFontVerticalOrientation:
-      FcPatternAddBool(_pat, FC_VERTICAL_LAYOUT, FcTrue);
-      break;
+    if (value == FcTrue)
+    {
+      return [NSNumber numberWithInt: kCTFontVerticalOrientation];
+    }
+    else
+    {
+      return [NSNumber numberWithInt: kCTFontHorizontalOrientation];
+    }
   }
-#endif
   return nil;
 }
 
 - (NSNumber*)readFormatFromPattern: (FcPattern*)pat
 {
-  /*CTFontFormat fmt = [format intValue];
-  switch (fmt)
+  int value;
+  if (FcResultMatch == FcPatternGetBool(pat, FC_OUTLINE, 0, &value))
   {
-    default:
-    case kCTFontFormatUnrecognized:
-    case kCTFontFormatOpenTypePostScript:
-    case kCTFontFormatOpenTypeTrueType:
-    case kCTFontFormatTrueType:
-    case kCTFontFormatPostScript:
-      break;
-    case kCTFontFormatBitmap:
-      FcPatternAddBool(_pat, FC_OUTLINE, FcFalse);
-      break;
-  }*/
+    if (value == FcFalse)
+    {
+      return [NSNumber numberWithInt: kCTFontFormatBitmap];
+    }
+  }
   return nil;
 }
 
@@ -619,7 +545,7 @@
   id value = [[self fontAttributes] objectForKey: key];
   if (value)
   {
-    if ([[value class] isKindOfClass: valueClass])
+    if ([value isKindOfClass: valueClass])
     {
       if ([self respondsToSelector: selector])
       {
@@ -666,9 +592,9 @@
   // Call the corresponding add...: method for each element in the attributes dictionary
   [self handleAddValues];
 
-  NSLog(@"NSFontconfigFontDescriptor: Input attributes %@", attributes);
-  NSLog(@"NSFontconfigFontDescriptor: Output pattern:");
-  FcPatternPrint(_pat); 
+  //NSLog(@"NSFontconfigFontDescriptor: Input attributes %@", attributes);
+  //NSLog(@"NSFontconfigFontDescriptor: Output pattern:");
+  //FcPatternPrint(_pat); 
 
   return self;
 }
@@ -691,9 +617,19 @@
   if (!_matchedPat)
   {
     FcPattern *patCopy = FcPatternDuplicate(_pat);
+     
+    //NSLog(@"1. before substituting: ");
+    //FcPatternPrint(patCopy);
 
     FcConfigSubstitute(NULL, patCopy, FcMatchPattern); 
+
+    //NSLog(@"2. after configSubstitute: ");
+    //FcPatternPrint(patCopy);
+
     FcDefaultSubstitute(patCopy);
+
+    //NSLog(@"3. after DefaultSubstitute : ");
+    //FcPatternPrint(patCopy);
 
     // FIXME: FcFontMatch doesn't write in the result variable if the match was successful, this is a strange policy
     FcResult result = FcResultMatch;
@@ -704,8 +640,8 @@
     }
     else
     {
-      NSLog(@"FcFontMatch succeeded, attributes: ");
-      FcPatternPrint(_matchedPat);
+      //NSLog(@"FcFontMatch succeeded, attributes: ");
+      //FcPatternPrint(_matchedPat);
     }
 		FcPatternDestroy(patCopy);
   }
