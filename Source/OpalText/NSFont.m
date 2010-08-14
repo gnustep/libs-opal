@@ -41,12 +41,13 @@
 #import "NSFont.h"
 
 @implementation NSFont
-#if 0
+
 //
 // Querying the Font
 //
 - (NSRect) boundingRectForFont
 {
+  return NSMakeRect(0,0,0,0);
 }
 - (NSString*) displayName
 {
@@ -62,63 +63,83 @@
 }
 - (BOOL) isFixedPitch
 {
+  return NO;
 }
 - (const CGFloat*) matrix
 {
+  return NULL;
 }
 - (NSAffineTransform*) textTransform
 {
+  return nil;
 }
 - (CGFloat) pointSize
 {
+  return 0;
 }
 - (NSFont*) printerFont
 {
+  return nil;
 }
 - (NSFont*) screenFont
 {
+  return nil;
 }
 - (CGFloat) ascender
 {
+  return 0;
 }
 - (CGFloat) descender
 {
+  return 0;
 }
 - (CGFloat) capHeight
 {
+  return 0;
 }
 - (CGFloat) italicAngle
 {
+  return 0;
 }
 - (CGFloat) leading
 {
+  return 0;
 }
 - (NSSize) maximumAdvancement
 {
+  return NSMakeSize(0,0);
 }
 - (CGFloat) underlinePosition
 {
+  return 0;
 }
 - (CGFloat) underlineThickness
 {
+  return 0;
 }
 - (CGFloat) xHeight
 {
+  return 0;
 }
 - (NSUInteger) numberOfGlyphs
 {
+  return 0;
 }
 - (NSCharacterSet*) coveredCharacterSet
 {
+  return nil;
 }
 - (NSFontDescriptor*) fontDescriptor
 {
+  return nil;
 }
 - (NSFontRenderingMode) renderingMode
 {
+  return 0;
 }
 - (NSFont*) screenFontWithRenderingMode: (NSFontRenderingMode)mode
 {
+  return nil;
 }
 
 //
@@ -126,9 +147,11 @@
 //
 - (NSSize) advancementForGlyph: (NSGlyph)aGlyph
 {
+  return NSMakeSize(0,0);
 }
 - (NSRect) boundingRectForGlyph: (NSGlyph)aGlyph
 {
+  return NSMakeRect(0,0,0,0);
 }
 - (void) getAdvancements: (NSSizeArray)advancements
                forGlyphs: (const NSGlyph*)glyphs
@@ -147,9 +170,11 @@
 }
 - (NSGlyph) glyphWithName: (NSString*)glyphName
 {
+  return 0;
 }
 - (NSStringEncoding) mostCompatibleStringEncoding
 {
+  return 0;
 }
 
 //
@@ -201,7 +226,7 @@
                                  orientation: (CTFontOrientation)orientation
                                        count: (CFIndex)count
 {
-	CGRect r = {0};
+	CGRect r = {{0,0},{0,0}};
 	return r;
 }
 - (void) getVerticalTranslationForGraphicsGlyphs: (const CGGlyph*)glyphs
@@ -250,6 +275,6 @@
 {
 	return nil;
 }
-#endif 
+
 @end
 

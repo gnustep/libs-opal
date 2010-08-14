@@ -55,15 +55,15 @@ const CFStringRef kCTFrameProgressionAttributeName = @"kCTFrameProgressionAttrib
 
 - (NSRange)stringRange
 {
-  
+  return NSMakeRange(0,0); 
 }
 - (NSRange)visibleStringRange
 {
-
+  return NSMakeRange(0,0);
 }
 - (NSDictionary*)attributes
 {
-  
+  return nil;
 }
 - (void)drawOnContext: (CGContextRef)ctx
 {

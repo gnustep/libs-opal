@@ -28,16 +28,20 @@
 
 CFTypeID CTParagraphStyleGetTypeID()
 {
+  return nil;
 }
 
 CTParagraphStyleRef CTParagraphStyleCreate(
 	const CTParagraphStyleSetting* settings,
 	CFIndex settingCount)
 {
-
+  return nil;
 }
 
-CTParagraphStyleRef CTParagraphStyleCreateCopy(CTParagraphStyleRef paragraphStyle);
+CTParagraphStyleRef CTParagraphStyleCreateCopy(CTParagraphStyleRef paragraphStyle)
+{
+  return nil;
+}
 
 bool CTParagraphStyleGetValueForSpecifier(
 	CTParagraphStyleRef paragraphStyle,
@@ -45,5 +49,6 @@ bool CTParagraphStyleGetValueForSpecifier(
 	size_t valueBufferSize,
 	void* valueBuffer)
 {
+  return false;
 }
 

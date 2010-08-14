@@ -73,18 +73,22 @@
  
 CFIndex CTRunGetGlyphCount(CTRunRef run)
 {
+  return 0;
 }
 
 CFDictionaryRef CTRunGetAttributes(CTRunRef run)
 {
+  return nil;
 }
 
 CTRunStatus CTRunGetStatus(CTRunRef run)
 {
+  return 0;
 }
 
 const CGGlyph* CTRunGetGlyphsPtr(CTRunRef run)
 {
+  return NULL;
 }
 
 void CTRunGetGlyphs(
@@ -96,6 +100,7 @@ void CTRunGetGlyphs(
 
 const CGPoint* CTRunGetPositionsPtr(CTRunRef run)
 {
+  return NULL;
 }
 
 void CTRunGetPositions(
@@ -107,6 +112,7 @@ void CTRunGetPositions(
 
 const CGSize* CTRunGetAdvancesPtr(CTRunRef run)
 {
+  return NULL;
 }
 
 void CTRunGetAdvances(
@@ -118,6 +124,7 @@ void CTRunGetAdvances(
 
 const CFIndex *CTRunGetStringIndicesPtr(CTRunRef run)
 {
+  return NULL;
 }
 
 void CTRunGetStringIndices(
@@ -129,6 +136,7 @@ void CTRunGetStringIndices(
 
 CFRange CTRunGetStringRange(CTRunRef run)
 {
+  return NSMakeRange(0,0);
 }
 
 double CTRunGetTypographicBounds(
@@ -138,6 +146,7 @@ double CTRunGetTypographicBounds(
 	CGFloat *descent,
 	CGFloat *leading)
 {
+  return 0;
 }
 
 CGRect CTRunGetImageBounds(
@@ -145,10 +154,12 @@ CGRect CTRunGetImageBounds(
 	CGContextRef context,
 	CFRange range)
 {
+  return CGRectMake(0,0,0,0);
 }
 
 CGAffineTransform CTRunGetTextMatrix(CTRunRef run)
 {
+  return CGAffineTransformIdentity;
 }
 
 void CTRunDraw(

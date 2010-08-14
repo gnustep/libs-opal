@@ -75,17 +75,17 @@
                     truncationType: (CTLineTruncationType)truncationType
                    truncationToken:	(CTLineRef)truncationToken
 {
-
+  return nil;
 }
 
 - (double)penOffset
 {
-
+  return 0;
 }
 
 - (CFRange)stringRange
 {
-
+  return NSMakeRange(0,0);
 }
 @end
 
@@ -116,7 +116,7 @@ CTLineRef CTLineCreateJustifiedLine(
 	CGFloat justificationFactor,
 	double justificationWidth)
 {
-
+  return nil;
 }
 
 CFIndex CTLineGetGlyphCount(CTLineRef line)
@@ -150,7 +150,7 @@ CGRect CTLineGetImageBounds(
 	CTLineRef line,
 	CGContextRef context)
 {
-
+  return CGRectMake(0,0,0,0);
 }
 
 double CTLineGetTypographicBounds(
@@ -159,19 +159,19 @@ double CTLineGetTypographicBounds(
 	CGFloat* descent,
 	CGFloat* leading)
 {
-
+  return 0;
 }
 
 double CTLineGetTrailingWhitespaceWidth(CTLineRef line)
 {
-
+  return 0;
 }
 
 CFIndex CTLineGetStringIndexForPosition(
 	CTLineRef line,
 	CGPoint position)
 {
-
+  return 0;
 }
 
 CGFloat CTLineGetOffsetForStringIndex(
@@ -179,7 +179,7 @@ CGFloat CTLineGetOffsetForStringIndex(
 	CFIndex charIndex,
 	CGFloat* secondaryOffset)
 {
-
+  return 0;
 }
 
 CFTypeID CTLineGetTypeID()
