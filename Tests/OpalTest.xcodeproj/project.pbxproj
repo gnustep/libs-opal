@@ -40,6 +40,10 @@
 		66A1263411C1ADCA0090B514 /* shadows.m in Sources */ = {isa = PBXBuildFile; fileRef = 66A125D711C1AAA00090B514 /* shadows.m */; };
 		66A1263511C1ADD10090B514 /* layers.m in Sources */ = {isa = PBXBuildFile; fileRef = 66A125D311C1AAA00090B514 /* layers.m */; };
 		66A1264D11C1B64E0090B514 /* ApplicationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 66A1264C11C1B64E0090B514 /* ApplicationServices.framework */; };
+		66AE63B81234398400A4D458 /* cocoa.m in Sources */ = {isa = PBXBuildFile; fileRef = 66A125D011C1AA700090B514 /* cocoa.m */; };
+		66AE63BA1234398400A4D458 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
+		66AE63BB1234398400A4D458 /* ApplicationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 66A1264C11C1B64E0090B514 /* ApplicationServices.framework */; };
+		66AE63C1123439A600A4D458 /* colorspace.m in Sources */ = {isa = PBXBuildFile; fileRef = 66AE63B1123437EC00A4D458 /* colorspace.m */; };
 		66C0E42C11C82B7A00A20BBE /* cocoa.m in Sources */ = {isa = PBXBuildFile; fileRef = 66A125D011C1AA700090B514 /* cocoa.m */; };
 		66C0E42E11C82B7A00A20BBE /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
 		66C0E43411C82BA100A20BBE /* images.m in Sources */ = {isa = PBXBuildFile; fileRef = 66C0E42411C82B7000A20BBE /* images.m */; };
@@ -85,6 +89,8 @@
 		66A1260E11C1ABF70090B514 /* shadows.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = shadows.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		66A1262311C1AC090090B514 /* qeb2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = qeb2.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		66A1264C11C1B64E0090B514 /* ApplicationServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ApplicationServices.framework; path = System/Library/Frameworks/ApplicationServices.framework; sourceTree = SDKROOT; };
+		66AE63B1123437EC00A4D458 /* colorspace.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = colorspace.m; sourceTree = "<group>"; };
+		66AE63BF1234398400A4D458 /* gradients.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = gradients.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		66C0E42411C82B7000A20BBE /* images.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = images.m; sourceTree = "<group>"; };
 		66C0E43211C82B7A00A20BBE /* images.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = images.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		66C0E43F11C82D1300A20BBE /* test.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = test.jpg; sourceTree = "<group>"; };
@@ -151,6 +157,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		66AE63B91234398400A4D458 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				66AE63BA1234398400A4D458 /* Cocoa.framework in Frameworks */,
+				66AE63BB1234398400A4D458 /* ApplicationServices.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		66C0E42D11C82B7A00A20BBE /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -192,6 +207,7 @@
 				66C0E43211C82B7A00A20BBE /* images.app */,
 				6635BB7C12167F5800EB01D2 /* gradients.app */,
 				6635BB8A12167F7400EB01D2 /* textlayout.app */,
+				66AE63BF1234398400A4D458 /* gradients.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -211,6 +227,7 @@
 				66A125D711C1AAA00090B514 /* shadows.m */,
 				66A125D811C1AAA00090B514 /* shapes.m */,
 				66A125D911C1AAA00090B514 /* texttest.m */,
+				66AE63B1123437EC00A4D458 /* colorspace.m */,
 				66C0E44311C82D1F00A20BBE /* Resources */,
 				29B97323FDCFA39411CA2CEA /* Frameworks */,
 				19C28FACFE9D520D11CA2CBB /* Products */,
@@ -359,6 +376,23 @@
 			productReference = 66A1262311C1AC090090B514 /* qeb2.app */;
 			productType = "com.apple.product-type.application";
 		};
+		66AE63B41234398400A4D458 /* colorspace */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 66AE63BC1234398400A4D458 /* Build configuration list for PBXNativeTarget "colorspace" */;
+			buildPhases = (
+				66AE63B51234398400A4D458 /* Resources */,
+				66AE63B61234398400A4D458 /* Sources */,
+				66AE63B91234398400A4D458 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = colorspace;
+			productName = layers;
+			productReference = 66AE63BF1234398400A4D458 /* gradients.app */;
+			productType = "com.apple.product-type.application";
+		};
 		66C0E42511C82B7A00A20BBE /* images */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 66C0E42F11C82B7A00A20BBE /* Build configuration list for PBXNativeTarget "images" */;
@@ -396,6 +430,7 @@
 				66C0E42511C82B7A00A20BBE /* images */,
 				6635BB7112167F5800EB01D2 /* gradients */,
 				6635BB7F12167F7400EB01D2 /* textlayout */,
+				66AE63B41234398400A4D458 /* colorspace */,
 			);
 		};
 /* End PBXProject section */
@@ -444,6 +479,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		66A1261C11C1AC090090B514 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		66AE63B51234398400A4D458 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -519,6 +561,15 @@
 				66A1263211C1ADC40090B514 /* qeb2-draw.m in Sources */,
 				66A1263311C1ADC40090B514 /* rects.m in Sources */,
 				66A1262811C1AD940090B514 /* cocoa.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		66AE63B61234398400A4D458 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				66AE63C1123439A600A4D458 /* colorspace.m in Sources */,
+				66AE63B81234398400A4D458 /* cocoa.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -735,6 +786,48 @@
 			};
 			name = Release;
 		};
+		66AE63BD1234398400A4D458 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_ENABLE_SYMBOL_SEPARATION = NO;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				INSTALL_PATH = "$(HOME)/Applications";
+				OTHER_LDFLAGS = (
+					"-framework",
+					Foundation,
+					"-framework",
+					AppKit,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = gradients;
+			};
+			name = Debug;
+		};
+		66AE63BE1234398400A4D458 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_ENABLE_SYMBOL_SEPARATION = NO;
+				GCC_MODEL_TUNING = G5;
+				INSTALL_PATH = "$(HOME)/Applications";
+				OTHER_LDFLAGS = (
+					"-framework",
+					Foundation,
+					"-framework",
+					AppKit,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = layers;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
 		66C0E43011C82B7A00A20BBE /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -856,6 +949,15 @@
 			buildConfigurations = (
 				66A1262111C1AC090090B514 /* Debug */,
 				66A1262211C1AC090090B514 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		66AE63BC1234398400A4D458 /* Build configuration list for PBXNativeTarget "colorspace" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				66AE63BD1234398400A4D458 /* Debug */,
+				66AE63BE1234398400A4D458 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

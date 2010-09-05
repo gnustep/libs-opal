@@ -1,6 +1,6 @@
 include $(GNUSTEP_MAKEFILES)/common.make
 
-TOOL_NAME = qeb2 shadows shapes layers texttest textlayout pdf images gradients
+TOOL_NAME = qeb2 shadows shapes layers texttest textlayout pdf images gradients colorspace
 
 ifeq ($(GNUSTEP_TARGET_OS), mingw32)
 main_file = win32.m
@@ -18,6 +18,8 @@ pdf_OBJC_FILES = pdf.m arcs.m ovals.m rects.m
 images_OBJC_FILES = $(main_file) images.m
 images_RESOURCE_FILES = test.png test.jpg
 gradients_OBJC_FILES = $(main_file) gradients.m
+colorspace_OBJC_FILES = $(main_file) colorspace.m
+
 
 ifneq ($(GNUSTEP_TARGET_OS), mingw32)
 ADDITIONAL_LDFLAGS += -lfontconfig -lX11 -lXrender -lm 
