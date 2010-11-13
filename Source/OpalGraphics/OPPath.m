@@ -1,22 +1,22 @@
 /** <title>CGPath</title>
- 
+
  <abstract>C Interface to graphics drawing library</abstract>
- 
+
  Copyright <copy>(C) 2010 Free Software Foundation, Inc.</copy>
 
  Author: Eric Wasylishen
  Date: August 2010
-  
+
  This library is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
  License as published by the Free Software Foundation; either
  version 2.1 of the License, or (at your option) any later version.
- 
+
  This library is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  Lesser General Public License for more details.
- 
+
  You should have received a copy of the GNU Lesser General Public
  License along with this library; if not, write to the Free Software
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
@@ -53,14 +53,14 @@ static NSUInteger OPNumberOfPointsForElementType(CGPathElementType type)
 
 - (id) copyWithZone: (NSZone*)zone
 {
-  return [self retain];    
+  return [self retain];
 }
 
 - (id) initWithCGPath: (CGPathRef)path
 {
   if (path)
   {
-    [self release];    
+    [self release];
     return [path retain];
   }
   else
@@ -98,7 +98,7 @@ static NSUInteger OPNumberOfPointsForElementType(CGPathElementType type)
       default:
         break;
     }
-  }  
+  }
   return elem.type;
 }
 
@@ -114,27 +114,27 @@ static NSUInteger OPNumberOfPointsForElementType(CGPathElementType type)
   }
 
   CGPath *path2 = (CGPath*)otherObj;
-  
+
   NSUInteger count1 = [self count];
   NSUInteger count2 = [path2 count];
-  
+
   if (count1 != count2)
   {
     return NO;
   }
-    
+
   for (NSUInteger i=0; i<count1; i++)
   {
     CGPoint points1[3];
     CGPoint points2[3];
     CGPathElementType type1 = [self elementTypeAtIndex: i points: points1];
     CGPathElementType type2 = [path2 elementTypeAtIndex: i points: points2];
-    
+
     if (type1 != type2)
     {
       return NO;
     }
-    
+
     NSUInteger numPoints = OPNumberOfPointsForElementType(type1);
     for (NSUInteger p=0; p<numPoints; p++)
     {
@@ -167,7 +167,7 @@ static NSUInteger OPNumberOfPointsForElementType(CGPathElementType type)
   if (_elementsArray[1].points[0].x == _elementsArray[0].points[0].x)
   {
     clockwise = YES;
-  } 
+  }
   if (_elementsArray[1].points[0].y == _elementsArray[0].points[0].y)
   {
     clockwise = NO;
@@ -275,4 +275,97 @@ static NSUInteger OPNumberOfPointsForElementType(CGPathElementType type)
 }
 
 @end
+
+
+/*
+ * Functions to generate curves as approximations of circular arcs. Follows the
+ * algorithm used by cairo.
+ */
+
+
+/*
+ * The values in this table come from cairo's cairo-arc.c. We use them to get
+ * simliar appearance for arcs drawn by cairo itself and those added to CGPaths.
+ * The values apply for (M_PI / (index + 1)).
+ */
+static CGFloat approximationErrorTable[] = {
+  0.0185185185185185036127,
+  0.000272567143730179811158,
+  2.38647043651461047433e-05,
+  4.2455377443222443279e-06 ,
+  1.11281001494389081528e-06,
+  3.72662000942734705475e-07,
+  1.47783685574284411325e-07,
+  6.63240432022601149057e-08,
+  3.2715520137536980553e-08,
+  1.73863223499021216974e-08,
+  9.81410988043554039085e-09,
+};
+
+static NSUInteger approximationErrorTableCount = 11;
+
+static inline CGFloat
+_OPPathArcAxisLengthForRadiusByApplyingTransform(CGFloat radius,
+  const CGAffineTransform *m)
+{
+  if (NULL == m)
+  {
+    return radius;
+  }
+  CGFloat i = ((m->a * m->a) + (m->b * m->b));
+  CGFloat j = ((m->c * m->c) + (m->d * m->d));
+  CGFloat f = (0.5 * (i + j));
+  CGFloat g = (0.5 * (i - j));
+  CGFloat h = ((m->a * m->c) + (m->b * m->d));
+
+  //TODO: Maybe provide hypot() for non C99 compliant compilers?
+  return (radius * sqrt(f + hypot(g, h)));
+}
+
+
+static inline CGFloat
+_OPPathArcErrorForAngle(CGFloat angle)
+{
+  // This formula is also used for error computation in cairo:
+  return 2.0/27.0 * pow (sin (angle / 4), 6) / pow (cos (angle / 4), 2);
+}
+
+// Hopefully the compiler will specialize this for tolerance == 0.1 (default):
+static inline CGFloat
+_OPPathArcMaxAngleForTolerance(CGFloat tolerance)
+{
+  CGFloat angle = 0;
+  CGFloat error = 0;
+  NSUInteger index = 0;
+
+  for (index = 0; index < approximationErrorTableCount; index++)
+  {
+    if (approximationErrorTable[index] < tolerance)
+	{
+		return (M_PI / (index + 1));
+	}
+  }
+  // Increment to get rid of the offset:
+  index++;
+  do
+  {
+    angle = (M_PI / index++);
+	error = _OPPathArcErrorForAngle(angle);
+  } while (error > tolerance);
+  return 0;
+}
+
+NSUInteger
+_OPPathRequiredArcSegments(CGFloat angle,
+  CGFloat radius,
+  const CGAffineTransform *m)
+{
+  // Transformation can turn the circle arc into the arc of an ellipse, we need
+  // its major axis.
+  CGFloat majorAxis = _OPPathArcAxisLengthForRadiusByApplyingTransform(radius, m);
+  CGFloat maxAngle = _OPPathArcMaxAngleForTolerance((OPPathArcDefaultTolerance / majorAxis));
+
+  return ceil((fabs(angle) / maxAngle));
+}
+
 

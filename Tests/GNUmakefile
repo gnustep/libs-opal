@@ -1,6 +1,6 @@
 include $(GNUSTEP_MAKEFILES)/common.make
 
-TOOL_NAME = qeb2 shadows shapes layers texttest textlayout pdf images gradients colorspace
+TOOL_NAME = qeb2 shadows shapes layers texttest textlayout pdf images gradients colorspace paths
 
 ifeq ($(GNUSTEP_TARGET_OS), mingw32)
 main_file = win32.m
@@ -11,6 +11,7 @@ endif
 qeb2_OBJC_FILES = $(main_file) qeb2-draw.m
 shadows_OBJC_FILES = $(main_file) shadows.m
 shapes_OBJC_FILES = $(main_file) arcs.m ovals.m rects.m shapes.m
+paths_OBJC_FILES = $(main_file) paths.m
 layers_OBJC_FILES = $(main_file) layers.m
 texttest_OBJC_FILES = $(main_file) texttest.m
 textlayout_OBJC_FILES = $(main_file) textlayout.m

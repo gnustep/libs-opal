@@ -1,22 +1,22 @@
 /** <title>CGPath</title>
- 
+
  <abstract>C Interface to graphics drawing library</abstract>
- 
+
  Copyright <copy>(C) 2010 Free Software Foundation, Inc.</copy>
 
  Author: Eric Wasylishen
  Date: June 2010
-  
+
  This library is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
  License as published by the Free Software Foundation; either
  version 2.1 of the License, or (at your option) any later version.
- 
+
  This library is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  Lesser General Public License for more details.
- 
+
  You should have received a copy of the GNU Lesser General Public
  License along with this library; if not, write to the Free Software
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
@@ -75,7 +75,7 @@ CGRect CGPathGetBoundingBox(CGPathRef path)
   CGFloat minY = 0.0;
   CGFloat maxX = 0.0;
   CGFloat maxY = 0.0;
-  
+
   for (NSUInteger i=0; i<count; i++)
   {
     CGPoint points[3];
@@ -101,7 +101,7 @@ CGRect CGPathGetBoundingBox(CGPathRef path)
         numPoints = 0;
         break;
     }
-    
+
     for (NSUInteger p=0; p<numPoints; p++)
     {
       if (points[p].x < minX)
@@ -122,7 +122,7 @@ CGRect CGPathGetBoundingBox(CGPathRef path)
       }
     }
   }
-  
+
   return CGRectMake(minX, minY, (maxX-minX), (maxY-minY));
 }
 
@@ -132,14 +132,14 @@ CGPoint CGPathGetCurrentPoint(CGPathRef path)
   {
     return CGPointZero;
   }
-  
+
   NSUInteger count = [path count];
   // FIXME: ugly loop
   for (NSUInteger i=(count-1); i>=0 && i<count; i--)
   {
     CGPoint points[3];
     CGPathElementType type =[path elementTypeAtIndex: i points: points];
-    
+
     switch (type)
     {
       case kCGPathElementMoveToPoint:
@@ -152,19 +152,53 @@ CGPoint CGPathGetCurrentPoint(CGPathRef path)
       case kCGPathElementCloseSubpath:
       default:
         break;
-    }    
+    }
   }
   return CGPointZero;
 }
 
 bool CGPathContainsPoint(
-  CGPathRef path, 
-  const CGAffineTransform *m, 
-  CGPoint point, 
+  CGPathRef path,
+  const CGAffineTransform *m,
+  CGPoint point,
   int eoFill)
 {
-  // FIXME: use cairo function 
+  // FIXME: use cairo function
   return false;
+}
+
+/**
+ * Implements approximation of an arc through a cubic bezier spline. The
+ * algorithm used is the same as in cairo and comes from Goldapp, Michael:
+ * "Approximation of circular arcs by cubic poynomials". In: Computer Aided
+ * Geometric Design 8 (1991), pp. 227--238.
+ */
+static inline void
+_OPPathAddArcSegment(CGMutablePathRef path,
+  const CGAffineTransform *m,
+  CGFloat x,
+  CGFloat y,
+  CGFloat radius,
+  CGFloat startAngle,
+  CGFloat endAngle)
+{
+  CGFloat startSinR = radius * sin(startAngle);
+  CGFloat startCosR = radius * cos(startAngle);
+  CGFloat endSinR = radius * sin(endAngle);
+  CGFloat endCosR = radius * cos(endAngle);
+  CGFloat hValue = 4.0/3.0 * tan ((endAngle - startAngle) / 4.0);
+
+
+  CGFloat cp1x = x + startCosR - hValue * startSinR;
+  CGFloat cp1y = y + startSinR + hValue * startCosR;
+  CGFloat cp2x = x + endCosR + hValue * endSinR;
+  CGFloat cp2y = y + endSinR - hValue * endCosR;
+
+  CGPathAddCurveToPoint(path, m,
+    cp1x, cp1y,
+    cp2x, cp2y,
+    x + endCosR,
+    y + endSinR);
 }
 
 void CGPathAddArc(
@@ -177,7 +211,95 @@ void CGPathAddArc(
   CGFloat endAngle,
   int clockwise)
 {
-  // FIXME:
+  CGFloat angleValue = (endAngle - startAngle);
+  // Normalize the distance:
+  while ((angleValue) > (4 * M_PI))
+  {
+    endAngle -= (2 * M_PI);
+    angleValue = (endAngle - startAngle);
+  }
+
+  /*
+   * When adding an arc with an angle greater than pi, do it in parts and
+   * recurse accordingly.
+   */
+  if (angleValue > M_PI)
+  {
+	// Define the angle to cut the parts:
+	CGFloat intermediateAngle = (startAngle + (angleValue / 2.0));
+
+	// Setup part start and end angles according to direction:
+	CGFloat firstStart = clockwise ? startAngle : intermediateAngle;
+	CGFloat firstEnd = clockwise ? intermediateAngle :  endAngle;
+	CGFloat secondStart = clockwise ? intermediateAngle: startAngle;
+	CGFloat secondEnd = clockwise ? endAngle : intermediateAngle;
+
+	// Add the parts:
+	CGPathAddArc(path, m,
+	  x, y,
+	  r,
+	  firstStart, firstEnd,
+	  clockwise);
+	CGPathAddArc(path, m,
+	  x, y,
+	  r,
+	  secondStart, secondEnd,
+	  clockwise);
+  }
+  else if (0 != angleValue)
+  {
+    // It only makes sense to add the arc if it actually has a non-zero angle.
+    NSUInteger index = 0;
+	NSUInteger segmentCount = 0;
+	CGFloat thisAngle = 0;
+	CGFloat angleStep = 0;
+
+	/*
+	 * Calculate how many segments we need and set the stepping accordingly.
+	 *
+	 * FIXME: We are using a fixed tolerance to find the number of elements
+	 * needed. This is necessary because we construct the path independently
+	 * from the surface we draw on. Maybe we should store some additional data
+	 * so we can better approximate the arc when we go to draw the curves?
+	 */
+	segmentCount = _OPPathRequiredArcSegments(angleValue, r, m);
+	angleStep = (angleValue / (CGFloat)segmentCount);
+
+	// Adjust for clockwiseness:
+	if (clockwise)
+	{
+	  thisAngle = startAngle;
+	}
+	else
+	{
+	  thisAngle = endAngle;
+	  angleStep = - angleStep;
+	}
+
+	if (CGPathIsEmpty(path))
+	{
+	  // Move to the start of drawing:
+	  CGPathMoveToPoint(path, m,
+	    (x + (r * cos(thisAngle))),
+	    (y + (r * sin(thisAngle))));
+	}
+	else
+	{
+		CGPathAddLineToPoint(path, m,
+	    (x + (r * cos(thisAngle))),
+	    (y + (r * sin(thisAngle))));
+	}
+
+	// Add the segments to the path:
+	for (index = 0; index < segmentCount; index++, thisAngle += angleStep)
+	{
+	  _OPPathAddArcSegment(path, m,
+	  x, y,
+	  r,
+	  thisAngle,
+	  (thisAngle + angleStep));
+	}
+  }
 }
 
 void CGPathAddArcToPoint(
@@ -202,7 +324,20 @@ void CGPathAddCurveToPoint(
   CGFloat x,
   CGFloat y)
 {
-  // FIXME:
+  CGPoint points[3];
+  points[0] = CGPointMake(cx1, cy1);
+  points[1] = CGPointMake(cx2, cy2);
+  points[2] = CGPointMake(x, y);
+  if (NULL != m)
+  {
+     NSUInteger i = 0;
+	 for (i = 0;i < 3; i++)
+	 {
+		 points[i] = CGPointApplyAffineTransform(points[i], *m);
+	 }
+  }
+  [(CGMutablePath*)path addElementWithType: kCGPathElementAddCurveToPoint
+                                    points: (CGPoint*)&points];
 }
 
 void CGPathAddLines(
@@ -313,7 +448,7 @@ void CGPathApply(
     CGPathElement e;
     e.type = [path elementTypeAtIndex: i points: points];
     e.points = points;
-    function(info, &e); 
+    function(info, &e);
   }
 }
 
@@ -339,8 +474,8 @@ void CGPathCloseSubpath(CGMutablePathRef path)
 }
 
 void CGPathAddEllipseInRect(
-  CGMutablePathRef path, 
-  const CGAffineTransform *m, 
+  CGMutablePathRef path,
+  const CGAffineTransform *m,
   CGRect rect)
 {
   // FIXME:
