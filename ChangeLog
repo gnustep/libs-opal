@@ -1,3 +1,13 @@
+2010-11-15 Fred Kiefer <FredKiefer@gmx.de>
+
+	* Source/OpalText/CTGlyphInfo.m
+	* Source/OpalText/CTFontDescriptor.m
+	* Source/OpalText/CTFont.m
+	* Source/OpalText/CTFramesetter.m
+	* Source/OpalText/CTFontCollection.m
+	* Tests/gradients.m
+	* Tests/x11.m: Clean up line endings and remove some compiler warnings.
+
 2010-02-11  Nicola Pero  <nicola.pero@meta-innovation.com>
 
 	* Source/GNUmakefile: Use := when setting ADDITIONAL_CPPFLAGS and

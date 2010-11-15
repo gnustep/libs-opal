@@ -39,7 +39,8 @@ const CFStringRef kCTFontCollectionRemoveDuplicatesOption = @"kCTFontCollectionR
 }
 
 - (id)initWithAvailableFontsWithOptions: (NSDictionary*)opts;
-- (id)initWithFontDescriptors: (NSArray*)descriptors options: (NSDictionary*)opts;
+- (id)initWithFontDescriptors: (NSArray*)descriptors 
+                      options: (NSDictionary*)opts;
 
 - (CTFontCollection*)collectionByAddingFontDescriptors: (NSArray*)descriptors
                                                options: (NSDictionary*)opts;
@@ -51,12 +52,13 @@ const CFStringRef kCTFontCollectionRemoveDuplicatesOption = @"kCTFontCollectionR
 
 @implementation CTFontCollection
 
-- (id)initWithAvailableFonts
+- (id)initWithAvailableFontsWithOptions: (NSDictionary*)opts
 {
   // FIXME:
   NSArray *allDescriptors = [NSArray array];
-  return [self initWithFontDescriptors: allDescriptors options: nil];
+  return [self initWithFontDescriptors: allDescriptors options: opts];
 }
+
 - (id)initWithFontDescriptors: (NSArray*)descriptors options: (NSDictionary*)opts
 {
   self = [super init];
@@ -76,6 +78,7 @@ const CFStringRef kCTFontCollectionRemoveDuplicatesOption = @"kCTFontCollectionR
   }
   return self;
 }
+
 - (CTFontCollection*)collectionByAddingFontDescriptors: (NSArray*)descriptors
                                                options: (NSDictionary*)opts
 {
@@ -84,14 +87,17 @@ const CFStringRef kCTFontCollectionRemoveDuplicatesOption = @"kCTFontCollectionR
                                                                            options: opts];
   return [collection autorelease];
 }
+
 - (NSArray*)fontDescriptors
 {
   return _descriptors;
 }
+
 - (NSArray*)fontDescriptorsSortedWithCallback: (CTFontCollectionSortDescriptorsCallback)cb
                                          info: (void*)info
 {
-  return [_descriptors sortedArrayUsingFunction: cb context: info];
+  return [_descriptors sortedArrayUsingFunction: (NSComparisonResult (*)(id, id, void*))cb 
+                                        context: info];
 }
 
 @end
@@ -109,7 +115,7 @@ CTFontCollectionRef CTFontCollectionCreateCopyWithFontDescriptors(
 
 CTFontCollectionRef CTFontCollectionCreateFromAvailableFonts(CFDictionaryRef opts)
 {
-  return [[CTFontCollection alloc] initWithAvailableFonts];
+  return [[CTFontCollection alloc] initWithAvailableFontsWithOptions: opts];
 }
 
 CFArrayRef CTFontCollectionCreateMatchingFontDescriptors(CTFontCollectionRef collection)
@@ -129,11 +135,10 @@ CTFontCollectionRef CTFontCollectionCreateWithFontDescriptors(
   CFArrayRef descriptors,
   CFDictionaryRef opts)
 {
- return [[CTFontCollection alloc] initWithFontDescriptors:descriptors options: opts];
+ return [[CTFontCollection alloc] initWithFontDescriptors: descriptors options: opts];
 }
 
 CFTypeID CTFontCollectionGetTypeID()
 {
   return (CFTypeID)[CTFontCollection class];
 }
-

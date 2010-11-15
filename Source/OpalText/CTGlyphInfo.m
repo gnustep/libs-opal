@@ -47,14 +47,14 @@
   CGFontIndex _characterIdentifier;
 }
 
-- (CTGlyphInfoRef) initWithGlyphName:	(NSString*)glyphName
+- (CTGlyphInfoRef) initWithGlyphName: (NSString*)glyphName
                                 font: (CTFontRef)font
                           baseString: (NSString*)baseString;
 - (CTGlyphInfoRef) initWithGlyph: (CGGlyph)glyph
                             font: (CTFontRef)font
                       baseString: (NSString*)baseString;
 - (CTGlyphInfoRef) initWithCharacterIdentifier: (CGFontIndex)cid
-                                    collection: (CTCharacterCollection)collection
+                           characterCollection: (CTCharacterCollection)collection
                                     baseString: (NSString*)baseString;
 - (CFStringRef) glyphName;
 - (CGFontIndex) characterIdentifier;
@@ -64,7 +64,7 @@
 
 @implementation CTGlyphInfo
 
-- (CTGlyphInfoRef) initWithGlyphName:	(NSString*)glyphName
+- (CTGlyphInfoRef) initWithGlyphName: (NSString*)glyphName
                                 font: (CTFontRef)font
                           baseString: (NSString*)baseString
 {
@@ -80,6 +80,7 @@
 
   return self;
 }
+
 - (CTGlyphInfoRef) initWithGlyph: (CGGlyph)glyph
                             font: (CTFontRef)font
                       baseString: (NSString*)baseString
@@ -99,6 +100,7 @@
 
   return self;
 }
+
 - (CTGlyphInfoRef) initWithCharacterIdentifier: (CGFontIndex)cid
                            characterCollection: (CTCharacterCollection)collection
                                     baseString: (NSString*)baseString

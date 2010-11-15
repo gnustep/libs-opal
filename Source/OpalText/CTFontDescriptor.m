@@ -25,6 +25,7 @@
 #include <CoreText/CTFontDescriptor.h>
 #include <CoreText/CTFont.h>
 
+#import <Foundation/NSLocale.h>
 #import "NSFontDescriptor.h"
 
 /* Constants */

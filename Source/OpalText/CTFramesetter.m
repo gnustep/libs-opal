@@ -42,11 +42,10 @@
                               path: (CGPathRef)path
                         attributes: (NSDictionary*)attributes;
 - (CTTypesetterRef)typesetter;
-- (CFIndex)suggestFrameSizeWithConstraints: (CFIndex)start
-	                                   range: (CFRange)stringRange
-                                attributes: (CFDictionaryRef)attributes
-                               constraints: (CGSize)constraints
-                                  fitRange: (CFRange*)fitRange;
+- (CGSize)suggestFrameSizeWithRange: (CFRange)stringRange
+                          attributes: (CFDictionaryRef)attributes
+                         constraints: (CGSize)constraints
+                            fitRange: (CFRange*)fitRange;
 
 @end
 
@@ -65,12 +64,14 @@
 
   return self;
 }
+
 - (void)dealloc
 {
   [_string release];
   [_ts release];
   [super dealloc];
 }
+
 - (CTFrameRef)createFrameWithRange: (CFRange)range
                               path: (CGPathRef)path
                         attributes: (NSDictionary*)attributes
@@ -110,10 +111,12 @@
 
   return frame;
 }
+
 - (CTTypesetterRef)typesetter
 {
   return _ts;
 }
+
 - (CGSize)suggestFrameSizeWithRange: (CFRange)stringRange
                          attributes: (CFDictionaryRef)attributes
                         constraints: (CGSize)constraints

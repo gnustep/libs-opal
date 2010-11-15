@@ -205,7 +205,7 @@ CTFontRef CTFontCreateUIFontForLanguage(
 {
   if ([[NSFont class] respondsToSelector:@selector(UIFontWithType:size:forLangage:)])
   {
-    return [[NSFont UIFontWithType: type size: size language: language] retain];
+    return [[NSFont UIFontWithType: type size: size forLanguage: language] retain];
   }
   else
   {
