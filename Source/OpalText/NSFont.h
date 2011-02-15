@@ -1,4 +1,4 @@
-/* 
+/*
    NSFont.h
 
    The font class
@@ -8,7 +8,7 @@
    Author:  Scott Christley <scottc@net-community.com>
    Author:  Ovidiu Predescu <ovidiu@net-community.com>
    Date: 1996, 1997
-   
+
    This file is part of the GNUstep GUI Library.
 
    This library is free software; you can redistribute it and/or
@@ -23,10 +23,10 @@
 
    You should have received a copy of the GNU Lesser General Public
    License along with this library; see the file COPYING.LIB.
-   If not, see <http://www.gnu.org/licenses/> or write to the 
-   Free Software Foundation, 51 Franklin Street, Fifth Floor, 
+   If not, see <http://www.gnu.org/licenses/> or write to the
+   Free Software Foundation, 51 Franklin Street, Fifth Floor,
    Boston, MA 02110-1301, USA.
-*/ 
+*/
 
 #ifndef _GNUstep_H_NSFont
 #define _GNUstep_H_NSFont
@@ -58,9 +58,9 @@ typedef enum _NSGlyphRelation {
 
 typedef enum _NSMultibyteGlyphPacking {
   NSOneByteGlyphPacking,
-  NSJapaneseEUCGlyphPacking, 
+  NSJapaneseEUCGlyphPacking,
   NSAsciiWithDoubleByteEUCGlyphPacking,
-  NSTwoByteGlyphPacking, 
+  NSTwoByteGlyphPacking,
   NSFourByteGlyphPacking
 } NSMultibyteGlyphPacking;
 
@@ -142,7 +142,7 @@ const CGFloat *NSFontIdentityMatrix;
 //
 // CTFont private
 //
-+ (NSFont*) fontWithDescriptor: (NSFontDescriptor*)descriptor 
++ (NSFont*) fontWithDescriptor: (NSFontDescriptor*)descriptor
                        options: (CTFontOptions)options;
 + (NSFont*) UIFontWithType: (CTFontUIFontType)type
                       size: (CGFloat)size
@@ -184,6 +184,8 @@ const CGFloat *NSFontIdentityMatrix;
        		          matrix: (const CGFloat*)fontMatrix
       additionalDescriptor: (NSFontDescriptor*)descriptor;
 
+- (id)_initWithDescriptor: (NSFontDescriptor*)descriptor
+                  options: (CTFontOptions)options;
 
 // Put in -gui:
 #if 0
@@ -191,15 +193,15 @@ const CGFloat *NSFontIdentityMatrix;
 // Creating a Font Object
 //
 
-+ (NSFont*) fontWithName: (NSString*)aFontName 
++ (NSFont*) fontWithName: (NSString*)aFontName
                   matrix: (const CGFloat*)fontMatrix;
 + (NSFont*) fontWithName: (NSString*)aFontName
                     size: (CGFloat)fontSize;
 + (NSFont*) fontWithDescriptor: (NSFontDescriptor*)descriptor size: (CGFloat)size;
-+ (NSFont*) fontWithDescriptor: (NSFontDescriptor*)descriptor 
++ (NSFont*) fontWithDescriptor: (NSFontDescriptor*)descriptor
                  textTransform: (NSAffineTransform*)transform;
 // This method was a mistake in the 10.4 documentation
-+ (NSFont*) fontWithDescriptor: (NSFontDescriptor*)descriptor 
++ (NSFont*) fontWithDescriptor: (NSFontDescriptor*)descriptor
                           size: (CGFloat)size
                  textTransform: (NSAffineTransform*)transform;
 
@@ -263,22 +265,22 @@ const CGFloat *NSFontIdentityMatrix;
 - (NSPoint) positionOfGlyph: (NSGlyph)curGlyph
 	    precededByGlyph: (NSGlyph)prevGlyph
 		  isNominal: (BOOL*)nominal;
-- (NSPoint) positionOfGlyph: (NSGlyph)aGlyph 
-	       forCharacter: (unichar)aChar 
+- (NSPoint) positionOfGlyph: (NSGlyph)aGlyph
+	       forCharacter: (unichar)aChar
 	     struckOverRect: (NSRect)aRect;
-- (NSPoint) positionOfGlyph: (NSGlyph)aGlyph 
-	    struckOverGlyph: (NSGlyph)baseGlyph 
+- (NSPoint) positionOfGlyph: (NSGlyph)aGlyph
+	    struckOverGlyph: (NSGlyph)baseGlyph
 	metricsExist: (BOOL*)flag;
-- (NSPoint) positionOfGlyph: (NSGlyph)aGlyph 
-             struckOverRect: (NSRect)aRect 
+- (NSPoint) positionOfGlyph: (NSGlyph)aGlyph
+             struckOverRect: (NSRect)aRect
                metricsExist: (BOOL*)flag;
-- (NSPoint) positionOfGlyph: (NSGlyph)aGlyph 
-               withRelation: (NSGlyphRelation)relation 
+- (NSPoint) positionOfGlyph: (NSGlyph)aGlyph
+               withRelation: (NSGlyphRelation)relation
                 toBaseGlyph: (NSGlyph)baseGlyph
-           totalAdvancement: (NSSize*)offset 
+           totalAdvancement: (NSSize*)offset
                metricsExist: (BOOL*)flag;
-- (int) positionsForCompositeSequence: (NSGlyph*)glyphs 
-                       numberOfGlyphs: (int)numGlyphs 
+- (int) positionsForCompositeSequence: (NSGlyph*)glyphs
+                       numberOfGlyphs: (int)numGlyphs
                            pointArray: (NSPoint*)points;
 #endif
 

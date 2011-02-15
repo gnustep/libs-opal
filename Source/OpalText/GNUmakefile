@@ -7,6 +7,7 @@ $(SUBPROJECT_NAME)_OBJC_FILES = $(wildcard *.m)
 
 ifneq ($(GNUSTEP_TARGET_OS), mingw32)
 $(SUBPROJECT_NAME)_OBJC_FILES += Fontconfig/NSFontconfigFontDescriptor.m
+$(SUBPROJECT_NAME)_OBJC_FILES += FreeType/OPFreeTypeFont.m
 endif
 
 $(SUBPROJECT_NAME)_HEADER_FILES_DIR = ../../Headers/CoreText

@@ -7,7 +7,7 @@
    Author: Ovidiu Predescu <ovidiu@net-community.com>
    Date: February 1997
    A completely rewritten version of the original source by Scott Christley.
-   
+
    This file is part of the GNUstep GUI Library.
 
    This library is free software; you can redistribute it and/or
@@ -22,10 +22,10 @@
 
    You should have received a copy of the GNU Lesser General Public
    License along with this library; see the file COPYING.LIB.
-   If not, see <http://www.gnu.org/licenses/> or write to the 
-   Free Software Foundation, 51 Franklin Street, Fifth Floor, 
+   If not, see <http://www.gnu.org/licenses/> or write to the
+   Free Software Foundation, 51 Franklin Street, Fifth Floor,
    Boston, MA 02110-1301, USA.
-*/ 
+*/
 
 #import <Foundation/NSAffineTransform.h>
 #import <Foundation/NSCoder.h>
@@ -42,9 +42,10 @@
 
 const CGFloat *NSFontIdentityMatrix;
 
+
 @implementation NSFont
 
-+ (void) load
++ (void)load
 {
   static CGFloat identity[6] = {1.0, 0.0, 1.0, 0.0, 0.0, 0.0};
   NSFontIdentityMatrix = identity;
@@ -80,7 +81,7 @@ const CGFloat *NSFontIdentityMatrix;
 - (NSAffineTransform*) textTransform
 {
   // FIXME: Need to implement bridging between NSFontMatrixAttribute and kCTFontMatrixAttribute somewhere
-  
+
   NSAffineTransform *transform = [[self fontDescriptor] objectForKey: NSFontMatrixAttribute];
   if (transform == nil)
   {
@@ -195,20 +196,32 @@ const CGFloat *NSFontIdentityMatrix;
 //
 // CTFont private
 //
-+ (NSFont*) fontWithDescriptor: (NSFontDescriptor*)descriptor 
++ (NSFont*) fontWithDescriptor: (NSFontDescriptor*)descriptor
                        options: (CTFontOptions)options
-{ 
+{
   // FIXME: placeholder code.
-  NSFont *font = [[NSFont alloc] init];
-  font->_descriptor = [descriptor retain];
-  memcpy(font->_matrix, NSFontIdentityMatrix, 6 * sizeof(CGFloat));
-  return [font autorelease];
+  return [[[NSFont alloc] _initWithDescriptor: descriptor
+                                      options: options] autorelease];
 }
+
 + (NSFont*) fontWithGraphicsFont: (CGFontRef)graphics
             additionalDescriptor: (NSFontDescriptor*)descriptor
 {
 	return nil;
 }
+
+- (id)_initWithDescriptor: (NSFontDescriptor*)aDescriptor
+                  options: (CTFontOptions)options
+{
+  if (nil == (self = [super init]))
+  {
+    return nil;
+  }
+  ASSIGN(_descriptor, aDescriptor);
+  memcpy(_matrix, NSFontIdentityMatrix, 6 * sizeof(CGFloat));
+  return self;
+}
+
 - (CGFloat) unitsPerEm
 {
 	return 0;

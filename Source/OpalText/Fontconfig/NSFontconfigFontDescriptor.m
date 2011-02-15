@@ -11,12 +11,12 @@
    modify it under the terms of the GNU Lesser General Public
    License as published by the Free Software Foundation; either
    version 2.1 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
    Lesser General Public License for more details.
-   
+
    You should have received a copy of the GNU Lesser General Public
    License along with this library; if not, write to the Free Software
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
@@ -63,7 +63,7 @@
 {
   // FIXME: Fontconfig ignores PostScript names of fonts; we need
   // https://bugs.freedesktop.org/show_bug.cgi?id=18095 fixed.
-  
+
   // This is a hack to guess the family name from a PostScript name
   // It will often fail because PostScript names are sometimes abbreviated
 
@@ -104,12 +104,12 @@
     if (symTraits & kCTFontItalicTrait)
     {
       // NOTE: May be overridden by kCTFontSlantTrait
-      FcPatternAddInteger(_pat, FC_SLANT, FC_SLANT_ITALIC); 
+      FcPatternAddInteger(_pat, FC_SLANT, FC_SLANT_ITALIC);
     }
     if (symTraits & kCTFontBoldTrait)
     {
       // NOTE: May be overridden by kCTFontWeightTrait
-      FcPatternAddInteger(_pat, FC_WEIGHT, FC_WEIGHT_BOLD); 
+      FcPatternAddInteger(_pat, FC_WEIGHT, FC_WEIGHT_BOLD);
     }
     if (symTraits & kCTFontExpandedTrait)
     {
@@ -123,11 +123,11 @@
     }
     if (symTraits & kCTFontMonoSpaceTrait)
     {
-      // If you run "fc-match :spacing=100", you get "DejaVu Sans" even though you would 
+      // If you run "fc-match :spacing=100", you get "DejaVu Sans" even though you would
       // expect to get "DejaVu Sans Mono". So, we also add "monospace" as a weak family
       // name to fix the problem.
       FcPatternAddInteger(_pat, FC_SPACING, FC_MONO);
-   
+
 			FcValue value;
       value.type = FcTypeString;
       value.u.s = (FcChar8*)"monospace";
@@ -243,7 +243,7 @@
   // this is really slow.
 
   FcCharSet *fcSet = FcCharSetCreate();
-    
+
   for (uint32_t plane=0; plane<=16; plane++)
   {
     if ([characterSet hasMemberInPlane: plane])
@@ -410,14 +410,14 @@
     if (value == FC_SLANT_ITALIC)
     {
       symTraits |= kCTFontItalicTrait;
-    } 
+    }
   }
   if (FcResultMatch == FcPatternGetInteger(pat, FC_WEIGHT, 0, &value))
   {
     if (value >= FC_WEIGHT_BOLD)
     {
       symTraits |= kCTFontBoldTrait;
-    } 
+    }
 
 	  double weight;
 	  if (value <= FC_WEIGHT_NORMAL)
@@ -437,7 +437,7 @@
     if (value >= FC_WIDTH_EXPANDED)
     {
       symTraits |= kCTFontExpandedTrait;
-    } 
+    }
     if (value <= FC_WIDTH_CONDENSED)
     {
       symTraits |= kCTFontCondensedTrait;
@@ -461,7 +461,7 @@
     if (value == FC_MONO)
     {
       symTraits |= kCTFontMonoSpaceTrait;
-    } 
+    }
   }
 
   if (symTraits != 0)
@@ -501,7 +501,7 @@
     }
     FcStrListDone(setIterator);
   }
-  
+
   return langs;
 }
 
@@ -588,13 +588,13 @@
   }
 
   _pat = FcPatternCreate();
- 
+
   // Call the corresponding add...: method for each element in the attributes dictionary
   [self handleAddValues];
 
   //NSLog(@"NSFontconfigFontDescriptor: Input attributes %@", attributes);
   //NSLog(@"NSFontconfigFontDescriptor: Output pattern:");
-  //FcPatternPrint(_pat); 
+  //FcPatternPrint(_pat);
 
   return self;
 }
@@ -627,7 +627,7 @@
     FcPatternDestroy(_pat);
   }
   if (_matchedPat)
-  { 
+  {
     FcPatternDestroy(_matchedPat);
   }
   [super dealloc];
@@ -635,7 +635,7 @@
 
 - (NSString*)description
 {
-  return [NSString stringWithFormat: @"<NSFontconfigFontDescriptor name: %@ URL: %@>", 
+  return [NSString stringWithFormat: @"<NSFontconfigFontDescriptor name: %@ URL: %@>",
     [self objectForKey: kCTFontNameAttribute],
     [self objectForKey: kCTFontURLAttribute]];
 }
@@ -645,11 +645,11 @@
   if (!_matchedPat)
   {
     FcPattern *patCopy = FcPatternDuplicate(_pat);
-     
+
     //NSLog(@"1. before substituting: ");
     //FcPatternPrint(patCopy);
 
-    FcConfigSubstitute(NULL, patCopy, FcMatchPattern); 
+    FcConfigSubstitute(NULL, patCopy, FcMatchPattern);
 
     //NSLog(@"2. after configSubstitute: ");
     //FcPatternPrint(patCopy);
@@ -704,7 +704,7 @@
         {
           id selfValue = [self objectForKey: mandatoryKey];
           id candidateValue = [candidate objectForKey: mandatoryKey];
-          
+
           if ((selfValue != nil || candidateValue != nil)
               && ![selfValue isEqual: candidateValue])
           {
@@ -812,6 +812,18 @@ static NSDictionary *ReadSelectors;
                                           fromPattern: _matchedPat];
   }
   return nil;
+}
+
+- (NSString*)_fontPath
+{
+  return [self readFontconfigString: FC_FILE
+                       fromPattern: _matchedPat];
+}
+
+- (NSInteger)_fontfaceIndex
+{
+  return [[self readFontconfigInteger: FC_INDEX
+                          fromPattern: _matchedPat] integerValue];
 }
 
 @end
