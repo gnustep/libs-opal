@@ -28,19 +28,19 @@
 #include FT_FREETYPE_H
 
 
-inline CGFloat CGFloatFromFT_Fixed(FT_Fixed f)
+static inline CGFloat CGFloatFromFT_Fixed(FT_Fixed f)
 {
   //FT_Fixed is Q16.16
   return (f/65536.0);
 }
 
-inline FT_Fixed FT_FixedFromCGFloat(CGFloat f)
+static inline FT_Fixed FT_FixedFromCGFloat(CGFloat f)
 {
   return (FT_Fixed)((f * 65536.0) + 0.5);
 
 }
 
-inline CGFloat CGFloatFromFontUnits(NSInteger units, CGFloat pointSize, NSUInteger unitsPerEm)
+static inline CGFloat CGFloatFromFontUnits(NSInteger units, CGFloat pointSize, NSUInteger unitsPerEm)
 {
   return (((CGFloat)units * pointSize) / (CGFloat)unitsPerEm);
 }

@@ -1,3 +1,8 @@
+2011-02-20 Niels Grewe <niels.grewe@halbordnung.de>
+
+	* Source/OpalText/FreeType/OPFreeTypeUtil.h: Also mark inline
+	functions as static.
+
 2011-02-20 Fred Kiefer <FredKiefer@gmx.de>
 
 	* Source/OpalGraphics/CGContext.m: Add CMYK colour methods.
