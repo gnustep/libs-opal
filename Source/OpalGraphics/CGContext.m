@@ -1004,8 +1004,28 @@ void CGContextSetRGBStrokeColor(CGContextRef ctx,
   comps[2] = b;
   comps[3] = alpha;
   cs = CGColorSpaceCreateDeviceRGB();
-  color = CGColorCreate(CGColorSpaceCreateDeviceRGB(), comps);
+  color = CGColorCreate(cs, comps);
   CGColorSpaceRelease(cs);
+  CGContextSetStrokeColorWithColor(ctx, color);
+  CGColorRelease(color);
+}
+
+void CGContextSetCMYKFillColor(CGContextRef ctx,
+       CGFloat cyan, CGFloat magenta, CGFloat yellow, CGFloat black, CGFloat alpha)
+{
+  CGColorRef color;
+
+  color = CGColorCreateGenericCMYK(cyan, magenta, yellow, black, alpha);
+  CGContextSetFillColorWithColor(ctx, color);
+  CGColorRelease(color);
+}
+
+void CGContextSetCMYKStrokeColor(CGContextRef ctx,
+       CGFloat cyan, CGFloat magenta, CGFloat yellow, CGFloat black, CGFloat alpha)
+{
+  CGColorRef color;
+
+  color = CGColorCreateGenericCMYK(cyan, magenta, yellow, black, alpha);
   CGContextSetStrokeColorWithColor(ctx, color);
   CGColorRelease(color);
 }
