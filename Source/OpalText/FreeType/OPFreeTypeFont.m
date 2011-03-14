@@ -296,6 +296,10 @@ static FT_Library OPFreeTypeLibrary = 0;
 {
   FT_Fixed rawItalicAngle = 0;
   TT_Postscript *postTable = FT_Get_Sfnt_Table(fontFace, TTAG_post);
+  if (NULL == postTable)
+  {
+    return 0;
+  }
   rawItalicAngle = postTable->italicAngle;
   return CGFloatFromFT_Fixed(rawItalicAngle);
 }
@@ -309,8 +313,76 @@ static FT_Library OPFreeTypeLibrary = 0;
    */
   FT_Short rawLineGap = 0;
   TT_HoriHeader *hheaTable = FT_Get_Sfnt_Table(fontFace, TTAG_hhea);
+  if (NULL == hheaTable)
+  {
+    return 0;
+  }
   rawLineGap = hheaTable->Line_Gap;
   return REAL_SIZE(rawLineGap);
+}
+
+- (NSSize)maximumAdvancement
+{
+  /*
+   * FIXME: We should make this conditional on horizontal/vertical orientation.
+   */
+  FT_Short rawXAdvancement = 0;
+  FT_Short rawYMaxExtent = (fontFace->bbox).yMax;
+  TT_HoriHeader *hheaTable = FT_Get_Sfnt_Table(fontFace, TTAG_hhea);
+  if (NULL == hheaTable)
+  {
+    return NSMakeSize(0,0);
+  }
+  rawXAdvancement = hheaTable->advance_Width_Max;
+  return NSMakeSize(REAL_SIZE(rawXAdvancement), REAL_SIZE(rawYMaxExtent));
+}
+
+- (NSSize)minimumAdvancement
+{
+  /*
+   * FIXME: We should make this conditional on horizontal/vertical orientation.
+   */
+  return NSMakeSize(REAL_SIZE((fontFace->bbox).xMin),
+    REAL_SIZE((fontFace->bbox).yMin));
+}
+
+- (NSUInteger)numberOfGlyphs
+{
+  return fontFace->num_glyphs;
+}
+
+- (CGFloat)underlinePosition
+{
+  TT_Postscript *postTable = FT_Get_Sfnt_Table(fontFace, TTAG_post);
+  if (NULL == postTable)
+  {
+    return 0;
+  }
+  return REAL_SIZE(postTable->underlinePosition);
+}
+
+- (CGFloat)underlineThickness
+{
+  TT_Postscript *postTable = FT_Get_Sfnt_Table(fontFace, TTAG_post);
+  if (NULL == postTable)
+  {
+    return 0;
+  }
+  return REAL_SIZE(postTable->underlineThickness);
+}
+
+- (void)getAdvancements: (NSSizeArray)advancements
+              forGlyphs: (const NSGlyph*)glyphs
+	          count: (NSUInteger)glyphCount
+{
+
+  for (int i = 0; i < glyphCount; i++)
+  {
+    NSGlyph theGlyph = *(glphys++);
+    //FIXME: Do stuff
+  }
+
+
 }
 @end
 

@@ -1,3 +1,8 @@
+2011-03-14 Niels Grewe <niels.grewe@halbordnung.de>
+
+	* Source/OpalText/FreeType/OPFreeTypeFont.m: Implement some more
+	NSFont methods in terms of FreeType.
+
 2011-02-20 Niels Grewe <niels.grewe@halbordnung.de>
 
 	* Source/OpalText/FreeType/OPFreeTypeUtil.h: Also mark inline
