@@ -35,6 +35,10 @@
 
 #define REAL_SIZE(x) CGFloatFromFontUnits(x, [_descriptor pointSize], fontFace->units_per_EM)
 
+//FIXME: Implement transforms. FreeType is doing them for us sometimes, but not
+//always.
+#define TRANSFORMED_SIZE(x) REAL_SIZE(x)
+
 static FT_Library OPFreeTypeLibrary = 0;
 
 
@@ -128,6 +132,11 @@ static FT_Library OPFreeTypeLibrary = 0;
   tableCache = [[NSCache alloc] init];
   [tableCache setEvictsObjectsWithDiscardedContent: YES];
 
+  NSAffineTransformStruct t = [[self textTransform] transformStruct];
+  CGAffineTransform transform = {t.m11, t.m12, t.m21, t.m22, t.tX, t.tY};
+  FT_Matrix matrix = FT_MatrixFromCGAffineTransform(transform);
+  FT_Vector vector = FT_VectorQ1616FromCGAffineTransform(transform);
+  FT_Set_Transform(fontFace, &matrix, &vector);
   //FIXME: Do more stuff
   return self;
 }
@@ -263,7 +272,7 @@ static FT_Library OPFreeTypeLibrary = 0;
     return 0;
   }
   rawCapHeight = OS2Table->sCapHeight;
-  return REAL_SIZE(rawCapHeight);
+  return TRANSFORMED_SIZE(rawCapHeight);
 }
 
 - (CGFloat)xHeight
@@ -275,7 +284,7 @@ static FT_Library OPFreeTypeLibrary = 0;
     return 0;
   }
   rawXHeight = OS2Table->sxHeight;
-  return REAL_SIZE(rawXHeight);
+  return TRANSFORMED_SIZE(rawXHeight);
 
 }
 
@@ -318,7 +327,7 @@ static FT_Library OPFreeTypeLibrary = 0;
     return 0;
   }
   rawLineGap = hheaTable->Line_Gap;
-  return REAL_SIZE(rawLineGap);
+  return TRANSFORMED_SIZE(rawLineGap);
 }
 
 - (NSSize)maximumAdvancement
@@ -326,21 +335,15 @@ static FT_Library OPFreeTypeLibrary = 0;
   /*
    * FIXME: We should make this conditional on horizontal/vertical orientation.
    */
-  FT_Short rawXAdvancement = 0;
-  FT_Short rawYMaxExtent = (fontFace->bbox).yMax;
-  TT_HoriHeader *hheaTable = FT_Get_Sfnt_Table(fontFace, TTAG_hhea);
-  if (NULL == hheaTable)
-  {
-    return NSMakeSize(0,0);
-  }
-  rawXAdvancement = hheaTable->advance_Width_Max;
-  return NSMakeSize(REAL_SIZE(rawXAdvancement), REAL_SIZE(rawYMaxExtent));
+  return NSMakeSize(REAL_SIZE(fontFace->max_advance_width), REAL_SIZE(fontFace->max_advance_height));
 }
 
 - (NSSize)minimumAdvancement
 {
   /*
-   * FIXME: We should make this conditional on horizontal/vertical orientation.
+   * FIXME: We don't really want the bounding box here
+   * FIXME2: We should make this conditional on horizontal/vertical orientation.
+   * FIXME3: Does FreeType apply the transform to the bounding box?
    */
   return NSMakeSize(REAL_SIZE((fontFace->bbox).xMin),
     REAL_SIZE((fontFace->bbox).yMin));
@@ -358,7 +361,7 @@ static FT_Library OPFreeTypeLibrary = 0;
   {
     return 0;
   }
-  return REAL_SIZE(postTable->underlinePosition);
+  return TRANSFORMED_SIZE(postTable->underlinePosition);
 }
 
 - (CGFloat)underlineThickness
@@ -368,21 +371,75 @@ static FT_Library OPFreeTypeLibrary = 0;
   {
     return 0;
   }
-  return REAL_SIZE(postTable->underlineThickness);
+  return TRANSFORMED_SIZE(postTable->underlineThickness);
+}
+
+- (NSSize)advancementForGlyph: (NSGlyph)glyph
+{
+  if ((NSNullGlyph == glyph) || (NSControlGlyph == glyph))
+  {
+    return NSMakeSize(0, 0);
+  }
+  FT_Load_Glyph(fontFace, glyph, FT_LOAD_DEFAULT);
+  return NSMakeSize(REAL_SIZE(fontFace->glyph->linearHoriAdvance),
+    REAL_SIZE(fontFace->glyph->linearVertAdvance));
+
+  /*
+   * FIXME: Add fast path for integer rendering modes. We don't need to do
+   * so many integer->float conversions then.
+   */
 }
 
 - (void)getAdvancements: (NSSizeArray)advancements
               forGlyphs: (const NSGlyph*)glyphs
 	          count: (NSUInteger)glyphCount
 {
-
-  for (int i = 0; i < glyphCount; i++)
+  NSSize nullSize = NSMakeSize(0,0);
+  for (int i = 0; i < glyphCount; i++, glyphs++, advancements++)
   {
-    NSGlyph theGlyph = *(glphys++);
-    //FIXME: Do stuff
+    if ((NSNullGlyph == *glyphs) || (NSControlGlyph == *glyphs))
+    {
+      *advancements = nullSize;
+    }
+    else
+    {
+      //TODO: Optimize if too slow.
+      *advancements = [self advancementForGlyph: *glyphs];
+    }
   }
+}
 
+- (void)getAdvancements: (NSSizeArray)advancements
+        forPackedGlyphs: (const void*)packedGlyphs
+	         length: (NSUInteger)length
+{
+  /*
+   * We only support NSNativeShortGlyphPacking, which gives us glyph streams
+   * which are big-endian, short integer values.
+   */
 
+  // FIXME: Breaks for platforms where shorts are not word aligned.
+  NSUInteger glyphsPerWord = sizeof(void*)/sizeof(unsigned short);
+  NSUInteger maxGlyphCount = length * glyphsPerWord;
+  NSUInteger step = 0;
+  for (int i=0; i < maxGlyphCount; i++, step = (i / sizeof(void*)), advancements++)
+  {
+    /*
+     * Mask the value by bit-shifting it to the correct starting point,
+     * truncating it to short, and converting it back to host byte-order.
+     */
+
+    /*
+     * The modulus of index and word size calculates how many glyphs we
+     * processed in this word, so we shift the content of the word by n
+     * times the size of short.
+     */
+    NSUInteger shift = ((i % sizeof(void*)) * sizeof(unsigned short));
+    NSGlyph glyph = NSSwapBigShortToHost((unsigned short)(((intptr_t*)packedGlyphs)[step] << shift));
+
+    // TODO: Optimize if too slow
+    *advancements = [self advancementForGlyph: glyph];
+  }
 }
 @end
 

@@ -44,3 +44,21 @@ static inline CGFloat CGFloatFromFontUnits(NSInteger units, CGFloat pointSize, N
 {
   return (((CGFloat)units * pointSize) / (CGFloat)unitsPerEm);
 }
+
+static inline FT_Matrix FT_MatrixFromCGAffineTransform(CGAffineTransform transform)
+{
+  FT_Matrix theMatrix = {FT_FixedFromCGFloat(transform.a),
+    FT_FixedFromCGFloat(transform.b),
+    FT_FixedFromCGFloat(transform.c),
+    FT_FixedFromCGFloat(transform.d)};
+  return theMatrix;
+}
+
+/**
+ * Creates a Q16.16 fixed point translation vector from an affine transform.
+ */
+static inline FT_Vector FT_VectorQ1616FromCGAffineTransform(CGAffineTransform transform)
+{
+  FT_Vector theVector = {FT_FixedFromCGFloat(transform.tx), FT_FixedFromCGFloat(transform.ty)};
+  return theVector;
+}
