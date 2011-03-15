@@ -1,5 +1,13 @@
 2011-03-15 Niels Grewe <niels.grewe@halbordnung.de>
 
+	* Source/OpalText/FreeType/OPFreeTypeFont.m: Implement more
+	transformations, some bounding box stuff.
+	* Source/OpalText/NSFont.h
+	* Source/OpalText/NSFont.m:
+	Store the font matrix as an CGAffineTransform for convenience.
+
+2011-03-15 Niels Grewe <niels.grewe@halbordnung.de>
+
 	* Source/OpalText/FreeType/OPFreeTypeFont.m: Make FreeType
 	handle text transforms (at least partially). Implement getting
 	glyph advances.

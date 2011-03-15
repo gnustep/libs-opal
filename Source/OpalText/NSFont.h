@@ -84,7 +84,7 @@ const CGFloat *NSFontIdentityMatrix;
 @interface NSFont : NSObject
 {
   NSFontDescriptor *_descriptor;
-  CGFloat _matrix[6];
+  CGAffineTransform _matrix;
 }
 
 //

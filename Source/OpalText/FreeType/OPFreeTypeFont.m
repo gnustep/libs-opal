@@ -35,9 +35,13 @@
 
 #define REAL_SIZE(x) CGFloatFromFontUnits(x, [_descriptor pointSize], fontFace->units_per_EM)
 
-//FIXME: Implement transforms. FreeType is doing them for us sometimes, but not
-//always.
-#define TRANSFORMED_SIZE(x) REAL_SIZE(x)
+// FIXME: This definitions need to be ammended to take vertical typesetting into
+// account.
+#define TRANSFORMED_SIZE(x,y)\
+  ((CGSize)(CGSizeApplyAffineTransform(CGSizeMake(REAL_SIZE(x), REAL_SIZE(y)), _matrix)))
+
+#define TRANSFORMED_POINT(x,y)\
+  ((CGPoint)(CGPointApplyAffineTransform(CGSizeMake(REAL_SIZE(x), REAL_SIZE(y)), _matrix)))
 
 static FT_Library OPFreeTypeLibrary = 0;
 
@@ -132,10 +136,8 @@ static FT_Library OPFreeTypeLibrary = 0;
   tableCache = [[NSCache alloc] init];
   [tableCache setEvictsObjectsWithDiscardedContent: YES];
 
-  NSAffineTransformStruct t = [[self textTransform] transformStruct];
-  CGAffineTransform transform = {t.m11, t.m12, t.m21, t.m22, t.tX, t.tY};
-  FT_Matrix matrix = FT_MatrixFromCGAffineTransform(transform);
-  FT_Vector vector = FT_VectorQ1616FromCGAffineTransform(transform);
+  FT_Matrix matrix = FT_MatrixFromCGAffineTransform(_matrix);
+  FT_Vector vector = FT_VectorQ1616FromCGAffineTransform(_matrix);
   FT_Set_Transform(fontFace, &matrix, &vector);
   //FIXME: Do more stuff
   return self;
@@ -272,7 +274,7 @@ static FT_Library OPFreeTypeLibrary = 0;
     return 0;
   }
   rawCapHeight = OS2Table->sCapHeight;
-  return TRANSFORMED_SIZE(rawCapHeight);
+  return TRANSFORMED_SIZE(0, rawCapHeight).height;
 }
 
 - (CGFloat)xHeight
@@ -284,7 +286,7 @@ static FT_Library OPFreeTypeLibrary = 0;
     return 0;
   }
   rawXHeight = OS2Table->sxHeight;
-  return TRANSFORMED_SIZE(rawXHeight);
+  return TRANSFORMED_SIZE(0, rawXHeight).height;
 
 }
 
@@ -327,7 +329,7 @@ static FT_Library OPFreeTypeLibrary = 0;
     return 0;
   }
   rawLineGap = hheaTable->Line_Gap;
-  return TRANSFORMED_SIZE(rawLineGap);
+  return TRANSFORMED_SIZE(0, rawLineGap).height;
 }
 
 - (NSSize)maximumAdvancement
@@ -361,7 +363,7 @@ static FT_Library OPFreeTypeLibrary = 0;
   {
     return 0;
   }
-  return TRANSFORMED_SIZE(postTable->underlinePosition);
+  return TRANSFORMED_SIZE(0, postTable->underlinePosition).height;
 }
 
 - (CGFloat)underlineThickness
@@ -371,7 +373,7 @@ static FT_Library OPFreeTypeLibrary = 0;
   {
     return 0;
   }
-  return TRANSFORMED_SIZE(postTable->underlineThickness);
+  return TRANSFORMED_SIZE(0, postTable->underlineThickness).height;
 }
 
 - (NSSize)advancementForGlyph: (NSGlyph)glyph
@@ -440,6 +442,29 @@ static FT_Library OPFreeTypeLibrary = 0;
     // TODO: Optimize if too slow
     *advancements = [self advancementForGlyph: glyph];
   }
+}
+
+- (NSRect)boundingRectForFont
+{
+  //FIXME: Determine whether FreeType already transforms the bounding box for
+  //us.
+  CGFloat originX = REAL_SIZE((fontFace->bbox).xMin);
+  CGFloat originY = REAL_SIZE((fontFace->bbox).yMin);
+  CGFloat sizeX = (REAL_SIZE((fontFace->bbox).xMax) - originX);
+  CGFloat sizeY = (REAL_SIZE((fontFace->bbox).yMax) - originY);
+  return NSMakeRect(originX, originY, sizeX, sizeY);
+}
+
+- (NSRect)boundingRectforGlyph: (NSGlyph)glyph
+{
+
+  if ((NSNullGlyph == glyph) || (NSControlGlyph == glyph))
+  {
+    return NSMakeRect(0, 0, 0, 0);
+  }
+  FT_Load_Glyph(fontFace, glyph, FT_LOAD_DEFAULT);
+  //Find bounding rect
+
 }
 @end
 
