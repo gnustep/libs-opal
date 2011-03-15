@@ -76,15 +76,13 @@ const CGFloat *NSFontIdentityMatrix;
 }
 - (const CGFloat*) matrix
 {
-  // CGFloat[6] and the CGAffineTransform structure can be cast to each other
-  return (const CGFloat*)(void*)&_matrix;
+  return _matrix.PSMatrix;
 }
 - (NSAffineTransform*) textTransform
 {
   // FIXME: Need to implement bridging between NSFontMatrixAttribute and kCTFontMatrixAttribute somewhere
   NSAffineTransform *transform = [NSAffineTransform transform];
-  NSAffineTransformStruct tStruct = {_matrix.a, _matrix.b, _matrix.c, _matrix.c, _matrix.tx, _matrix.ty};
-  [transform setTransformStruct: tStruct];
+  [transform setTransformStruct: _matrix.NSTransform];
   return transform;
 }
 
@@ -220,13 +218,11 @@ const CGFloat *NSFontIdentityMatrix;
   NSAffineTransform *transform = [_descriptor objectForKey: NSFontMatrixAttribute];
   if (transform == nil)
   {
-    _matrix = CGAffineTransformIdentity;
+    _matrix.CGTransform = CGAffineTransformIdentity;
   }
   else
   {
-    NSAffineTransformStruct tStruct = [transform transformStruct];
-    CGAffineTransform aMatrix = {tStruct.m11, tStruct.m12, tStruct.m21, tStruct.m22, tStruct.tX, tStruct.tY};
-    _matrix = aMatrix;
+    _matrix.NSTransform = [transform transformStruct];
   }
   return self;
 }

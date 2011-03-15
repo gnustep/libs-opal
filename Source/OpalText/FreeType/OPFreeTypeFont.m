@@ -38,11 +38,17 @@
 // FIXME: This definitions need to be ammended to take vertical typesetting into
 // account.
 #define TRANSFORMED_SIZE(x,y)\
-  ((CGSize)(CGSizeApplyAffineTransform(CGSizeMake(REAL_SIZE(x), REAL_SIZE(y)), _matrix)))
+  ((CGSize)(CGSizeApplyAffineTransform(CGSizeMake(REAL_SIZE(x), REAL_SIZE(y)), _matrix.CGTransform)))
 
 #define TRANSFORMED_POINT(x,y)\
-  ((CGPoint)(CGPointApplyAffineTransform(CGSizeMake(REAL_SIZE(x), REAL_SIZE(y)), _matrix)))
+  ((CGPoint)(CGPointApplyAffineTransform(CGPointMake(REAL_SIZE(x), REAL_SIZE(y)), _matrix.CGTransform)))
 
+#define TRANSFORMED_RECT(x,y,w,h)\
+  ((CGRect)(CGRectApplyAffineTransform(CGRectMake(REAL_SIZE(x), REAL_SIZE(y), REAL_SIZE(w), REAL_SIZE(h)), _matrix.CGTransform)))
+
+#ifndef NSRectFromCGRect
+#define NSRectFromCGRect(r) NSMakeRect(r.origin.x, r.origin.y, r.size.width, r.size.height)
+#endif
 static FT_Library OPFreeTypeLibrary = 0;
 
 
@@ -136,8 +142,8 @@ static FT_Library OPFreeTypeLibrary = 0;
   tableCache = [[NSCache alloc] init];
   [tableCache setEvictsObjectsWithDiscardedContent: YES];
 
-  FT_Matrix matrix = FT_MatrixFromCGAffineTransform(_matrix);
-  FT_Vector vector = FT_VectorQ1616FromCGAffineTransform(_matrix);
+  FT_Matrix matrix = FT_MatrixFromCGAffineTransform(_matrix.CGTransform);
+  FT_Vector vector = FT_VectorQ1616FromCGAffineTransform(_matrix.CGTransform);
   FT_Set_Transform(fontFace, &matrix, &vector);
   //FIXME: Do more stuff
   return self;
@@ -457,14 +463,37 @@ static FT_Library OPFreeTypeLibrary = 0;
 
 - (NSRect)boundingRectforGlyph: (NSGlyph)glyph
 {
-
+  //FIXME: Handle vertical typesetting.
   if ((NSNullGlyph == glyph) || (NSControlGlyph == glyph))
   {
     return NSMakeRect(0, 0, 0, 0);
   }
   FT_Load_Glyph(fontFace, glyph, FT_LOAD_DEFAULT);
-  //Find bounding rect
+  return NSRectFromCGRect(TRANSFORMED_RECT(fontFace->glyph->metrics.horiBearingX,
+    fontFace->glyph->metrics.horiBearingY,
+    fontFace->glyph->metrics.width,
+    fontFace->glyph->metrics.height));
 
 }
+
+- (void)getBoundingRects: (NSRectArray)rects
+               forGlyphs: (const NSGlyph*)glyphs
+	           count: (NSUInteger)glyphCount
+{
+  NSRect nullRect = NSMakeRect(0,0,0,0);
+  for (int i = 0; i < glyphCount; i++, glyphs++, rects++)
+  {
+    if ((NSNullGlyph == *glyphs) || (NSControlGlyph == *glyphs))
+    {
+      *rects = nullRect;
+    }
+    else
+    {
+      //TODO: Optimize if too slow.
+      *rects = [self boundingRectForGlyph: *glyphs];
+    }
+  }
+}
+
 @end
 

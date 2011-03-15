@@ -1,5 +1,15 @@
 2011-03-15 Niels Grewe <niels.grewe@halbordnung.de>
 
+	* Source/OpalText/FreeType/OPFreeTypeFont.m: Finish bounding
+	rect retrieval.
+	* Source/OpalText/NSFont.h
+	* Source/OpalText/NSFont.m:
+	Turn transformation matrix to a union so CGAffineTransform,
+	NSAffineTransformStruct and the CGFloat array used by NSFont
+	can be used interchangeably. 
+
+2011-03-15 Niels Grewe <niels.grewe@halbordnung.de>
+
 	* Source/OpalText/FreeType/OPFreeTypeFont.m: Implement more
 	transformations, some bounding box stuff.
 	* Source/OpalText/NSFont.h

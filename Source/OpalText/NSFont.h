@@ -74,6 +74,18 @@ typedef enum _NSFontRenderingMode
 
 const CGFloat *NSFontIdentityMatrix;
 
+
+/**
+ * The OPAffineTransform union encapsulates three equivalent representations of
+ * transformation matrices so we can avoid translating between them later on.
+ */
+typedef union _OPAffineTransform
+{
+  NSAffineTransformStruct NSTransform;
+  CGAffineTransform CGTransform;
+  CGFloat PSMatrix[6];
+} OPAffineTransform;
+
 /**
  * The font class.
  *
@@ -84,7 +96,7 @@ const CGFloat *NSFontIdentityMatrix;
 @interface NSFont : NSObject
 {
   NSFontDescriptor *_descriptor;
-  CGAffineTransform _matrix;
+  OPAffineTransform _matrix;
 }
 
 //
