@@ -1,3 +1,8 @@
+2011-03-23 Niels Grewe <niels.grewe@halbordnung.de>
+
+	* Source/OpalText/FreeType/OPFreeTypeFont.m: Implement
+	-glyphWithName:.
+
 2011-03-15 Niels Grewe <niels.grewe@halbordnung.de>
 
 	* Source/OpalText/FreeType/OPFreeTypeFont.m: Finish bounding

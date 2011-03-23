@@ -495,5 +495,15 @@ static FT_Library OPFreeTypeLibrary = 0;
   }
 }
 
+- (NSGlyph)glyphWithName: (NSString*)name
+{
+  FT_UInt glyph = FT_Get_Name_Index(fontFace, (FT_String*)[name UTF8String]);
+  if(0 == glyph)
+  {
+    return NSNullGlyph;
+  }
+  return glyph;
+}
+
 @end
 
