@@ -23,6 +23,7 @@
    */
 
 #include <CoreText/CTFramesetter.h>
+#import "CTFrame-private.h"
 
 /* Classes */
 
@@ -76,13 +77,16 @@
                               path: (CGPathRef)path
                         attributes: (NSDictionary*)attributes
 {
-  CTFrameRef frame = nil;
   CGRect frameRect;
   if (!CGPathIsRect(path, &frameRect))
   {
     return nil;
   }
   
+  CTFrameRef frame = [[CTFrame alloc] initWithPath: path
+                                       stringRange: range
+                                        attributes: attributes];
+		
   // FIXME: take in to account CTTextTab settings (alignment, justification, etc?)
 
   switch ([[attributes objectForKey: kCTFrameProgressionAttributeName] intValue])
@@ -90,18 +94,17 @@
     default:
     case kCTFrameProgressionTopToBottom:
     {
-      // FIXME.. something like the following
-      /*
       CFIndex start = 0;
       while (start < [_string length])
       {
-        CFIndex lineBreak = CTTypesetterSuggestLineBreak(_ts, start, frameRect.width);
+        CFIndex lineBreak = CTTypesetterSuggestLineBreak(_ts, start, frameRect.size.width);
 
         CTLineRef line = CTTypesetterCreateLine(_ts, NSMakeRange(start, lineBreak));
-        // Add line to fame
+        [frame addLine: line];
+        [line release];
+        
         start = lineBreak;
       }
-      */
       break;
     }
     case kCTFrameProgressionRightToLeft:

@@ -22,22 +22,20 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
    */
 
-#include <CoreText/CTLine.h>
-#include <CoreText/CTTypesetter.h>
+#import "CTLine-private.h"
 
 /* Classes */
 
-/**
- * Container of CTRun objects (glyph runs)
- */
-@interface CTLine : NSObject
-{
-  NSArray *_runs;
-}
-
-@end
-
 @implementation CTLine
+
+- (id)initWithRuns: (NSArray*)runs
+{
+  if ((self == [super init]))
+  {
+    _runs = [runs retain];
+  }
+  return self;
+}
 
 - (NSArray*)runs
 {

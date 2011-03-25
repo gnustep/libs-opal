@@ -23,6 +23,7 @@
    */
 
 #include <CoreText/CTFrame.h>
+#import "CTFrame-private.h"
 
 /* Constants */
 
@@ -30,18 +31,34 @@ const CFStringRef kCTFrameProgressionAttributeName = @"kCTFrameProgressionAttrib
 
 /* Classes */
 
-/**
- * Container of CTLine objects
- */
-@interface CTFrame : NSObject
+@implementation CTFrame
+
+- (id) initWithPath: (CGPathRef)aPath
+        stringRange: (NSRange)aRange
+         attributes: (NSDictionary*)attribs
 {
-  CGPathRef _path;
-  NSArray *_lines;
+  if ((self = [super init]))
+  {
+    _path = [aPath retain];
+    _lines = [[NSMutableArray alloc] init];
+    _attributes = [attribs copy];
+    _stringRange = aRange;
+  }
+  return self;
 }
 
-@end
+- (void) dealloc
+{
+  [_attributes release];
+  [_path release];
+  [_lines release];
+  [super dealloc];
+}
 
-@implementation CTFrame
+- (void) addLine: (CTLineRef)aLine
+{
+  [_lines addObject: aLine];
+}
 
 - (CGPathRef)path
 {
@@ -55,11 +72,15 @@ const CFStringRef kCTFrameProgressionAttributeName = @"kCTFrameProgressionAttrib
 
 - (NSRange)stringRange
 {
-  return NSMakeRange(0,0); 
+  return _stringRange; 
 }
 - (NSRange)visibleStringRange
 {
-  return NSMakeRange(0,0);
+  return _visibleStringRange;
+}
+- (void)setVisibleStringRange: (NSRange)aRange
+{
+  _visibleStringRange = aRange;
 }
 - (NSDictionary*)attributes
 {

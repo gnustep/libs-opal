@@ -24,6 +24,10 @@
 
 #include <CoreText/CTTypesetter.h>
 
+#import "CTLine-private.h"
+// FIXME: use advanced layout engines if available
+#import "OPSimpleLayoutEngine.h"
+
 /* Constants */
 
 const CFStringRef kCTTypesetterOptionDisableBidiProcessing = @"kCTTypesetterOptionDisableBidiProcessing";
@@ -36,6 +40,8 @@ const CFStringRef kCTTypesetterOptionForcedEmbeddingLevel = @"kCTTypesetterOptio
  */
 @interface CTTypesetter : NSObject
 {
+  NSAttributedString *_as;
+  NSDictionary *_options;
 }
 
 - (id)initWithAttributedString: (NSAttributedString*)string
@@ -54,12 +60,33 @@ const CFStringRef kCTTypesetterOptionForcedEmbeddingLevel = @"kCTTypesetterOptio
 - (id)initWithAttributedString: (NSAttributedString*)string
                        options: (NSDictionary*)options
 {
-  return nil;
+  if ((self = [super init]))
+  {
+    _as = [string retain];
+    _options = [options retain];
+  }
+  return self;
+}
+
+- (void) dealloc
+{
+  [_as release];
+  [_options release];
+  [super dealloc];
 }
 
 - (CTLineRef)createLineWithRange: (CFRange)range
 {
-  return nil;
+  // FIXME: This should do the core typesetting stuff:
+  // - divide the attributed string into runs with the same attributes.
+  // - run the bidirectional algorithm if needed
+  // - call the shaper on each run
+  
+  NSArray *runs = [NSMutableArray array];
+  
+  CTLineRef line = [[CTLine alloc] initWithRuns: runs];
+  
+  return line;
 }
 - (CFIndex)suggestClusterBreakAtIndex: (CFIndex)start
                                 width: (double)width
