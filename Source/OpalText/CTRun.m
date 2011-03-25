@@ -24,6 +24,8 @@
 
 #include <CoreText/CTRun.h>
 
+/* Classes */
+
 /**
  * Container of adjacent glyphs with the same attributes which have been layed out
  */
@@ -33,12 +35,32 @@
   CGGlyph *_glyphs; // pointer to C array of glphs
   CGSize *_advances;
   CGPoint *_positions;
+  CFIndex *_stringIndices;
+  CFRange _stringRange;
   NSDictionary *_attributes;
+  CTRunStatus _status;
+  CGAffineTransform _matrix;
 }
 
+- (CFIndex)glyphCount;
+- (NSDictionary*)attributes;
+- (CTRunStatus)status;
+- (const CGGlyph *)glyphs;
+- (const CGPoint *)positions;
+- (const CGSize *)advances;
+- (const CFIndex *)stringIndices;
+- (CFRange)stringRange;
+- (double)typographicBoundsForRange: (CFRange)range
+			     ascent: (CGFloat*)ascent
+			    descent: (CGFloat*)descent
+			    leading: (CGFloat*)leading;
+- (CGRect)imageBoundsForRange: (CFRange)range
+		  withContext: (CGContextRef)context;
+- (CGAffineTransform)matrix;
 - (void)drawRange: (CFRange)range onContext: (CGContextRef)ctx;
 
 @end
+
 
 @implementation CTRun
 
@@ -49,6 +71,59 @@
   free(_positions);
   [_attributes release];
   [super dealloc];
+}
+
+- (CFIndex)glyphCount
+{
+  return _count;
+}
+
+- (NSDictionary*)attributes
+{
+  return _attributes;
+}
+
+- (CTRunStatus)status
+{
+  return _status;
+}
+
+- (const CGGlyph *)glyphs
+{
+  return _glyphs;
+}
+- (const CGPoint *)positions
+{
+  return _positions;
+}
+- (const CGSize *)advances
+{
+  return _advances;
+}
+- (const CFIndex *)stringIndices
+{
+  return _stringIndices;
+}
+- (CFRange)stringRange
+{
+  return _stringRange;
+}
+- (double)typographicBoundsForRange: (CFRange)range
+			     ascent: (CGFloat*)ascent
+			    descent: (CGFloat*)descent
+			    leading: (CGFloat*)leading
+{
+  return 0;
+}
+- (CGRect)imageBoundsForRange: (CFRange)range
+		  withContext: (CGContextRef)context
+{
+  return CGRectMake(0,0,0,0);
+}
+
+- (CGAffineTransform)matrix
+{
+  return _matrix;
 }
 
 - (void)drawRange: (CFRange)range onContext: (CGContextRef)ctx
@@ -69,26 +144,27 @@
 
 @end
 
+
 /* Functions */
  
 CFIndex CTRunGetGlyphCount(CTRunRef run)
 {
-  return 0;
+  return [run glyphCount];
 }
 
 CFDictionaryRef CTRunGetAttributes(CTRunRef run)
 {
-  return nil;
+  return [run attributes];
 }
 
 CTRunStatus CTRunGetStatus(CTRunRef run)
 {
-  return 0;
+  return [run status];
 }
 
 const CGGlyph* CTRunGetGlyphsPtr(CTRunRef run)
 {
-  return NULL;
+  return [run glyphs];
 }
 
 void CTRunGetGlyphs(
@@ -96,11 +172,12 @@ void CTRunGetGlyphs(
 	CFRange range,
 	CGGlyph buffer[])
 {
+  memcpy(buffer, [run glyphs] + range.location, sizeof(CGGlyph) * range.length);
 }
 
 const CGPoint* CTRunGetPositionsPtr(CTRunRef run)
 {
-  return NULL;
+  return [run positions];
 }
 
 void CTRunGetPositions(
@@ -108,11 +185,12 @@ void CTRunGetPositions(
 	CFRange range,
 	CGPoint buffer[])
 {
+  memcpy(buffer, [run positions] + range.location, sizeof(CGPoint) * range.length);
 }
 
 const CGSize* CTRunGetAdvancesPtr(CTRunRef run)
 {
-  return NULL;
+  return [run advances];
 }
 
 void CTRunGetAdvances(
@@ -120,11 +198,12 @@ void CTRunGetAdvances(
 	CFRange range,
 	CGSize buffer[])
 {
+   memcpy(buffer, [run advances] + range.location, sizeof(CGSize) * range.length);
 }
 
 const CFIndex *CTRunGetStringIndicesPtr(CTRunRef run)
 {
-  return NULL;
+  return [run stringIndices];
 }
 
 void CTRunGetStringIndices(
@@ -132,11 +211,12 @@ void CTRunGetStringIndices(
 	CFRange range,
 	CFIndex buffer[])
 {
+  memcpy(buffer, [run stringIndices] + range.location, sizeof(CFIndex) * range.length);
 }
 
 CFRange CTRunGetStringRange(CTRunRef run)
 {
-  return NSMakeRange(0,0);
+  return [run stringRange];
 }
 
 double CTRunGetTypographicBounds(
@@ -146,7 +226,10 @@ double CTRunGetTypographicBounds(
 	CGFloat *descent,
 	CGFloat *leading)
 {
-  return 0;
+  return [run typographicBoundsForRange: range
+				 ascent: ascent
+				descent: descent
+				leading: leading];
 }
 
 CGRect CTRunGetImageBounds(
@@ -154,12 +237,13 @@ CGRect CTRunGetImageBounds(
 	CGContextRef context,
 	CFRange range)
 {
-  return CGRectMake(0,0,0,0);
+  return [run imageBoundsForRange: range
+		      withContext: context];
 }
 
 CGAffineTransform CTRunGetTextMatrix(CTRunRef run)
 {
-  return CGAffineTransformIdentity;
+  return [run matrix];
 }
 
 void CTRunDraw(
