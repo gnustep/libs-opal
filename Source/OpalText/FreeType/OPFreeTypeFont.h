@@ -31,6 +31,12 @@
 @interface OPFreeTypeFont: NSFont
 {
   FT_Face fontFace;
+  /**
+   * NSFont can be used simultaneously by multiple threads, so it is
+   * necessary to lock before we call FreeType, because an FT_Face
+   * object may be used by only one thread.
+   */
+  NSLock *fontFaceLock;
   BOOL isType1;
   NSCache *tableCache;
 }

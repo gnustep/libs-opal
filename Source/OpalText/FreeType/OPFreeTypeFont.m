@@ -49,7 +49,7 @@
 #ifndef NSRectFromCGRect
 #define NSRectFromCGRect(r) NSMakeRect(r.origin.x, r.origin.y, r.size.width, r.size.height)
 #endif
-static FT_Library OPFreeTypeLibrary = 0;
+static const NSString *kOPFreeTypeLibrary = @"OPFreeTypeLibrary";
 
 
 @interface NSObject (NSFontconfigFontDescriptorInternals)
@@ -58,17 +58,24 @@ static FT_Library OPFreeTypeLibrary = 0;
 @end
 
 @implementation OPFreeTypeFont
-+ (void)initialize
+
+- (FT_Library)currentThreadFreeTypeLibrary
 {
-  if ([OPFreeTypeFont class] == self)
+  NSMutableDictionary *threadDict = [[NSThread currentThread] threadDictionary];
+ 
+  if (nil == [threadDict objectForKey: kOPFreeTypeLibrary])
   {
-    NSInteger error = FT_Init_FreeType(&OPFreeTypeLibrary);
+    FT_Library library = NULL;
+    NSInteger error = FT_Init_FreeType(&library);
     if (0 != error)
     {
       [NSException raise: @"OTFontSystemException"
                   format: @"An error (%ld) occurred when initializing the FreeType library.", error];
     }
+    [threadDict setObject: [NSValue valueWithPointer: library] forKey: kOPFreeTypeLibrary];
   }
+
+  return [[threadDict objectForKey: kOPFreeTypeLibrary] pointerValue];
 }
 
 - (id)_initWithDescriptor: (NSFontDescriptor*)aDescriptor
@@ -106,7 +113,7 @@ static FT_Library OPFreeTypeLibrary = 0;
     return nil;
   }
 
-  error = FT_New_Face(OPFreeTypeLibrary, path, faceIndex, &fontFace);
+  error = FT_New_Face([self currentThreadFreeTypeLibrary], path, faceIndex, &fontFace);
   if (0 != error)
   {
     NSWarnMLog(@"Could not initialize freetype font (error: %ld)",
@@ -146,8 +153,13 @@ static FT_Library OPFreeTypeLibrary = 0;
   FT_Vector vector = FT_VectorQ1616FromCGAffineTransform(_matrix.CGTransform);
   FT_Set_Transform(fontFace, &matrix, &vector);
   //FIXME: Do more stuff
+
+  fontFaceLock = [[NSLock alloc] init];
+
   return self;
 }
+
+// FIXME: Implement -dealloc?
 
 - (BOOL)attachMetricsForFontAtPath: (NSString*)path
 {
@@ -194,10 +206,12 @@ static FT_Library OPFreeTypeLibrary = 0;
   }
 
   // First, run with a NULL pointer for the buffer to obtain the length needed.
+  [fontFaceLock lock];
   error = FT_Load_Sfnt_Table(fontFace, tag, 0, NULL, &length);
 
   if (0 != error)
   {
+    [fontFaceLock unlock];
     return nil;
   }
 
@@ -205,11 +219,14 @@ static FT_Library OPFreeTypeLibrary = 0;
   buffer = malloc(length);
   if (NULL == buffer)
   {
+    [fontFaceLock unlock];
     return nil;
   }
 
   // Now load the table into the buffer:
   error = FT_Load_Sfnt_Table(fontFace, tag, 0, buffer, &length);
+
+  [fontFaceLock unlock];
 
   if (0 != error)
   {
@@ -255,17 +272,30 @@ static FT_Library OPFreeTypeLibrary = 0;
 
 - (CGFloat)unitsPerEm
 {
-  return (CGFloat)fontFace->units_per_EM;
+  [fontFaceLock lock];
+  CGFloat result = (CGFloat)fontFace->units_per_EM;
+  [fontFaceLock unlock];
+
+  return result;
 }
 
 - (CGFloat)ascender
 {
-  return ((fontFace->ascender * [_descriptor pointSize]) / (CGFloat)fontFace->units_per_EM);
+  [fontFaceLock lock];
+  CGFloat result = ((fontFace->ascender * [_descriptor pointSize]) / (CGFloat)fontFace->units_per_EM);
+  [fontFaceLock unlock];
+
+  return result;
 }
+
 
 - (CGFloat)descender
 {
-  return ((fontFace->descender * [_descriptor pointSize]) / (CGFloat)fontFace->units_per_EM);
+  [fontFaceLock lock];
+  CGFloat result = ((fontFace->descender * [_descriptor pointSize]) / (CGFloat)fontFace->units_per_EM);
+  [fontFaceLock unlock];
+
+  return result;
 }
 
 /* TODO: If this kind of method is too slow, we will have to cache the results
@@ -274,24 +304,34 @@ static FT_Library OPFreeTypeLibrary = 0;
 - (CGFloat)capHeight
 {
   FT_Short rawCapHeight = 0;
+
+  [fontFaceLock lock];
   TT_OS2* OS2Table = FT_Get_Sfnt_Table(fontFace, TTAG_OS2);
   if (NULL == OS2Table)
   {
+    [fontFaceLock unlock];
     return 0;
   }
   rawCapHeight = OS2Table->sCapHeight;
+  [fontFaceLock unlock];
+
   return TRANSFORMED_SIZE(0, rawCapHeight).height;
 }
 
 - (CGFloat)xHeight
 {
   FT_Short rawXHeight = 0;
+
+  [fontFaceLock lock];
   TT_OS2* OS2Table = FT_Get_Sfnt_Table(fontFace, TTAG_OS2);
   if (NULL == OS2Table)
   {
+    [fontFaceLock unlock];
     return 0;
   }
   rawXHeight = OS2Table->sxHeight;
+  [fontFaceLock unlock];
+
   return TRANSFORMED_SIZE(0, rawXHeight).height;
 
 }
@@ -300,24 +340,32 @@ static FT_Library OPFreeTypeLibrary = 0;
 {
   BOOL isFixedPitch = NO;
 
+  [fontFaceLock lock];
   TT_Postscript *postTable = FT_Get_Sfnt_Table(fontFace, TTAG_post);
   if (NULL == postTable)
   {
+    [fontFaceLock unlock];
     return NO;
   }
   isFixedPitch = postTable->isFixedPitch;
+  [fontFaceLock unlock];
+
   return isFixedPitch;
 }
 
 - (CGFloat)italicAngle
 {
   FT_Fixed rawItalicAngle = 0;
+  [fontFaceLock lock];
   TT_Postscript *postTable = FT_Get_Sfnt_Table(fontFace, TTAG_post);
   if (NULL == postTable)
   {
+    [fontFaceLock unlock];
     return 0;
   }
   rawItalicAngle = postTable->italicAngle;
+  [fontFaceLock unlock];
+
   return CGFloatFromFT_Fixed(rawItalicAngle);
 }
 
@@ -329,12 +377,17 @@ static FT_Library OPFreeTypeLibrary = 0;
    * to be identical.
    */
   FT_Short rawLineGap = 0;
+
+  [fontFaceLock lock];
   TT_HoriHeader *hheaTable = FT_Get_Sfnt_Table(fontFace, TTAG_hhea);
   if (NULL == hheaTable)
   {
+    [fontFaceLock unlock];
     return 0;
   }
   rawLineGap = hheaTable->Line_Gap;
+  [fontFaceLock unlock];
+
   return TRANSFORMED_SIZE(0, rawLineGap).height;
 }
 
@@ -343,7 +396,11 @@ static FT_Library OPFreeTypeLibrary = 0;
   /*
    * FIXME: We should make this conditional on horizontal/vertical orientation.
    */
-  return NSMakeSize(REAL_SIZE(fontFace->max_advance_width), REAL_SIZE(fontFace->max_advance_height));
+  [fontFaceLock lock];
+  NSSize size = NSMakeSize(REAL_SIZE(fontFace->max_advance_width), REAL_SIZE(fontFace->max_advance_height));
+  [fontFaceLock unlock];
+
+  return size;
 }
 
 - (NSSize)minimumAdvancement
@@ -353,33 +410,48 @@ static FT_Library OPFreeTypeLibrary = 0;
    * FIXME2: We should make this conditional on horizontal/vertical orientation.
    * FIXME3: Does FreeType apply the transform to the bounding box?
    */
-  return NSMakeSize(REAL_SIZE((fontFace->bbox).xMin),
+  [fontFaceLock lock];
+  NSSize size = NSMakeSize(REAL_SIZE((fontFace->bbox).xMin),
     REAL_SIZE((fontFace->bbox).yMin));
+  [fontFaceLock unlock];
+
+  return size;
 }
 
 - (NSUInteger)numberOfGlyphs
 {
-  return fontFace->num_glyphs;
+  [fontFaceLock lock];
+  NSUInteger result = fontFace->num_glyphs;
+  [fontFaceLock unlock];
+  return result;
 }
 
 - (CGFloat)underlinePosition
 {
+  [fontFaceLock lock];
   TT_Postscript *postTable = FT_Get_Sfnt_Table(fontFace, TTAG_post);
   if (NULL == postTable)
   {
+    [fontFaceLock unlock];
     return 0;
   }
-  return TRANSFORMED_SIZE(0, postTable->underlinePosition).height;
+  CGFloat position = TRANSFORMED_SIZE(0, postTable->underlinePosition).height;
+  [fontFaceLock unlock];
+  return position;
 }
 
 - (CGFloat)underlineThickness
 {
+  [fontFaceLock lock];
   TT_Postscript *postTable = FT_Get_Sfnt_Table(fontFace, TTAG_post);
   if (NULL == postTable)
   {
+    [fontFaceLock unlock];
     return 0;
   }
-  return TRANSFORMED_SIZE(0, postTable->underlineThickness).height;
+  CGFloat thickness = TRANSFORMED_SIZE(0, postTable->underlineThickness).height;
+  [fontFaceLock unlock];
+  return thickness;
 }
 
 - (NSSize)advancementForGlyph: (NSGlyph)glyph
@@ -388,10 +460,13 @@ static FT_Library OPFreeTypeLibrary = 0;
   {
     return NSMakeSize(0, 0);
   }
+  [fontFaceLock lock];
   FT_Load_Glyph(fontFace, glyph, FT_LOAD_DEFAULT);
-  return NSMakeSize(REAL_SIZE(fontFace->glyph->linearHoriAdvance),
+  NSSize size = NSMakeSize(REAL_SIZE(fontFace->glyph->linearHoriAdvance),
     REAL_SIZE(fontFace->glyph->linearVertAdvance));
+  [fontFaceLock unlock];
 
+  return size;
   /*
    * FIXME: Add fast path for integer rendering modes. We don't need to do
    * so many integer->float conversions then.
@@ -454,10 +529,13 @@ static FT_Library OPFreeTypeLibrary = 0;
 {
   //FIXME: Determine whether FreeType already transforms the bounding box for
   //us.
+  [fontFaceLock lock];
   CGFloat originX = REAL_SIZE((fontFace->bbox).xMin);
   CGFloat originY = REAL_SIZE((fontFace->bbox).yMin);
   CGFloat sizeX = (REAL_SIZE((fontFace->bbox).xMax) - originX);
   CGFloat sizeY = (REAL_SIZE((fontFace->bbox).yMax) - originY);
+  [fontFaceLock unlock];
+
   return NSMakeRect(originX, originY, sizeX, sizeY);
 }
 
@@ -468,12 +546,15 @@ static FT_Library OPFreeTypeLibrary = 0;
   {
     return NSMakeRect(0, 0, 0, 0);
   }
+
+  [fontFaceLock lock];
   FT_Load_Glyph(fontFace, glyph, FT_LOAD_DEFAULT);
-  return NSRectFromCGRect(TRANSFORMED_RECT(fontFace->glyph->metrics.horiBearingX,
+  NSRect result = NSRectFromCGRect(TRANSFORMED_RECT(fontFace->glyph->metrics.horiBearingX,
     fontFace->glyph->metrics.horiBearingY,
     fontFace->glyph->metrics.width,
     fontFace->glyph->metrics.height));
-
+  [fontFaceLock unlock];
+  return result;
 }
 
 - (void)getBoundingRects: (NSRectArray)rects
@@ -497,7 +578,9 @@ static FT_Library OPFreeTypeLibrary = 0;
 
 - (NSGlyph)glyphWithName: (NSString*)name
 {
+  [fontFaceLock lock];
   FT_UInt glyph = FT_Get_Name_Index(fontFace, (FT_String*)[name UTF8String]);
+  [fontFaceLock unlock];
   if(0 == glyph)
   {
     return NSNullGlyph;
