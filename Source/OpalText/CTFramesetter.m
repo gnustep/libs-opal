@@ -84,7 +84,7 @@
   }
   
   CTFrameRef frame = [[CTFrame alloc] initWithPath: path
-                                       stringRange: range
+                                       stringRange: NSMakeRange(range.location, range.length)
                                         attributes: attributes];
 		
   // FIXME: take in to account CTTextTab settings (alignment, justification, etc?)
@@ -99,7 +99,7 @@
       {
         CFIndex lineBreak = CTTypesetterSuggestLineBreak(_ts, start, frameRect.size.width);
 
-        CTLineRef line = CTTypesetterCreateLine(_ts, NSMakeRange(start, lineBreak));
+        CTLineRef line = CTTypesetterCreateLine(_ts, CFRangeMake(start, lineBreak));
         [frame addLine: line];
         [line release];
         

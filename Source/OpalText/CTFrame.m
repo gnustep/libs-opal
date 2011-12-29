@@ -74,18 +74,22 @@ const CFStringRef kCTFrameProgressionAttributeName = @"kCTFrameProgressionAttrib
 {
   return _stringRange; 
 }
+
 - (NSRange)visibleStringRange
 {
   return _visibleStringRange;
 }
+
 - (void)setVisibleStringRange: (NSRange)aRange
 {
   _visibleStringRange = aRange;
 }
+
 - (NSDictionary*)attributes
 {
   return nil;
 }
+
 - (void)drawOnContext: (CGContextRef)ctx
 {
   // FIXME: see CTFrameProgression docs comment about rotating 90 degrees
@@ -100,36 +104,42 @@ const CFStringRef kCTFrameProgressionAttributeName = @"kCTFrameProgressionAttrib
 
 @end
 
-
 /* Functions */
 
 CFRange CTFrameGetStringRange(CTFrameRef frame)
 {
-  return [frame stringRange];
+  NSRange range = [frame stringRange];
+  return CFRangeMake(range.location, range.length);
 }
+
 CFRange CTFrameGetVisibleStringRange(CTFrameRef frame)
 {
-  return [frame visibleStringRange];
+  NSRange range = [frame visibleStringRange];
+  return CFRangeMake(range.location, range.length);
 }
+
 CGPathRef CTFrameGetPath(CTFrameRef frame)
 {
   return [frame path];
 }
+
 CFDictionaryRef CTFrameGetFrameAttributes(CTFrameRef frame)
 {
   return [frame attributes];
 }
+
 CFArrayRef CTFrameGetLines(CTFrameRef frame)
 {
   return [frame lines];
 }
+
 void CTFrameGetLineOrigins(
 	CTFrameRef frame,
 	CFRange range,
 	CGPoint origins[])
 {
-
 }
+
 void CTFrameDraw(CTFrameRef frame, CGContextRef ctx)
 {
   [frame drawOnContext: ctx];

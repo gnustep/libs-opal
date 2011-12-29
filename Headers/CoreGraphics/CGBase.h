@@ -35,6 +35,11 @@
 // Note: GNUstep Foundation defines CGFloat
 
 #import <Foundation/Foundation.h>
+#import <CoreFoundation/CoreFoundation.h>
+
+#endif
+
+#ifndef OPAL_CGBase_h
 
 #ifndef MAX
 #define MAX(a,b) ((a)>(b)?(a):(b))

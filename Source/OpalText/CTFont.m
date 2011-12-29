@@ -75,12 +75,12 @@ CTFontRef CTFontCreateForString(
   CFStringRef str,
   CFRange range)
 {
-  NSCharacterSet *set = [NSCharacterSet characterSetWithCharactersInString:
-    [str substringWithRange: range]];
+  NSRange nsrange = NSMakeRange(range.location, range.length);
+  NSCharacterSet *set = [NSCharacterSet characterSetWithCharactersInString:[str substringWithRange: nsrange]];
 
   NSDictionary *attrs = [NSDictionary dictionaryWithObjectsAndKeys:
-    set, kCTFontCharacterSetAttribute,
-    nil];
+	set, kCTFontCharacterSetAttribute,
+    	nil];
 
   NSFontDescriptor *descriptor = [NSFontDescriptor fontDescriptorWithFontAttributes: attrs];
 

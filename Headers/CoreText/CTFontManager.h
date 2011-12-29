@@ -27,6 +27,7 @@
 
 #include <CoreGraphics/CGBase.h>
 #include <CoreText/CTFontDescriptor.h>
+#include <CoreFoundation/CoreFoundation.h>
 
 /* Constants */
 

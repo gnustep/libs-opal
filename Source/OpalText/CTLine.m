@@ -48,7 +48,7 @@
   for (NSUInteger i=0; i<runsCount; i++)
   {
     CTRunRef run = [_runs objectAtIndex: i];
-    CTRunDraw(run, ctx, NSMakeRange(0, 0));
+    CTRunDraw(run, ctx, CFRangeMake(0, 0));
   }
 }
 
@@ -83,7 +83,7 @@
 
 - (CFRange)stringRange
 {
-  return NSMakeRange(0,0);
+  return CFRangeMake(0,0);
 }
 @end
 
@@ -93,7 +93,7 @@
 CTLineRef CTLineCreateWithAttributedString(CFAttributedStringRef string)
 {
   CTTypesetterRef ts = CTTypesetterCreateWithAttributedString(string);
-  CTLineRef line = CTTypesetterCreateLine(ts, NSMakeRange(0, 0));
+  CTLineRef line = CTTypesetterCreateLine(ts, CFRangeMake(0, 0));
   [ts release];
   return line;
 }
