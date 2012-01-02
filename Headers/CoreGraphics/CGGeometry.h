@@ -99,6 +99,10 @@ OP_GEOM_SCOPE CGSize CGSizeMake(CGFloat width, CGFloat height) OP_GEOM_ATTR;
 /** Returns a CGRect having point of origin (x, y) and size (width, height). */
 OP_GEOM_SCOPE CGRect CGRectMake(CGFloat x, CGFloat y, CGFloat width, CGFloat height) OP_GEOM_ATTR;
 
+OP_GEOM_SCOPE CGRect NSRectToCGRect(NSRect rect);
+OP_GEOM_SCOPE CGPoint NSPointToCGPoint(NSPoint point);
+OP_GEOM_SCOPE NSPoint NSPointFromCGPoint(CGPoint point);
+
 /** Returns an equivalent rect which has positive width and heght. */
 OP_GEOM_SCOPE CGRect CGRectStandardize(CGRect rect) OP_GEOM_ATTR;
 
@@ -329,6 +333,35 @@ OP_GEOM_SCOPE CGRect CGRectMake(CGFloat x, CGFloat y, CGFloat width, CGFloat hei
   rect.size.width = width;
   rect.size.height = height;
   return rect;
+}
+
+OP_GEOM_SCOPE CGRect NSRectToCGRect(NSRect rect)
+{
+  CGRect cgrect;
+  
+  cgrect.origin.x = rect.origin.x;
+  cgrect.origin.y = rect.origin.y;
+  cgrect.size.width = rect.size.width;
+  cgrect.size.height = rect.size.height;
+  return cgrect;
+}
+
+OP_GEOM_SCOPE CGPoint NSPointToCGPoint(NSPoint point)
+{
+  CGPoint cgpoint;
+
+  cgpoint.x = point.x;
+  cgpoint.y = point.y;
+  return cgpoint;
+}
+
+OP_GEOM_SCOPE NSPoint NSPointFromCGPoint(CGPoint point)
+{
+  NSPoint nspoint;
+
+  nspoint.x = point.x;
+  nspoint.y = point.y;
+  return nspoint;
 }
 
 OP_GEOM_SCOPE CGRect CGRectStandardize(CGRect rect)
