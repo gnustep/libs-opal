@@ -4,10 +4,12 @@
 #include <CoreGraphics/CoreGraphics.h>
 #include <CoreText/CoreText.h>
 
+#if 0
 NSRange CFRangeMake(NSUInteger loc, NSUInteger len)
 {
   return NSMakeRange(loc, len);
 }
+#endif
 
 #endif
 

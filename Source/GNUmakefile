@@ -17,10 +17,10 @@ libopal_SUBPROJECTS = \
 	OpalText
 
 ifneq ($(GNUSTEP_TARGET_OS), mingw32)
-ADDITIONAL_LDFLAGS += $(shell pkg-config --libs freetype2) -lfontconfig -lX11 -lXrender -lm 
-ADDITIONAL_LDFLAGS += $(shell pkg-config --libs cairo)
+LIBRARIES_DEPEND_UPON += $(shell pkg-config --libs freetype2) -lfontconfig -lX11 -lXrender -lm 
+LIBRARIES_DEPEND_UPON += $(shell pkg-config --libs cairo)
 else
-LIBRARIES_DEPEND_UPON = -lgdi32 -lcairo
+LIBRARIES_DEPEND_UPON += -lgdi32 -lcairo
 endif
 
 LIBRARIES_DEPEND_UPON += $(shell pkg-config --libs lcms)

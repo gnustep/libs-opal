@@ -23,7 +23,7 @@ colorspace_OBJC_FILES = $(main_file) colorspace.m
 
 
 ifneq ($(GNUSTEP_TARGET_OS), mingw32)
-ADDITIONAL_LDFLAGS += -lfontconfig -lX11 -lXrender -lm 
+ADDITIONAL_LDFLAGS += -lm 
 else
 ADDITIONAL_LDFLAGS += -lgdi32
 endif
