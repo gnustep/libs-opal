@@ -42,7 +42,7 @@ typedef struct CGAffineTransform
 
 /* Constants */
 
-extern const CGAffineTransform CGAffineTransformIdentity;
+const CGAffineTransform CGAffineTransformIdentity;
 
 /* Functions */
 
@@ -101,6 +101,15 @@ GS_AFTR_SCOPE CGAffineTransform CGAffineTransformScale(
 GS_AFTR_SCOPE CGAffineTransform CGAffineTransformRotate(
   CGAffineTransform t,
   CGFloat angle
+) GS_AFTR_ATTR;
+
+GS_AFTR_SCOPE bool CGAffineTransformEqualToTransform(
+  CGAffineTransform t1,
+  CGAffineTransform t2
+) GS_AFTR_ATTR; 
+
+GS_AFTR_SCOPE bool CGAffineTransformIsIdentity(
+  CGAffineTransform t
 ) GS_AFTR_ATTR;
 
 CGAffineTransform CGAffineTransformInvert(CGAffineTransform t);
@@ -199,6 +208,34 @@ GS_AFTR_SCOPE CGAffineTransform CGAffineTransformRotate(
   CGAffineTransform t, CGFloat angle)
 {
   return CGAffineTransformConcat(CGAffineTransformMakeRotation(angle), t);
+}
+
+GS_AFTR_SCOPE bool CGAffineTransformEqualToTransform(CGAffineTransform t1, CGAffineTransform t2)
+{
+  if (t1.a != t2.a) {
+    return false;
+  }
+  if (t1.b != t2.b) {
+    return false;
+  }
+  if (t1.c != t2.c) {
+    return false;
+  }
+  if (t1.d != t2.d) {
+    return false;
+  }
+  if (t1.tx != t2.tx) {
+    return false;
+  }
+  if (t1.ty != t2.ty) {
+    return false;
+  }
+  return true;
+}
+
+GS_AFTR_SCOPE bool CGAffineTransformIsIdentity(CGAffineTransform t)
+{
+  return t.a && !t.b && !t.c && t.d && !t.tx && !t.ty;
 }
 
 GS_AFTR_SCOPE CGPoint CGPointApplyAffineTransform(
