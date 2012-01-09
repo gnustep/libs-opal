@@ -100,6 +100,7 @@ OP_GEOM_SCOPE CGSize CGSizeMake(CGFloat width, CGFloat height) OP_GEOM_ATTR;
 OP_GEOM_SCOPE CGRect CGRectMake(CGFloat x, CGFloat y, CGFloat width, CGFloat height) OP_GEOM_ATTR;
 
 OP_GEOM_SCOPE CGRect NSRectToCGRect(NSRect rect);
+OP_GEOM_SCOPE NSRect NSRectFromCGRect(CGRect rect);
 OP_GEOM_SCOPE CGPoint NSPointToCGPoint(NSPoint point);
 OP_GEOM_SCOPE NSPoint NSPointFromCGPoint(CGPoint point);
 OP_GEOM_SCOPE NSSize NSSizeFromCGSize(CGSize size);
@@ -346,6 +347,17 @@ OP_GEOM_SCOPE CGRect NSRectToCGRect(NSRect rect)
   cgrect.size.width = rect.size.width;
   cgrect.size.height = rect.size.height;
   return cgrect;
+}
+
+OP_GEOM_SCOPE NSRect NSRectFromCGRect(CGRect rect)
+{
+  NSRect nsrect;
+  
+  nsrect.origin.x = rect.origin.x;
+  nsrect.origin.y = rect.origin.y;
+  nsrect.size.width = rect.size.width;
+  nsrect.size.height = rect.size.height;
+  return nsrect;
 }
 
 OP_GEOM_SCOPE CGPoint NSPointToCGPoint(NSPoint point)
