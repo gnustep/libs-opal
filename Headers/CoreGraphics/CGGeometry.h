@@ -103,6 +103,7 @@ OP_GEOM_SCOPE CGRect NSRectToCGRect(NSRect rect);
 OP_GEOM_SCOPE CGPoint NSPointToCGPoint(NSPoint point);
 OP_GEOM_SCOPE NSPoint NSPointFromCGPoint(CGPoint point);
 OP_GEOM_SCOPE NSSize NSSizeFromCGSize(CGSize size);
+OP_GEOM_SCOPE CGSize NSSizeToCGSize(NSSize size);
 
 /** Returns an equivalent rect which has positive width and heght. */
 OP_GEOM_SCOPE CGRect CGRectStandardize(CGRect rect) OP_GEOM_ATTR;
@@ -372,6 +373,15 @@ OP_GEOM_SCOPE NSSize NSSizeFromCGSize(CGSize size)
   nssize.width = size.width;
   nssize.height = size.height;
   return nssize;
+}
+
+OP_GEOM_SCOPE CGSize NSSizeToCGSize(NSSize size)
+{
+  CGSize cgsize;
+
+  cgsize.width = size.width;
+  cgsize.height = size.height;
+  return cgsize;
 }
 
 OP_GEOM_SCOPE CGRect CGRectStandardize(CGRect rect)
