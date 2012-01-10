@@ -46,8 +46,7 @@ const extern CFStringRef kCGColorClear;
 
 /* Functions */
 
-CGColorRef CGColorCreate(CGColorSpaceRef colorspace, const CGFloat components[]);
-
+extern CGColorRef CGColorCreate(CGColorSpaceRef colorspace, const CGFloat components[]);
 CGColorRef CGColorCreateCopy(CGColorRef clr);
 
 CGColorRef CGColorCreateCopyWithAlpha(CGColorRef clr, CGFloat alpha);

@@ -113,7 +113,7 @@ CGColorSpaceRef CGColorSpaceCreateLab(
   const CGFloat range[4]
 );
 
-CGColorSpaceRef CGColorSpaceCreatePattern(CGColorSpaceRef baseSpace);
+extern CGColorSpaceRef CGColorSpaceCreatePattern(CGColorSpaceRef baseSpace);
 
 CGColorSpaceRef CGColorSpaceCreateWithICCProfile(CFDataRef data);
 

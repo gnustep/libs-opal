@@ -136,7 +136,6 @@ static CGColorRef _clearColor;
 
 @end
 
-
 CGColorRef CGColorCreate(CGColorSpaceRef colorspace, const CGFloat components[])
 {
   CGColor *clr = [[CGColor alloc] initWithColorSpace: colorspace components: components];
