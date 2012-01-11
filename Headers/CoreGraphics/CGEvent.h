@@ -26,4 +26,7 @@
    Boston, MA 02110-1301, USA.
 */
 
+#import "CGEventType.h"
 
+extern int64_t CGEventGetIntegerValueField(CGEventRef event, CGEventField field);
+extern CGEventSourceRef CGEventCreateSourceFromEvent(CGEventRef event);

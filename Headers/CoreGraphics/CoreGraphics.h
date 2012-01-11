@@ -54,5 +54,7 @@
 #include <CoreGraphics/CGPath.h>
 #include <CoreGraphics/CGPattern.h>
 #include <CoreGraphics/CGShading.h>
+#include <CoreGraphics/CGEvent.h>
+#include <CoreGraphics/CGEventType.h>
 
 #endif	/* OPAL_CoreGraphics_h */

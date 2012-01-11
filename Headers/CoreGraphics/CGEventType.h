@@ -27,4 +27,12 @@
 */
 
 typedef struct __CGEvent *CGEventRef;
+typedef struct __CGEventSource *CGEventSourceRef;
 
+typedef enum {
+  kCGScrollWheelEventIsContinuous = 88,
+  kCGScrollWheelEventFixedPtDeltaAxis1 = 93,
+  kCGScrollWheelEventFixedPtDeltaAxis2 = 94,
+  kCGScrollWheelEventPointDeltaAxis1 = 96,
+  kCGScrollWheelEventPointDeltaAxis2 = 97
+} CGEventField;
