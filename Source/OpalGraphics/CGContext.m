@@ -628,12 +628,10 @@ static void fill_path(CGContextRef ctx, int eorule, int preserve)
   if (ctx->add->shadow_cp) {
     start_shadow(ctx);
   }
-
-  if(ctx->add->fill_cp)
+  if (ctx->add->fill_cp)
     cairo_set_source(ctx->ct, ctx->add->fill_cp);
   else
     cairo_set_source(ctx->ct, default_cp);
-
   if (eorule)
     cairo_set_fill_rule(ctx->ct, CAIRO_FILL_RULE_EVEN_ODD);
   else
@@ -656,6 +654,25 @@ static void fill_path(CGContextRef ctx, int eorule, int preserve)
 void CGContextFillPath(CGContextRef ctx)
 {
   fill_path(ctx, 0, 0);
+}
+
+void CGContextClearPath(CGContextRef ctx)
+{ //FIXME
+
+  cairo_status_t cret;
+
+  if (ctx->add->fill_cp)
+    cairo_set_source(ctx->ct, ctx->add->fill_cp);
+  else
+    cairo_set_source(ctx->ct, default_cp);
+  //cairo_set_fill_rule(ctx->ct, CAIRO_FILL_RULE_WINDING);
+  cairo_clip(ctx->ct);
+  cairo_clip_preserve(ctx->ct);
+
+  cret = cairo_status(ctx->ct);
+  if (cret)
+    NSLog(@"cairo clear status: %s",
+          cairo_status_to_string(cret));
 }
 
 void CGContextEOFillPath(CGContextRef ctx)
@@ -708,6 +725,13 @@ void CGContextFillRects(CGContextRef ctx, const CGRect rects[], size_t count)
   CGContextBeginPath(ctx);
   CGContextAddRects(ctx, rects, count);
   CGContextFillPath(ctx);
+}
+
+void CGContextClearRect(CGContextRef ctx, CGRect rect)
+{
+  CGContextBeginPath(ctx);
+  CGContextAddRect(ctx, rect);
+  CGContextClearPath(ctx);
 }
 
 void CGContextStrokeLineSegments(
