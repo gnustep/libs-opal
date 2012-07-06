@@ -12,9 +12,14 @@ include $(GNUSTEP_MAKEFILES)/common.make
 PACKAGE_NAME = opal
 LIBRARY_NAME = libopal
 
+ifdef NO_OPALTEXT
+libopal_SUBPROJECTS = \
+	OpalGraphics
+else
 libopal_SUBPROJECTS = \
 	OpalGraphics\
 	OpalText
+endif
 
 ifneq ($(GNUSTEP_TARGET_OS), mingw32)
 LIBRARIES_DEPEND_UPON += $(shell pkg-config --libs freetype2) -lfontconfig -lX11 -lXrender -lm 

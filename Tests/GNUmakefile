@@ -1,6 +1,10 @@
 include $(GNUSTEP_MAKEFILES)/common.make
 
+ifdef NO_OPALTEXT
+TOOL_NAME = qeb2 shadows shapes layers pdf images gradients colorspace paths
+else
 TOOL_NAME = qeb2 shadows shapes layers texttest textlayout pdf images gradients colorspace paths
+endif
 
 ifeq ($(GNUSTEP_TARGET_OS), mingw32)
 main_file = win32.m
@@ -23,7 +27,7 @@ colorspace_OBJC_FILES = $(main_file) colorspace.m
 
 
 ifneq ($(GNUSTEP_TARGET_OS), mingw32)
-ADDITIONAL_LDFLAGS += -lm 
+ADDITIONAL_LDFLAGS += -lm -lX11
 else
 ADDITIONAL_LDFLAGS += -lgdi32
 endif

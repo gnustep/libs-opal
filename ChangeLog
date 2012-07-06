@@ -1,3 +1,9 @@
+2012-07-06 Fred Kiefer <FredKiefer@gmx.de>
+
+	* Tests/GNUmakefile,
+	* Source/GNUmakefile: Allow for compilation without OpalText.
+	To achieve this define the variable NO_OPALTEXT before compiling.
+
 2011-03-23 Niels Grewe <niels.grewe@halbordnung.de>
 
 	* Source/OpalText/FreeType/OPFreeTypeFont.m: Implement
@@ -11,7 +17,7 @@
 	* Source/OpalText/NSFont.m:
 	Turn transformation matrix to a union so CGAffineTransform,
 	NSAffineTransformStruct and the CGFloat array used by NSFont
-	can be used interchangeably. 
+	can be used interchangeably.
 
 2011-03-15 Niels Grewe <niels.grewe@halbordnung.de>
 
