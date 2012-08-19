@@ -1,3 +1,8 @@
+2012-08-19 Ivan Vučica <ivan@vucica.net>
+
+	* Source/OpalGraphics/CGColor.m: Removed log output about CGColor
+	being created.
+
 2012-07-06 Fred Kiefer <FredKiefer@gmx.de>
 
 	* Tests/GNUmakefile,

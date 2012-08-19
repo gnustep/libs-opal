@@ -47,7 +47,6 @@ static CGColorRef _clearColor;
 
   size_t nc, i;
   nc = CGColorSpaceGetNumberOfComponents(cs);
-  NSLog(@"Create color with %d comps", nc);
   self->comps = malloc((nc+1)*sizeof(CGFloat));
   if (NULL == self->comps) {
     NSLog(@"malloc failed");
