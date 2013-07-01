@@ -68,7 +68,7 @@ bool CGPathIsRect(CGPathRef path, CGRect *rect)
   return [path isRect: rect];
 }
 
-CGRect CGPathGetBoundingBox(CGPathRef path)
+CGRect CGPathGetPathBoundingBox(CGPathRef path)
 {
   NSUInteger count = [path count];
   CGFloat minX = 0.0;

@@ -81,7 +81,7 @@ bool CGPathEqualToPath(CGPathRef path1, CGPathRef path2);
 
 bool CGPathIsRect(CGPathRef path, CGRect *rect);
 
-CGRect CGPathGetBoundingBox(CGPathRef path);
+CGRect CGPathGetPathBoundingBox(CGPathRef path);
 
 CGPoint CGPathGetCurrentPoint(CGPathRef path);
 
