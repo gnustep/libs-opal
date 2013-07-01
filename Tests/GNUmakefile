@@ -27,9 +27,9 @@ colorspace_OBJC_FILES = $(main_file) colorspace.m
 
 
 ifneq ($(GNUSTEP_TARGET_OS), mingw32)
-ADDITIONAL_LDFLAGS += -lm -lX11
+ADDITIONAL_LIBS += -lm -lX11
 else
-ADDITIONAL_LDFLAGS += -lgdi32
+ADDITIONAL_LIBS += -lgdi32
 endif
 
 ADDITIONAL_OBJCFLAGS += -Wall -g -O0 -std=gnu99
