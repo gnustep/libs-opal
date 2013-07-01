@@ -552,7 +552,9 @@ CGRect CGContextConvertRectToUserSpace(CGContextRef ctx, CGRect rect);
 
 // FIXME: Move extensions to a separate header?
 
-void OpalContextSetScaleFactor(CGContextRef ctx, CGFloat scale);
+void OPContextSetScaleFactor(CGContextRef ctx, CGFloat scale);
+
+void OPContextSetSize(CGContextRef ctx, CGSize size);
 
 #endif /* OPAL_CGContext_h */
 

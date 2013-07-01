@@ -30,7 +30,7 @@
 #include <cairo-win32.h>
 #include "CoreGraphics/CGContext.h"
 #include "CGContext-private.h"
-
+// TODO: add OpalWin32Context class
 CGContextRef opal_Win32ContextCreate(HDC hdc)
 {
   CGContextRef ctx;
@@ -47,7 +47,7 @@ CGContextRef opal_Win32ContextCreate(HDC hdc)
 
   return ctx;
 }
-
+// TODO: move to OpalWin32Context class
 void opal_surface_flush(cairo_surface_t *target)
 {
   cairo_surface_flush(target);

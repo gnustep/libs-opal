@@ -4,8 +4,7 @@
 #include <CoreGraphics/CGContext.h>
 #import <Foundation/Foundation.h>
 
-extern CGContextRef opal_XWindowContextCreate(Display *d, Window w);
-extern void opal_XWindowContexSetSize(CGContextRef ctx, CGSize s);
+extern CGContextRef OPX11ContextCreate(Display *d, Window w);
 
 void draw(CGContextRef ctx, CGRect r);
 
@@ -50,7 +49,7 @@ int main(int argc, char **argv)
   printf("XMapRaised returned: %x\n", ret);
 
   /* Create a CGContext */
-  ctx = opal_XWindowContextCreate(d, win);
+  ctx = OPX11ContextCreate(d, win);
   if (!ctx) {
     fprintf(stderr,"Cannot create context\n");
     exit(EXIT_FAILURE);
@@ -82,7 +81,7 @@ int main(int argc, char **argv)
             cr.size.width = e.xconfigure.width;
             cr.size.height = e.xconfigure.height;
             NSLog(@"New rect: %f x %f", (float)cr.size.width, (float)cr.size.height);
-            opal_XWindowContexSetSize(ctx, cr.size);
+            OPContextSetSize(ctx, cr.size);
           }
         }
         break;

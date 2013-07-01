@@ -37,8 +37,6 @@
  * used if no other color is set on the context yet */
 static cairo_pattern_t *default_cp;
 
-extern void opal_surface_flush(cairo_surface_t *target);
-
 extern cairo_surface_t *opal_CGImageGetSurfaceForImage(CGImageRef img, cairo_surface_t *contextSurface);
 extern CGRect opal_CGImageGetSourceRect(CGImageRef image);
 
@@ -118,17 +116,14 @@ static void end_shadow(CGContextRef ctx, CGRect bounds);
   [super dealloc];
 }
 
-@end
-
-
-void OPContextSetSize(CGContextRef ctxt, CGSize size)
+- (void) setSize: (CGSize) size
 {
   cairo_matrix_t oldCTM;
-  cairo_get_matrix(ctxt->ct, &oldCTM);
+  cairo_get_matrix(self->ct, &oldCTM);
   
   cairo_matrix_t oldFlipInverse;
   cairo_matrix_init_scale(&oldFlipInverse, 1, -1);
-  cairo_matrix_translate(&oldFlipInverse, 0, -ctxt->device_size.height);
+  cairo_matrix_translate(&oldFlipInverse, 0, -self->device_size.height);
   cairo_matrix_invert(&oldFlipInverse);
 
   cairo_matrix_t oldCTMWithoutFlip;
@@ -139,14 +134,25 @@ void OPContextSetSize(CGContextRef ctxt, CGSize size)
   cairo_matrix_translate(&newCTM, 0, -size.height);
   cairo_matrix_multiply(&newCTM, &newCTM, &oldCTMWithoutFlip);
 
-  ctxt->device_size = size;
-  cairo_set_matrix(ctxt->ct, &newCTM);
+  self->device_size = size;
+  cairo_set_matrix(self->ct, &newCTM);
 }
+
+- (void) flushSurface
+{
+}
+
+@end
 
 CGContextRef opal_new_CGContext(cairo_surface_t *target, CGSize device_size)
 {
   CGContext *ctx = [[CGContext alloc] initWithSurface: target size: device_size];
   return ctx;
+}
+
+void OPContextSetSize(CGContextRef ctx, CGSize size)
+{
+  [ctx setSize: size];
 }
 
 CFTypeID CGContextGetTypeID()
@@ -172,7 +178,7 @@ void CGContextFlush(CGContextRef ctx)
   /* FIXME: This doesn't work for most Cairo backends (including Xlib) */
   /* cairo_surface_flush(target); */
   /* So now we have to do it directly instead */
-  opal_surface_flush(target);
+  [ctx flushSurface];
 }
 
 void CGContextSynchronize(CGContextRef ctx)

@@ -38,7 +38,18 @@ extern void _cairo_surface_set_device_scale(cairo_surface_t *surface,
 /* Keys we use to attach additional data to Xlib surfaces */
 static cairo_user_data_key_t XWindow;
 
-CGContextRef opal_XWindowContextCreate(Display *d, Window w)
+@interface OPX11Context : CGContext
+{
+}
+- (id) initWithDisplay: (Display *) display
+              drawable: (Drawable) drawable;
+- (void) setSize: (CGSize) size;
+
+@end
+@implementation OPX11Context
+
+- (id) initWithDisplay: (Display *) d
+              drawable: (Drawable) w
 {
   CGContextRef ctx;
   XWindowAttributes wa;
@@ -48,7 +59,7 @@ CGContextRef opal_XWindowContextCreate(Display *d, Window w)
   ret = XGetWindowAttributes(d, w, &wa);
   if (!ret) {
     NSLog(@"XGetWindowAttributes returned %d", ret);
-    return NULL;
+    return nil;
   }
 
   target = cairo_xlib_surface_create(d, w, wa.visual, wa.width, wa.height);
@@ -58,7 +69,7 @@ CGContextRef opal_XWindowContextCreate(Display *d, Window w)
   if (ret) {
     NSLog(@"cairo_surface_set_user_data %s", cairo_status_to_string(CAIRO_STATUS_NO_MEMORY));
     cairo_surface_destroy(target);
-    return NULL;
+    return nil;
   }
 
   /* Flip coordinate system */
@@ -74,23 +85,30 @@ CGContextRef opal_XWindowContextCreate(Display *d, Window w)
   //       flip to the transformation matrix, to be consistent.
   //       - Eric
 
-  ctx = opal_new_CGContext(target, CGSizeMake(wa.width, wa.height));
-
+  self = [super initWithSurface: target
+                           size: CGSizeMake(wa.width, wa.height)];
 
   cairo_surface_destroy(target);
 
-  return ctx;
+  return self;
 }
 
-void opal_XWindowContexSetSize(CGContextRef ctx, CGSize size)
+- (void) setSize: (CGSize) size
 {
-  OPContextSetSize(ctx, size); // Updates CTM
-  cairo_xlib_surface_set_size(cairo_get_target(ctx->ct), size.width, size.height);
+  [super setSize: size];
+  cairo_xlib_surface_set_size(cairo_get_target(self->ct), size.width, size.height);
 }
 
-void opal_surface_flush(cairo_surface_t *target)
+- (void) flushSurface
 {
-  XFlush(cairo_xlib_surface_get_display(target));
+  XFlush(cairo_xlib_surface_get_display(cairo_get_target(self->ct)));
+}
+@end
+
+CGContextRef OPX11ContextCreate(Display *display, Drawable drawable)
+{
+  return [[OPX11Context alloc] initWithDisplay: display 
+                                      drawable: drawable];
 }
 
 #endif
