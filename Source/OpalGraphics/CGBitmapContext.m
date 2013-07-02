@@ -25,50 +25,161 @@
 #include "CoreGraphics/CGBitmapContext.h"
 #include "CGContext-private.h" 
 
+#import "OPImageConversion.h"
+
+
 @interface CGBitmapContext : CGContext
 {
 @public
+  BOOL isCairoDrawingIntoUserBuffer;
   CGColorSpaceRef cs;
-  void *data;
+  size_t userBufferBitsPerComponent;
+  size_t userBufferBytesPerRow;
+  void *userBuffer;
   void *releaseInfo;
   CGBitmapContextReleaseDataCallback cb;
 }
-- (id) initWithSurface: (cairo_surface_t *)target
-            colorspace: (CGColorSpaceRef)colorspace
-                  data: (void*)d
-           releaseInfo: (void*)i
-       releaseCallback: (CGBitmapContextReleaseDataCallback)releaseCallback;     
+
+/**
+ * Creates a bitmap editing context. Since cairo only supports drawing in a few formats,
+ * usually we'll need two memory buffers, one for cairo to draw in and one for the user to 
+ * read from.
+ */
+- (id)       initWithSurface: (cairo_surface_t *)target
+isCairoDrawingIntoUserBuffer: (BOOL)isCairoDrawingIntoUserBuffer
+        userBufferColorspace: (CGColorSpaceRef)colorspace
+  userBufferBitsPerComponent: (size_t)userBufferBitsPerComponent
+       userBufferBytesPerRow: (size_t)userBufferBytesPerRow
+       userBufferReleaseInfo: (void*)i
+                  userBuffer: (void*)userBuffer
+             releaseCallback: (CGBitmapContextReleaseDataCallback)releaseCallback;
+
 @end
 
 @implementation CGBitmapContext
 
-- (id) initWithSurface: (cairo_surface_t *)target
-            colorspace: (CGColorSpaceRef)colorspace
-                  data: (void*)d
-           releaseInfo: (void*)i
-       releaseCallback: (CGBitmapContextReleaseDataCallback)releaseCallback;     
+static BOOL isFormatNativelySupportedByCairo(CGBitmapInfo info, CGColorSpaceRef cs, size_t bitsPerComponent, cairo_format_t *outFormat)
+{
+  if (0 != (info & kCGBitmapFloatComponents))
+  {
+    return NO;
+  }
+  
+  const int order = info & kCGBitmapByteOrderMask;
+  if (!((NSHostByteOrder() == NS_LittleEndian) && (order == kCGBitmapByteOrder32Little))
+    && !((NSHostByteOrder() == NS_BigEndian) && (order == kCGBitmapByteOrder32Big))
+	&& !(order == kCGBitmapByteOrderDefault))
+  {
+    return NO;
+  }
+
+  const int alpha = info &  kCGBitmapAlphaInfoMask;
+  const CGColorSpaceModel model = CGColorSpaceGetModel(cs);
+  const size_t numComps = CGColorSpaceGetNumberOfComponents(cs);
+  
+  if (bitsPerComponent == 8
+      && numComps == 3
+      && model == kCGColorSpaceModelRGB
+      && alpha == kCGImageAlphaPremultipliedFirst)
+  {
+  	*outFormat = CAIRO_FORMAT_ARGB32;
+	return YES;
+  }
+  else if (bitsPerComponent == 8
+      && numComps == 3
+      && model == kCGColorSpaceModelRGB
+      && alpha == kCGImageAlphaNoneSkipFirst)
+  {
+  	*outFormat = CAIRO_FORMAT_RGB24;
+	return YES;
+  }
+  else if (bitsPerComponent == 8 && alpha == kCGImageAlphaOnly)
+  {
+  	*outFormat = CAIRO_FORMAT_A8;
+	return YES;
+  }
+  else if (bitsPerComponent == 1 && alpha == kCGImageAlphaOnly)
+  {
+  	*outFormat = CAIRO_FORMAT_A1;
+	  return YES;
+  }
+  return NO;
+}
+
+- (id)       initWithSurface: (cairo_surface_t *)target
+isCairoDrawingIntoUserBuffer: (BOOL)isIntoUserBuffer
+        userBufferColorspace: (CGColorSpaceRef)colorspace
+  userBufferBitsPerComponent: (size_t)bitsPerComponent
+       userBufferBytesPerRow: (size_t)bytesPerRow
+       userBufferReleaseInfo: (void*)i
+                  userBuffer: (void*)aUserBuffer
+             releaseCallback: (CGBitmapContextReleaseDataCallback)releaseCallback
 {
   CGSize size = CGSizeMake(cairo_image_surface_get_width(target),
                            cairo_image_surface_get_height(target));
+
   if (nil == (self = [super initWithSurface: target size: size]))
   {
     return nil;
   }
-  cs = CGColorSpaceRetain(colorspace);
-  data = d;
-  releaseInfo = i;
-  cb = releaseCallback;
+  self->isCairoDrawingIntoUserBuffer = isIntoUserBuffer;
+  self->cs = CGColorSpaceRetain(colorspace);
+  self->userBufferBitsPerComponent = bitsPerComponent;
+  self->userBufferBytesPerRow =  bytesPerRow;
+  self->userBuffer = aUserBuffer;
+  self->releaseInfo = i;
+  self->cb = releaseCallback;
   return self;
 }
 
 - (void) dealloc
 {
+  CGContextFlush(self);
   CGColorSpaceRelease(cs);
   if (cb)
   {
-  	cb(releaseInfo, data);
+  	cb(releaseInfo, userBuffer);
   }
   [super dealloc];    
+}
+
+- (void*) data
+{
+  CGContextFlush(self);
+
+  if (!isCairoDrawingIntoUserBuffer)
+  {
+    cairo_surface_t *srcCairoSurface = cairo_get_target(self->ct);
+    const unsigned char *srcData = cairo_image_surface_get_data(srcCairoSurface);  
+    const size_t srcWidth = CGBitmapContextGetWidth(self);
+    const size_t srcHeight = CGBitmapContextGetHeight(self);
+    const size_t srcBitsPerComponent = 8;
+    const size_t srcBitsPerPixel = 32;
+    const size_t srcBytesPerRow = cairo_format_stride_for_width(cairo_image_surface_get_format(srcCairoSurface), srcWidth);
+    const CGBitmapInfo srcBitmapInfo = kCGBitmapByteOrderDefault | kCGImageAlphaPremultipliedFirst;
+    const CGColorSpaceRef srcColorSpace = CGColorSpaceCreateDeviceRGB();
+    const CGColorRenderingIntent srcIntent = kCGRenderingIntentDefault;
+
+    unsigned char *dstData = userBuffer;
+    const size_t dstBitsPerComponent = CGBitmapContextGetBitsPerComponent(self);
+    const size_t dstBitsPerPixel = CGBitmapContextGetBitsPerPixel(self);
+    const size_t dstBytesPerRow = CGBitmapContextGetBytesPerRow(self);
+    
+    CGBitmapInfo dstBitmapInfo = CGBitmapContextGetBitmapInfo(self);
+    const CGColorSpaceRef dstColorSpace = CGBitmapContextGetColorSpace(self);
+
+    OPImageConvert(
+      dstData, srcData,
+      srcWidth, srcHeight,
+      dstBitsPerComponent, srcBitsPerComponent,
+      dstBitsPerPixel, srcBitsPerPixel,
+      dstBytesPerRow, srcBytesPerRow,
+      dstBitmapInfo, srcBitmapInfo,
+      dstColorSpace, srcColorSpace,
+      srcIntent);
+  }
+
+  return userBuffer;
 }
 
 @end
@@ -106,67 +217,39 @@ CGContextRef CGBitmapContextCreateWithData(
   cairo_format_t format;
   cairo_surface_t *surf;  
 
-  if (0 != (info & kCGBitmapFloatComponents))
+  // Create the user requested buffer
+  if (data == NULL)
   {
-  	NSLog(@"Float components not supported"); 
-    return nil;
-  }
-  
-  const int order = info & kCGBitmapByteOrderMask;
-  if (!((NSHostByteOrder() == NS_LittleEndian) && (order == kCGBitmapByteOrder32Little))
-    && !((NSHostByteOrder() == NS_BigEndian) && (order == kCGBitmapByteOrder32Big))
-	&& !(order == kCGBitmapByteOrderDefault))
-  {
-  	NSLog(@"Bitmap context must be native-endiand");
-    return nil;
+      data = malloc(height * bytesPerRow); // FIXME: checks
+      callback = (CGBitmapContextReleaseDataCallback)OPBitmapDataReleaseCallback;
   }
 
-  const int alpha = info &  kCGBitmapAlphaInfoMask;
-  const CGColorSpaceModel model = CGColorSpaceGetModel(cs);
-  const size_t numComps = CGColorSpaceGetNumberOfComponents(cs);
-  
-  if (bitsPerComponent == 8
-      && numComps == 3
-      && model == kCGColorSpaceModelRGB
-      && alpha == kCGImageAlphaPremultipliedFirst)
+  // Set up the user-requested surface
+  const BOOL nativeCairoSupport = isFormatNativelySupportedByCairo(info, cs, bitsPerComponent, &format);
+  if (nativeCairoSupport)
   {
-  	format = CAIRO_FORMAT_ARGB32;
-  }
-  else if (bitsPerComponent == 8
-      && numComps == 3
-      && model == kCGColorSpaceModelRGB
-      && alpha == kCGImageAlphaNoneSkipFirst)
-  {
-  	format = CAIRO_FORMAT_RGB24;
-  }
-  else if (bitsPerComponent == 8 && alpha == kCGImageAlphaOnly)
-  {
-  	format = CAIRO_FORMAT_A8;
-  }
-  else if (bitsPerComponent == 1 && alpha == kCGImageAlphaOnly)
-  {
-  	format = CAIRO_FORMAT_A1;
+    // Cairo can draw directly into the buffer format the caller provided or requested
+    surf = cairo_image_surface_create_for_data(data, format, width, height, bytesPerRow);
   }
   else
   {
-  	NSLog(@"Unsupported bitmap format");
-    return nil;
-  }
-  
-  
-  if (data == NULL)
-  {
-  	data = malloc(height * bytesPerRow); // FIXME: checks
-  	callback = (CGBitmapContextReleaseDataCallback)OPBitmapDataReleaseCallback;
-  }
+    // Cairo can't draw into the buffer the user provided or requested. Allocate a temporary
+    // ARGB32 buffer.
+    format = CAIRO_FORMAT_ARGB32;
 
-  surf = cairo_image_surface_create_for_data(data, format, width, height, bytesPerRow);
-  
+    const size_t cairoBytesPerRow = cairo_format_stride_for_width(format, width);
+    void *cairoData = malloc(height * cairoBytesPerRow);
+    surf = cairo_image_surface_create_for_data(cairoData, format, width, height, cairoBytesPerRow);    
+  }
+    
   return [[CGBitmapContext alloc] initWithSurface: surf
-                                       colorspace: cs
-                                             data: data
-                                      releaseInfo: releaseInfo
-		                          releaseCallback: callback];
+                     isCairoDrawingIntoUserBuffer: nativeCairoSupport
+                             userBufferColorspace: cs
+                       userBufferBitsPerComponent: bitsPerComponent
+                            userBufferBytesPerRow: bytesPerRow
+                            userBufferReleaseInfo: releaseInfo
+                                       userBuffer: data
+		                              releaseCallback: callback];
 }
 
 
@@ -260,7 +343,7 @@ void *CGBitmapContextGetData(CGContextRef ctx)
 {
   if ([ctx isKindOfClass: [CGBitmapContext class]])
   {
-    return cairo_image_surface_get_data(cairo_get_target(ctx->ct));
+    return [(CGBitmapContext *)ctx data];
   }
   return 0;
 }
@@ -292,6 +375,8 @@ CGImageRef CGBitmapContextCreateImage(CGContextRef ctx)
 {
   if ([ctx isKindOfClass: [CGBitmapContext class]])
   {
+    // FIXME: Use the cairo format
+
     CGDataProviderRef dp = CGDataProviderCreateWithData(
       CGContextRetain(ctx),
       CGBitmapContextGetData(ctx),
