@@ -27,6 +27,8 @@
 
 #import "OPPath.h"
 
+// This magic number is 4 *(sqrt(2) -1)/3
+#define KAPPA 0.5522847498
 
 CGPathRef CGPathCreateCopy(CGPathRef path)
 {
@@ -476,7 +478,36 @@ void CGPathCloseSubpath(CGMutablePathRef path)
 void CGPathAddEllipseInRect(
   CGMutablePathRef path,
   const CGAffineTransform *m,
-  CGRect rect)
+  CGRect aRect)
 {
-  // FIXME:
+  CGPoint p, p1, p2;
+  const CGFloat originx = aRect.origin.x;
+  const CGFloat originy = aRect.origin.y;
+  const CGFloat width = aRect.size.width;
+  const CGFloat height = aRect.size.height;
+  const CGFloat hdiff = width / 2 * KAPPA;
+  const CGFloat vdiff = height / 2 * KAPPA;
+  
+  p = CGPointMake(originx + width / 2, originy + height);
+  CGPathMoveToPoint(path, m, p.x, p.y);
+  
+  p = CGPointMake(originx, originy + height / 2);
+  p1 = CGPointMake(originx + width / 2 - hdiff, originy + height);
+  p2 = CGPointMake(originx, originy + height / 2 + vdiff);
+  CGPathAddCurveToPoint(path, m, p1.x, p1.y, p2.x, p2.y, p.x, p.y);
+  
+  p = CGPointMake(originx + width / 2, originy);
+  p1 = CGPointMake(originx, originy + height / 2 - vdiff);
+  p2 = CGPointMake(originx + width / 2 - hdiff, originy);
+  CGPathAddCurveToPoint(path, m, p1.x, p1.y, p2.x, p2.y, p.x, p.y);
+  
+  p = CGPointMake(originx + width, originy + height / 2);
+  p1 = CGPointMake(originx + width / 2 + hdiff, originy);
+  p2 = CGPointMake(originx + width, originy + height / 2 - vdiff);
+  CGPathAddCurveToPoint(path, m, p1.x, p1.y, p2.x, p2.y, p.x, p.y);
+  
+  p = CGPointMake(originx + width / 2, originy + height);
+  p1 = CGPointMake(originx + width, originy + height / 2 + vdiff);
+  p2 = CGPointMake(originx + width / 2 + hdiff, originy + height);
+  CGPathAddCurveToPoint(path, m, p1.x, p1.y, p2.x, p2.y, p.x, p.y);
 }
