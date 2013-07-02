@@ -58,8 +58,16 @@ isCairoDrawingIntoUserBuffer: (BOOL)isCairoDrawingIntoUserBuffer
 
 @implementation CGBitmapContext
 
-static BOOL isFormatNativelySupportedByCairo(CGBitmapInfo info, CGColorSpaceRef cs, size_t bitsPerComponent, cairo_format_t *outFormat)
+static BOOL isFormatNativelySupportedByCairo(
+  CGBitmapInfo info, 
+  CGColorSpaceRef cs, 
+  size_t bitsPerComponent, 
+  size_t width,
+  size_t bytesPerRow,
+  cairo_format_t *outFormat)
 {
+  *outFormat = CAIRO_FORMAT_INVALID;
+
   if (0 != (info & kCGBitmapFloatComponents))
   {
     return NO;
@@ -77,33 +85,45 @@ static BOOL isFormatNativelySupportedByCairo(CGBitmapInfo info, CGColorSpaceRef 
   const CGColorSpaceModel model = CGColorSpaceGetModel(cs);
   const size_t numComps = CGColorSpaceGetNumberOfComponents(cs);
   
+  cairo_format_t format = CAIRO_FORMAT_INVALID;
+
   if (bitsPerComponent == 8
       && numComps == 3
       && model == kCGColorSpaceModelRGB
       && alpha == kCGImageAlphaPremultipliedFirst)
   {
-  	*outFormat = CAIRO_FORMAT_ARGB32;
-	return YES;
+  	format = CAIRO_FORMAT_ARGB32;
   }
   else if (bitsPerComponent == 8
       && numComps == 3
       && model == kCGColorSpaceModelRGB
       && alpha == kCGImageAlphaNoneSkipFirst)
   {
-  	*outFormat = CAIRO_FORMAT_RGB24;
-	return YES;
+  	format = CAIRO_FORMAT_RGB24;
   }
   else if (bitsPerComponent == 8 && alpha == kCGImageAlphaOnly)
   {
-  	*outFormat = CAIRO_FORMAT_A8;
-	return YES;
+  	format = CAIRO_FORMAT_A8;
   }
   else if (bitsPerComponent == 1 && alpha == kCGImageAlphaOnly)
   {
-  	*outFormat = CAIRO_FORMAT_A1;
-	  return YES;
+  	format = CAIRO_FORMAT_A1;
   }
-  return NO;
+  else
+  {
+    return NO;
+  }
+
+  // Now that we have the format we're going to use, check that the stride is acceptable
+  // to cairo.
+
+  if (cairo_format_stride_for_width(format, width) != bytesPerRow)
+  {
+    return NO;
+  }
+   
+  *outFormat = format; 
+  return YES;
 }
 
 - (id)       initWithSurface: (cairo_surface_t *)target
@@ -203,6 +223,18 @@ static void OPBitmapDataReleaseCallback(void *info, void *data)
   free(data);
 }
 
+
+static void checkSurf(cairo_surface_t *surf)
+{
+  cairo_status_t status = cairo_surface_status(surf);
+  const char *statusString = cairo_status_to_string(status);
+
+  if (CAIRO_STATUS_SUCCESS != status)
+  {
+    printf("surf status: %s", statusString);
+  }
+}
+
 CGContextRef CGBitmapContextCreateWithData(
   void *data,
   size_t width,
@@ -214,7 +246,7 @@ CGContextRef CGBitmapContextCreateWithData(
   CGBitmapContextReleaseDataCallback callback,
   void *releaseInfo)
 {
-  cairo_format_t format;
+  cairo_format_t format = CAIRO_FORMAT_INVALID;
   cairo_surface_t *surf;  
 
   // Create the user requested buffer
@@ -225,7 +257,7 @@ CGContextRef CGBitmapContextCreateWithData(
   }
 
   // Set up the user-requested surface
-  const BOOL nativeCairoSupport = isFormatNativelySupportedByCairo(info, cs, bitsPerComponent, &format);
+  const BOOL nativeCairoSupport = isFormatNativelySupportedByCairo(info, cs, bitsPerComponent, width, bytesPerRow, &format);
   if (nativeCairoSupport)
   {
     // Cairo can draw directly into the buffer format the caller provided or requested
@@ -242,6 +274,8 @@ CGContextRef CGBitmapContextCreateWithData(
     surf = cairo_image_surface_create_for_data(cairoData, format, width, height, cairoBytesPerRow);    
   }
     
+  checkSurf(surf);
+
   return [[CGBitmapContext alloc] initWithSurface: surf
                      isCairoDrawingIntoUserBuffer: nativeCairoSupport
                              userBufferColorspace: cs
