@@ -38,6 +38,7 @@
   void *userBuffer;
   void *releaseInfo;
   CGBitmapContextReleaseDataCallback cb;
+  CGBitmapInfo userBufferBitmapInfo;
 }
 
 /**
@@ -50,6 +51,7 @@ isCairoDrawingIntoUserBuffer: (BOOL)isCairoDrawingIntoUserBuffer
         userBufferColorspace: (CGColorSpaceRef)colorspace
   userBufferBitsPerComponent: (size_t)userBufferBitsPerComponent
        userBufferBytesPerRow: (size_t)userBufferBytesPerRow
+        userBufferBitmapInfo: (CGBitmapInfo)bitmapInfo
        userBufferReleaseInfo: (void*)i
                   userBuffer: (void*)userBuffer
              releaseCallback: (CGBitmapContextReleaseDataCallback)releaseCallback;
@@ -131,6 +133,7 @@ isCairoDrawingIntoUserBuffer: (BOOL)isIntoUserBuffer
         userBufferColorspace: (CGColorSpaceRef)colorspace
   userBufferBitsPerComponent: (size_t)bitsPerComponent
        userBufferBytesPerRow: (size_t)bytesPerRow
+        userBufferBitmapInfo: (CGBitmapInfo)bitmapInfo
        userBufferReleaseInfo: (void*)i
                   userBuffer: (void*)aUserBuffer
              releaseCallback: (CGBitmapContextReleaseDataCallback)releaseCallback
@@ -149,6 +152,7 @@ isCairoDrawingIntoUserBuffer: (BOOL)isIntoUserBuffer
   self->userBuffer = aUserBuffer;
   self->releaseInfo = i;
   self->cb = releaseCallback;
+  self->userBufferBitmapInfo = bitmapInfo;
   return self;
 }
 
@@ -262,6 +266,8 @@ CGContextRef CGBitmapContextCreateWithData(
   {
     // Cairo can draw directly into the buffer format the caller provided or requested
     surf = cairo_image_surface_create_for_data(data, format, width, height, bytesPerRow);
+
+    printf("CGBitmapContext: using native drawing\n");
   }
   else
   {
@@ -272,6 +278,8 @@ CGContextRef CGBitmapContextCreateWithData(
     const size_t cairoBytesPerRow = cairo_format_stride_for_width(format, width);
     void *cairoData = malloc(height * cairoBytesPerRow);
     surf = cairo_image_surface_create_for_data(cairoData, format, width, height, cairoBytesPerRow);    
+
+    printf("CGBitmapContext: using drawing through buffe\n");
   }
     
   checkSurf(surf);
@@ -281,7 +289,8 @@ CGContextRef CGBitmapContextCreateWithData(
                              userBufferColorspace: cs
                        userBufferBitsPerComponent: bitsPerComponent
                             userBufferBytesPerRow: bytesPerRow
-                            userBufferReleaseInfo: releaseInfo
+                             userBufferBitmapInfo: info
+                            userBufferReleaseInfo: releaseInfo                            
                                        userBuffer: data
 		                              releaseCallback: callback];
 }
@@ -291,18 +300,7 @@ CGImageAlphaInfo CGBitmapContextGetAlphaInfo(CGContextRef ctx)
 {
   if ([ctx isKindOfClass: [CGBitmapContext class]])
   {
-    switch (cairo_image_surface_get_format(cairo_get_target(ctx->ct)))
-	{
-	  case CAIRO_FORMAT_ARGB32:
-	    return kCGImageAlphaPremultipliedFirst;
-	  case CAIRO_FORMAT_RGB24:
-	    return kCGImageAlphaNoneSkipFirst;
-	  case CAIRO_FORMAT_A8:
-	  case CAIRO_FORMAT_A1:
-	    return kCGImageAlphaOnly;
-	  default:
-	    return kCGImageAlphaNone;
-	}
+    return ((CGBitmapContext *)ctx)->userBufferBitmapInfo & kCGBitmapAlphaInfoMask;
   }
   return kCGImageAlphaNone;
 }
@@ -311,7 +309,7 @@ CGBitmapInfo CGBitmapContextGetBitmapInfo(CGContextRef ctx)
 {
   if ([ctx isKindOfClass: [CGBitmapContext class]])
   {
-    return cairo_image_surface_get_stride(cairo_get_target(ctx->ct));
+    return ((CGBitmapContext *)ctx)->userBufferBitmapInfo;
   }
   return 0;
 }
@@ -320,17 +318,7 @@ size_t CGBitmapContextGetBitsPerComponent(CGContextRef ctx)
 {
   if ([ctx isKindOfClass: [CGBitmapContext class]])
   {
-    switch (cairo_image_surface_get_format(cairo_get_target(ctx->ct)))
-	{
-	  case CAIRO_FORMAT_ARGB32:
-	  case CAIRO_FORMAT_RGB24:
-	  case CAIRO_FORMAT_A8:
-	    return 8;
-	  case CAIRO_FORMAT_A1:
-	    return 1;
-	  default:
-	    return 0;
-	}
+	  return ((CGBitmapContext *)ctx)->userBufferBitsPerComponent;
   }
   return 0;
 }
@@ -339,18 +327,16 @@ size_t CGBitmapContextGetBitsPerPixel(CGContextRef ctx)
 {
   if ([ctx isKindOfClass: [CGBitmapContext class]])
   {
-    switch (cairo_image_surface_get_format(cairo_get_target(ctx->ct)))
-	{
-	  case CAIRO_FORMAT_ARGB32:
-	  case CAIRO_FORMAT_RGB24:
-	    return 32;
-	  case CAIRO_FORMAT_A8:
-	    return 8;
-	  case CAIRO_FORMAT_A1:
-	    return 1;
-	  default:
-	    return 0;
-	}
+  	  size_t colorComps = CGColorSpaceGetNumberOfComponents(((CGBitmapContext *)ctx)->cs);
+      size_t alphaComps = 0;
+
+      if (CGBitmapContextGetAlphaInfo(ctx) != kCGImageAlphaNone)
+      {
+        alphaComps = 1;
+      }
+      
+      size_t bitsPerComp = CGBitmapContextGetBitsPerComponent(ctx);
+      return bitsPerComp * (colorComps + alphaComps); 
   }
   return 0;
 }
@@ -359,7 +345,7 @@ size_t CGBitmapContextGetBytesPerRow(CGContextRef ctx)
 {
   if ([ctx isKindOfClass: [CGBitmapContext class]])
   {
-    return cairo_image_surface_get_stride(cairo_get_target(ctx->ct));
+    return ((CGBitmapContext *)ctx)->userBufferBytesPerRow; 
   }
   return 0;
 }
