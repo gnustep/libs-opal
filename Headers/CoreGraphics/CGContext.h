@@ -556,5 +556,9 @@ void OPContextSetScaleFactor(CGContextRef ctx, CGFloat scale);
 
 void OPContextSetSize(CGContextRef ctx, CGSize size);
 
+void OPContextResetClip(CGContextRef ctx);
+
+void OPContextSetIdentityCTM(CGContextRef ctx);
+
 #endif /* OPAL_CGContext_h */
 

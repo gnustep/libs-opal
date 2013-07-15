@@ -1,3 +1,20 @@
+2013-07-15 Ivan Vučica <ivan@vucica.net>
+
+	* Headers/CoreGraphics/CGContext.h:
+	* Source/OpalGraphics/CGContext.m:
+	Added OPContextSetIdentityCTM() and OPContextResetClip().
+
+2013-07-01 Ivan Vučica <ivan@vucica.net>
+
+	* Headers/CoreGraphics/CGContext.h:
+	* Source/OpalGraphics/opal-win32.m:
+	* Source/OpalGraphics/opal-x11.m:
+	* Source/OpalGraphics/CGContext.m:
+	* Source/OpalGraphics/CGContext-private.h:
+	* Tests/x11.m:
+	Renamed a few things in order to expose X-based cairo surface as
+	an Opal context. Introduced a few class wrappers in the process.
+
 2012-08-19 Ivan Vučica <ivan@vucica.net>
 
 	* Source/OpalGraphics/CGColor.m: Removed log output about CGColor

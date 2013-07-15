@@ -228,6 +228,19 @@ void CGContextConcatCTM(CGContextRef ctx, CGAffineTransform transform)
 }
 
 /**
+ * Resets the current transformation matrix to what applications consider
+ * the identity transform. It, however, also includes the context flip.
+ */
+
+void OPContextSetIdentityCTM(CGContextRef ctx)
+{
+  cairo_identity_matrix(ctx->ct);
+
+  cairo_scale(ctx->ct, 1, -1);
+  cairo_translate(ctx->ct, 0, -ctx->device_size.height);
+}
+
+/**
  * Returns the current transformation matrix. Note: this include the scale
  * factor but not the flip transformation.
  */
@@ -847,6 +860,14 @@ void CGContextClipToMask(CGContextRef ctx, CGRect rect, CGImageRef mask)
        pop_group_to_source();
        mask()
   */
+}
+
+void OPContextResetClip(CGContextRef ctx)
+{
+  if (ctx && ctx->ct)
+  {
+    cairo_reset_clip(ctx->ct);
+  }
 }
 
 CGRect CGContextGetClipBoundingBox(CGContextRef ctx)
