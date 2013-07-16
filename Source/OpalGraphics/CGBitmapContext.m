@@ -256,7 +256,7 @@ CGContextRef CGBitmapContextCreateWithData(
   // Create the user requested buffer
   if (data == NULL)
   {
-      data = calloc(height * bytesPerRow); // FIXME: checks
+      data = calloc(height * bytesPerRow, 1); // FIXME: checks
       callback = (CGBitmapContextReleaseDataCallback)OPBitmapDataReleaseCallback;
   }
 
@@ -276,7 +276,7 @@ CGContextRef CGBitmapContextCreateWithData(
     format = CAIRO_FORMAT_ARGB32;
 
     const size_t cairoBytesPerRow = cairo_format_stride_for_width(format, width);
-    void *cairoData = calloc(height * cairoBytesPerRow);
+    void *cairoData = calloc(height * cairoBytesPerRow, 1);
     surf = cairo_image_surface_create_for_data(cairoData, format, width, height, cairoBytesPerRow);    
 
     printf("CGBitmapContext: using drawing through buffe\n");
