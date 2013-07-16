@@ -1,3 +1,8 @@
+2013-07-16  Eric Wasylishen  <ewasylishen@gmail.com>
+
+	* Source/OpalGraphics/CGBitmapContext.m: Use calloc to allocate zeroed
+	bitmap buffers
+
 2013-07-15 Ivan Vučica <ivan@vucica.net>
 
 	* Headers/CoreGraphics/CGContext.h:
