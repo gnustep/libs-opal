@@ -1,5 +1,12 @@
 2013-07-16  Eric Wasylishen  <ewasylishen@gmail.com>
 
+	* Source/OpalGraphics/CGBitmapContext.m: Fix subtle endianness bug.
+	For future reference, kCGBitmapByteOrderDefault means big-endian.
+	* Tests/bitmaps.m: Add a bitmap context test. It draws a black background
+	with a cream colored blob in the bottom left.
+
+2013-07-16  Eric Wasylishen  <ewasylishen@gmail.com>
+
 	* Source/OpalGraphics/CGBitmapContext.m: Use calloc to allocate zeroed
 	bitmap buffers
 

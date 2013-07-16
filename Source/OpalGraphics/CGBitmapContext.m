@@ -75,10 +75,12 @@ static BOOL isFormatNativelySupportedByCairo(
     return NO;
   }
   
+  // NOTE: kCGBitmapByteOrderDefault means big-endian (a.k.a unpacked)
+  // cairo can only draw into native-endian integer-packed pixels
   const int order = info & kCGBitmapByteOrderMask;
   if (!((NSHostByteOrder() == NS_LittleEndian) && (order == kCGBitmapByteOrder32Little))
-    && !((NSHostByteOrder() == NS_BigEndian) && (order == kCGBitmapByteOrder32Big))
-	&& !(order == kCGBitmapByteOrderDefault))
+    && !((NSHostByteOrder() == NS_BigEndian) && (order == kCGBitmapByteOrder32Big 
+						 || order == kCGBitmapByteOrderDefault)))
   {
     return NO;
   }
@@ -180,7 +182,7 @@ isCairoDrawingIntoUserBuffer: (BOOL)isIntoUserBuffer
     const size_t srcBitsPerComponent = 8;
     const size_t srcBitsPerPixel = 32;
     const size_t srcBytesPerRow = cairo_format_stride_for_width(cairo_image_surface_get_format(srcCairoSurface), srcWidth);
-    const CGBitmapInfo srcBitmapInfo = kCGBitmapByteOrderDefault | kCGImageAlphaPremultipliedFirst;
+    const CGBitmapInfo srcBitmapInfo = kCGBitmapByteOrder32Host | kCGImageAlphaPremultipliedFirst;
     const CGColorSpaceRef srcColorSpace = CGColorSpaceCreateDeviceRGB();
     const CGColorRenderingIntent srcIntent = kCGRenderingIntentDefault;
 
