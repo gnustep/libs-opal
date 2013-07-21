@@ -34,10 +34,16 @@
 
 void DumpPixel(const void *data, NSString *msg)
 {
-	NSLog(@"%@: (%02x,%02x,%02x,%02x)", msg, (int)(((unsigned char*)data)[0]), 
-		(int)(((unsigned char*)data)[1]),
-		(int)(((unsigned char*)data)[2]),
-		(int)(((unsigned char*)data)[3]));
+  if(!data)
+    {
+      NSLog(@"%@: <null data>", msg);
+      return;
+    }
+
+  NSLog(@"%@: (%02x,%02x,%02x,%02x)", msg, (int)(((unsigned char*)data)[0]), 
+        (int)(((unsigned char*)data)[1]),
+        (int)(((unsigned char*)data)[2]),
+        (int)(((unsigned char*)data)[3]));
 }
 
 @interface CGImage : NSObject

@@ -1,3 +1,25 @@
+2013-07-21 Ivan Vučica <ivan@vucica.net>
+
+	* Source/OpalGraphics/OPLogging.h:
+	* Source/OpalGraphics/OPLogging.m:
+	Call logging macros.
+
+	* Source/OpalGraphics/CGBitmapContext.m:
+	Logging creation of bitmap context.
+
+	* Source/OpalGraphics/CGImage.m:
+	Fixed crash in case 'data' argument passed to DumpPixel() was null.
+
+	* Source/OpalGraphics/CGContext.m:
+	* Headers/CoreGraphics/CGContext.h:
+	-Added OPContextSetCairoDeviceOffset().
+	-Added logging to nearly all GContext*() functions. 
+	-In CGContextSet*ColorWithColor(), fixed retain/release setter
+	 mechanics, so they don't break if user passes same CGColor pointer
+	 twice.
+	-Added checks for null context and null ctx->add in several (but not
+	 all) places.
+
 2013-07-16  Eric Wasylishen  <ewasylishen@gmail.com>
 
 	* Source/OpalGraphics/CGBitmapContext.m: Fix subtle endianness bug.

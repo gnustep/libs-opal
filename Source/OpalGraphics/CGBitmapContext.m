@@ -27,6 +27,7 @@
 
 #import "OPImageConversion.h"
 
+#import "OPLogging.h"
 
 @interface CGBitmapContext : CGContext
 {
@@ -220,8 +221,12 @@ CGContextRef CGBitmapContextCreate(
   CGColorSpaceRef cs,
   CGBitmapInfo info)
 {
-  return CGBitmapContextCreateWithData(data, width, height, bitsPerComponent,
-    bytesPerRow, cs, info, NULL, NULL);
+  OPLOGCALL("ctx, %p, %d, %d, %d, %d, <colorspace>, <bitmapinfo>",
+            data, width, height, bitsPerComponent, bytesPerRow)
+  CGContextRef r = CGBitmapContextCreateWithData(data, width, height, 
+            bitsPerComponent, bytesPerRow, cs, info, NULL, NULL);
+  OPRESTORELOGGING()
+  return r;
 }
 
 static void OPBitmapDataReleaseCallback(void *info, void *data)
@@ -252,6 +257,9 @@ CGContextRef CGBitmapContextCreateWithData(
   CGBitmapContextReleaseDataCallback callback,
   void *releaseInfo)
 {
+  OPLOGCALL("ctx, %p, %d, %d, %d, %d, <colorspace>, <bitmapinfo>, "
+            "<callback>, <releaseinfo>",
+            data, width, height, bitsPerComponent, bytesPerRow)
   cairo_format_t format = CAIRO_FORMAT_INVALID;
   cairo_surface_t *surf;  
 
@@ -286,6 +294,7 @@ CGContextRef CGBitmapContextCreateWithData(
     
   checkSurf(surf);
 
+  OPRESTORELOGGING()
   return [[CGBitmapContext alloc] initWithSurface: surf
                      isCairoDrawingIntoUserBuffer: nativeCairoSupport
                              userBufferColorspace: cs
@@ -395,6 +404,7 @@ static void OpalReleaseContext(void *info, const void *data, size_t size)
 
 CGImageRef CGBitmapContextCreateImage(CGContextRef ctx)
 {
+  OPLOGCALL("ctx")
   if ([ctx isKindOfClass: [CGBitmapContext class]])
   {
     // FIXME: Use the cairo format
@@ -421,7 +431,9 @@ CGImageRef CGBitmapContextCreateImage(CGContextRef ctx)
     );
     
     CGDataProviderRelease(dp);
+    OPRESTORELOGGING()
     return img;
   }
+  OPRESTORELOGGING()
   return nil;
 }

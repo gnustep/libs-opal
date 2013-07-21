@@ -32,6 +32,7 @@
 #import "CGGradient-private.h"
 #import "CGColor-private.h"
 #import "cairo/CairoFont.h"
+#import "OPLogging.h"
 
 /* The default (opaque black) color in a Cairo context,
  * used if no other color is set on the context yet */
@@ -152,7 +153,9 @@ CGContextRef opal_new_CGContext(cairo_surface_t *target, CGSize device_size)
 
 void OPContextSetSize(CGContextRef ctx, CGSize size)
 {
+  OPLOGCALL("ctx, CGSizeMake(%g,%g)", size.width, size.height);
   [ctx setSize: size];
+  OPRESTORELOGGING()
 }
 
 CFTypeID CGContextGetTypeID()
@@ -162,16 +165,21 @@ CFTypeID CGContextGetTypeID()
 
 CGContextRef CGContextRetain(CGContextRef ctx)
 {
+  OPLOGCALL("ctx")
+  OPRESTORELOGGING()
   return [ctx retain];
 }
 
 void CGContextRelease(CGContextRef ctx)
 {
+  OPLOGCALL("ctx")
   [ctx release];
+  OPRESTORELOGGING()
 }
 
 void CGContextFlush(CGContextRef ctx)
 {
+  OPLOGCALL("ctx")
   cairo_surface_t *target;
 
   target = cairo_get_target(ctx->ct);
@@ -179,42 +187,58 @@ void CGContextFlush(CGContextRef ctx)
   /* cairo_surface_flush(target); */
   /* So now we have to do it directly instead */
   [ctx flushSurface];
+  OPRESTORELOGGING()
 }
 
 void CGContextSynchronize(CGContextRef ctx)
 {
+  OPLOGCALL("ctx")
   /* FIXME: Could do cairo_surface_mark_dirty here, but that does nothing */
   /* NOP */
+  OPRESTORELOGGING()
 }
 
 void CGContextBeginPage(CGContextRef ctx, const CGRect *mediaBox)
 {
+  OPLOGCALL("ctx, CGRectMake(%g,%g,%g,%g)", mediaBox->origin.x, 
+    mediaBox->origin.y, mediaBox->size.width, mediaBox->size.height)
   /* FIXME: should we reset gstate?, mediaBox is ignored */
   cairo_copy_page(ctx->ct);
+  OPRESTORELOGGING()
 }
 
 void CGContextEndPage(CGContextRef ctx)
 {
+  OPLOGCALL("ctx")
   cairo_show_page(ctx->ct);
+  OPRESTORELOGGING()
 }
 
 void CGContextScaleCTM(CGContextRef ctx, CGFloat sx, CGFloat sy)
 {
+  OPLOGCALL("ctx, %g, %g", sx, sy)
   cairo_scale(ctx->ct, sx, sy);
+  OPRESTORELOGGING()
 }
 
 void CGContextTranslateCTM(CGContextRef ctx, CGFloat tx, CGFloat ty)
 {
+  OPLOGCALL("ctx, %g, %g", tx, ty)
   cairo_translate(ctx->ct, tx, ty);
+  OPRESTORELOGGING()
 }
 
 void CGContextRotateCTM(CGContextRef ctx, CGFloat angle)
 {
+  OPLOGCALL("ctx, %g", angle)
   cairo_rotate(ctx->ct, angle);
+  OPRESTORELOGGING()
 }
 
 void CGContextConcatCTM(CGContextRef ctx, CGAffineTransform transform)
 {
+  OPLOGCALL("ctx, CGAffineTransformMake(%g, %g, %g, %g, %g, %g)", transform.a,
+    transform.b, transform.c, transform.d, transform.tx, transform.ty)
   cairo_matrix_t cmat;
 
   cmat.xx = transform.a;
@@ -225,6 +249,7 @@ void CGContextConcatCTM(CGContextRef ctx, CGAffineTransform transform)
   cmat.y0 = transform.ty;
 
   cairo_transform(ctx->ct, &cmat);
+  OPRESTORELOGGING()
 }
 
 /**
@@ -234,10 +259,12 @@ void CGContextConcatCTM(CGContextRef ctx, CGAffineTransform transform)
 
 void OPContextSetIdentityCTM(CGContextRef ctx)
 {
+  OPLOGCALL("ctx")
   cairo_identity_matrix(ctx->ct);
 
   cairo_scale(ctx->ct, 1, -1);
   cairo_translate(ctx->ct, 0, -ctx->device_size.height);
+  OPRESTORELOGGING()
 }
 
 /**
@@ -246,6 +273,7 @@ void OPContextSetIdentityCTM(CGContextRef ctx)
  */
 CGAffineTransform CGContextGetCTM(CGContextRef ctx)
 {
+  OPLOGCALL("ctx")
   cairo_matrix_t cmat;
 
   cairo_get_matrix(ctx->ct, &cmat);
@@ -254,17 +282,28 @@ CGAffineTransform CGContextGetCTM(CGContextRef ctx)
   cairo_matrix_translate(&cmat, 0, ctx->device_size.height);
   cairo_matrix_scale(&cmat, 1, -1);
   
+  OPRESTORELOGGING()
   return CGAffineTransformMake(cmat.xx, cmat.yx, cmat.xy, cmat.yy, cmat.x0, cmat.y0);
+}
+
+void OPContextSetCairoDeviceOffset(CGContextRef ctx, CGFloat x, CGFloat y)
+{
+  OPLOGCALL("ctx, %g, %g", x, y)
+  if(ctx && ctx->ct)
+    cairo_surface_set_device_offset(cairo_get_target(ctx->ct), x, y);
+  OPRESTORELOGGING()
 }
 
 void CGContextSaveGState(CGContextRef ctx)
 {
+  OPLOGCALL("ctx")
   ct_additions *ctadd;
   cairo_status_t cret;
 
   ctadd = calloc(1, sizeof(struct ct_additions));
   if (!ctadd) {
     NSLog(@"calloc failed");
+    OPRESTORELOGGING()
     return;
   }
 
@@ -274,6 +313,7 @@ void CGContextSaveGState(CGContextRef ctx)
     NSLog(@"cairo_save status: %s",
           cairo_status_to_string(cret));
     free(ctadd);
+    OPRESTORELOGGING()
     return;
   }
 
@@ -284,10 +324,13 @@ void CGContextSaveGState(CGContextRef ctx)
   cairo_pattern_reference(ctadd->stroke_cp);
   ctadd->next = ctx->add;
   ctx->add = ctadd;
+  OPRESTORELOGGING()
 }
 
 void CGContextRestoreGState(CGContextRef ctx)
 {
+  OPLOGCALL("ctx")
+  OPRESTORELOGGING()
   ct_additions *ctadd;
 
   if (!ctx->add) return;
@@ -305,28 +348,38 @@ void CGContextRestoreGState(CGContextRef ctx)
 
 void CGContextSetShouldAntialias(CGContextRef ctx, int shouldAntialias)
 {
+  OPLOGCALL("ctx, %d", shouldAntialias)
   cairo_set_antialias(ctx->ct,
     (shouldAntialias ? CAIRO_ANTIALIAS_DEFAULT : CAIRO_ANTIALIAS_NONE));
+  OPRESTORELOGGING()
 }
 
 void CGContextSetLineWidth(CGContextRef ctx, CGFloat width)
 {
+  OPLOGCALL("ctx, %g", width)
   cairo_set_line_width(ctx->ct, width);
+  OPRESTORELOGGING()
 }
 
 void CGContextSetLineJoin(CGContextRef ctx, CGLineJoin join)
 {
+  OPLOGCALL("ctx, %d", join)
   cairo_set_line_join(ctx->ct, join);
+  OPRESTORELOGGING()
 }
 
 void CGContextSetMiterLimit(CGContextRef ctx, CGFloat limit)
 {
+  OPLOGCALL("ctx, %g", limit)
   cairo_set_miter_limit(ctx->ct, limit);
+  OPRESTORELOGGING()
 }
 
 void CGContextSetLineCap(CGContextRef ctx, CGLineCap cap)
 {
+  OPLOGCALL("ctx, %d", cap)
   cairo_set_line_cap(ctx->ct, cap);
+  OPRESTORELOGGING()
 }
 
 void CGContextSetLineDash(
@@ -335,6 +388,8 @@ void CGContextSetLineDash(
   const CGFloat lengths[],
   size_t count)
 {
+  OPLOGCALL("ctx, %g, <lengths>, %d", phase, count)
+
   double dashes[count]; /* C99 allows this */
   size_t i;
 
@@ -342,11 +397,14 @@ void CGContextSetLineDash(
     dashes[i] = lengths[i];
 
   cairo_set_dash(ctx->ct, dashes, count, phase);
+  OPRESTORELOGGING()
 }
 
 void CGContextSetFlatness(CGContextRef ctx, CGFloat flatness)
 {
+  OPLOGCALL("ctx, %g", flatness)
   cairo_set_tolerance(ctx->ct, flatness);
+  OPRESTORELOGGING()
 }
 
 CGInterpolationQuality CGContextGetInterpolationQuality(CGContextRef ctx)
@@ -358,10 +416,14 @@ void CGContextSetInterpolationQuality(
   CGContextRef ctx,
   CGInterpolationQuality quality)
 {
+  OPLOGCALL("ctx, %d", quality)
+  OPRESTORELOGGING()
 }
 
 void CGContextSetPatternPhase (CGContextRef ctx, CGSize phase)
 {
+  OPLOGCALL("ctx, CGSizeMake(%g, %g)", phase.width, phase.height)
+  OPRESTORELOGGING()
 }
 
 void CGContextSetFillPattern(
@@ -369,7 +431,8 @@ void CGContextSetFillPattern(
   CGPatternRef pattern,
   const CGFloat components[])
 {
-  
+  OPLOGCALL("ctx, <pattern>, <components>")
+  OPRESTORELOGGING()
 }
 
 void CGContextSetStrokePattern(
@@ -377,47 +440,64 @@ void CGContextSetStrokePattern(
   CGPatternRef pattern,
   const CGFloat components[])
 {
+  OPLOGCALL("ctx, <pattern>, <components>")
+  OPRESTORELOGGING()
 }
 
 void CGContextSetShouldSmoothFonts(CGContextRef ctx, int shouldSmoothFonts)
 {
+  OPLOGCALL("ctx, %d", shouldSmoothFonts)
+  OPRESTORELOGGING()
 }
 
 void CGContextSetAllowsFontSmoothing(CGContextRef ctx, bool allowsFontSmoothing)
 {
+  OPLOGCALL("ctx, %s", allowsFontSmoothing ? "true" : "false")
+  OPRESTORELOGGING()
 }
 
 void CGContextSetBlendMode(CGContextRef ctx, CGBlendMode mode)
 {
+  OPLOGCALL("ctx, %d", mode)
+  OPRESTORELOGGING()
 }
 
 void CGContextSetAllowsAntialiasing(CGContextRef ctx, int allowsAntialiasing)
 {
+  OPLOGCALL("ctx, %d", allowsAntialiasing)
+  OPRESTORELOGGING()
 }
 
 void CGContextSetShouldSubpixelPositionFonts(
   CGContextRef ctx,
   bool shouldSubpixelPositionFonts)
 {
-  
+  OPLOGCALL("ctx, %s", shouldSubpixelPositionFonts ? "true" : "false")
+  OPRESTORELOGGING()
 }
 
 void CGContextSetAllowsFontSubpixelPositioning(
   CGContextRef ctx,
   bool allowsFontSubpixelPositioning)
 {
+  OPLOGCALL("ctx, %s", allowsFontSubpixelPositioning ? "true" : "false")
+  OPRESTORELOGGING()
 }
 
 void CGContextSetShouldSubpixelQuantizeFonts(
   CGContextRef ctx,
   bool shouldSubpixelQuantizeFonts)
 {
+  OPLOGCALL("ctx, %s", shouldSubpixelQuantizeFonts ? "true" : "false")
+  OPRESTORELOGGING()
 }     
  
 void CGContextSetAllowsFontSubpixelQuantization(
   CGContextRef ctx,
   bool allowsFontSubpixelQuantization)
 {
+  OPLOGCALL("ctx, %s", allowsFontSubpixelQuantization ? "true" : "false")
+  OPRESTORELOGGING()
 }
 
 void CGContextSetShadow(
@@ -425,9 +505,12 @@ void CGContextSetShadow(
   CGSize offset,
   CGFloat radius)
 {  
+  OPLOGCALL("ctx, CGSizeMake(%g, %g), %g", offset.width, offset.height,
+            radius)
   CGColorRef defaultShadowColor = CGColorCreateGenericGray(0, 0.3);
   CGContextSetShadowWithColor(ctx, offset, radius, defaultShadowColor);
   CGColorRelease(defaultShadowColor);
+  OPRESTORELOGGING()
 }
 
 void CGContextSetShadowWithColor(
@@ -436,6 +519,8 @@ void CGContextSetShadowWithColor(
   CGFloat radius,
   CGColorRef color)
 {
+  OPLOGCALL("ctx, CGSizeMake(%g, %g), %g, <color>", offset.width, offset.height,
+            radius)
   CGColorRelease(ctx->add->shadow_color);
   ctx->add->shadow_color = color;
   CGColorRetain(color);
@@ -443,36 +528,47 @@ void CGContextSetShadowWithColor(
   ctx->add->shadow_offset = offset;
   ctx->add->shadow_radius = radius;
   set_color(&ctx->add->shadow_cp, color, 1.0);
+  OPRESTORELOGGING()
 }
 
 void CGContextBeginPath(CGContextRef ctx)
 {
+  OPLOGCALL("ctx")
   cairo_new_path(ctx->ct);
+  OPRESTORELOGGING()
 }
 
 void CGContextClosePath(CGContextRef ctx)
 {
+  OPLOGCALL("ctx")
   cairo_close_path(ctx->ct);
+  OPRESTORELOGGING()
 }
 
 void CGContextMoveToPoint(CGContextRef ctx, CGFloat x, CGFloat y)
 {
+  OPLOGCALL("ctx")
   cairo_move_to(ctx->ct, x, y);
+  OPRESTORELOGGING()
 }
 
 void CGContextAddLineToPoint(CGContextRef ctx, CGFloat x, CGFloat y)
 {
+  OPLOGCALL("ctx")
   cairo_line_to(ctx->ct, x, y);
+  OPRESTORELOGGING()
 }
 
 void CGContextAddLines(CGContextRef ctx, const CGPoint points[], size_t count)
 {
+  OPLOGCALL("ctx, <points>, %d", count)
   size_t i;
 
   if (count <= 0) return;
   CGContextMoveToPoint(ctx, points[0].x, points[0].y);
   for (i=1; i<count; i++)
     CGContextAddLineToPoint(ctx, points[i].x, points[i].y);
+  OPRESTORELOGGING()
 }
 
 void CGContextAddCurveToPoint(
@@ -484,7 +580,9 @@ void CGContextAddCurveToPoint(
   CGFloat x,
   CGFloat y)
 {
+  OPLOGCALL("ctx, %g, %g, %g, %g, %g, %g", cp1x, cp1y, cp2x, cp2y, x, y)
   cairo_curve_to(ctx->ct, cp1x, cp1y, cp2x, cp2y, x, y);
+  OPRESTORELOGGING()
 }
 
 void CGContextAddQuadCurveToPoint(
@@ -494,24 +592,31 @@ void CGContextAddQuadCurveToPoint(
   CGFloat x,
   CGFloat y)
 {
+  OPLOGCALL("ctx, %g, %g, %g, %g", cpx, cpy, x, y)
   CGPoint curr = CGContextGetPathCurrentPoint(ctx);
   CGContextAddCurveToPoint(ctx, (curr.x/3.0) + (2.0*cpx/3.0), (curr.y/3.0) + (2.0*cpy/3.0),
                                 (2.0*cpx/3.0) + (x/3.0), (2.0*cpy/3.0) + (y/3.0),
                                 x, y);
+  OPRESTORELOGGING()
 }
 
 void CGContextAddRect(CGContextRef ctx, CGRect rect)
 {
+  OPLOGCALL("ctx, CGRectMake(%g, %g, %g, %g)", rect.origin.x, rect.origin.y,
+            rect.size.width, rect.size.height)
   cairo_rectangle(ctx->ct, rect.origin.x, rect.origin.y,
                   rect.size.width, rect.size.height);
+  OPRESTORELOGGING()
 }
 
 void CGContextAddRects(CGContextRef ctx, const CGRect rects[], size_t count)
 {
+  OPLOGCALL("ctx, <rects>, %d", count)
   size_t i;
 
   for (i=0; i<count; i++)
     CGContextAddRect(ctx, rects[i]);
+  OPRESTORELOGGING()
 }
 
 void CGContextAddArc(
@@ -523,10 +628,13 @@ void CGContextAddArc(
   CGFloat endAngle,
   int clockwise)
 {
+  OPLOGCALL("ctx, %g, %g, %g, %g, %g, %d", x, y, radius, startAngle, endAngle,
+            clockwise)
   if (clockwise)
     cairo_arc_negative(ctx->ct, x, y, radius, startAngle, endAngle);
   else
     cairo_arc(ctx->ct, x, y, radius, startAngle, endAngle);
+  OPRESTORELOGGING()
 }
 
 void CGContextAddArcToPoint(
@@ -537,6 +645,7 @@ void CGContextAddArcToPoint(
   CGFloat y2,
   CGFloat radius)
 {
+  OPLOGCALL("ctx, %g, %g, %g, %g, %g", x1, y1, x2, y2, radius)
   double x0, y0;
   double dx0, dy0, dx2, dy2, xl0, xl2;
   double san, n0x, n0y, n2x, n2y, t;
@@ -545,7 +654,11 @@ void CGContextAddArcToPoint(
   dx0 = x0 - x1;
   dy0 = y0 - y1;
   xl0 = sqrt(dx0*dx0 + dy0*dy0);
-  if (xl0 == 0) return;
+  if (xl0 == 0)
+    {
+      OPRESTORELOGGING()
+      return;
+    }
 
   dx2 = x2 - x1;
   dy2 = y2 - y1;
@@ -554,6 +667,7 @@ void CGContextAddArcToPoint(
   san = dx2*dy0 - dx0*dy2;
   if (san == 0) {
     CGContextAddLineToPoint(ctx, x1, y1);
+    OPRESTORELOGGING()
     return;
   }
 
@@ -572,6 +686,7 @@ void CGContextAddArcToPoint(
   CGContextAddArc(ctx,
     x1 + radius * (t * dx0 + n0x), y1 + radius * (t * dy0 + n0y),
     radius, atan2(-n0y, -n0x), atan2(-n2y, -n2x), (san < 0));
+  OPRESTORELOGGING()
 }
 
 static void OPAddPathApplier(void *info, const CGPathElement *elem)
@@ -604,19 +719,27 @@ static void OPAddPathApplier(void *info, const CGPathElement *elem)
 
 void CGContextAddPath(CGContextRef ctx, CGPathRef path)
 {
+  OPLOGCALL("ctx, <path>")
   CGPathApply(path, ctx, OPAddPathApplier);
+  OPRESTORELOGGING()
 }
 
 void CGContextAddEllipseInRect(CGContextRef ctx, CGRect rect)
 {
+  OPLOGCALL("ctx, CGRectMake(%g, %g, %g, %g)", rect.origin.x, rect.origin.y,
+            rect.size.width, rect.size.height)
+  OPRESTORELOGGING()
 }
 
 void CGContextReplacePathWithStrokedPath(CGContextRef ctx)
 {
+  OPLOGCALL("ctx")
+  OPRESTORELOGGING()
 }
 
 void CGContextStrokePath(CGContextRef ctx)
 {
+  OPLOGCALL("ctx")
   cairo_status_t cret;
 
   if (ctx->add->shadow_cp) {
@@ -638,11 +761,18 @@ void CGContextStrokePath(CGContextRef ctx)
   if (cret)
     NSLog(@"cairo_stroke status: %s",
           cairo_status_to_string(cret));
+  OPRESTORELOGGING()
 }
 
 static void fill_path(CGContextRef ctx, int eorule, int preserve)
 {
   cairo_status_t cret;
+  
+  if(!ctx || !ctx->add)
+    {
+      NSLog(@"null ctx or ctx->add in %s", __PRETTY_FUNCTION__);
+      return;
+    }
 
   if (ctx->add->shadow_cp) {
     start_shadow(ctx);
@@ -672,12 +802,14 @@ static void fill_path(CGContextRef ctx, int eorule, int preserve)
 
 void CGContextFillPath(CGContextRef ctx)
 {
+  OPLOGCALL("ctx")
   fill_path(ctx, 0, 0);
+  OPRESTORELOGGING()
 }
 
 void CGContextClearPath(CGContextRef ctx)
 { //FIXME
-
+  OPLOGCALL("ctx")
   cairo_status_t cret;
 
   if (ctx->add->fill_cp)
@@ -692,15 +824,19 @@ void CGContextClearPath(CGContextRef ctx)
   if (cret)
     NSLog(@"cairo clear status: %s",
           cairo_status_to_string(cret));
+  OPRESTORELOGGING()
 }
 
 void CGContextEOFillPath(CGContextRef ctx)
 {
+  OPLOGCALL("ctx")
   fill_path(ctx, 1, 0);
+  OPRESTORELOGGING()
 }
 
 void CGContextDrawPath(CGContextRef ctx, CGPathDrawingMode mode)
 {
+  OPLOGCALL("ctx, %d", mode)
   switch (mode) {
     case kCGPathFill:
     case kCGPathEOFill:
@@ -716,41 +852,56 @@ void CGContextDrawPath(CGContextRef ctx, CGPathDrawingMode mode)
     default:
       NSLog(@"CGContextDrawPath invalid CGPathDrawingMode: %d", mode);
   }
+  OPRESTORELOGGING()
 }
 
 void CGContextStrokeRect(CGContextRef ctx, CGRect rect)
 {
+  OPLOGCALL("ctx, CGRectMake(%g, %g, %g, %g)", rect.origin.x, rect.origin.y,
+            rect.size.width, rect.size.height)
   CGContextBeginPath(ctx);
   CGContextAddRect(ctx, rect);
   CGContextStrokePath(ctx);
+  OPRESTORELOGGING()
 }
 
 void CGContextStrokeRectWithWidth(CGContextRef ctx, CGRect rect, CGFloat width)
 {
+  OPLOGCALL("ctx, CGRectMake(%g, %g, %g, %g), %g", rect.origin.x, rect.origin.y,
+            rect.size.width, rect.size.height, width)
   CGContextSetLineWidth(ctx, width);
   CGContextStrokeRect(ctx, rect);
   /* Line width is not restored (see Technical QA1045) */
+  OPRESTORELOGGING()
 }
 
 void CGContextFillRect(CGContextRef ctx, CGRect rect)
 {
+  OPLOGCALL("ctx, CGRectMake(%g, %g, %g, %g)", rect.origin.x, rect.origin.y,
+            rect.size.width, rect.size.height)
   CGContextBeginPath(ctx);
   CGContextAddRect(ctx, rect);
   CGContextFillPath(ctx);
+  OPRESTORELOGGING()
 }
 
 void CGContextFillRects(CGContextRef ctx, const CGRect rects[], size_t count)
 {
+  OPLOGCALL("ctx, <rects>, %d", count)
   CGContextBeginPath(ctx);
   CGContextAddRects(ctx, rects, count);
   CGContextFillPath(ctx);
+  OPRESTORELOGGING()
 }
 
 void CGContextClearRect(CGContextRef ctx, CGRect rect)
 {
+  OPLOGCALL("ctx, CGRectMake(%g, %g, %g, %g)", rect.origin.x, rect.origin.y,
+            rect.size.width, rect.size.height)
   CGContextBeginPath(ctx);
   CGContextAddRect(ctx, rect);
   CGContextClearPath(ctx);
+  OPRESTORELOGGING()
 }
 
 void CGContextStrokeLineSegments(
@@ -758,6 +909,7 @@ void CGContextStrokeLineSegments(
   const CGPoint points[],
   size_t count)
 {
+  OPLOGCALL("ctx, <points>, %d", count)
   size_t i;
 
   CGContextBeginPath(ctx);
@@ -766,6 +918,7 @@ void CGContextStrokeLineSegments(
     CGContextAddLineToPoint(ctx, points[i].x, points[i].y);
   }
   CGContextStrokePath(ctx);
+  OPRESTORELOGGING()
 }
 
 bool CGContextIsPathEmpty(CGContextRef ctx)
@@ -827,32 +980,44 @@ CGPathRef CGContextCopyPath(CGContextRef ctx)
 
 void CGContextClip(CGContextRef ctx)
 {
+  OPLOGCALL("ctx")
   cairo_clip(ctx->ct);
+  OPRESTORELOGGING()
 }
 
 void CGContextEOClip(CGContextRef ctx)
 {
+  OPLOGCALL("ctx")
   cairo_set_fill_rule(ctx->ct, CAIRO_FILL_RULE_EVEN_ODD);
   CGContextClip(ctx);
   cairo_set_fill_rule(ctx->ct, CAIRO_FILL_RULE_WINDING);
+  OPRESTORELOGGING()
 }
 
 void CGContextClipToRect(CGContextRef ctx, CGRect rect)
 {
+  OPLOGCALL("ctx, CGRectMake(%g, %g, %g, %g)", rect.origin.x, rect.origin.y,
+            rect.size.width, rect.size.height)
   CGContextBeginPath(ctx);
   CGContextAddRect(ctx, rect);
   CGContextClip(ctx);
+  OPRESTORELOGGING()
 }
 
 void CGContextClipToRects(CGContextRef ctx, const CGRect rects[], size_t count)
 {
+  OPLOGCALL("ctx, <rects>, %d", count)
   CGContextBeginPath(ctx);
   CGContextAddRects(ctx, rects, count);
   CGContextClip(ctx);
+  OPRESTORELOGGING()
 }
 
 void CGContextClipToMask(CGContextRef ctx, CGRect rect, CGImageRef mask)
 {
+  OPLOGCALL("ctx, CGRectMake(%g, %g, %g, %g), <mask>", 
+            rect.origin.x, rect.origin.y,
+            rect.size.width, rect.size.height)
   /* Attach a temporay image mask to the surface.
      Then, all drawing needs a: 
        push_group()
@@ -860,14 +1025,17 @@ void CGContextClipToMask(CGContextRef ctx, CGRect rect, CGImageRef mask)
        pop_group_to_source();
        mask()
   */
+  OPRESTORELOGGING()
 }
 
 void OPContextResetClip(CGContextRef ctx)
 {
+  OPLOGCALL("ctx")
   if (ctx && ctx->ct)
   {
     cairo_reset_clip(ctx->ct);
   }
+  OPRESTORELOGGING()
 }
 
 CGRect CGContextGetClipBoundingBox(CGContextRef ctx)
@@ -905,22 +1073,48 @@ static inline void set_color(cairo_pattern_t **cp, CGColorRef clr, double alpha)
 
 void CGContextSetFillColorWithColor(CGContextRef ctx, CGColorRef color)
 {
-  CGColorRelease(ctx->add->fill_color);
+  OPLOGCALL("ctx, <color>")
+  if(!ctx || !ctx->add)
+    {
+      NSLog(@"null ctx or ctx->add in %s", __PRETTY_FUNCTION__);
+      OPRESTORELOGGING()
+      return;
+    }
+  NSLog(@"(replacing %p with %p)", ctx->add->fill_color, color);
+  CGColorRef old_color = ctx->add->fill_color;
   ctx->add->fill_color = color;
   CGColorRetain(color);
+  CGColorRelease(old_color);
   set_color(&ctx->add->fill_cp, color, ctx->add->alpha);
+  OPRESTORELOGGING()
 }
 
 void CGContextSetStrokeColorWithColor(CGContextRef ctx, CGColorRef color)
 {
-  CGColorRelease(ctx->add->stroke_color);
+  OPLOGCALL("ctx, <color>")
+  if(!ctx || !ctx->add)
+    {
+      NSLog(@"null ctx or ctx->add in %s", __PRETTY_FUNCTION__);
+      OPRESTORELOGGING()
+      return;
+    }
+  CGColorRef old_color = ctx->add->stroke_color;
   ctx->add->stroke_color = color;
   CGColorRetain(color);
+  CGColorRelease(old_color);
   set_color(&ctx->add->stroke_cp, color, ctx->add->alpha);
+  OPRESTORELOGGING()
 }
 
 void CGContextSetAlpha(CGContextRef ctx, CGFloat alpha)
 {
+  OPLOGCALL("ctx, %g", alpha)
+  if(!ctx || !ctx->add)
+    {
+      NSLog(@"null ctx or ctx->add in %s", __PRETTY_FUNCTION__);
+      OPRESTORELOGGING()
+      return;
+    }
   if (alpha < 0)
     alpha = 0;
   else if (alpha > 1)
@@ -931,10 +1125,12 @@ void CGContextSetAlpha(CGContextRef ctx, CGFloat alpha)
     set_color(&ctx->add->stroke_cp, ctx->add->stroke_color, ctx->add->alpha);
   if (ctx->add->fill_color)  
     set_color(&ctx->add->fill_cp, ctx->add->fill_color, ctx->add->alpha);
+  OPRESTORELOGGING()
 }
 
 void CGContextSetFillColorSpace(CGContextRef ctx, CGColorSpaceRef colorspace)
 {
+  OPLOGCALL("ctx, <colorspace>")
   CGFloat *components;
   CGColorRef color;
   size_t nc;
@@ -951,10 +1147,12 @@ void CGContextSetFillColorSpace(CGContextRef ctx, CGColorSpaceRef colorspace)
   free(components);
   CGContextSetFillColorWithColor(ctx, color);
   CGColorRelease(color);
+  OPRESTORELOGGING()
 }
 
 void CGContextSetStrokeColorSpace(CGContextRef ctx, CGColorSpaceRef colorspace)
 {
+  OPLOGCALL("ctx, <colorspace>")
   CGFloat *components;
   CGColorRef color;
   size_t nc;
@@ -971,10 +1169,12 @@ void CGContextSetStrokeColorSpace(CGContextRef ctx, CGColorSpaceRef colorspace)
   free(components);
   CGContextSetStrokeColorWithColor(ctx, color);
   CGColorRelease(color);
+  OPRESTORELOGGING()
 }
 
 void CGContextSetFillColor(CGContextRef ctx, const CGFloat components[])
 {
+  OPLOGCALL("ctx, <components>")
   CGColorSpaceRef cs;
   CGColorRef color;
 
@@ -982,10 +1182,12 @@ void CGContextSetFillColor(CGContextRef ctx, const CGFloat components[])
   color = CGColorCreate(cs, components);
   CGContextSetFillColorWithColor(ctx, color);
   CGColorRelease(color);
+  OPRESTORELOGGING()
 }
 
 void CGContextSetStrokeColor(CGContextRef ctx, const CGFloat components[])
 {
+  OPLOGCALL("ctx, <components>")
   CGColorSpaceRef cs;
   CGColorRef color;
 
@@ -993,10 +1195,12 @@ void CGContextSetStrokeColor(CGContextRef ctx, const CGFloat components[])
   color = CGColorCreate(cs, components);
   CGContextSetStrokeColorWithColor(ctx, color);
   CGColorRelease(color);
+  OPRESTORELOGGING()
 }
 
 void CGContextSetGrayFillColor(CGContextRef ctx, CGFloat gray, CGFloat alpha)
 {
+  OPLOGCALL("ctx, %g, %g", gray, alpha)
   CGFloat comps[2];
   CGColorSpaceRef cs;
   CGColorRef color;
@@ -1008,10 +1212,12 @@ void CGContextSetGrayFillColor(CGContextRef ctx, CGFloat gray, CGFloat alpha)
   CGColorSpaceRelease(cs);
   CGContextSetFillColorWithColor(ctx, color);
   CGColorRelease(color);
+  OPRESTORELOGGING()
 }
 
 void CGContextSetGrayStrokeColor(CGContextRef ctx, CGFloat gray, CGFloat alpha)
 {
+  OPLOGCALL("ctx, %g, %g", gray, alpha)
   CGFloat comps[2];
   CGColorSpaceRef cs;
   CGColorRef color;
@@ -1023,11 +1229,13 @@ void CGContextSetGrayStrokeColor(CGContextRef ctx, CGFloat gray, CGFloat alpha)
   CGColorSpaceRelease(cs);
   CGContextSetStrokeColorWithColor(ctx, color);
   CGColorRelease(color);
+  OPRESTORELOGGING()
 }
 
 void CGContextSetRGBFillColor(CGContextRef ctx,
        CGFloat r, CGFloat g, CGFloat b, CGFloat alpha)
 {
+  OPLOGCALL("ctx, %g, %g, %g, %g", r, g, b, alpha)
   CGFloat comps[4];
   CGColorSpaceRef cs;
   CGColorRef color;
@@ -1041,11 +1249,13 @@ void CGContextSetRGBFillColor(CGContextRef ctx,
   CGColorSpaceRelease(cs);
   CGContextSetFillColorWithColor(ctx, color);
   CGColorRelease(color);
+  OPRESTORELOGGING()
 }
 
 void CGContextSetRGBStrokeColor(CGContextRef ctx,
        CGFloat r, CGFloat g, CGFloat b, CGFloat alpha)
 {
+  OPLOGCALL("ctx, %g, %g, %g, %g", r, g, b, alpha)
   CGFloat comps[4];
   CGColorSpaceRef cs;
   CGColorRef color;
@@ -1059,26 +1269,31 @@ void CGContextSetRGBStrokeColor(CGContextRef ctx,
   CGColorSpaceRelease(cs);
   CGContextSetStrokeColorWithColor(ctx, color);
   CGColorRelease(color);
+  OPRESTORELOGGING()
 }
 
 void CGContextSetCMYKFillColor(CGContextRef ctx,
        CGFloat cyan, CGFloat magenta, CGFloat yellow, CGFloat black, CGFloat alpha)
 {
+  OPLOGCALL("ctx, %g, %g, %g, %g, %g", cyan, magenta, yellow, black, alpha)
   CGColorRef color;
 
   color = CGColorCreateGenericCMYK(cyan, magenta, yellow, black, alpha);
   CGContextSetFillColorWithColor(ctx, color);
   CGColorRelease(color);
+  OPRESTORELOGGING()
 }
 
 void CGContextSetCMYKStrokeColor(CGContextRef ctx,
        CGFloat cyan, CGFloat magenta, CGFloat yellow, CGFloat black, CGFloat alpha)
 {
+  OPLOGCALL("ctx, %g, %g, %g, %g, %g", cyan, magenta, yellow, black, alpha)
   CGColorRef color;
 
   color = CGColorCreateGenericCMYK(cyan, magenta, yellow, black, alpha);
   CGContextSetStrokeColorWithColor(ctx, color);
   CGColorRelease(color);
+  OPRESTORELOGGING()
 }
 
 void opal_draw_surface_in_rect(CGContextRef ctxt, CGRect rect, cairo_surface_t *src, CGRect srcRect)
@@ -1122,13 +1337,18 @@ void opal_draw_surface_in_rect(CGContextRef ctxt, CGRect rect, cairo_surface_t *
 
 void CGContextDrawImage(CGContextRef ctx, CGRect rect, CGImageRef image)
 {
+  OPLOGCALL("ctx, CGRectMake(%g, %g, %g, %g), <image>", rect.origin.x,
+            rect.origin.y, rect.size.width, rect.size.height)
   opal_draw_surface_in_rect(ctx, rect, opal_CGImageGetSurfaceForImage(image, cairo_get_target(ctx->ct)),
     opal_CGImageGetSourceRect(image));
+  OPRESTORELOGGING()
 }
 
 void CGContextDrawTiledImage(CGContextRef ctx, CGRect rect, CGImageRef image)
 {
-  
+  OPLOGCALL("ctx, CGRectMake(%g, %g, %g, %g), <image>", rect.origin.x,
+            rect.origin.y, rect.size.width, rect.size.height)
+  OPRESTORELOGGING()
 }
 
 void CGContextDrawPDFDocument(
@@ -1137,12 +1357,15 @@ void CGContextDrawPDFDocument(
   CGPDFDocumentRef document,
   int page)
 {
-
+  OPLOGCALL("ctx, CGRectMake(%g, %g, %g, %g), <image>, %d", rect.origin.x,
+            rect.origin.y, rect.size.width, rect.size.height, page)
+  OPRESTORELOGGING()
 }
 
 void CGContextDrawPDFPage(CGContextRef ctx, CGPDFPageRef page)
 {
-
+  OPLOGCALL("ctx, <page>")
+  OPRESTORELOGGING()
 }
 
 static void opal_AddStops(cairo_pattern_t *pat, CGGradientRef grad)
@@ -1175,6 +1398,8 @@ void CGContextDrawLinearGradient(
   CGPoint endPoint,
   CGGradientDrawingOptions options)
 {
+  OPLOGCALL("ctx, <gradient>, CGPointMake(%g, %g), CGPointMake(%g, %g), %d",
+            startPoint.x, startPoint.y, endPoint.x, endPoint.y, options)
   cairo_pattern_t *pat = cairo_pattern_create_linear(startPoint.x, startPoint.y, endPoint.x, endPoint.y);
   opal_AddStops(pat, gradient);
   
@@ -1183,6 +1408,7 @@ void CGContextDrawLinearGradient(
   cairo_paint(ctx->ct);
   
   cairo_pattern_destroy(pat);
+  OPRESTORELOGGING()
 }
 
 void CGContextDrawRadialGradient(
@@ -1194,6 +1420,9 @@ void CGContextDrawRadialGradient(
   CGFloat endRadius,
   CGGradientDrawingOptions options)
 {
+  OPLOGCALL("ctx, <gradient>, CGPointMake(%g, %g),%g, CGPointMake(%g, %g),%g, "
+            "%d", startCenter.x, startCenter.y, startRadius, endCenter.x,
+            endCenter.y, endRadius, options)
   cairo_pattern_t *pat = cairo_pattern_create_radial(startCenter.x, startCenter.y, startRadius,
     endCenter.x, endCenter.y, endRadius);
   opal_AddStops(pat, gradient);
@@ -1203,6 +1432,7 @@ void CGContextDrawRadialGradient(
   cairo_paint(ctx->ct);
   
   cairo_pattern_destroy(pat);
+  OPRESTORELOGGING()
 }
 
 void CGContextDrawShading(
@@ -1212,17 +1442,21 @@ void CGContextDrawShading(
 
 void CGContextSetFont(CGContextRef ctx, CGFontRef font)
 {
+  OPLOGCALL("ctx, <font>")
   if (!font) {
     NSLog(@" CGContextSetFont got NULL");
     return;
   }
   cairo_set_font_face(ctx->ct, cairo_scaled_font_get_font_face(((CairoFont*)font)->cairofont));
   ctx->add->font = CGFontRetain(font);
+  OPRESTORELOGGING()
 }
 
 void CGContextSetFontSize(CGContextRef ctx, CGFloat size)
 {
+  OPLOGCALL("ctx, %g", size)
   ctx->add->font_size = size;
+  OPRESTORELOGGING()
 }
 
 void CGContextSelectFont(
@@ -1231,26 +1465,34 @@ void CGContextSelectFont(
   CGFloat size,
   CGTextEncoding textEncoding)
 {
+  OPLOGCALL("ctx, \"%s\", %g, %d", name, size, textEncoding)
   NSString *n = [[NSString alloc] initWithUTF8String: name];
   CGContextSetFont(ctx, CGFontCreateWithFontName(n));
   CGContextSetFontSize(ctx, size);
   [n release];
+  OPRESTORELOGGING()
 }
 
 void CGContextSetCharacterSpacing(CGContextRef ctx, CGFloat spacing)
 {
+  OPLOGCALL("ctx, %g", spacing)
   ctx->add->char_spacing = spacing;
+  OPRESTORELOGGING()
 }
 
 void CGContextSetTextDrawingMode(CGContextRef ctx, CGTextDrawingMode mode)
 {
+  OPLOGCALL("ctx, %d", mode)
   ctx->add->text_mode = mode;
+  OPRESTORELOGGING()
 }
 
 void CGContextSetTextPosition(CGContextRef ctx, CGFloat x, CGFloat y)
 {
+  OPLOGCALL("ctx, %g, %g", x, y)
   ctx->txtmatrix.tx = x;
   ctx->txtmatrix.ty = y;
+  OPRESTORELOGGING()
 }
 
 CGPoint CGContextGetTextPosition(CGContextRef ctx)
@@ -1260,7 +1502,10 @@ CGPoint CGContextGetTextPosition(CGContextRef ctx)
 
 void CGContextSetTextMatrix(CGContextRef ctx, CGAffineTransform transform)
 {
+  OPLOGCALL("ctx, CGAffineTransformMake(%g, %g, %g, %g, %g, %g)", transform.a,
+    transform.b, transform.c, transform.d, transform.tx, transform.ty)
   ctx->txtmatrix = transform;
+  OPRESTORELOGGING()
 }
 
 CGAffineTransform CGContextGetTextMatrix(CGContextRef ctx)
@@ -1270,6 +1515,7 @@ CGAffineTransform CGContextGetTextMatrix(CGContextRef ctx)
 
 void CGContextShowText(CGContextRef ctx, const char *string, size_t length)
 {
+  OPLOGCALL("ctx, \"%s\", %d", string, length)
   // Add a null character to the string
 
   char *cString;
@@ -1281,6 +1527,7 @@ void CGContextShowText(CGContextRef ctx, const char *string, size_t length)
   }
   else
   {
+    OPRESTORELOGGING()
     return;
   }
 
@@ -1348,6 +1595,7 @@ void CGContextShowText(CGContextRef ctx, const char *string, size_t length)
   {
     cairo_new_path(ctx->ct);
   }
+  OPRESTORELOGGING()
 }
 
 /**
@@ -1360,12 +1608,15 @@ void CGContextShowTextAtPoint(
   const char *cstring,
   size_t length)
 {
+  OPLOGCALL("ctx, %g, %g, \"%s\", %d", x, y, cstring, length)
   CGContextSetTextPosition(ctx, x, y);
   CGContextShowText(ctx, cstring, length);
+  OPRESTORELOGGING()
 }
 
 void CGContextShowGlyphs(CGContextRef ctx, const CGGlyph *glyphs, size_t count)
 {
+  OPLOGCALL("ctx, <glyphs>, %d", count)
   // FIXME: Okay to stack allocate?
   int advances[count];
   if (CGFontGetGlyphAdvances(ctx->add->font, glyphs, count, advances))
@@ -1385,6 +1636,7 @@ void CGContextShowGlyphs(CGContextRef ctx, const CGGlyph *glyphs, size_t count)
     }
     CGContextShowGlyphsWithAdvances(ctx, glyphs, fAdvances, count);
   } 
+  OPRESTORELOGGING()
 }
 
 void CGContextShowGlyphsAtPoint(
@@ -1394,8 +1646,10 @@ void CGContextShowGlyphsAtPoint(
   const CGGlyph *glyphs,
   size_t count)
 {
+  OPLOGCALL("ctx, %g, %g, <glyphs>, %d", x, y, count)
   CGContextSetTextPosition(ctx, x, y);
   CGContextShowGlyphs(ctx, glyphs, count);
+  OPRESTORELOGGING()
 }
 
 /**
@@ -1412,6 +1666,7 @@ void CGContextShowGlyphsAtPositions(
   const CGPoint positions[],
   size_t count)
 {
+  OPLOGCALL("ctx, <glyphs>, <positions>, %d", count)
   // FIXME: Okay to stack allocate?
   cairo_glyph_t cairoGlyphs[count];
   for (int i=0; i<count; i++) {
@@ -1457,6 +1712,7 @@ void CGContextShowGlyphsAtPositions(
   for (int i=0; i<count; i++) {
     cairo_show_glyphs(ctx->ct, &(cairoGlyphs[i]), 1);
   }
+  OPRESTORELOGGING()
 }
 
 /**
@@ -1469,7 +1725,9 @@ void CGContextShowGlyphsWithAdvances (
   const CGSize advances[],
   size_t count)
 {
+  OPLOGCALL("ctx, <glyphs>, <advances>, %d", count)
   if (count <= 0) {
+    OPRESTORELOGGING()
     return;
   }
   // FIXME: Okay to stack allocate?
@@ -1490,12 +1748,14 @@ void CGContextShowGlyphsWithAdvances (
     pos.y += advances[i].height;
   }
   CGContextSetTextPosition(ctx, pos.x, pos.y);
+  OPRESTORELOGGING()
 }
 
 void CGContextBeginTransparencyLayer(
   CGContextRef ctx,
   CFDictionaryRef auxiliaryInfo)
 {
+  OPLOGCALL("ctx, <auxiliaryInfo>")
   // Save cairo state, to match CGContextBeginTransparencyLayerWithRect
   cairo_save(ctx->ct); 
   
@@ -1506,6 +1766,7 @@ void CGContextBeginTransparencyLayer(
   CGContextSetShadowWithColor(ctx, CGSizeMake(0,0), 0, NULL);
 
   cairo_push_group(ctx->ct);
+  OPRESTORELOGGING()
 }
 
 void CGContextBeginTransparencyLayerWithRect(
@@ -1513,6 +1774,8 @@ void CGContextBeginTransparencyLayerWithRect(
    CGRect rect,
    CFDictionaryRef auxiliaryInfo)
 {
+  OPLOGCALL("ctx, CGRectMake(%g, %g, %g, %g), <auxiliaryInfo>",
+            rect.origin.x, rect.origin.y, rect.size.width, rect.size.height)
   // Save cairo state because we are goint to clip to the given rect
   cairo_save(ctx->ct);
   cairo_new_path(ctx->ct);
@@ -1526,10 +1789,12 @@ void CGContextBeginTransparencyLayerWithRect(
   CGContextSetShadowWithColor(ctx, CGSizeMake(0,0), 0, NULL);
 
   cairo_push_group(ctx->ct);
+  OPRESTORELOGGING()
 }
 
 void CGContextEndTransparencyLayer(CGContextRef ctx)
 {
+  OPLOGCALL("ctx")
   cairo_pattern_t *group = cairo_pop_group(ctx->ct);
   
   // Now undo the change to alpha and shadow state
@@ -1542,6 +1807,7 @@ void CGContextEndTransparencyLayer(CGContextRef ctx)
   
   // Undo the clipping (if any)
   cairo_restore(ctx->ct);
+  OPRESTORELOGGING()
 }
 
 /**

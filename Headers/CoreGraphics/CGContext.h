@@ -560,5 +560,8 @@ void OPContextResetClip(CGContextRef ctx);
 
 void OPContextSetIdentityCTM(CGContextRef ctx);
 
+void OPContextSetCairoDeviceOffset(CGContextRef ctx,
+                                    CGFloat x, CGFloat y);
+
 #endif /* OPAL_CGContext_h */
 
