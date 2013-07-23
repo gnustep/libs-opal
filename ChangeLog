@@ -1,3 +1,15 @@
+2013-07-24 Ivan Vučica <ivan@vucica.net>
+
+	* Source/OpalGraphics/CGBitmapContext.m:
+	* Source/OpalGraphics/CGImage.m:
+	* Source/OpalGraphics/OPLogging.h:
+	* Source/OpalGraphics/OPImageConversion.m:
+	* Source/OpalGraphics/OPColorTransformLCMS.m:
+	* Source/OpalGraphics/CGContext.m:
+	* Source/OpalGraphics/CGAffineTransform.m:
+	Most non-error logging is now using NSDebugLLog(), to have Opal emit less
+	noise unless explicitly requested. Cleaned up small pieces of code.
+
 2013-07-21 Ivan Vučica <ivan@vucica.net>
 
 	* Source/OpalGraphics/OPLogging.h:

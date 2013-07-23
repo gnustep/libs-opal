@@ -343,6 +343,11 @@ void CGContextRestoreGState(CGContextRef ctx)
   free(ctx->add);
   ctx->add = ctadd;
 
+  if(!ctx->add)
+    {
+      NSLog(@"%s: restoring produced null 'ct_additions'", __FUNCTION__);
+    }
+
   cairo_restore(ctx->ct);
 }
 
@@ -770,7 +775,11 @@ static void fill_path(CGContextRef ctx, int eorule, int preserve)
   
   if(!ctx || !ctx->add)
     {
-      NSLog(@"null ctx or ctx->add in %s", __PRETTY_FUNCTION__);
+      NSLog(@"null %s%s%s in %s",
+            !ctx ? "ctx" : "",
+            (!ctx && !ctx->add) ? " and " : "", 
+            !ctx->add ? "ctx->add" : "",
+            __PRETTY_FUNCTION__);
       return;
     }
 
@@ -1055,7 +1064,7 @@ static inline void set_color(cairo_pattern_t **cp, CGColorRef clr, double alpha)
   CGColorSpaceRelease(srgb);
 
   const CGFloat *cc = CGColorGetComponents(srgbClr);
-  NSLog(@"Set color with %f %f %f %f", (float)cc[0], (float)cc[1], (float)cc[2], (float)cc[3]*alpha);
+  NSDebugLLog(@"Opal", @"Set color with %f %f %f %f", (float)cc[0], (float)cc[1], (float)cc[2], (float)cc[3]*alpha);
   newcp = cairo_pattern_create_rgba(cc[0], cc[1], cc[2], cc[3]*alpha);
   cret = cairo_pattern_status(newcp);
   if (cret) {
@@ -1076,11 +1085,14 @@ void CGContextSetFillColorWithColor(CGContextRef ctx, CGColorRef color)
   OPLOGCALL("ctx, <color>")
   if(!ctx || !ctx->add)
     {
-      NSLog(@"null ctx or ctx->add in %s", __PRETTY_FUNCTION__);
+      NSLog(@"null %s%s%s in %s",
+            !ctx ? "ctx" : "",
+            (!ctx && !ctx->add) ? " and " : "", 
+            !ctx->add ? "ctx->add" : "",
+            __PRETTY_FUNCTION__);
       OPRESTORELOGGING()
       return;
     }
-  NSLog(@"(replacing %p with %p)", ctx->add->fill_color, color);
   CGColorRef old_color = ctx->add->fill_color;
   ctx->add->fill_color = color;
   CGColorRetain(color);
@@ -1094,7 +1106,11 @@ void CGContextSetStrokeColorWithColor(CGContextRef ctx, CGColorRef color)
   OPLOGCALL("ctx, <color>")
   if(!ctx || !ctx->add)
     {
-      NSLog(@"null ctx or ctx->add in %s", __PRETTY_FUNCTION__);
+      NSLog(@"null %s%s%s in %s",
+            !ctx ? "ctx" : "",
+            (!ctx && !ctx->add) ? " and " : "", 
+            !ctx->add ? "ctx->add" : "",
+            __PRETTY_FUNCTION__);
       OPRESTORELOGGING()
       return;
     }
@@ -1111,7 +1127,11 @@ void CGContextSetAlpha(CGContextRef ctx, CGFloat alpha)
   OPLOGCALL("ctx, %g", alpha)
   if(!ctx || !ctx->add)
     {
-      NSLog(@"null ctx or ctx->add in %s", __PRETTY_FUNCTION__);
+      NSLog(@"null %s%s%s in %s", 
+            !ctx ? "ctx" : "",
+            (!ctx && !ctx->add) ? " and " : "", 
+            !ctx->add ? "ctx->add" : "",
+            __PRETTY_FUNCTION__);
       OPRESTORELOGGING()
       return;
     }
@@ -1138,7 +1158,7 @@ void CGContextSetFillColorSpace(CGContextRef ctx, CGColorSpaceRef colorspace)
   nc = CGColorSpaceGetNumberOfComponents(colorspace);
   components = calloc(nc+1, sizeof(CGFloat));
   if (components) {
-    NSLog(@"calloc failed");
+    NSLog(@"%s: calloc failed", __PRETTY_FUNCTION__);
     return;
   }
   /* Default is an opaque, zero intensity color (usually black) */
@@ -1160,7 +1180,7 @@ void CGContextSetStrokeColorSpace(CGContextRef ctx, CGColorSpaceRef colorspace)
   nc = CGColorSpaceGetNumberOfComponents(colorspace);
   components = calloc(nc+1, sizeof(CGFloat));
   if (components) {
-    NSLog(@"calloc failed");
+    NSLog(@"%s: calloc failed", __PRETTY_FUNCTION__);
     return;
   }
   /* Default is an opaque, zero intensity color (usually black) */
@@ -1373,7 +1393,7 @@ static void opal_AddStops(cairo_pattern_t *pat, CGGradientRef grad)
   // FIXME: support other colorspaces by converting to deviceRGB
   if (![CGColorSpaceCreateDeviceRGB() isEqual: OPGradientGetColorSpace(grad)])
   {
-    NSLog(@"Only DeviceRGB supported for gradients");
+    NSLog(@"%s: Only DeviceRGB supported for gradients", __PRETTY_FUNCTION__);
     return;
   }
     

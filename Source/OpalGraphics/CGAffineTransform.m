@@ -52,7 +52,7 @@ CGAffineTransform CGAffineTransformInvert(CGAffineTransform t)
 
   det = t.a * t.d - t.b *t.c;
   if (det == 0) {
-    NSLog(@"Cannot invert matrix, determinant is 0");
+    NSLog(@"CGAffineTransformInvert: Cannot invert matrix, determinant is 0");
     return t;
   }
 

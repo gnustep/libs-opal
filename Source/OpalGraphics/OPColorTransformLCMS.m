@@ -202,9 +202,9 @@ static DWORD LcmsFormatForOPImageFormat(OPImageFormat opalFormat, CGColorSpaceRe
         ((uint16_t*)tempBuffer1)[i*totalComponentsIn + j] = UINT16_MAX * ((float*)input)[i*totalComponentsIn + j];
         //NSLog(@"Input comp: %f => %d", (float)((float*)input)[i*totalComponentsIn + j],(int)((uint16_t*)tempBuffer1)[i*totalComponentsIn + j]);
         if ( (float)((float*)input)[i*totalComponentsIn + j] > 1) 
- {
-  NSLog(@"oveflow");
- }
+          {
+            NSLog(@"%s: overflow", __PRETTY_FUNCTION__);
+          }
       }
     }
     input = (const unsigned char *)tempBuffer1;

@@ -36,11 +36,11 @@ void DumpPixel(const void *data, NSString *msg)
 {
   if(!data)
     {
-      NSLog(@"%@: <null data>", msg);
+      NSDebugLLog(@"Opal", @"%@: <null data>", msg);
       return;
     }
 
-  NSLog(@"%@: (%02x,%02x,%02x,%02x)", msg, (int)(((unsigned char*)data)[0]), 
+  NSDebugLLog(@"Opal", @"%@: (%02x,%02x,%02x,%02x)", msg, (int)(((unsigned char*)data)[0]), 
         (int)(((unsigned char*)data)[1]),
         (int)(((unsigned char*)data)[2]),
         (int)(((unsigned char*)data)[3]));

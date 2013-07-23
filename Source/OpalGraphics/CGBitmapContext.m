@@ -277,7 +277,7 @@ CGContextRef CGBitmapContextCreateWithData(
     // Cairo can draw directly into the buffer format the caller provided or requested
     surf = cairo_image_surface_create_for_data(data, format, width, height, bytesPerRow);
 
-    printf("CGBitmapContext: using native drawing\n");
+    NSDebugLLog(@"Opal", @"CGBitmapContext: using native drawing");
   }
   else
   {
@@ -289,7 +289,7 @@ CGContextRef CGBitmapContextCreateWithData(
     void *cairoData = calloc(height * cairoBytesPerRow, 1);
     surf = cairo_image_surface_create_for_data(cairoData, format, width, height, cairoBytesPerRow);    
 
-    printf("CGBitmapContext: using drawing through buffe\n");
+    NSDebugLLog(@"Opal", @"CGBitmapContext: using drawing through buffer");
   }
     
   checkSurf(surf);

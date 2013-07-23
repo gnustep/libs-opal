@@ -74,7 +74,7 @@ void OPImageFormatLog(OPImageFormat fmt, NSString *msg)
 			compFormatString = @"kOPComponentFormatFloat32bpc";
 			break;
 	}
-	NSLog(@"%@: <%@, color components=%d, alpha?=%d, premul?=%d, alpha last?=%d>", 
+	NSDebugLLog(@"Opal", @"%@: <%@, color components=%d, alpha?=%d, premul?=%d, alpha last?=%d>", 
 		msg, compFormatString, fmt.colorComponents, fmt.hasAlpha, fmt.isAlphaPremultiplied, fmt.isAlphaLast);
 }
 
