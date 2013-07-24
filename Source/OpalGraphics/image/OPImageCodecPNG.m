@@ -46,6 +46,8 @@
 #import "CGDataProvider-private.h"
 #import "CGDataConsumer-private.h"
 
+#import "OPImageConversion.h"
+
 #if defined(PNG_FLOATING_POINT_SUPPORT)
 #  define PNG_FLOATING_POINT 1
 #else
@@ -335,7 +337,7 @@ static bool opal_has_png_header(CGDataProviderRef dp)
 {
   self = [super init];
   
-  if ([type isEqualToString: @"public.png"] || count != 1)
+  if (![type isEqualToString: @"public.png"] || count != 1)
   {
     [self release];
     return nil;
@@ -386,83 +388,56 @@ static bool opal_has_png_header(CGDataProviderRef dp)
 
   NS_DURING  
   {
-    const bool interlace = false;
-    const int width = CGImageGetWidth(img);
-    const int height = CGImageGetHeight(img);
-    const int bytes_per_row = CGImageGetBytesPerRow(img);    
-    const int depth = CGImageGetBitsPerComponent(img);
-  
-    const int alphaInfo = CGImageGetAlphaInfo(img);
-    const CGColorSpaceModel model = CGColorSpaceGetModel(CGImageGetColorSpace(img));
-    
-    int type;
-    switch (model)
-    {
-      case kCGColorSpaceModelRGB:
-        type = PNG_COLOR_TYPE_RGB; 
-        break;
-      case kCGColorSpaceModelMonochrome:
-        type = PNG_COLOR_TYPE_GRAY;
-        break;
-      default:
-        NSLog(@"Unsupported color model");
-        return false;
-    }
-    
-    switch (alphaInfo)
-    {
-      case kCGImageAlphaNone:
-        break;
-        
-      case kCGImageAlphaPremultipliedFirst:
-        //png_set_swap_alpha(png_struct);
-        NSLog(@"Unsupported alpha type");
-        return false;
-        
-      case kCGImageAlphaPremultipliedLast:
-        // FIXME: must un-premultiply
-        type |= PNG_COLOR_MASK_ALPHA;
-        NSLog(@"Unsupported color model");
-        return false;
-        
-      case kCGImageAlphaFirst:
-        //png_set_swap_alpha(png_struct);
-        NSLog(@"Unsupported alpha type");
-        return false;
-        
-      case kCGImageAlphaLast:
-        type |= PNG_COLOR_MASK_ALPHA;
-        break;
-        
-      case kCGImageAlphaNoneSkipLast:
-      case kCGImageAlphaNoneSkipFirst:
-        // Will need to process
-        NSLog(@"Unsupported alpha type");
-        return false;
-    }
-          
+    const int srcWidth = CGImageGetWidth(img);
+    const int srcHeight = CGImageGetHeight(img);
+    const int srcBytesPerRow = CGImageGetBytesPerRow(img);
+    const int srcBitsPerComponent = CGImageGetBitsPerComponent(img);
+    const int srcBitsPerPixel = CGImageGetBitsPerPixel(img);
+    const int srcBitmapInfo = CGImageGetBitmapInfo(img);
+    const CGColorSpaceRef srcColorSpace = CGImageGetColorSpace(img);
+    const CGColorRenderingIntent srcIntent = CGImageGetRenderingIntent(img);
+
+    const size_t dstBitmapInfo = kCGBitmapByteOrderDefault /* unpacked */ | kCGImageAlphaLast;
+    const size_t dstBitsPerComponent = 8;
+    const size_t dstBitsPerPixel = 32;
+    const size_t dstBytesPerRow = 4 * srcWidth;
+    const CGColorSpaceRef dstColorSpace = [CGColorSpaceCreateDeviceRGB() autorelease];
+
     // init structures
     png_info_init_3(&png_info, png_sizeof(png_info));
     png_set_write_fn(png_struct, dc, opal_png_writer_func, NULL);
-    png_set_IHDR(png_struct, png_info, width, height, depth,
-     type, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE,
-     PNG_FILTER_TYPE_BASE);
-  
+    png_set_IHDR(png_struct, png_info, srcWidth, srcHeight, 8,
+     PNG_COLOR_TYPE_RGB_ALPHA, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT,
+     PNG_FILTER_TYPE_DEFAULT);
+
+    // with the default libpng settings, it expects unpacked, unpremultiplied RGBA
+
     png_write_info(png_struct, png_info);
     
-    unsigned char *rowdata = malloc(bytes_per_row);
+    unsigned char *srcData = malloc(srcBytesPerRow);
+    unsigned char *dstData = malloc(dstBytesPerRow);
+
     CGDataProviderRef dp = CGImageGetDataProvider(img);
-    const int times = interlace ? png_set_interlace_handling(png_struct) : 1;
-    for (int i=0; i<times; i++)
-    {
-      OPDataProviderRewind(dp);
-      for (int j=0; j<height; j++) 
+
+    OPDataProviderRewind(dp);
+    for (int j=0; j<srcHeight; j++) 
       {
-        OPDataProviderGetBytes(dp, rowdata, bytes_per_row);
-        png_write_row(png_struct, rowdata);
+        OPDataProviderGetBytes(dp, srcData, srcBytesPerRow);
+
+	OPImageConvert(dstData, srcData,
+		       srcWidth, 1,
+		       dstBitsPerComponent, srcBitsPerComponent,
+		       dstBitsPerPixel, srcBitsPerPixel,
+		       dstBytesPerRow, srcBytesPerRow,
+		       dstBitmapInfo, srcBitmapInfo,
+		       dstColorSpace, srcColorSpace,
+		       srcIntent);
+
+        png_write_row(png_struct, dstData);
       }
-    }
-    free(rowdata);
+
+    free(srcData);
+    free(dstData);
     
     png_write_end(png_struct, png_info);
   }

@@ -1,3 +1,11 @@
+2013-07-23  Eric Wasylishen  <ewasylishen@gmail.com>
+
+	* Source/OpalGraphics/image/OPImageCodecPNG.m: Rewrite to use
+	OPImageConvert and always convert to 32-bit RGBA, unpacked,
+	non-premultiplied. This is not ideal, but should always work.
+	* Source/OpalGraphics/CGDataConsumer.m: Create the file if
+	needed.
+
 2013-07-24 Ivan Vučica <ivan@vucica.net>
 
 	* Source/OpalGraphics/CGBitmapContext.m:

@@ -133,7 +133,16 @@ CGDataConsumerRef CGDataConsumerCreateWithURL(CFURLRef url)
   CGDataConsumerCallbacks opal_URLConsumerCallbacks = {
     opal_URLConsumerPutBytes, opal_URLConsumerReleaseInfo 
   };
-  NSFileHandle *handle = [NSFileHandle fileHandleForWritingAtPath: [(NSURL*)url path]];
+
+  NSString *path = [(NSURL*)url path];
+
+  NSFileHandle *handle = [NSFileHandle fileHandleForWritingAtPath: path];
+  if (handle == nil)
+    {
+      [[NSFileManager defaultManager] createFileAtPath: path contents:nil attributes:nil];
+      handle = [NSFileHandle fileHandleForWritingAtPath: path];
+    }
+
   return CGDataConsumerCreate([handle retain], &opal_URLConsumerCallbacks);
 }
 
