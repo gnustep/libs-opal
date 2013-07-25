@@ -37,7 +37,7 @@ extern int _opal_loggingEnabled;
   int oldOpalLoggingEnabled = -1; \
   if(_opal_loggingEnabled) \
     { \
-      NSDebugLLog(@"Opal", @" opal call: */ %s(" fmt "); /* \n", __FUNCTION__, ##__VA_ARGS__); \
+      NSDebugLLog(@"OpalCall", @" opal call: */ %s(" fmt "); /* \n", __FUNCTION__, ##__VA_ARGS__); \
       oldOpalLoggingEnabled = _opal_loggingEnabled; \
      _opal_loggingEnabled = 0; \
     }

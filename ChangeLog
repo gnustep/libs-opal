@@ -1,5 +1,13 @@
 2013-07-24  Eric Wasylishen  <ewasylishen@gmail.com>
 
+	* Source/OpalGraphics/OPLogging.h:
+	Changed NSDebugLLog() category to OpalCall.
+
+	* Source/OpalGraphics/CGContext.m:
+	Made logging more useful by adding context %p.
+
+2013-07-24  Eric Wasylishen  <ewasylishen@gmail.com>
+
 	* Source/OpalGraphics/CGImage.m (CGImageCreateWithImageInRect):
 	Use the source rect to set the returned image's size.
 	The method is still incomplete, see TODOs.
