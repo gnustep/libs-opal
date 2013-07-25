@@ -283,7 +283,7 @@ CGImageRef CGImageCreateWithImageInRect(
   CGImageRef image,
   CGRect rect)
 {
-  CGImageRef new = CGImageCreate(image->width, image->height,
+  CGImageRef new = CGImageCreate(CGRectWidth(rect), CGRectHeight(rect),
       image->bitsPerComponent, image->bitsPerPixel, image->bytesPerRow,
       image->cspace, image->bitmapInfo, image->dp, image->decode,
       image->shouldInterpolate, image->intent);
@@ -293,6 +293,9 @@ CGImageRef CGImageCreateWithImageInRect(
   rect = CGRectIntegral(rect);
   rect = CGRectIntersection(rect, CGRectMake(0, 0, image->width, image->height));
   new->crop = rect;
+
+  // TODO: Implement data provider to crop the data from the source image
+  // TODO: Share underlying cairo surface!
 
   return new;
 }
