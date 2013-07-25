@@ -283,7 +283,7 @@ CGImageRef CGImageCreateWithImageInRect(
   CGImageRef image,
   CGRect rect)
 {
-  CGImageRef new = CGImageCreate(CGRectWidth(rect), CGRectHeight(rect),
+  CGImageRef new = CGImageCreate(image->width, image->height,
       image->bitsPerComponent, image->bitsPerPixel, image->bytesPerRow,
       image->cspace, image->bitmapInfo, image->dp, image->decode,
       image->shouldInterpolate, image->intent);
