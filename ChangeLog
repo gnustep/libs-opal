@@ -1,5 +1,14 @@
 2013-09-12  Eric Wasylishen  <ewasylishen@gmail.com>
 
+	* Source/OpalGraphics/CGContext+GState.m:
+	* Headers/CoreGraphics/CGContext.h: Add OPContextCopyGState
+	and OPContextSetGState. I know we discussed writing getters
+	for individual properties of the graphics state but this
+	was quicker to throw together as a first iteration.
+	Warning, not tested.
+
+2013-09-12  Eric Wasylishen  <ewasylishen@gmail.com>
+
 	* Rename NSFont* to OPFont* to avoid conflicting with AppKit.
 	This is just a quick hack; to enable toll-free bridging will
 	require significant work.

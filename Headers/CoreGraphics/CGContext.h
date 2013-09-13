@@ -30,8 +30,11 @@
 #ifdef __OBJC__
 @class CGContext;
 typedef CGContext* CGContextRef;
+@class OPGState;
+typedef OPGState* OPGStateRef;
 #else
 typedef struct CGContext* CGContextRef;
+typedef struct OPGState* OPGStateRef;
 #endif
 
 #include <CoreGraphics/CGAffineTransform.h>
@@ -562,6 +565,10 @@ void OPContextSetIdentityCTM(CGContextRef ctx);
 
 void OPContextSetCairoDeviceOffset(CGContextRef ctx,
                                     CGFloat x, CGFloat y);
+
+OPGStateRef OPContextCopyGState(CGContextRef ctx);
+
+void OPContextSetGState(CGContextRef ctx, OPGStateRef gstate);
 
 #endif /* OPAL_CGContext_h */
 
