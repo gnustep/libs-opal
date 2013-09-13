@@ -1,5 +1,5 @@
 /* 
-   NSFontDescriptor.h
+   OPFontDescriptor.h
 
    Holds an image to use as a cursor
 
@@ -28,8 +28,8 @@
 */ 
 
 
-#ifndef _GNUstep_H_NSFontDescriptor
-#define _GNUstep_H_NSFontDescriptor
+#ifndef _GNUstep_H_OPFontDescriptor
+#define _GNUstep_H_OPFontDescriptor
 
 #import <Foundation/NSObject.h>
 
@@ -41,69 +41,69 @@
 @class NSAffineTransform;
 
 
-typedef uint32_t NSFontSymbolicTraits;
+typedef uint32_t OPFontSymbolicTraits;
 
-typedef enum _NSFontFamilyClass
+typedef enum _OPFontFamilyClass
 {
-  NSFontUnknownClass = 0 << 28,
-  NSFontOldStyleSerifsClass = 1U << 28,
-  NSFontTransitionalSerifsClass = 2U << 28,
-  NSFontModernSerifsClass = 3U << 28,
-  NSFontClarendonSerifsClass = 4U << 28,
-  NSFontSlabSerifsClass = 5U << 28,
-  NSFontFreeformSerifsClass = 7U << 28,
-  NSFontSansSerifClass = 8U << 28,
-  NSFontOrnamentalsClass = 9U << 28,
-  NSFontScriptsClass = 10U << 28,
-  NSFontSymbolicClass = 12U << 28
-} NSFontFamilyClass;
+  OPFontUnknownClass = 0 << 28,
+  OPFontOldStyleSerifsClass = 1U << 28,
+  OPFontTransitionalSerifsClass = 2U << 28,
+  OPFontModernSerifsClass = 3U << 28,
+  OPFontClarendonSerifsClass = 4U << 28,
+  OPFontSlabSerifsClass = 5U << 28,
+  OPFontFreeformSerifsClass = 7U << 28,
+  OPFontSansSerifClass = 8U << 28,
+  OPFontOrnamentalsClass = 9U << 28,
+  OPFontScriptsClass = 10U << 28,
+  OPFontSymbolicClass = 12U << 28
+} OPFontFamilyClass;
 
-enum _NSFontFamilyClassMask {
-    NSFontFamilyClassMask = 0xF0000000
+enum _OPFontFamilyClassMask {
+    OPFontFamilyClassMask = 0xF0000000
 };
 
-enum _NSFontTrait
+enum _OPFontTrait
 {
-  NSFontItalicTrait = 0x0001,
-  NSFontBoldTrait = 0x0002,
-  NSFontExpandedTrait = 0x0020,
-  NSFontCondensedTrait = 0x0040,
-  NSFontMonoSpaceTrait = 0x0400,
-  NSFontVerticalTrait = 0x0800,
-  NSFontUIOptimizedTrait = 0x1000
+  OPFontItalicTrait = 0x0001,
+  OPFontBoldTrait = 0x0002,
+  OPFontExpandedTrait = 0x0020,
+  OPFontCondensedTrait = 0x0040,
+  OPFontMonoSpaceTrait = 0x0400,
+  OPFontVerticalTrait = 0x0800,
+  OPFontUIOptimizedTrait = 0x1000
 };
 
 // FIXME: Document these with the value type
 
-NSString *NSFontFamilyAttribute;
-NSString *NSFontNameAttribute;
-NSString *NSFontFaceAttribute;
-NSString *NSFontSizeAttribute; 
-NSString *NSFontVisibleNameAttribute; 
-NSString *NSFontColorAttribute;
+NSString *OPFontFamilyAttribute;
+NSString *OPFontNameAttribute;
+NSString *OPFontFaceAttribute;
+NSString *OPFontSizeAttribute; 
+NSString *OPFontVisibleNameAttribute; 
+NSString *OPFontColorAttribute;
 /**
- * NOTE: NSFontMatrixAttribute is a NSAffineTransform, unlike kCTFontMatrixAttribute which 
+ * NOTE: OPFontMatrixAttribute is a NSAffineTransform, unlike kCTFontMatrixAttribute which 
  * is an NSData containing a CGAffineTransform struct.
  */
-NSString *NSFontMatrixAttribute;
-NSString *NSFontVariationAttribute;
-NSString *NSFontCharacterSetAttribute;
-NSString *NSFontCascadeListAttribute;
-NSString *NSFontTraitsAttribute;
-NSString *NSFontFixedAdvanceAttribute;
+NSString *OPFontMatrixAttribute;
+NSString *OPFontVariationAttribute;
+NSString *OPFontCharacterSetAttribute;
+NSString *OPFontCascadeListAttribute;
+NSString *OPFontTraitsAttribute;
+NSString *OPFontFixedAdvanceAttribute;
 
-NSString *NSFontSymbolicTrait;
-NSString *NSFontWeightTrait;
-NSString *NSFontWidthTrait;
-NSString *NSFontSlantTrait;
+NSString *OPFontSymbolicTrait;
+NSString *OPFontWeightTrait;
+NSString *OPFontWidthTrait;
+NSString *OPFontSlantTrait;
 
-NSString *NSFontVariationAxisIdentifierKey;
-NSString *NSFontVariationAxisMinimumValueKey;
-NSString *NSFontVariationAxisMaximumValueKey;
-NSString *NSFontVariationAxisDefaultValueKey;
-NSString *NSFontVariationAxisNameKey;
+NSString *OPFontVariationAxisIdentifierKey;
+NSString *OPFontVariationAxisMinimumValueKey;
+NSString *OPFontVariationAxisMaximumValueKey;
+NSString *OPFontVariationAxisDefaultValueKey;
+NSString *OPFontVariationAxisNameKey;
 
-@interface NSFontDescriptor : NSObject <NSCopying>
+@interface OPFontDescriptor : NSObject <NSCopying>
 {
   NSDictionary *_attributes;
 }
@@ -121,22 +121,22 @@ NSString *NSFontVariationAxisNameKey;
 - (NSDictionary *) fontAttributes;
 - (id) initWithFontAttributes: (NSDictionary *)attributes;
 
-- (NSFontDescriptor *) fontDescriptorByAddingAttributes:
+- (OPFontDescriptor *) fontDescriptorByAddingAttributes:
   (NSDictionary *)attributes;
-- (NSFontDescriptor *) fontDescriptorWithFace: (NSString *)face;
-- (NSFontDescriptor *) fontDescriptorWithFamily: (NSString *)family;
-- (NSFontDescriptor *) fontDescriptorWithMatrix: (NSAffineTransform *)matrix;
-- (NSFontDescriptor *) fontDescriptorWithSize: (CGFloat)size;
-- (NSFontDescriptor *) fontDescriptorWithSymbolicTraits:
-  (NSFontSymbolicTraits)traits;
+- (OPFontDescriptor *) fontDescriptorWithFace: (NSString *)face;
+- (OPFontDescriptor *) fontDescriptorWithFamily: (NSString *)family;
+- (OPFontDescriptor *) fontDescriptorWithMatrix: (NSAffineTransform *)matrix;
+- (OPFontDescriptor *) fontDescriptorWithSize: (CGFloat)size;
+- (OPFontDescriptor *) fontDescriptorWithSymbolicTraits:
+  (OPFontSymbolicTraits)traits;
 - (NSArray *) matchingFontDescriptorsWithMandatoryKeys: (NSSet *)keys;
 
 - (id) objectForKey: (NSString *)attribute;
 - (NSAffineTransform *) matrix;
 - (CGFloat) pointSize;
 - (NSString *) postscriptName;
-- (NSFontSymbolicTraits) symbolicTraits;
-- (NSFontDescriptor *) matchingFontDescriptorWithMandatoryKeys: (NSSet *)keys;
+- (OPFontSymbolicTraits) symbolicTraits;
+- (OPFontDescriptor *) matchingFontDescriptorWithMandatoryKeys: (NSSet *)keys;
 
 //
 // CTFontDescriptor private
@@ -154,4 +154,4 @@ NSString *NSFontVariationAxisNameKey;
 
 @end
 
-#endif /* _GNUstep_H_NSFontDescriptor */
+#endif /* _GNUstep_H_OPFontDescriptor */

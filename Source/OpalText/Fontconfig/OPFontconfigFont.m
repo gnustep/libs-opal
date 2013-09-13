@@ -1,4 +1,4 @@
-/** <title>NSFont</title>
+/** <title>OPFont</title>
 
    <abstract>The font class</abstract>
 
@@ -38,9 +38,9 @@
 #import <Foundation/NSDebug.h>
 #import <Foundation/NSValue.h>
 
-#import "NSFont.h"
+#import "OPFont.h"
 
-@implementation NSFont
+@implementation OPFont
 
 //
 // Querying the Font
@@ -72,10 +72,10 @@
 - (CGFloat) pointSize
 {
 }
-- (NSFont*) printerFont
+- (OPFont*) printerFont
 {
 }
-- (NSFont*) screenFont
+- (OPFont*) screenFont
 {
 }
 - (CGFloat) ascender
@@ -111,13 +111,13 @@
 - (NSCharacterSet*) coveredCharacterSet
 {
 }
-- (NSFontDescriptor*) fontDescriptor
+- (OPFontDescriptor*) fontDescriptor
 {
 }
-- (NSFontRenderingMode) renderingMode
+- (OPFontRenderingMode) renderingMode
 {
 }
-- (NSFont*) screenFontWithRenderingMode: (NSFontRenderingMode)mode
+- (OPFont*) screenFontWithRenderingMode: (OPFontRenderingMode)mode
 {
 }
 
@@ -155,12 +155,12 @@
 //
 // CTFont private
 //
-+ (NSFont*) fontWithDescriptor: (NSFontDescriptor*)descriptor 
++ (OPFont*) fontWithDescriptor: (OPFontDescriptor*)descriptor 
                        options: (CTFontOptions)options
 {
 }
-+ (NSFont*) fontWithGraphicsFont: (CGFontRef)graphics
-            additionalDescriptor: (NSFontDescriptor*)descriptor
++ (OPFont*) fontWithGraphicsFont: (CGFontRef)graphics
+            additionalDescriptor: (OPFontDescriptor*)descriptor
 {
 }
 
@@ -209,7 +209,7 @@
 - (NSDictionary*) variation
 {
 }
-- (CGFontRef) graphicsFontWithDescriptor: (NSFontDescriptor**)descriptorOut
+- (CGFontRef) graphicsFontWithDescriptor: (OPFontDescriptor**)descriptorOut
 {
 }
 - (NSArray*) avaliableTablesWithOptions: (CTFontTableOptions)options
@@ -229,7 +229,7 @@
 + (CTFontRef) fontWithData: (NSData*)fontData
                       size: (CGFloat)size
        		          matrix: (const CGFloat*)fontMatrix
-      additionalDescriptor: (NSFontDescriptor*)descriptor
+      additionalDescriptor: (OPFontDescriptor*)descriptor
 {
 }
 

@@ -34,10 +34,10 @@
 /* Data Types */
 
 #ifdef __OBJC__
-@class NSFont;
-typedef NSFont* CTFontRef;
+@class OPFont;
+typedef OPFont* CTFontRef;
 #else
-typedef struct NSFont* CTFontRef;
+typedef struct OPFont* CTFontRef;
 #endif
 
 /* Constants */

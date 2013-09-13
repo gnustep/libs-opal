@@ -6,7 +6,7 @@ SUBPROJECT_NAME = OpalText
 $(SUBPROJECT_NAME)_OBJC_FILES = $(wildcard *.m)
 
 ifneq ($(GNUSTEP_TARGET_OS), mingw32)
-$(SUBPROJECT_NAME)_OBJC_FILES += Fontconfig/NSFontconfigFontDescriptor.m
+$(SUBPROJECT_NAME)_OBJC_FILES += Fontconfig/OPFontconfigFontDescriptor.m
 $(SUBPROJECT_NAME)_OBJC_FILES += FreeType/OPFreeTypeFont.m
 endif
 

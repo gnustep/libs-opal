@@ -24,8 +24,8 @@
 
 #include <CoreText/CTFont.h>
 #include <CoreText/CTFontDescriptor.h>
-#import "NSFont.h"
-#import "NSFontDescriptor.h"
+#import "OPFont.h"
+#import "OPFontDescriptor.h"
 
 /* Constants */
 
@@ -82,7 +82,7 @@ CTFontRef CTFontCreateForString(
 	set, kCTFontCharacterSetAttribute,
     	nil];
 
-  NSFontDescriptor *descriptor = [NSFontDescriptor fontDescriptorWithFontAttributes: attrs];
+  OPFontDescriptor *descriptor = [OPFontDescriptor fontDescriptorWithFontAttributes: attrs];
 
   return CTFontCreateCopyWithAttributes(base, CTFontGetSize(base), NULL, descriptor);
 }
@@ -122,7 +122,7 @@ CTFontRef CTFontCreateWithFontDescriptorAndOptions(
       nil];
   }
 
-  return [[NSFont fontWithDescriptor: [descriptor fontDescriptorByAddingAttributes: addedAttributes]
+  return [[OPFont fontWithDescriptor: [descriptor fontDescriptorByAddingAttributes: addedAttributes]
                              options: opts] retain];
 }
 
@@ -153,7 +153,7 @@ CTFontRef CTFontCreateWithGraphicsFont(
       nil];
   }
 
-  return [[NSFont fontWithGraphicsFont: cgFont
+  return [[OPFont fontWithGraphicsFont: cgFont
                   additionalDescriptor: [descriptor fontDescriptorByAddingAttributes: addedAttributes]] retain];
 }
 
@@ -175,7 +175,7 @@ CTFontRef CTFontCreateWithNameAndOptions(
     name, kCTFontNameAttribute,
     nil];
 
-  NSFontDescriptor *descriptor = [NSFontDescriptor fontDescriptorWithFontAttributes: attrs];
+  OPFontDescriptor *descriptor = [OPFontDescriptor fontDescriptorWithFontAttributes: attrs];
 
   return CTFontCreateWithFontDescriptorAndOptions(descriptor, size, matrixPtr, opts);
 }
@@ -203,9 +203,9 @@ CTFontRef CTFontCreateUIFontForLanguage(
   CGFloat size,
   CFStringRef language)
 {
-  if ([[NSFont class] respondsToSelector:@selector(UIFontWithType:size:forLangage:)])
+  if ([[OPFont class] respondsToSelector:@selector(UIFontWithType:size:forLangage:)])
   {
-    return [[NSFont UIFontWithType: type size: size forLanguage: language] retain];
+    return [[OPFont UIFontWithType: type size: size forLanguage: language] retain];
   }
   else
   {
@@ -215,7 +215,7 @@ CTFontRef CTFontCreateUIFontForLanguage(
 		  [NSArray arrayWithObject: language], kCTFontLanguagesAttribute,
 		  nil];
 
-		NSFontDescriptor *descriptor = [NSFontDescriptor fontDescriptorWithFontAttributes: attrs];
+		OPFontDescriptor *descriptor = [OPFontDescriptor fontDescriptorWithFontAttributes: attrs];
 
 		return CTFontCreateWithFontDescriptor(descriptor, size, NULL);
   }
@@ -530,6 +530,6 @@ CFStringRef CTFontCopyFullName(CTFontRef font)
 
 CFTypeID CTFontGetTypeID()
 {
-  return (CFTypeID)[NSFont class];
+  return (CFTypeID)[OPFont class];
 }
 

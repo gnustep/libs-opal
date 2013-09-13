@@ -24,7 +24,7 @@
 
 #include <windows.h>
 
-@interface NSGDIFontDescriptor : NSFontDescriptor
+@interface NSGDIFontDescriptor : OPFontDescriptor
 {
   LOGFONTW _logfont;
 }

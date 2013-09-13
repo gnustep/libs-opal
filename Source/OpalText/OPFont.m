@@ -1,4 +1,4 @@
-/** <title>NSFont</title>
+/** <title>OPFont</title>
 
    <abstract>The font class</abstract>
 
@@ -38,17 +38,17 @@
 #import <Foundation/NSDebug.h>
 #import <Foundation/NSValue.h>
 
-#import "NSFont.h"
+#import "OPFont.h"
 
-const CGFloat *NSFontIdentityMatrix;
+const CGFloat *OPFontIdentityMatrix;
 
 
-@implementation NSFont
+@implementation OPFont
 
 + (void)load
 {
   static CGFloat identity[6] = {1.0, 0.0, 1.0, 0.0, 0.0, 0.0};
-  NSFontIdentityMatrix = identity;
+  OPFontIdentityMatrix = identity;
 }
 
 //
@@ -80,7 +80,7 @@ const CGFloat *NSFontIdentityMatrix;
 }
 - (NSAffineTransform*) textTransform
 {
-  // FIXME: Need to implement bridging between NSFontMatrixAttribute and kCTFontMatrixAttribute somewhere
+  // FIXME: Need to implement bridging between OPFontMatrixAttribute and kCTFontMatrixAttribute somewhere
   NSAffineTransform *transform = [NSAffineTransform transform];
   [transform setTransformStruct: _matrix.NSTransform];
   return transform;
@@ -88,13 +88,13 @@ const CGFloat *NSFontIdentityMatrix;
 
 - (CGFloat) pointSize
 {
-  return [[[self fontDescriptor] objectForKey: NSFontSizeAttribute] doubleValue];
+  return [[[self fontDescriptor] objectForKey: OPFontSizeAttribute] doubleValue];
 }
-- (NSFont*) printerFont
+- (OPFont*) printerFont
 {
   return nil;
 }
-- (NSFont*) screenFont
+- (OPFont*) screenFont
 {
   return nil;
 }
@@ -142,15 +142,15 @@ const CGFloat *NSFontIdentityMatrix;
 {
   return [[self fontDescriptor] objectForKey: kCTFontCharacterSetAttribute];
 }
-- (NSFontDescriptor*) fontDescriptor
+- (OPFontDescriptor*) fontDescriptor
 {
   return _descriptor;
 }
-- (NSFontRenderingMode) renderingMode
+- (OPFontRenderingMode) renderingMode
 {
   return 0;
 }
-- (NSFont*) screenFontWithRenderingMode: (NSFontRenderingMode)mode
+- (OPFont*) screenFontWithRenderingMode: (OPFontRenderingMode)mode
 {
   return nil;
 }
@@ -193,21 +193,21 @@ const CGFloat *NSFontIdentityMatrix;
 //
 // CTFont private
 //
-+ (NSFont*) fontWithDescriptor: (NSFontDescriptor*)descriptor
++ (OPFont*) fontWithDescriptor: (OPFontDescriptor*)descriptor
                        options: (CTFontOptions)options
 {
   // FIXME: placeholder code.
-  return [[[NSFont alloc] _initWithDescriptor: descriptor
+  return [[[OPFont alloc] _initWithDescriptor: descriptor
                                       options: options] autorelease];
 }
 
-+ (NSFont*) fontWithGraphicsFont: (CGFontRef)graphics
-            additionalDescriptor: (NSFontDescriptor*)descriptor
++ (OPFont*) fontWithGraphicsFont: (CGFontRef)graphics
+            additionalDescriptor: (OPFontDescriptor*)descriptor
 {
 	return nil;
 }
 
-- (id)_initWithDescriptor: (NSFontDescriptor*)aDescriptor
+- (id)_initWithDescriptor: (OPFontDescriptor*)aDescriptor
                   options: (CTFontOptions)options
 {
   if (nil == (self = [super init]))
@@ -215,7 +215,7 @@ const CGFloat *NSFontIdentityMatrix;
     return nil;
   }
   ASSIGN(_descriptor, aDescriptor);
-  NSAffineTransform *transform = [_descriptor objectForKey: NSFontMatrixAttribute];
+  NSAffineTransform *transform = [_descriptor objectForKey: OPFontMatrixAttribute];
   if (transform == nil)
   {
     _matrix.CGTransform = CGAffineTransformIdentity;
@@ -279,7 +279,7 @@ const CGFloat *NSFontIdentityMatrix;
 {
 	return nil;
 }
-- (CGFontRef) graphicsFontWithDescriptor: (NSFontDescriptor**)descriptorOut
+- (CGFontRef) graphicsFontWithDescriptor: (OPFontDescriptor**)descriptorOut
 {
 	return nil;
 }
@@ -303,7 +303,7 @@ const CGFloat *NSFontIdentityMatrix;
 + (CTFontRef) fontWithData: (NSData*)fontData
                       size: (CGFloat)size
        		          matrix: (const CGFloat*)fontMatrix
-      additionalDescriptor: (NSFontDescriptor*)descriptor
+      additionalDescriptor: (OPFontDescriptor*)descriptor
 {
 	return nil;
 }

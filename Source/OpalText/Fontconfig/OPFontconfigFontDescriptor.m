@@ -1,4 +1,4 @@
-/** <title>NSFontconfigFontDescriptor</title>
+/** <title>OPFontconfigFontDescriptor</title>
 
    <abstract>C Interface to text layout library</abstract>
 
@@ -27,9 +27,9 @@
 #include <CoreGraphics/CGAffineTransform.h>
 #include <CoreText/CTFontDescriptor.h>
 
-#import "../NSFontDescriptor.h"
+#import "../OPFontDescriptor.h"
 
-@interface NSFontconfigFontDescriptor : NSFontDescriptor
+@interface OPFontconfigFontDescriptor : OPFontDescriptor
 {
   /**
    * This is a Fontconfig representation of the attributes this descriptor
@@ -44,7 +44,7 @@
 }
 @end
 
-@implementation NSFontconfigFontDescriptor
+@implementation OPFontconfigFontDescriptor
 
 - (void)addURL: (NSURL*)url
 {
@@ -554,7 +554,7 @@
     }
     else
     {
-      NSLog(@"NSFontDescriptor: Ignoring invalid value %@ for attribute %@", value, key);
+      NSLog(@"OPFontDescriptor: Ignoring invalid value %@ for attribute %@", value, key);
     }
   }
 }
@@ -592,8 +592,8 @@
   // Call the corresponding add...: method for each element in the attributes dictionary
   [self handleAddValues];
 
-  //NSLog(@"NSFontconfigFontDescriptor: Input attributes %@", attributes);
-  //NSLog(@"NSFontconfigFontDescriptor: Output pattern:");
+  //NSLog(@"OPFontconfigFontDescriptor: Input attributes %@", attributes);
+  //NSLog(@"OPFontconfigFontDescriptor: Output pattern:");
   //FcPatternPrint(_pat);
 
   return self;
@@ -635,7 +635,7 @@
 
 - (NSString*)description
 {
-  return [NSString stringWithFormat: @"<NSFontconfigFontDescriptor name: %@ URL: %@>",
+  return [NSString stringWithFormat: @"<OPFontconfigFontDescriptor name: %@ URL: %@>",
     [self objectForKey: kCTFontNameAttribute],
     [self objectForKey: kCTFontURLAttribute]];
 }
@@ -694,7 +694,7 @@
     {
       FcPattern *pat = FcPatternDuplicate(fontSet->fonts[i]);
 
-      NSFontDescriptor *candidate = [[NSFontconfigFontDescriptor alloc] initWithImmutableMatchedPattern: pat];
+      OPFontDescriptor *candidate = [[OPFontconfigFontDescriptor alloc] initWithImmutableMatchedPattern: pat];
       BOOL acceptable = YES;
       if (mandatoryKeys)
       {

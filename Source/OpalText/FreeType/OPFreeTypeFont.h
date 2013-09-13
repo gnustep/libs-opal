@@ -26,13 +26,13 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
-#import "../NSFont.h"
+#import "../OPFont.h"
 #include <stdint.h>
-@interface OPFreeTypeFont: NSFont
+@interface OPFreeTypeFont: OPFont
 {
   FT_Face fontFace;
   /**
-   * NSFont can be used simultaneously by multiple threads, so it is
+   * OPFont can be used simultaneously by multiple threads, so it is
    * necessary to lock before we call FreeType, because an FT_Face
    * object may be used by only one thread.
    */

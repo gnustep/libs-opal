@@ -1,3 +1,9 @@
+2013-09-12  Eric Wasylishen  <ewasylishen@gmail.com>
+
+	* Rename NSFont* to OPFont* to avoid conflicting with AppKit.
+	This is just a quick hack; to enable toll-free bridging will
+	require significant work.
+
 2012-09-13 Ivan Vucica <ivan@vucica.net>
 
 	* Source/OpalText/CTFramesetter.m:

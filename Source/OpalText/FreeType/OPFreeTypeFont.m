@@ -52,7 +52,7 @@
 static const NSString *kOPFreeTypeLibrary = @"OPFreeTypeLibrary";
 
 
-@interface NSObject (NSFontconfigFontDescriptorInternals)
+@interface NSObject (OPFontconfigFontDescriptorInternals)
 - (NSString*)_fontPath;
 - (NSInteger)_fontfaceIndex;
 @end
@@ -78,7 +78,7 @@ static const NSString *kOPFreeTypeLibrary = @"OPFreeTypeLibrary";
   return [[threadDict objectForKey: kOPFreeTypeLibrary] pointerValue];
 }
 
-- (id)_initWithDescriptor: (NSFontDescriptor*)aDescriptor
+- (id)_initWithDescriptor: (OPFontDescriptor*)aDescriptor
                   options: (CTFontOptions)options
 {
   NSInteger error = 0;
@@ -91,7 +91,7 @@ static const NSString *kOPFreeTypeLibrary = @"OPFreeTypeLibrary";
   }
   /*
    * FIXME: It is ugly to rely on the font descriptor being a
-   * NSFontconfigFontDescriptor but it is probably the most common situation.
+   * OPFontconfigFontDescriptor but it is probably the most common situation.
    */
   if ([aDescriptor respondsToSelector: @selector(_fontPath)])
   {

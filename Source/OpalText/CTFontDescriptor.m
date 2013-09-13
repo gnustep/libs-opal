@@ -26,7 +26,7 @@
 #include <CoreText/CTFont.h>
 
 #import <Foundation/NSLocale.h>
-#import "NSFontDescriptor.h"
+#import "OPFontDescriptor.h"
 
 /* Constants */
 
@@ -62,12 +62,12 @@ CTFontDescriptorRef CTFontDescriptorCreateWithNameAndSize(
   CFStringRef name,
   CGFloat size)
 {
-  return [[NSFontDescriptor fontDescriptorWithName: name size: size] retain];
+  return [[OPFontDescriptor fontDescriptorWithName: name size: size] retain];
 }
 
 CTFontDescriptorRef CTFontDescriptorCreateWithAttributes(CFDictionaryRef attributes)
 {
-  return [[NSFontDescriptor fontDescriptorWithFontAttributes: attributes] retain];
+  return [[OPFontDescriptor fontDescriptorWithFontAttributes: attributes] retain];
 }
   
 CTFontDescriptorRef CTFontDescriptorCreateCopyWithAttributes(
@@ -174,6 +174,6 @@ CFTypeRef CTFontDescriptorCopyLocalizedAttribute(
 
 CFTypeID CTFontDescriptorGetTypeID()
 {
-  return (CFTypeID)[NSFontDescriptor class];
+  return (CFTypeID)[OPFontDescriptor class];
 }
 
