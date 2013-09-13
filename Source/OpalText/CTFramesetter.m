@@ -82,7 +82,12 @@
   {
     return nil;
   }
-  
+
+  if (!_string)
+  {
+    return nil;
+  }
+
   CTFrameRef frame = [[CTFrame alloc] initWithPath: path
                                        stringRange: NSMakeRange(range.location, range.length)
                                         attributes: attributes];
@@ -103,6 +108,11 @@
         [frame addLine: line];
         [line release];
         
+        if (start == lineBreak)
+          {
+            NSLog(@"WARNING: Broke possible infinite loop in %s; string %@", __PRETTY_FUNCTION__, _string);
+            break;
+          }
         start = lineBreak;
       }
       break;

@@ -1,4 +1,9 @@
-2012-08-02 Fred Kiefer <FredKiefer@gmx.de>
+2012-09-13 Ivan Vucica <ivan@vucica.net>
+
+	* Source/OpalText/CTFramesetter.m:
+	Breaking out of an infinite loop.
+
+2013-08-02 Fred Kiefer <FredKiefer@gmx.de>
 
 	* Tests/GNUmakefile: Get it to compile again
 
