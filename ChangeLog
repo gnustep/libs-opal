@@ -1,3 +1,20 @@
+2013-09-17  Eric Wasylishen  <ewasylishen@gmail.com>
+
+	* Headers/CoreGraphics/CGFont.h:
+	* Source/OpalGraphics/CGFont.m:
+	Added OPFontCreateWithFcPattern() and OPFontGetMaximumAdvancement().
+	Added -createWithFcPattern: stub.
+
+	* Source/OpalGraphics/internal/CGFontInternal.h:
+	Added maximumAdvancement ivar.
+	
+	* Source/OpalGraphics/cairo/CairoFontX11.m:
+	Added -createWithFcPattern: and -maximumAdvancement. Reworked
+	-createWithFontName: to use -createWithFcPattern:.
+
+	* Source/OpalGraphics/cairo/CairoFont.m:
+	Added -createWithFcPattern: stub.
+
 2013-09-12  Eric Wasylishen  <ewasylishen@gmail.com>
 
 	* Source/OpalGraphics/CGContext+GState.m:

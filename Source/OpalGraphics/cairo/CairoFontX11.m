@@ -404,14 +404,40 @@ static FcPattern *opal_FcPatternCacheLookup(const char *name)
   return result;
 }
 
+// FIXME: quite possibly not thread safe
+- (CGSize) maximumAdvancement
+{
+  cairo_font_extents_t font_extents;
+  CGSize maximum_advancement = CGSizeZero;
+
+  //FT_Face ft_face = cairo_ft_scaled_font_lock_face(self->cairofont);
+
+  cairo_scaled_font_extents(self->cairofont, &font_extents);
+  if (cairo_scaled_font_status(self->cairofont) == CAIRO_STATUS_SUCCESS)
+    {
+      maximum_advancement = CGSizeMake(font_extents.max_x_advance,
+                                       font_extents.max_y_advance);
+    }
+
+  //cairo_ft_scaled_font_unlock_face(self->cairofont);
+
+  return maximum_advancement;
+}
+
 + (CGFontRef) createWithFontName: (CFStringRef)name;
 {
   FcPattern *pat;
+
+  pat = opal_FcPatternCacheLookup([(NSString*)name UTF8String]);
+  return [self createWithFcPattern: pat];
+}
+
++ (CGFontRef) createWithFcPattern: (FcPattern *)pat
+{
   cairo_font_face_t *unscaled;
   CairoFontX11 *font = [[CairoFontX11 alloc] init];
   if (!font) return NULL;
 
-  pat = opal_FcPatternCacheLookup([(NSString*)name UTF8String]);
   if(pat) {
     unscaled = cairo_ft_font_face_create_for_pattern(pat);
   } else {
@@ -446,6 +472,7 @@ static FcPattern *opal_FcPatternCacheLookup(const char *name)
   font->stemV = [font stemV];
   font->unitsPerEm = [font unitsPerEm];
   font->xHeight = [font xHeight];
+  font->maximumAdvancement = [font maximumAdvancement];
   return (CGFontRef)font;
 }
 

@@ -27,6 +27,13 @@
 #import <Foundation/NSObject.h>
 #include "CoreGraphics/CGFont.h"
 
+//FIXME: hack
+#ifdef __MINGW__
+typedef void FcPattern;
+#else
+#include <fontconfig/fontconfig.h>
+#endif
+
 @interface CGFont : NSObject
 {
 @public
@@ -42,6 +49,7 @@
   CGFloat stemV;
   int unitsPerEm;
   int xHeight;
+  CGSize maximumAdvancement;
 }
 
 - (bool) canCreatePostScriptSubset: (CGFontPostScriptFormat)format;
@@ -69,6 +77,10 @@
 + (CGFontRef) createWithDataProvider: (CGDataProviderRef)provider;
 
 + (CGFontRef) createWithFontName: (CFStringRef)name;
+
+#ifndef __MINGW__ // FIXME: proper check for fontconfig
++ (CGFontRef) createWithFcPattern: (FcPattern *)pat;
+#endif
 
 + (CGFontRef) createWithPlatformFont: (void *)platformFontReference;
 

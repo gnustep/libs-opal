@@ -53,4 +53,13 @@
   return nil;
 }
 
+#ifdef __MINGW__ // FIXME: proper check for fontconfig
+typedef void FcPattern;
+#endif
++ (CGFontRef) createWithFcPattern: (FcPattern *)pat
+{
+  NSLog(@"%s: not implemented in %@", __PRETTY_FUNCTION__, [self class]);
+  return nil;
+}
+
 @end

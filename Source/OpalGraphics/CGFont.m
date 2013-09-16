@@ -112,6 +112,14 @@
   return nil;
 }
 
+#ifndef __MINGW__ // FIXME: proper check for fontconfig
++ (CGFontRef) createWithFcPattern: (FcPattern *)pat
+{
+  [self doesNotRecognizeSelector: _cmd];
+  return nil;
+}
+#endif
+
 + (CGFontRef) createWithFontName: (CFStringRef)name
 {
   [self doesNotRecognizeSelector: _cmd];
@@ -222,6 +230,13 @@ CGFontRef CGFontCreateWithDataProvider(CGDataProviderRef provider)
   return [[CGFont fontClass] createWithDataProvider: provider];
 }
 
+#ifndef __MINGW__ // FIXME: proper check for fontconfig
+CGFontRef OPFontCreateWithFcPattern(FcPattern * pat)
+{
+  return [[CGFont fontClass] createWithFcPattern: pat];
+}
+#endif
+
 CGFontRef CGFontCreateWithFontName(CFStringRef name)
 {
   return [[CGFont fontClass] createWithFontName: name];
@@ -309,6 +324,11 @@ int CGFontGetUnitsPerEm(CGFontRef font)
 int CGFontGetXHeight(CGFontRef font)
 {
   return font->xHeight;
+}
+
+CGSize OPFontGetMaximumAdvancement(CGFontRef font)
+{
+  return font->maximumAdvancement;
 }
 
 CGFontRef CGFontRetain(CGFontRef font)

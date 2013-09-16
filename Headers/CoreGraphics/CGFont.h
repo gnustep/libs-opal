@@ -149,4 +149,13 @@ CGFontRef CGFontRetain(CGFontRef font);
 
 void CGFontRelease(CGFontRef font);
 
+/* Extensions */
+
+#ifndef __MINGW__ // FIXME: proper check for fontconfig
+#include <fontconfig/fontconfig.h>
+CGFontRef OPFontCreateWithFcPattern(FcPattern * pat);
+#endif
+
+CGSize OPFontGetMaximumAdvancement(CGFontRef font);
+
 #endif /* OPAL_CGFont_h */
