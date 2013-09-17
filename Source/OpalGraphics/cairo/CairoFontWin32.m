@@ -253,6 +253,12 @@ typedef struct 	_longHorMetric {
   return (CGGlyph)0;
 }
 
+- (CGGlyph) glyphWithCharacter: (unichar)character
+{
+  // FIXME: Implement
+  return 0;
+}
+
 - (bool) getGlyphAdvances: (const CGGlyph[])glyphs
                          : (size_t)count
                          : (int[]) advances

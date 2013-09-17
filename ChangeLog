@@ -1,5 +1,15 @@
 2013-09-17  Eric Wasylishen  <ewasylishen@gmail.com>
 
+	* Source/OpalGraphics/CGFont.m:
+	* Source/OpalGraphics/internal/CGFontInternal.h:
+	* Source/OpalGraphics/cairo/CairoFontWin32.m:
+	* Source/OpalGraphics/cairo/CairoFontX11.m:
+	* Headers/CoreGraphics/CGFont.h: Add private OPFontGetGlyphWithCharacter
+	to get the glyph index for a character. The proper API is in CoreText
+	but that's not usable yet, unlike CGFont.
+
+2013-09-17  Eric Wasylishen  <ewasylishen@gmail.com>
+
 	* Tests/texttest.m: Fix test: bug calculating glyph indicies
 	with the wrong font.
 

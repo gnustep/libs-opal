@@ -154,6 +154,12 @@
   return 0;
 }
 
+- (CGGlyph) glyphWithCharacter: (unichar)character
+{
+   [self doesNotRecognizeSelector: _cmd];
+  return 0;
+}
+
 @end
 
 
@@ -339,4 +345,9 @@ CGFontRef CGFontRetain(CGFontRef font)
 void CGFontRelease(CGFontRef font)
 {
   [font release];
+}
+
+CGGlyph OPFontGetGlyphWithCharacter(CGFontRef font, unichar character)
+{
+  return [font glyphWithCharacter: character];
 }

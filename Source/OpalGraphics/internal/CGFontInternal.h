@@ -95,6 +95,6 @@ typedef void FcPattern;
                        : (CGRect[])bboxes;
 
 - (CGGlyph) glyphWithGlyphName: (CFStringRef)glyphName;
-
+- (CGGlyph) glyphWithCharacter: (unichar)character;
 
 @end

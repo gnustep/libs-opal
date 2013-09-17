@@ -158,4 +158,6 @@ CGFontRef OPFontCreateWithFcPattern(FcPattern * pat);
 
 CGSize OPFontGetMaximumAdvancement(CGFontRef font);
 
+CGGlyph OPFontGetGlyphWithCharacter(CGFontRef font, unichar character);
+
 #endif /* OPAL_CGFont_h */

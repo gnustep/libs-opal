@@ -337,6 +337,14 @@ static FcPattern *opal_FcPatternCacheLookup(const char *name)
   return result;
 }
 
+- (CGGlyph) glyphWithCharacter: (unichar)character
+{
+  FT_Face ft_face = cairo_ft_scaled_font_lock_face(self->cairofont);
+  CGGlyph result = (CGGlyph)FT_Get_Char_Index(ft_face, character);
+  cairo_ft_scaled_font_unlock_face(self->cairofont);
+  return result;
+}
+
 - (CGFloat) italicAngle;
 {
   FT_Face ft_face = cairo_ft_scaled_font_lock_face(self->cairofont);
