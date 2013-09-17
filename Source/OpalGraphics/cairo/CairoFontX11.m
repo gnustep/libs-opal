@@ -305,9 +305,7 @@ static FcPattern *opal_FcPatternCacheLookup(const char *name)
 - (int) descent;
 {
   FT_Face ft_face = cairo_ft_scaled_font_lock_face(self->cairofont);
-  int result = 0;
-  
-  result = ft_face->bbox.yMax;
+  int result = ft_face->descender;
   
   cairo_ft_scaled_font_unlock_face(self->cairofont);
   return result;
