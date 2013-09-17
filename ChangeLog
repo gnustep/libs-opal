@@ -1,9 +1,9 @@
-2013-09-16 Eric Wasylishen  <ewasylishen@gmail.com>
+2013-09-17 Eric Wasylishen  <ewasylishen@gmail.com>
 
 	* Source/OpalGraphics/cairo/CairoFontX11.m (-descent): Fix
 	descender calculation.
 
-2013-09-16 Eric Wasylishen  <ewasylishen@gmail.com>
+2013-09-17 Eric Wasylishen  <ewasylishen@gmail.com>
 
 	* Source/OpalGraphics/CGContext.m (CGContextShowGlyphsAtPositions):
 	Check if font size is 0, and log an error instead of continuing,
