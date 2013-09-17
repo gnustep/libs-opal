@@ -1,3 +1,8 @@
+2013-09-17  Eric Wasylishen  <ewasylishen@gmail.com>
+
+	* Tests/texttest.m: Fix test: bug calculating glyph indicies
+	with the wrong font.
+
 2013-09-17 Eric Wasylishen  <ewasylishen@gmail.com>
 
 	* Source/OpalGraphics/cairo/CairoFontX11.m (-descent): Fix

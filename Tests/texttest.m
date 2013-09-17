@@ -25,9 +25,11 @@ void getGlyphs(CGFontRef font, CGFloat size, CFStringRef str)
   {
     CFStringRef chr = [str substringWithRange: NSMakeRange(i, 1)];
     glyphs[i] = CGFontGetGlyphWithGlyphName(font, chr);
+
+    //NSLog(@"For %@, map %@ to %d", CGFontCopyFullName(font), chr, (int)glyphs[i]);
   }
   CGFontGetGlyphAdvances(font, glyphs, len, advances);
-  
+
   CGFloat glpyhSpaceToTextSpaceFactor = 
     (1.0f / (CGFloat)CGFontGetUnitsPerEm(font)) * (size);
     
@@ -148,13 +150,13 @@ void draw(CGContextRef ctx, CGRect rect)
   dumpFontInfo(f2);
   CGContextSetFont(ctx, f2);
   dumpGlpyhNames(f2);
-  CGGlyph ligatures[2] = {CGFontGetGlyphWithGlyphName(f, @"fl"),
+  CGGlyph ligatures[2] = {CGFontGetGlyphWithGlyphName(f2, @"fl"),
     CGFontGetGlyphWithGlyphName(f2, @"fi")};
   CGContextShowGlyphsAtPoint(ctx, 10, 80, ligatures, 2);
   CGContextShowGlyphs(ctx, ligatures, 2);
   
   // Test out the text matrix.
-  CGGlyph AEligatures[2] = {CGFontGetGlyphWithGlyphName(f, @"AE"),
+  CGGlyph AEligatures[2] = {CGFontGetGlyphWithGlyphName(f2, @"AE"),
     CGFontGetGlyphWithGlyphName(f2, @"ae")};
 
   CGAffineTransform xform = CGAffineTransformIdentity;
@@ -169,13 +171,13 @@ void draw(CGContextRef ctx, CGRect rect)
   CGContextSetFontSize(ctx, 20); // This line should do nothing because the text matrix and font size are independent
   CGContextShowGlyphs(ctx, AEligatures, 2);
 
-  getGlyphs(f, 40, @"NoOverlap");
+  getGlyphs(f2, 40, @"NoOverlap");
   CGContextShowGlyphs(ctx, glyphs, len);
 
   CGContextShowGlyphsWithAdvances(ctx, glyphs, sizeAdvances, len);
 
   {
-   getGlyphs(f, 20, @"abc");
+   getGlyphs(f2, 20, @"abc");
   CGPoint points[] = {CGPointMake(10, 0), CGPointMake(30, 0), CGPointMake(50, 0)};
   CGContextShowGlyphsAtPositions(ctx, glyphs, points, len);
   }
@@ -186,13 +188,13 @@ void draw(CGContextRef ctx, CGRect rect)
   // Note that it ignores the current text position (and doesn't change it),
   // unlike the otehr ShowGlpyhs functions which all update it.
   CGContextSetTextMatrix(ctx, CGAffineTransformIdentity);
-  getGlyphs(f, 20, @"abc");
+  getGlyphs(f2, 20, @"abc");
   CGPoint points[] = {CGPointMake(10, 160), CGPointMake(30, 180), CGPointMake(50, 200)};
   CGContextShowGlyphsAtPositions(ctx, glyphs, points, len);
 
   assert(CGContextGetTextPosition(ctx).x == 0.0f);
   assert(CGContextGetTextPosition(ctx).y == 0.0f);
   
-  getGlyphs(f, 20, @"origin");
+  getGlyphs(f2, 20, @"origin");
   CGContextShowGlyphsWithAdvances(ctx, glyphs, sizeAdvances, len);  
 }

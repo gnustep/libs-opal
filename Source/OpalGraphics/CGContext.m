@@ -1688,6 +1688,7 @@ void CGContextShowGlyphsAtPositions(
 {
   OPLOGCALL("ctx /*%p*/, <glyphs>, <positions>, %d", ctx, count)
 
+  // This matches CG; nothing is drawn unless a font size is explicitly set. 
   if (ctx->add->font_size == 0)
   {
     NSLog(@"%s: context's font size is set to zero.", __PRETTY_FUNCTION__);
