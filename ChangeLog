@@ -1,4 +1,10 @@
-2013-09-17  Eric Wasylishen  <ewasylishen@gmail.com>
+2013-09-16 Eric Wasylishen  <ewasylishen@gmail.com>
+
+	* Source/OpalGraphics/CGContext.m (CGContextShowGlyphsAtPositions):
+	Check if font size is 0, and log an error instead of continuing,
+	which seems to put the cairo context into an error state.
+
+2013-09-17 Ivan Vučica <ivan@vucica.net>
 
 	* Headers/CoreGraphics/CGFont.h:
 	* Source/OpalGraphics/CGFont.m:

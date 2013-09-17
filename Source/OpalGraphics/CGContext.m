@@ -1687,6 +1687,14 @@ void CGContextShowGlyphsAtPositions(
   size_t count)
 {
   OPLOGCALL("ctx /*%p*/, <glyphs>, <positions>, %d", ctx, count)
+
+  if (ctx->add->font_size == 0)
+  {
+    NSLog(@"%s: context's font size is set to zero.", __PRETTY_FUNCTION__);
+    OPRESTORELOGGING()
+    return;
+  }
+
   // FIXME: Okay to stack allocate?
   cairo_glyph_t cairoGlyphs[count];
   for (int i=0; i<count; i++) {
