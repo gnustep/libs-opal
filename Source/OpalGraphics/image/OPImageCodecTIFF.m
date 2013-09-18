@@ -203,12 +203,21 @@ static void OPTIFFUnmapProc(thandle_t handle, tdata_t data, toff_t size)
     OPTIFFCloseProc, OPTIFFSizeProc, OPTIFFMapProc,
     OPTIFFUnmapProc);
 
+  if (tiff == NULL)
+    {
+      [self release];
+      return nil;
+    }
+
   return self;
 }
 
 - (void)dealloc
 {
-  TIFFClose(tiff);
+  if (tiff != NULL)
+    {
+      TIFFClose(tiff);
+    }
   [super dealloc];
 }
 

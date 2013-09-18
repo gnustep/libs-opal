@@ -1,5 +1,11 @@
 2013-09-18  Eric Wasylishen  <ewasylishen@gmail.com>
 
+	* Source/OpalGraphics/image/OPImageCodecPNG.m:
+	* Source/OpalGraphics/image/OPImageCodecTIFF.m: Fix bugs in these
+	image codecs when they fail to load a given image.
+
+2013-09-18  Eric Wasylishen  <ewasylishen@gmail.com>
+
 	* Tests/bitmaps.m:
 	* Tests/images.m: Move sub-image test to images.m.
 	Draws a portion of World_Map_1689.jpg over the

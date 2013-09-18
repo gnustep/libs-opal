@@ -124,6 +124,16 @@ static bool opal_has_png_header(CGDataProviderRef dp)
 {
   self = [super init];
   dp = CGDataProviderRetain(provider);
+
+  if (!opal_has_png_header(dp))
+    {
+      OPDataProviderRewind(dp);
+      [self release];
+      return nil;
+    }
+    
+  OPDataProviderRewind(dp);
+
   return self;
 }
 
@@ -153,14 +163,6 @@ static bool opal_has_png_header(CGDataProviderRef dp)
   CGImageRef img = NULL;
   png_structp png_struct;
   png_infop png_info, png_end_info;
-
-  if (!(self = [super init]))
-    return NULL;
-
-  if (!opal_has_png_header(dp))
-    return NULL;
-    
-  OPDataProviderRewind(dp);
   
   NS_DURING
   {
