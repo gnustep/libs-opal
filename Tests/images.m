@@ -11,6 +11,7 @@
 #endif
 
 static CGImageRef png, jpeg, tiff;
+static CGImageRef worldmap;
 
 void draw(CGContextRef ctx, CGRect rect)
 {
@@ -64,4 +65,25 @@ void draw(CGContextRef ctx, CGRect rect)
 
   CGRect tiffRect = CGRectMake((2*rect.size.width)/3,0,rect.size.width/3, rect.size.height);
   CGContextDrawImage(ctx, tiffRect, tiff);
+    
+  // Draw some sub-images
+    
+  if (nil == worldmap)
+  {
+      CGDataProviderRef mapData = CGDataProviderCreateWithFilename("World_Map_1689.jpg");
+      CGImageSourceRef mapSource = CGImageSourceCreateWithDataProvider(mapData, nil);
+      
+      worldmap = CGImageSourceCreateImageAtIndex(mapSource, 0, nil);
+      
+      CGDataProviderRelease(mapData);
+      [mapSource release];
+  }
+        
+  CGImageRef america = CGImageCreateWithImageInRect(worldmap, CGRectMake(14, 54, 126, 132));
+  CGRect americaRect = CGRectMake(rect.size.width/3,rect.size.height * 0.3,rect.size.width/3, rect.size.height * 0.7);
+  CGContextSaveGState(ctx);
+  CGContextSetAlpha(ctx, 0.25);
+  CGContextDrawImage(ctx,americaRect, america);
+  CGContextRestoreGState(ctx);
+  CGImageRelease(america);
 }

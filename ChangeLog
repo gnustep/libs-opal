@@ -1,5 +1,12 @@
 2013-09-18  Eric Wasylishen  <ewasylishen@gmail.com>
 
+	* Tests/bitmaps.m:
+	* Tests/images.m: Move sub-image test to images.m.
+	Draws a portion of World_Map_1689.jpg over the
+	GNUstep logo.
+
+2013-09-18  Eric Wasylishen  <ewasylishen@gmail.com>
+
 	* Tests/cocoa.m:
 	* Tests/OpalTest.xcodeproj: Update xcode project to build bitmaps
 	demo. Tweak window setting in cocoa.m.

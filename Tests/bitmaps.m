@@ -56,20 +56,15 @@ void draw(CGContextRef ctx, CGRect rect)
         assert_close(0, bytes[15]); // a
     }
     
+    /* fill the window background with black */
     CGContextSetRGBFillColor(ctx, 0, 0, 0, 1);
     CGContextFillRect(ctx, rect);
                              
     CGImageRef img = CGBitmapContextCreateImage(bmp);
     CGContextRelease(bmp);
     
+    /* draw the bitmap stretched across the window */
     CGContextDrawImage(ctx, rect, img);
-
-    CGImageRef subimg = CGImageCreateWithImageInRect(img, CGRectMake(350, 350, 100, 100));
-    CGImageRef subimg2 = CGImageCreateWithImageInRect(img, CGRectMake(0, 0, 100, 100));
-    CGContextDrawImage(ctx, CGRectMake(150, 50, 100, 100), subimg);
-    CGContextDrawImage(ctx, CGRectMake(250, 50, 100, 100), subimg2);
-    CGImageRelease(subimg);
-    CGImageRelease(subimg2);
 
     CGImageRelease(img);
 }

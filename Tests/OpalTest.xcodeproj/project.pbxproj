@@ -22,6 +22,7 @@
 		66457FF517EA12E0003C51A8 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
 		66457FF617EA12E0003C51A8 /* ApplicationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 66A1264C11C1B64E0090B514 /* ApplicationServices.framework */; };
 		66457FFC17EA1317003C51A8 /* bitmaps.m in Sources */ = {isa = PBXBuildFile; fileRef = 66457FFB17EA1317003C51A8 /* bitmaps.m */; };
+		66457FFE17EA1B2A003C51A8 /* World_Map_1689.jpg in CopyFiles */ = {isa = PBXBuildFile; fileRef = 66457FFD17EA1B0D003C51A8 /* World_Map_1689.jpg */; };
 		66A125EF11C1ABC10090B514 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
 		66A125F411C1ABDC0090B514 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
 		66A125FF11C1ABE80090B514 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
@@ -60,6 +61,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 16;
 			files = (
+				66457FFE17EA1B2A003C51A8 /* World_Map_1689.jpg in CopyFiles */,
 				6635BBC8121680C600EB01D2 /* test.tiff in CopyFiles */,
 				6635BBC9121680C600EB01D2 /* test.jpg in CopyFiles */,
 				6635BBCA121680C600EB01D2 /* test.png in CopyFiles */,
@@ -80,6 +82,7 @@
 		6635BBC6121680C300EB01D2 /* test.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = test.tiff; sourceTree = "<group>"; };
 		66457FFA17EA12E0003C51A8 /* bitmaps.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = bitmaps.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		66457FFB17EA1317003C51A8 /* bitmaps.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = bitmaps.m; sourceTree = "<group>"; };
+		66457FFD17EA1B0D003C51A8 /* World_Map_1689.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = World_Map_1689.jpg; sourceTree = "<group>"; };
 		66A125D011C1AA700090B514 /* cocoa.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = cocoa.m; sourceTree = "<group>"; };
 		66A125D211C1AAA00090B514 /* arcs.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = arcs.m; sourceTree = "<group>"; };
 		66A125D311C1AAA00090B514 /* layers.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = layers.m; sourceTree = "<group>"; };
@@ -267,6 +270,7 @@
 				6635BBC6121680C300EB01D2 /* test.tiff */,
 				66C0E43F11C82D1300A20BBE /* test.jpg */,
 				66C0E44011C82D1300A20BBE /* test.png */,
+				66457FFD17EA1B0D003C51A8 /* World_Map_1689.jpg */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
