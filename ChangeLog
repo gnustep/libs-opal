@@ -1,5 +1,12 @@
 2013-09-18  Eric Wasylishen  <ewasylishen@gmail.com>
 
+	* Source/OpalGraphics/CGContext.m (opal_draw_surface_in_rect):
+	Use srcRect correctly, as well as the context alpha value.
+	* Tests/images.m: JPEG codec is broken, so use a png of the
+	world map to make the demo work.
+
+2013-09-18  Eric Wasylishen  <ewasylishen@gmail.com>
+
 	* Source/OpalGraphics/image/OPImageCodecPNG.m:
 	* Source/OpalGraphics/image/OPImageCodecTIFF.m: Fix bugs in these
 	image codecs when they fail to load a given image.

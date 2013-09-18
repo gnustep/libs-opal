@@ -70,7 +70,7 @@ void draw(CGContextRef ctx, CGRect rect)
     
   if (nil == worldmap)
   {
-      CGDataProviderRef mapData = CGDataProviderCreateWithFilename("World_Map_1689.jpg");
+      CGDataProviderRef mapData = CGDataProviderCreateWithFilename("World_Map_1689.png");
       CGImageSourceRef mapSource = CGImageSourceCreateWithDataProvider(mapData, nil);
       
       worldmap = CGImageSourceCreateImageAtIndex(mapSource, 0, nil);

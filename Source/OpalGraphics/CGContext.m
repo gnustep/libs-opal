@@ -1317,40 +1317,45 @@ void CGContextSetCMYKStrokeColor(CGContextRef ctx,
 }
 
 void opal_draw_surface_in_rect(CGContextRef ctxt, CGRect rect, cairo_surface_t *src, CGRect srcRect)
-{
-  cairo_t *destCairo = ctxt->ct;
-  cairo_save(destCairo);
-  
+{  
   cairo_pattern_t *pattern = cairo_pattern_create_for_surface(src);
     
   cairo_matrix_t patternMatrix;
   cairo_matrix_init_identity(&patternMatrix);
   
   // Move to the place where the layer should be drawn
-  cairo_matrix_translate(&patternMatrix, rect.origin.x, rect.origin.y);
+  cairo_matrix_translate(&patternMatrix, srcRect.origin.x, srcRect.origin.y);
+
   // Scale the pattern to the correct size
   cairo_matrix_scale(&patternMatrix,
-    rect.size.width / srcRect.size.width,
-    rect.size.height / srcRect.size.height);
+    srcRect.size.width / rect.size.width,
+    srcRect.size.height / rect.size.height);
+
   // Flip the layer up-side-down
   cairo_matrix_scale(&patternMatrix, 1, -1);
-  cairo_matrix_translate(&patternMatrix, 0, -srcRect.size.height);
+  cairo_matrix_translate(&patternMatrix, 0, -rect.size.height);
 
-  cairo_matrix_invert(&patternMatrix);
-  
   cairo_pattern_set_matrix(pattern, &patternMatrix);
   
   // FIXME: do we always want this?
   cairo_pattern_set_extend(pattern, CAIRO_EXTEND_PAD);
-  
+
+  // Do the drawing
+
+  cairo_t *destCairo = ctxt->ct;
+  cairo_save(destCairo);
+
   cairo_set_operator(destCairo, CAIRO_OPERATOR_OVER);
+  cairo_translate(destCairo, rect.origin.x, rect.origin.y);
+
   cairo_set_source(destCairo, pattern);
   cairo_pattern_destroy(pattern);
   
   // FIXME: What is the fastest way to draw? cairo_paint? clip? fill a rect?
-  cairo_rectangle(destCairo, rect.origin.x, rect.origin.y,
+  cairo_rectangle(destCairo, 0, 0,
     rect.size.width, rect.size.height);
-  cairo_fill(destCairo);
+  cairo_clip(destCairo);
+  cairo_paint_with_alpha(destCairo, ctxt->add->alpha);
 
   cairo_restore(destCairo);
 }
