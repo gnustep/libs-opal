@@ -25,7 +25,7 @@ void draw(CGContextRef ctx, CGRect r);
 {
   NSRect r = NSMakeRect(0,0,640,480);
   win = [[NSWindow alloc] initWithContentRect: r
-     styleMask:NSResizableWindowMask
+     styleMask:NSResizableWindowMask | NSTitledWindowMask | NSClosableWindowMask
      backing:NSBackingStoreBuffered
      defer:NO];
   view = [[MyView alloc] initWithFrame: r];
