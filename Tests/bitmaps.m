@@ -68,6 +68,8 @@ void draw(CGContextRef ctx, CGRect rect)
     CGImageRef subimg2 = CGImageCreateWithImageInRect(img, CGRectMake(0, 0, 100, 100));
     CGContextDrawImage(ctx, CGRectMake(150, 50, 100, 100), subimg);
     CGContextDrawImage(ctx, CGRectMake(250, 50, 100, 100), subimg2);
+    CGImageRelease(subimg);
+    CGImageRelease(subimg2);
 
     CGImageRelease(img);
 }
