@@ -1,3 +1,8 @@
+2013-09-18  Ivan Vucica  <ivan@vucica.net>
+
+	* Tests/bitmaps.m:
+	Added code testing how sub-images are being drawn into CGContext.
+
 2013-09-17  Eric Wasylishen  <ewasylishen@gmail.com>
 
 	* Source/OpalGraphics/CGFont.m:
