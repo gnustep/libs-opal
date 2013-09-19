@@ -39,7 +39,16 @@
 
 - (id) initWithContext: (CGContext *)ctx;
 {
+  if (!ctx)
+    {
+      [self release];
+      return nil;
+    }
+
   self = [super init];
+
+  if (!self)
+    return nil;
 
   // cairo stuff
 

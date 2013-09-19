@@ -1,3 +1,9 @@
+2013-09-19  Ivan Vucica  <ivan@vucica.net>
+
+	* Source/OpalGraphics/CGContext+GState.m:
+	Made creation of OpalGStateSnapshot resistant to being passed
+	a nil context.
+
 2013-09-18  Eric Wasylishen  <ewasylishen@gmail.com>
 
 	* Source/OpalGraphics/CGContext.m (opal_draw_surface_in_rect):
