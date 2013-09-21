@@ -1,3 +1,279 @@
+2013-09-21  Ivan Vucica  <ivan@vucica.net>
+
+	* Tests/GNUmakefile:
+	* Tests/gstate.m:
+	Added gstate test. Currently this tests whether some CTM 
+	operations are correctly performed in a CGContext; namely,
+	setting identity CTM, concatenating, and getting the current
+	CTM.
+
+2013-09-19  Ivan Vucica  <ivan@vucica.net>
+
+	* Source/OpalGraphics/CGContext+GState.m:
+	Made creation of OpalGStateSnapshot resistant to being passed
+	a nil context.
+
+2013-09-18  Eric Wasylishen  <ewasylishen@gmail.com>
+
+	* Source/OpalGraphics/CGContext.m (opal_draw_surface_in_rect):
+	Use srcRect correctly, as well as the context alpha value.
+	* Tests/images.m: JPEG codec is broken, so use a png of the
+	world map to make the demo work.
+
+2013-09-18  Eric Wasylishen  <ewasylishen@gmail.com>
+
+	* Source/OpalGraphics/image/OPImageCodecPNG.m:
+	* Source/OpalGraphics/image/OPImageCodecTIFF.m: Fix bugs in these
+	image codecs when they fail to load a given image.
+
+2013-09-18  Eric Wasylishen  <ewasylishen@gmail.com>
+
+	* Tests/bitmaps.m:
+	* Tests/images.m: Move sub-image test to images.m.
+	Draws a portion of World_Map_1689.jpg over the
+	GNUstep logo.
+
+2013-09-18  Eric Wasylishen  <ewasylishen@gmail.com>
+
+	* Tests/cocoa.m:
+	* Tests/OpalTest.xcodeproj: Update xcode project to build bitmaps
+	demo. Tweak window setting in cocoa.m.
+
+2013-09-18  Ivan Vucica  <ivan@vucica.net>
+
+	* Tests/bitmaps.m:
+	Added code testing how sub-images are being drawn into CGContext.
+
+2013-09-17  Eric Wasylishen  <ewasylishen@gmail.com>
+
+	* Source/OpalGraphics/CGFont.m:
+	* Source/OpalGraphics/internal/CGFontInternal.h:
+	* Source/OpalGraphics/cairo/CairoFontWin32.m:
+	* Source/OpalGraphics/cairo/CairoFontX11.m:
+	* Headers/CoreGraphics/CGFont.h: Add private OPFontGetGlyphWithCharacter
+	to get the glyph index for a character. The proper API is in CoreText
+	but that's not usable yet, unlike CGFont.
+
+2013-09-17  Eric Wasylishen  <ewasylishen@gmail.com>
+
+	* Tests/texttest.m: Fix test: bug calculating glyph indicies
+	with the wrong font.
+
+2013-09-17 Eric Wasylishen  <ewasylishen@gmail.com>
+
+	* Source/OpalGraphics/cairo/CairoFontX11.m (-descent): Fix
+	descender calculation.
+
+2013-09-17 Eric Wasylishen  <ewasylishen@gmail.com>
+
+	* Source/OpalGraphics/CGContext.m (CGContextShowGlyphsAtPositions):
+	Check if font size is 0, and log an error instead of continuing,
+	which seems to put the cairo context into an error state.
+
+2013-09-17 Ivan Vučica <ivan@vucica.net>
+
+	* Headers/CoreGraphics/CGFont.h:
+	* Source/OpalGraphics/CGFont.m:
+	Added OPFontCreateWithFcPattern() and OPFontGetMaximumAdvancement().
+	Added -createWithFcPattern: stub.
+
+	* Source/OpalGraphics/internal/CGFontInternal.h:
+	Added maximumAdvancement ivar.
+	
+	* Source/OpalGraphics/cairo/CairoFontX11.m:
+	Added -createWithFcPattern: and -maximumAdvancement. Reworked
+	-createWithFontName: to use -createWithFcPattern:.
+
+	* Source/OpalGraphics/cairo/CairoFont.m:
+	Added -createWithFcPattern: stub.
+
+2013-09-12  Eric Wasylishen  <ewasylishen@gmail.com>
+
+	* Source/OpalGraphics/CGContext+GState.m:
+	* Headers/CoreGraphics/CGContext.h: Add OPContextCopyGState
+	and OPContextSetGState. I know we discussed writing getters
+	for individual properties of the graphics state but this
+	was quicker to throw together as a first iteration.
+	Warning, not tested.
+
+2013-09-12  Eric Wasylishen  <ewasylishen@gmail.com>
+
+	* Rename NSFont* to OPFont* to avoid conflicting with AppKit.
+	This is just a quick hack; to enable toll-free bridging will
+	require significant work.
+
+2012-09-13 Ivan Vucica <ivan@vucica.net>
+
+	* Source/OpalText/CTFramesetter.m:
+	Breaking out of an infinite loop.
+
+2013-08-02 Fred Kiefer <FredKiefer@gmx.de>
+
+	* Tests/GNUmakefile: Get it to compile again
+
+2013-07-25  Ivan Vucica <ivan@vucica.net>
+
+	* Source/OpalGraphics/OPLogging.h:
+	Changed NSDebugLLog() category to OpalCall.
+
+	* Source/OpalGraphics/CGContext.m:
+	Made logging more useful by adding context %p.
+
+2013-07-24  Eric Wasylishen  <ewasylishen@gmail.com>
+
+	* Source/OpalGraphics/CGImage.m (CGImageCreateWithImageInRect):
+	Revert last change, it needs more work
+
+2013-07-24  Eric Wasylishen  <ewasylishen@gmail.com>
+
+	* Source/OpalGraphics/CGImage.m (CGImageCreateWithImageInRect):
+	Use the source rect to set the returned image's size.
+	The method is still incomplete, see TODOs.
+
+2013-07-23  Eric Wasylishen  <ewasylishen@gmail.com>
+
+	* Source/OpalGraphics/image/OPImageCodecPNG.m: Rewrite to use
+	OPImageConvert and always convert to 32-bit RGBA, unpacked,
+	non-premultiplied. This is not ideal, but should always work.
+	* Source/OpalGraphics/CGDataConsumer.m: Create the file if
+	needed.
+
+2013-07-24 Ivan Vučica <ivan@vucica.net>
+
+	* Source/OpalGraphics/CGBitmapContext.m:
+	* Source/OpalGraphics/CGImage.m:
+	* Source/OpalGraphics/OPLogging.h:
+	* Source/OpalGraphics/OPImageConversion.m:
+	* Source/OpalGraphics/OPColorTransformLCMS.m:
+	* Source/OpalGraphics/CGContext.m:
+	* Source/OpalGraphics/CGAffineTransform.m:
+	Most non-error logging is now using NSDebugLLog(), to have Opal emit less
+	noise unless explicitly requested. Cleaned up small pieces of code.
+
+2013-07-21 Ivan Vučica <ivan@vucica.net>
+
+	* Source/OpalGraphics/OPLogging.h:
+	* Source/OpalGraphics/OPLogging.m:
+	Call logging macros.
+
+	* Source/OpalGraphics/CGBitmapContext.m:
+	Logging creation of bitmap context.
+
+	* Source/OpalGraphics/CGImage.m:
+	Fixed crash in case 'data' argument passed to DumpPixel() was null.
+
+	* Source/OpalGraphics/CGContext.m:
+	* Headers/CoreGraphics/CGContext.h:
+	-Added OPContextSetCairoDeviceOffset().
+	-Added logging to nearly all GContext*() functions. 
+	-In CGContextSet*ColorWithColor(), fixed retain/release setter
+	 mechanics, so they don't break if user passes same CGColor pointer
+	 twice.
+	-Added checks for null context and null ctx->add in several (but not
+	 all) places.
+
+2013-07-16  Eric Wasylishen  <ewasylishen@gmail.com>
+
+	* Source/OpalGraphics/CGBitmapContext.m: Fix subtle endianness bug.
+	For future reference, kCGBitmapByteOrderDefault means big-endian.
+	* Tests/bitmaps.m: Add a bitmap context test. It draws a black background
+	with a cream colored blob in the bottom left.
+
+2013-07-16  Eric Wasylishen  <ewasylishen@gmail.com>
+
+	* Source/OpalGraphics/CGBitmapContext.m: Use calloc to allocate zeroed
+	bitmap buffers
+
+2013-07-15 Ivan Vučica <ivan@vucica.net>
+
+	* Headers/CoreGraphics/CGContext.h:
+	* Source/OpalGraphics/CGContext.m:
+	Added OPContextSetIdentityCTM() and OPContextResetClip().
+
+2013-07-01 Ivan Vučica <ivan@vucica.net>
+
+	* Headers/CoreGraphics/CGContext.h:
+	* Source/OpalGraphics/opal-win32.m:
+	* Source/OpalGraphics/opal-x11.m:
+	* Source/OpalGraphics/CGContext.m:
+	* Source/OpalGraphics/CGContext-private.h:
+	* Tests/x11.m:
+	Renamed a few things in order to expose X-based cairo surface as
+	an Opal context. Introduced a few class wrappers in the process.
+
+2012-08-19 Ivan Vučica <ivan@vucica.net>
+
+	* Source/OpalGraphics/CGColor.m: Removed log output about CGColor
+	being created.
+
+2012-07-06 Fred Kiefer <FredKiefer@gmx.de>
+
+	* Tests/GNUmakefile,
+	* Source/GNUmakefile: Allow for compilation without OpalText.
+	To achieve this define the variable NO_OPALTEXT before compiling.
+
+2011-03-23 Niels Grewe <niels.grewe@halbordnung.de>
+
+	* Source/OpalText/FreeType/OPFreeTypeFont.m: Implement
+	-glyphWithName:.
+
+2011-03-15 Niels Grewe <niels.grewe@halbordnung.de>
+
+	* Source/OpalText/FreeType/OPFreeTypeFont.m: Finish bounding
+	rect retrieval.
+	* Source/OpalText/NSFont.h
+	* Source/OpalText/NSFont.m:
+	Turn transformation matrix to a union so CGAffineTransform,
+	NSAffineTransformStruct and the CGFloat array used by NSFont
+	can be used interchangeably.
+
+2011-03-15 Niels Grewe <niels.grewe@halbordnung.de>
+
+	* Source/OpalText/FreeType/OPFreeTypeFont.m: Implement more
+	transformations, some bounding box stuff.
+	* Source/OpalText/NSFont.h
+	* Source/OpalText/NSFont.m:
+	Store the font matrix as an CGAffineTransform for convenience.
+
+2011-03-15 Niels Grewe <niels.grewe@halbordnung.de>
+
+	* Source/OpalText/FreeType/OPFreeTypeFont.m: Make FreeType
+	handle text transforms (at least partially). Implement getting
+	glyph advances.
+	* Source/OpalText/FreeType/OPFreeTypeUtil.h: Add convenience
+	functions for translating between CGAffineTransforms and
+	FreeType vectors/matrices.
+
+2011-03-14 Niels Grewe <niels.grewe@halbordnung.de>
+
+	* Source/OpalText/FreeType/OPFreeTypeFont.m: Implement some more
+	NSFont methods in terms of FreeType.
+
+2011-02-20 Niels Grewe <niels.grewe@halbordnung.de>
+
+	* Source/OpalText/FreeType/OPFreeTypeUtil.h: Also mark inline
+	functions as static.
+
+2011-02-20 Fred Kiefer <FredKiefer@gmx.de>
+
+	* Source/OpalGraphics/CGContext.m: Add CMYK colour methods.
+
+2010-11-15 Fred Kiefer <FredKiefer@gmx.de>
+
+	* Source/OpalText/CTGlyphInfo.m
+	* Source/OpalText/CTFontDescriptor.m
+	* Source/OpalText/CTFont.m
+	* Source/OpalText/CTFramesetter.m
+	* Source/OpalText/CTFontCollection.m
+	* Tests/gradients.m
+	* Tests/x11.m: Clean up line endings and remove some compiler warnings.
+
+2010-02-11  Nicola Pero  <nicola.pero@meta-innovation.com>
+
+	* Source/GNUmakefile: Use := when setting ADDITIONAL_CPPFLAGS and
+	ADDITIONAL_LDFLAGS to reduce the number of subshell invocations
+	required to compile.
+	* Tests/GNUmakefile: Same change for ADDITIONAL_LDFLAGS.
 2013-09-19  Ivan Vucica  <ivan@vucica.net>
 
 	* Source/OpalGraphics/CGContext+GState.m:

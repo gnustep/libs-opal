@@ -1,9 +1,9 @@
 include $(GNUSTEP_MAKEFILES)/common.make
 
 ifdef NO_OPALTEXT
-TOOL_NAME = qeb2 shadows shapes layers pdf images gradients colorspace paths bitmaps
+TOOL_NAME = qeb2 shadows shapes layers pdf images gradients colorspace paths bitmaps gstate
 else
-TOOL_NAME = qeb2 shadows shapes layers texttest textlayout pdf images gradients colorspace paths bitmaps
+TOOL_NAME = qeb2 shadows shapes layers texttest textlayout pdf images gradients colorspace paths bitmaps gstate
 endif
 
 ifeq ($(GNUSTEP_TARGET_OS), mingw32)
@@ -25,6 +25,7 @@ images_RESOURCE_FILES = test.png test.jpg
 gradients_OBJC_FILES = $(main_file) gradients.m
 colorspace_OBJC_FILES = $(main_file) colorspace.m
 bitmaps_OBJC_FILES = $(main_file) bitmaps.m
+gstate_OBJC_FILES = $(main_file) gstate.m
 
 ifneq ($(GNUSTEP_TARGET_OS), mingw32)
 ADDITIONAL_OBJC_LIBS += -lm -lX11
