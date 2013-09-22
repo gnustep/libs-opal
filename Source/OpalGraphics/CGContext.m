@@ -274,16 +274,20 @@ void OPContextSetIdentityCTM(CGContextRef ctx)
 CGAffineTransform CGContextGetCTM(CGContextRef ctx)
 {
   OPLOGCALL("ctx /*%p*/", ctx)
-  cairo_matrix_t cmat;
 
-  cairo_get_matrix(ctx->ct, &cmat);
+  cairo_matrix_t cairoMatrix;
+  cairo_get_matrix(ctx->ct, &cairoMatrix);
+
+  cairo_matrix_t undoFlip;  
+  cairo_matrix_init_identity(&undoFlip);
+  cairo_matrix_scale(&undoFlip, 1, -1);
+  cairo_matrix_translate(&undoFlip, 0, -ctx->device_size.height);
   
-  // "Undo" the flip transformation
-  cairo_matrix_translate(&cmat, 0, ctx->device_size.height);
-  cairo_matrix_scale(&cmat, 1, -1);
-  
+  cairo_matrix_t result;
+  cairo_matrix_multiply(&result, &cairoMatrix, &undoFlip);
+
   OPRESTORELOGGING()
-  return CGAffineTransformMake(cmat.xx, cmat.yx, cmat.xy, cmat.yy, cmat.x0, cmat.y0);
+  return CGAffineTransformMake(result.xx, result.yx, result.xy, result.yy, result.x0, result.y0);
 }
 
 void OPContextSetCairoDeviceOffset(CGContextRef ctx, CGFloat x, CGFloat y)

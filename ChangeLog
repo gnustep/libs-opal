@@ -1,3 +1,8 @@
+2013-09-22  Eric Wasylishen  <ewasylishen@gmail.com>
+
+	* Source/OpalGraphics/CGContext.m (CGContextGetCTM): Fix
+	flipping logic. gstate.m test now passes.
+
 2013-09-21  Ivan Vucica  <ivan@vucica.net>
 
 	* Tests/GNUmakefile:
