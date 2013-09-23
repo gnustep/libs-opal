@@ -304,9 +304,16 @@ void CGContextSaveGState(CGContextRef ctx)
   ct_additions *ctadd;
   cairo_status_t cret;
 
+  if (!ctx)
+    {
+      NSLog(@"%s: ctx == NULL", __PRETTY_FUNCTION__);
+      OPRESTORELOGGING();
+      return;
+    }
+
   ctadd = calloc(1, sizeof(struct ct_additions));
   if (!ctadd) {
-    NSLog(@"calloc failed");
+    NSLog(@"%s(%p): calloc failed", __PRETTY_FUNCTION__, ctx);
     OPRESTORELOGGING()
     return;
   }
@@ -336,6 +343,13 @@ void CGContextRestoreGState(CGContextRef ctx)
   OPLOGCALL("ctx /*%p*/", ctx)
   OPRESTORELOGGING()
   ct_additions *ctadd;
+  
+  if (!ctx)
+    {
+      NSLog(@"%s: ctx == NULL", __PRETTY_FUNCTION__);
+      OPRESTORELOGGING();
+      return;
+    }
 
   if (!ctx->add) return;
 
@@ -349,7 +363,7 @@ void CGContextRestoreGState(CGContextRef ctx)
 
   if(!ctx->add)
     {
-      NSLog(@"%s: restoring produced null 'ct_additions'", __FUNCTION__);
+      NSLog(@"%s(%p): restoring produced null 'ct_additions'", __FUNCTION__, ctx);
     }
 
   cairo_restore(ctx->ct);
@@ -1366,10 +1380,14 @@ void opal_draw_surface_in_rect(CGContextRef ctxt, CGRect rect, cairo_surface_t *
 
 void CGContextDrawImage(CGContextRef ctx, CGRect rect, CGImageRef image)
 {
-  OPLOGCALL("ctx /*%p*/, CGRectMake(%g, %g, %g, %g), <image>", ctx, rect.origin.x,
-            rect.origin.y, rect.size.width, rect.size.height)
-  opal_draw_surface_in_rect(ctx, rect, opal_CGImageGetSurfaceForImage(image, cairo_get_target(ctx->ct)),
+  CGRect srcrect = opal_CGImageGetSourceRect(image);
+  OPLOGCALL("ctx /*%p*/, CGRectMake(%g, %g, %g, %g), <image>(%p, subrect %g %g %g %g)", ctx, rect.origin.x,
+            rect.origin.y, rect.size.width, rect.size.height, image, srcrect.origin.x, srcrect.origin.y, srcrect.size.width, srcrect.size.height)
+
+  opal_draw_surface_in_rect(ctx, rect,
+    opal_CGImageGetSurfaceForImage(image, cairo_get_target(ctx->ct)),
     opal_CGImageGetSourceRect(image));
+
   OPRESTORELOGGING()
 }
 

@@ -179,7 +179,7 @@ void DumpPixel(const void *data, NSString *msg)
 
 - (NSString *)description
 {
-  return [NSString stringWithFormat: @"<CGImage %p width: %d  height: %d bits-per-component: %d bpp: %d bytes-per-row: %d provider: %@ shouldInterpolate: %d>", self, (int)width, (int)height, (int)bitsPerComponent, (int)bitsPerPixel, (int)bytesPerRow, dp, (int)shouldInterpolate];
+  return [NSString stringWithFormat: @"<CGImage %p width: %d  height: %d bits-per-component: %d bpp: %d bytes-per-row: %d provider: %@ shouldInterpolate: %d crop: %g,%g,%g,%g>", self, (int)width, (int)height, (int)bitsPerComponent, (int)bitsPerPixel, (int)bytesPerRow, dp, (int)shouldInterpolate, crop.origin.x, crop.origin.y, crop.size.width, crop.size.height];
 }
 
 @end

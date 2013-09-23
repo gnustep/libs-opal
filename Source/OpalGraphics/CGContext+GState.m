@@ -95,6 +95,11 @@
   cliprects = cairo_copy_clip_rectangle_list(aCairo);
 
   // opal additions
+  if (!ctx->add)
+    {
+      memset(&add, 0, sizeof(add));
+      return self;
+    }
 
   add = *ctx->add;
   CGColorRetain(add.fill_color);
