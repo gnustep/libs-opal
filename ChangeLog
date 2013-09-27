@@ -1,3 +1,8 @@
+2013-09-27  Eric Wasylishen  <ewasylishen@gmail.com>
+
+	* Source/OpalGraphics/CGImage.m:
+	* Source/OpalText/CTLine.m: Fix typos noticed by Philippe Roussel
+
 2013-09-23  Ivan Vucica  <ivan@vucica.net>
 
 	* Source/OpalGraphics/CGContext+GState.m:

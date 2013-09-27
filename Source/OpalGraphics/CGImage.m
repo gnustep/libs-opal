@@ -158,7 +158,7 @@ void DumpPixel(const void *data, NSString *msg)
   self->surf = NULL;
   self->bitmapInfo = aBitmapInfo;
   self->cspace = CGColorSpaceRetain(aColorspace);
-  self->intent = intent;
+  self->intent = anIntent;
 
   return self;
 }

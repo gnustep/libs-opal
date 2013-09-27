@@ -30,7 +30,7 @@
 
 - (id)initWithRuns: (NSArray*)runs
 {
-  if ((self == [super init]))
+  if ((self = [super init]))
   {
     _runs = [runs retain];
   }
