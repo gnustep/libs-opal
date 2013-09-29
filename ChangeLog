@@ -1,3 +1,8 @@
+2013-09-29  Fred Kiefer <FredKiefer@gmx.de>
+
+	* Source/OpalGraphics/CGBitmapContext.m:
+	Support all sort of alpha for RGB data.
+
 2013-09-27  Eric Wasylishen  <ewasylishen@gmail.com>
 
 	* Source/OpalGraphics/CGImage.m:
@@ -8,13 +13,13 @@
 	* Source/OpalGraphics/CGContext+GState.m:
 	Improved resilience to ctx->add being null.
 
-	* Source/OpalGraphics/CGImage.m: 
+	* Source/OpalGraphics/CGImage.m:
 	Description now also includes value of crop i-var.
 
 	* Source/OpalGraphics/CGContext.m:
 	*SaveGState() and *RestoreGState() now more resilient
 	to being passed a NULL context.
-	
+
 	Improved diagnostics in some functions, esp. *DrawImage().
 
 2013-09-22  Eric Wasylishen  <ewasylishen@gmail.com>
@@ -26,7 +31,7 @@
 
 	* Tests/GNUmakefile:
 	* Tests/gstate.m:
-	Added gstate test. Currently this tests whether some CTM 
+	Added gstate test. Currently this tests whether some CTM
 	operations are correctly performed in a CGContext; namely,
 	setting identity CTM, concatenating, and getting the current
 	CTM.
@@ -64,7 +69,7 @@
 
 	* Tests/GNUmakefile:
 	* Tests/gstate.m:
-	Added gstate test. Currently this tests whether some CTM 
+	Added gstate test. Currently this tests whether some CTM
 	operations are correctly performed in a CGContext; namely,
 	setting identity CTM, concatenating, and getting the current
 	CTM.
@@ -141,7 +146,7 @@
 
 	* Source/OpalGraphics/internal/CGFontInternal.h:
 	Added maximumAdvancement ivar.
-	
+
 	* Source/OpalGraphics/cairo/CairoFontX11.m:
 	Added -createWithFcPattern: and -maximumAdvancement. Reworked
 	-createWithFontName: to use -createWithFcPattern:.
@@ -227,7 +232,7 @@
 	* Source/OpalGraphics/CGContext.m:
 	* Headers/CoreGraphics/CGContext.h:
 	-Added OPContextSetCairoDeviceOffset().
-	-Added logging to nearly all GContext*() functions. 
+	-Added logging to nearly all GContext*() functions.
 	-In CGContextSet*ColorWithColor(), fixed retain/release setter
 	 mechanics, so they don't break if user passes same CGColor pointer
 	 twice.
@@ -408,7 +413,7 @@
 
 	* Source/OpalGraphics/internal/CGFontInternal.h:
 	Added maximumAdvancement ivar.
-	
+
 	* Source/OpalGraphics/cairo/CairoFontX11.m:
 	Added -createWithFcPattern: and -maximumAdvancement. Reworked
 	-createWithFontName: to use -createWithFcPattern:.
@@ -494,7 +499,7 @@
 	* Source/OpalGraphics/CGContext.m:
 	* Headers/CoreGraphics/CGContext.h:
 	-Added OPContextSetCairoDeviceOffset().
-	-Added logging to nearly all GContext*() functions. 
+	-Added logging to nearly all GContext*() functions.
 	-In CGContextSet*ColorWithColor(), fixed retain/release setter
 	 mechanics, so they don't break if user passes same CGColor pointer
 	 twice.

@@ -72,56 +72,56 @@ static BOOL isFormatNativelySupportedByCairo(
   *outFormat = CAIRO_FORMAT_INVALID;
 
   if (0 != (info & kCGBitmapFloatComponents))
-  {
-    return NO;
-  }
+    {
+      return NO;
+    }
   
   // NOTE: kCGBitmapByteOrderDefault means big-endian (a.k.a unpacked)
   // cairo can only draw into native-endian integer-packed pixels
   const int order = info & kCGBitmapByteOrderMask;
-  if (!((NSHostByteOrder() == NS_LittleEndian) && (order == kCGBitmapByteOrder32Little))
-    && !((NSHostByteOrder() == NS_BigEndian) && (order == kCGBitmapByteOrder32Big 
-						 || order == kCGBitmapByteOrderDefault)))
-  {
-    return NO;
-  }
+  if (!((NSHostByteOrder() == NS_LittleEndian)
+        && (order == kCGBitmapByteOrder32Little))
+    && !((NSHostByteOrder() == NS_BigEndian)
+         && (order == kCGBitmapByteOrder32Big 
+             || order == kCGBitmapByteOrderDefault)))
+    {
+      return NO;
+    }
 
   const int alpha = info &  kCGBitmapAlphaInfoMask;
   const CGColorSpaceModel model = CGColorSpaceGetModel(cs);
   const size_t numComps = CGColorSpaceGetNumberOfComponents(cs);
-  
   cairo_format_t format = CAIRO_FORMAT_INVALID;
 
   if (bitsPerComponent == 8
       && numComps == 3
       && model == kCGColorSpaceModelRGB
-      && alpha == kCGImageAlphaPremultipliedFirst)
-  {
-  	format = CAIRO_FORMAT_ARGB32;
-  }
+      && alpha == kCGImageAlphaNoneSkipFirst)
+    {
+  	format = CAIRO_FORMAT_RGB24;
+    }
   else if (bitsPerComponent == 8
       && numComps == 3
       && model == kCGColorSpaceModelRGB
-      && alpha == kCGImageAlphaNoneSkipFirst)
-  {
-  	format = CAIRO_FORMAT_RGB24;
-  }
+      && (alpha != kCGImageAlphaNone))
+    {
+  	format = CAIRO_FORMAT_ARGB32;
+    }
   else if (bitsPerComponent == 8 && alpha == kCGImageAlphaOnly)
-  {
+    {
   	format = CAIRO_FORMAT_A8;
-  }
+    }
   else if (bitsPerComponent == 1 && alpha == kCGImageAlphaOnly)
-  {
+    {
   	format = CAIRO_FORMAT_A1;
-  }
+    }
   else
-  {
-    return NO;
-  }
+    {
+      return NO;
+    }
 
-  // Now that we have the format we're going to use, check that the stride is acceptable
-  // to cairo.
-
+  // Now that we have the format we're going to use, check that the stride
+  // is acceptable to cairo.
   if (cairo_format_stride_for_width(format, width) != bytesPerRow)
   {
     return NO;
