@@ -1055,6 +1055,26 @@ void CGContextClipToMask(CGContextRef ctx, CGRect rect, CGImageRef mask)
   OPRESTORELOGGING()
 }
 
+CGFloat OPContextGetAlpha(CGContextRef ctx)
+{
+  OPLOGCALL("ctx /*%p*/", ctx)
+
+  if(!ctx || !ctx->add)
+    {
+      NSLog(@"null %s%s%s in %s",
+            !ctx ? "ctx" : "",
+            (!ctx && !ctx->add) ? " and " : "", 
+            !ctx->add ? "ctx->add" : "",
+            __PRETTY_FUNCTION__);
+      return 0;
+    }
+
+  CGFloat result = ctx->add->alpha;
+
+  OPRESTORELOGGING()
+  return result;
+}
+
 void OPContextResetClip(CGContextRef ctx)
 {
   OPLOGCALL("ctx /*%p*/", ctx)

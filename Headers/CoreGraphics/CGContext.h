@@ -555,6 +555,8 @@ CGRect CGContextConvertRectToUserSpace(CGContextRef ctx, CGRect rect);
 
 // FIXME: Move extensions to a separate header?
 
+CGFloat OPContextGetAlpha(CGContextRef ctx);
+
 void OPContextSetScaleFactor(CGContextRef ctx, CGFloat scale);
 
 void OPContextSetSize(CGContextRef ctx, CGSize size);
