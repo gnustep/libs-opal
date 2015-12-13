@@ -1,3 +1,17 @@
+2015-12-13  Fred Kiefer <FredKiefer@gmx.de>
+
+	* Tests/GNUmakefile
+	* Tests/doublebuffer.m
+	New test file for double buffering as used by back.
+	* Source/OpalGraphics/CGBitmapContext.m
+	* Source/OpalGraphics/CGColor.m
+	* Source/OpalGraphics/CGImage.m
+	* Source/OpalGraphics/OPColorTransformLCMS.m
+	* Source/OpalGraphics/OPImageConversion.h
+	* Source/OpalGraphics/OPImageConversion.m
+	* Source/OpalGraphics/OPPremultiplyAlpha.m
+	Correct and speed up image conversion.
+
 2013-10-01  Eric Wasylishen  <ewasylishen@gmail.com>
 
 	* Headers/CoreGraphics/CGContext.h:

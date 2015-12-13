@@ -61,18 +61,18 @@ void OPImageFormatLog(OPImageFormat fmt, NSString *msg)
 	NSString *compFormatString = nil;
 	switch (fmt.compFormat)
 	{
-		case kOPComponentFormat8bpc:
-			compFormatString = @"kOPComponentFormat8bpc";
-			break;
-	  case kOPComponentFormat16bpc:
-			compFormatString = @"kOPComponentFormat16bpc";
-			break;
+        case kOPComponentFormat8bpc:
+          compFormatString = @"kOPComponentFormat8bpc";
+          break;
+        case kOPComponentFormat16bpc:
+          compFormatString = @"kOPComponentFormat16bpc";
+          break;
   	case kOPComponentFormat32bpc:
-			compFormatString = @"kOPComponentFormat32bpc";
-			break;
+          compFormatString = @"kOPComponentFormat32bpc";
+          break;
   	case kOPComponentFormatFloat32bpc:
-			compFormatString = @"kOPComponentFormatFloat32bpc";
-			break;
+          compFormatString = @"kOPComponentFormatFloat32bpc";
+          break;
 	}
 	NSDebugLLog(@"Opal", @"%@: <%@, color components=%d, alpha?=%d, premul?=%d, alpha last?=%d>", 
 		msg, compFormatString, fmt.colorComponents, fmt.hasAlpha, fmt.isAlphaPremultiplied, fmt.isAlphaLast);
@@ -196,6 +196,17 @@ static void OPRoundUp(size_t bitsPerComponentIn, size_t bitsPerPixelIn, size_t *
   *bitsPerPixelOut = (bitsPerPixelIn / bitsPerComponentIn) * (*bitsPerComponentOut);
 } 
 
+static bool needsByteSwap(CGBitmapInfo bitmapInfo) 
+{
+  int order = bitmapInfo & kCGBitmapByteOrderMask;
+
+  if (order == kCGBitmapByteOrderDefault)
+    {
+      order = kCGBitmapByteOrder32Big;
+    }
+  return (kCGBitmapByteOrder32Host != order);
+}
+
 static bool OPImageFormatForCGFormat(
   size_t bitsPerComponent,
   size_t bitsPerPixel,
@@ -214,11 +225,11 @@ static bool OPImageFormatForCGFormat(
     case 32:
       if (bitmapInfo & kCGBitmapFloatComponents)
       {
-        out->compFormat = kOPComponentFormat32bpc;
+        out->compFormat = kOPComponentFormatFloat32bpc;
       }
       else
       {
-        out->compFormat = kOPComponentFormatFloat32bpc;
+        out->compFormat = kOPComponentFormat32bpc;
       }
       break;
     default:
@@ -235,6 +246,9 @@ static bool OPImageFormatForCGFormat(
                                alpha == kCGImageAlphaPremultipliedLast);
   out->isAlphaLast = (alpha == kCGImageAlphaPremultipliedLast || 
                       alpha == kCGImageAlphaLast);
+  // LCMS use big endian
+  out->needs32Swap = bitmapInfo & kCGBitmapByteOrder32Little;
+
   return true;
 }
 
@@ -267,43 +281,59 @@ void OPImageConvert(
     NSLog(@"Output format not supported");
   }
   
+  if ((dstBitsPerComponent == srcBitsPerComponent) &&
+      (dstBitsPerPixel == srcBitsPerPixel) && 
+      (dstBytesPerRow == srcBytesPerRow) &&
+      (dstBitmapInfo == srcBitmapInfo) &&
+      [dstColorSpace isEqual: srcColorSpace])
+    {
+      // No conversion needed, copy over the data
+      memcpy(dstData, srcData, height * srcBytesPerRow);
+
+      return;
+    }
+
   OPImageFormatLog(srcFormat, @"OPImageConversion source");
   OPImageFormatLog(dstFormat, @"OPImageConversion dest");
   
   id<OPColorTransform> xform = [srcColorSpace colorTransformTo: dstColorSpace
-                                               sourceFormat: srcFormat
-                                          destinationFormat: dstFormat
-                                            renderingIntent: intent
-                                                 pixelCount: width];
+                                                  sourceFormat: srcFormat
+                                             destinationFormat: dstFormat
+                                               renderingIntent: intent
+                                                    pixelCount: width];
 
   unsigned char *tempInput = malloc(srcBytesPerRow);
   
-  for (size_t row=0; row<height; row++)
-  {
-  	const unsigned char *input = srcData + (row * srcBytesPerRow);
-  	
-    if (srcBitmapInfo & kCGBitmapByteOrder32Little)
-		{
-			for (size_t i=0; i<width; i++)
-		  {
-			  ((uint32_t*)tempInput)[i] = GSSwapI32(((uint32_t*)(srcData + (row * srcBytesPerRow)))[i]);
-			}
-			input = tempInput;
-		}
+  for (size_t row = 0; row < height; row++)
+    {
+      const unsigned char *input = srcData + (row * srcBytesPerRow);
 
-    [xform transformPixelData: input
-                       output: dstData + (row * dstBytesPerRow)];
-    
-    if (dstBitmapInfo & kCGBitmapByteOrder32Little)
-		{
-			for (uint32_t *pixel = (uint32_t*) (dstData + (row * dstBytesPerRow));
-			     pixel < (uint32_t*) (dstData + (row * dstBytesPerRow) + dstBytesPerRow);
-			     pixel++)
-		  {
-			  *pixel = GSSwapI32(*pixel);
-			}
-		}
-  }
-  
+      /*
+      if (needsByteSwap(srcBitmapInfo))
+        {
+          for (uint32_t *pixel = (uint32_t*)tempInput;
+               pixel < (uint32_t*)(tempInput + srcBytesPerRow);
+               pixel++)
+            {
+              *pixel = GSSwapI32(*pixel);
+            }
+          input = tempInput;
+        }
+      */
+      [xform transformPixelData: input
+                         output: dstData + (row * dstBytesPerRow)];
+      /*
+      if (needsByteSwap(dstBitmapInfo))
+        {
+          for (uint32_t *pixel = (uint32_t*) (dstData + (row * dstBytesPerRow));
+               pixel < (uint32_t*)(dstData + (row * dstBytesPerRow) + dstBytesPerRow);
+               pixel++)
+            {
+              *pixel = GSSwapI32(*pixel);
+            }
+        }
+      */
+    }
+
   free(tempInput);
 }

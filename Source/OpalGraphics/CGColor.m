@@ -106,6 +106,7 @@ static CGColorRef _clearColor;
   sourceFormat.hasAlpha = true;
   sourceFormat.isAlphaPremultiplied = false;
   sourceFormat.isAlphaLast = true;
+  sourceFormat.needs32Swap = false;
 
   OPImageFormat destFormat;
   destFormat.compFormat = kOPComponentFormatFloat32bpc;
@@ -113,6 +114,7 @@ static CGColorRef _clearColor;
   destFormat.hasAlpha = true;
   destFormat.isAlphaPremultiplied = false;
   destFormat.isAlphaLast = true;
+  destFormat.needs32Swap = false;
 
   id<OPColorTransform> xform = [sourceSpace colorTransformTo: destSpace
                                              sourceFormat: sourceFormat

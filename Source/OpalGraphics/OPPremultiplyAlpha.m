@@ -24,17 +24,39 @@
 
 #import "OPPremultiplyAlpha.h"
 
-#define _OPPremultiplyAlpha(format, compType, compMax, rowStart, comps, pixels, unPremultiply) \
-  for (size_t pixel = 0; pixel<pixels; pixel++) \
+#define _OPPremultiplyAlpha(isAlphaLast, compType, compMax, rowStart, comps, pixels) \
+  const size_t firstComp = (isAlphaLast ? 0 : 1);                \
+  const size_t lastComp = (isAlphaLast ? (comps - 2) : (comps - 1)); \
+  const size_t alphaComp = (isAlphaLast ? (comps - 1) : 0);      \
+  for (size_t pixel = 0; pixel < pixels; pixel++) \
   { \
-		compType *pixelPtr = (compType *)(rowStart + ((sizeof(compType)*comps) * pixel)); \
-    const size_t firstComp = (format.isAlphaLast ? 0 : 1); \
-    const size_t lastComp = (format.isAlphaLast ? (comps - 2) : (comps - 1)); \
-    const size_t alphaComp = (format.isAlphaLast ? (comps - 1) : 0); \
+    compType *pixelPtr = (compType *)(rowStart + ((sizeof(compType)*comps) * pixel)); \
     const float alphaValue = pixelPtr[alphaComp] / (float)compMax; \
-    for (size_t i = firstComp; i<=lastComp; i++) \
+    for (size_t i = firstComp; i <= lastComp; i++) \
     { \
-      pixelPtr[i] *= (unPremultiply ? (1.0/alphaValue) : alphaValue); \
+      pixelPtr[i] *= alphaValue; \
+    } \
+  }
+  
+#define _OPUnPremultiplyAlpha(isAlphaLast, compType, compMax, rowStart, comps, pixels) \
+  const size_t firstComp = (isAlphaLast ? 0 : 1);                \
+  const size_t lastComp = (isAlphaLast ? (comps - 2) : (comps - 1)); \
+  const size_t alphaComp = (isAlphaLast ? (comps - 1) : 0);      \
+  for (size_t pixel = 0; pixel < pixels; pixel++) \
+  { \
+    compType *pixelPtr = (compType *)(rowStart + ((sizeof(compType)*comps) * pixel)); \
+    const float alphaValue = pixelPtr[alphaComp] / (float)compMax; \
+    for (size_t i = firstComp; i <= lastComp; i++) \
+    { \
+      const float val = (pixelPtr[i] / alphaValue); \
+      if (val > compMax) \
+      { \
+        pixelPtr[i] = compMax; \
+      } \
+      else \
+      { \
+        pixelPtr[i] = val; \
+      } \
     } \
   }
   
@@ -45,26 +67,60 @@ void OPPremultiplyAlpha(
   bool unPremultiply)
 {
   if (!format.hasAlpha)
-	{
-		NSLog(@"Warning, unnecessary call to OPPremultiplyAlpha");
-    return;
-	}
+    {
+      NSLog(@"Warning, unnecessary call to OPPremultiplyAlpha");
+      return;
+    }
   const size_t comps = (format.colorComponents + 1);
+  bool isAlphaLast = format.isAlphaLast;
+
+  if (format.needs32Swap)
+    {
+      isAlphaLast = !isAlphaLast;
+    }
+
 
   switch (format.compFormat)
   {
     case kOPComponentFormat8bpc:
-      _OPPremultiplyAlpha(format, uint8_t,  UINT8_MAX, row, comps, pixels, unPremultiply);
+      if (unPremultiply)
+        {
+          _OPUnPremultiplyAlpha(isAlphaLast, uint8_t, UINT8_MAX, row, comps, pixels);
+        }
+      else
+        {
+          _OPPremultiplyAlpha(isAlphaLast, uint8_t, UINT8_MAX, row, comps, pixels);
+        }
       break;
     case kOPComponentFormat16bpc:
-      _OPPremultiplyAlpha(format, uint16_t, UINT16_MAX, row, comps, pixels, unPremultiply);
+      if (unPremultiply)
+        {
+          _OPUnPremultiplyAlpha(isAlphaLast, uint16_t, UINT16_MAX, row, comps, pixels);
+        }
+      else
+        {
+          _OPPremultiplyAlpha(isAlphaLast, uint16_t, UINT16_MAX, row, comps, pixels);
+        }
       break;
     case kOPComponentFormat32bpc:
-      _OPPremultiplyAlpha(format, uint32_t, UINT32_MAX, row, comps, pixels, unPremultiply);
+      if (unPremultiply)
+        {
+          _OPUnPremultiplyAlpha(isAlphaLast, uint32_t, UINT32_MAX, row, comps, pixels);
+        }
+      else
+        {
+          _OPPremultiplyAlpha(isAlphaLast, uint32_t, UINT32_MAX, row, comps, pixels);
+        }
       break;
     case kOPComponentFormatFloat32bpc:
-      _OPPremultiplyAlpha(format, float, 1.0f, row, comps, pixels, unPremultiply);
+      if (unPremultiply)
+        {
+          _OPUnPremultiplyAlpha(isAlphaLast, float, 1.0f, row, comps, pixels);
+        }
+      else
+        {
+          _OPPremultiplyAlpha(isAlphaLast, float, 1.0f, row, comps, pixels);
+        }
       break;
   }
 }
-

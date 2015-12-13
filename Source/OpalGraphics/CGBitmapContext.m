@@ -60,6 +60,12 @@ isCairoDrawingIntoUserBuffer: (BOOL)isCairoDrawingIntoUserBuffer
 @end
 
 @implementation CGBitmapContext
+/* 
+   ARGB => Alpha First & Big Endian
+   BGRA => Alpha First & Little Endian
+   RGBA => Alpha Last & Big Endian
+   ABGR => Alpha Last & Little Endian
+*/
 
 static BOOL isFormatNativelySupportedByCairo(
   CGBitmapInfo info, 
@@ -103,7 +109,7 @@ static BOOL isFormatNativelySupportedByCairo(
   else if (bitsPerComponent == 8
       && numComps == 3
       && model == kCGColorSpaceModelRGB
-      && (alpha != kCGImageAlphaNone))
+      && (alpha == kCGImageAlphaPremultipliedFirst))
     {
   	format = CAIRO_FORMAT_ARGB32;
     }
@@ -430,6 +436,7 @@ CGImageRef CGBitmapContextCreateImage(CGContextRef ctx)
       kCGRenderingIntentDefault
     );
     
+    //img->surf = cairo_get_target(ctx->ct);
     CGDataProviderRelease(dp);
     OPRESTORELOGGING()
     return img;

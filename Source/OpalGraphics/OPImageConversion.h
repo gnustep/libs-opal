@@ -44,6 +44,8 @@ typedef struct OPImageFormat
   bool hasAlpha;
   bool isAlphaPremultiplied;
   bool isAlphaLast;
+  bool needs32Swap;
+  // FIXME: More flags are needed
 } OPImageFormat;
 
 size_t OPComponentNumberOfBytes(OPComponentFormat fmt);

@@ -296,6 +296,7 @@ CGImageRef CGImageCreateWithImageInRect(
 
   // TODO: Implement data provider to crop the data from the source image
   // TODO: Share underlying cairo surface!
+  new->surf = image->surf;
 
   return new;
 }
@@ -493,16 +494,7 @@ cairo_surface_t *opal_CGImageGetSurfaceForImage(CGImageRef img, cairo_surface_t 
     const size_t dstBitsPerComponent = 8;
     const size_t dstBitsPerPixel = 32;
     const size_t dstBytesPerRow = cairo_image_surface_get_stride(memSurf);
-    
-    CGBitmapInfo dstBitmapInfo = kCGImageAlphaPremultipliedFirst;
-    if (NSHostByteOrder() == NS_LittleEndian)
-	  {
-    	dstBitmapInfo |= kCGBitmapByteOrder32Little;
-    }
-    else if (NSHostByteOrder() == NS_BigEndian)
-		{
-			dstBitmapInfo |= kCGBitmapByteOrder32Big;
-		}
+    CGBitmapInfo dstBitmapInfo = kCGBitmapByteOrder32Host | kCGImageAlphaPremultipliedFirst;
     const CGColorSpaceRef dstColorSpace = srcColorSpace;
 
     OPImageConvert(
@@ -515,8 +507,8 @@ cairo_surface_t *opal_CGImageGetSurfaceForImage(CGImageRef img, cairo_surface_t 
       dstColorSpace, srcColorSpace,
       srcIntent);
 
-		DumpPixel(srcData, @"OPImageConvert src (expecting R G B A)");
-		DumpPixel(dstData, @"OPImageConvert dst (expecting A R G B premult)");
+    DumpPixel(srcData, @"OPImageConvert src (expecting R G B A)");
+    DumpPixel(dstData, @"OPImageConvert dst (expecting A R G B premult)");
 		
     OPDataProviderReleaseBytePointer(img->dp, srcData);
 
@@ -530,10 +522,10 @@ cairo_surface_t *opal_CGImageGetSurfaceForImage(CGImageRef img, cairo_surface_t 
                                  CGImageGetWidth(img),
                                  CGImageGetHeight(img));
     cairo_t *ctx = cairo_create(img->surf);
-		cairo_set_source_surface(ctx, memSurf, 0, 0);
+    cairo_set_source_surface(ctx, memSurf, 0, 0);
     cairo_paint(ctx);
     cairo_destroy(ctx);
-		cairo_surface_destroy(memSurf);
+    cairo_surface_destroy(memSurf);
   }
 
   return img->surf;

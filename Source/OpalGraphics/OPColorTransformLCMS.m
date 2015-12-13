@@ -97,12 +97,16 @@ static DWORD LcmsFormatForOPImageFormat(OPImageFormat opalFormat, CGColorSpaceRe
   if (opalFormat.hasAlpha)
   {
     cmsFormat |= EXTRA_SH(1);
+    if (!opalFormat.isAlphaLast)
+      {
+        cmsFormat |= SWAPFIRST_SH(1);
+      }
   }
-  if (!opalFormat.isAlphaLast && opalFormat.hasAlpha)
+  if (opalFormat.needs32Swap)
   {
-    cmsFormat |= SWAPFIRST_SH(1);
+    cmsFormat |= DOSWAP_SH(1);
   }
-  
+
   cmsFormat |= COLORSPACE_SH(
       LcmsPixelTypeForCGColorSpaceModel(
         CGColorSpaceGetModel(colorSpace)
@@ -112,6 +116,80 @@ static DWORD LcmsFormatForOPImageFormat(OPImageFormat opalFormat, CGColorSpaceRe
   return cmsFormat;
 }
 
+static bool isAlphaLast(OPImageFormat opalFormat)
+{
+  if (opalFormat.needs32Swap)
+    {
+      return !opalFormat.isAlphaLast;
+    }
+  else
+    {
+      return opalFormat.isAlphaLast;
+    }
+}
+
+typedef struct {
+  cmsHTRANSFORM xform;
+  OPColorSpaceLCMS *aSourceSpace;
+  OPColorSpaceLCMS *aDestSpace;
+  int lcmsSrcFormat;
+  int lcmsDstFormat;
+  CGColorRenderingIntent anIntent;
+} cacheEntry;
+
+#define MAX_CACHE 10
+static cacheEntry transformCache[MAX_CACHE];
+static int usedTransforms = 0;
+
++ (cmsHTRANSFORM) getTransformForSourceSpace: (OPColorSpaceLCMS *)aSourceSpace
+               destinationSpace: (OPColorSpaceLCMS *)aDestSpace
+                   sourceFormat: (OPImageFormat)aSourceFormat
+              destinationFormat: (OPImageFormat)aDestFormat
+                renderingIntent: (CGColorRenderingIntent)anIntent
+{
+  const int lcmsIntent = LcmsIntentForCGColorRenderingIntent(anIntent);
+  int lcmsSrcFormat = LcmsFormatForOPImageFormat(aSourceFormat, aSourceSpace);
+  int lcmsDstFormat = LcmsFormatForOPImageFormat(aDestFormat, aDestSpace);
+  int i;
+  cmsHTRANSFORM xform;
+  cacheEntry entry;
+
+  for (i = 0; i < usedTransforms; i++)
+    {
+      entry = transformCache[i];
+      
+      if ((entry.anIntent == anIntent)
+          && (entry.lcmsSrcFormat == lcmsSrcFormat)
+          && (entry.lcmsDstFormat == lcmsDstFormat)
+          && [entry.aDestSpace isEqual: aDestSpace]
+          && [entry.aSourceSpace isEqual: aSourceSpace])
+        {
+          return entry.xform;
+        }
+    }
+
+  if (usedTransforms == MAX_CACHE)
+    {
+      cmsDeleteTransform(transformCache[usedTransforms].xform);
+      memcpy(transformCache, transformCache + 1, sizeof(cacheEntry) * (MAX_CACHE - 1));
+      usedTransforms--;
+    }
+
+  xform = cmsCreateTransform(aSourceSpace->profile, lcmsSrcFormat, 
+                             aDestSpace->profile, lcmsDstFormat,
+                             lcmsIntent, 0);
+  // FIXME: check for success
+  transformCache[usedTransforms].xform = xform;
+  transformCache[usedTransforms].aSourceSpace = aSourceSpace;
+  transformCache[usedTransforms].aDestSpace = aDestSpace;
+  transformCache[usedTransforms].lcmsSrcFormat = lcmsSrcFormat;
+  transformCache[usedTransforms].lcmsDstFormat = lcmsDstFormat;
+  transformCache[usedTransforms].anIntent = anIntent;
+  usedTransforms++;
+
+  return xform;
+} 
+
 - (id) initWithSourceSpace: (OPColorSpaceLCMS *)aSourceSpace
           destinationSpace: (OPColorSpaceLCMS *)aDestSpace
               sourceFormat: (OPImageFormat)aSourceFormat
@@ -120,17 +198,18 @@ static DWORD LcmsFormatForOPImageFormat(OPImageFormat opalFormat, CGColorSpaceRe
                 pixelCount: (size_t)aPixelCount
 {
   self = [super init];
+  if (!self)
+    {
+      return nil;
+    }
   ASSIGN(source, aSourceSpace);
   ASSIGN(dest, aDestSpace);
 
-  const int lcmsIntent = LcmsIntentForCGColorRenderingIntent(anIntent);
-  int lcmsSrcFormat = LcmsFormatForOPImageFormat(aSourceFormat, aSourceSpace);
-  int lcmsDstFormat = LcmsFormatForOPImageFormat(aDestFormat, aDestSpace);
-
-  self->xform = cmsCreateTransform(aSourceSpace->profile, lcmsSrcFormat, 
-                                   aDestSpace->profile, lcmsDstFormat,
-                                   lcmsIntent, 0);
-  // FIXME: check for success
+  self->xform = [OPColorTransformLCMS getTransformForSourceSpace: aSourceSpace
+                                                destinationSpace: aDestSpace
+                                                    sourceFormat: aSourceFormat
+                                               destinationFormat: aDestFormat
+                                                 renderingIntent: anIntent];
 
   self->renderingIntent = anIntent;
   self->sourceFormat = aSourceFormat;
@@ -159,7 +238,12 @@ static DWORD LcmsFormatForOPImageFormat(OPImageFormat opalFormat, CGColorSpaceRe
 
 - (void) dealloc
 {
-  cmsDeleteTransform(self->xform);
+  /*
+  if (self->xform != NULL)
+    {
+      cmsDeleteTransform(self->xform);
+    }
+  */
   [source release];
   [dest release];
   if (tempBuffer1)
@@ -182,52 +266,52 @@ static DWORD LcmsFormatForOPImageFormat(OPImageFormat opalFormat, CGColorSpaceRe
   const size_t totalComponentsOut = destFormat.colorComponents + (destFormat.hasAlpha ? 1 : 0);
 
   const bool destIntermediateIs16bpc = (destFormat.compFormat == kOPComponentFormatFloat32bpc
-      	|| destFormat.compFormat == kOPComponentFormat32bpc
-	      || destFormat.compFormat == kOPComponentFormat16bpc);
+                                        || destFormat.compFormat == kOPComponentFormat32bpc
+                                        || destFormat.compFormat == kOPComponentFormat16bpc);
 
-	const bool sourceIntermediateIs16bpc = (sourceFormat.compFormat == kOPComponentFormatFloat32bpc
-      	|| sourceFormat.compFormat == kOPComponentFormat32bpc
-	      || sourceFormat.compFormat == kOPComponentFormat16bpc);
+  const bool sourceIntermediateIs16bpc = (sourceFormat.compFormat == kOPComponentFormatFloat32bpc
+                                          || sourceFormat.compFormat == kOPComponentFormat32bpc
+                                          || sourceFormat.compFormat == kOPComponentFormat16bpc);
 
   //NSLog(@"Transform %d pixels %d comps in %d out", pixelCount, totalComponentsIn, totalComponentsOut);
 
   // Special case for kOPComponentFormatFloat32bpc, which LCMS 1 doesn't support directly
-	// Copy to temp input buffer
+  // Copy to temp input buffer
   if (sourceFormat.compFormat == kOPComponentFormatFloat32bpc)
-  {
-    for (size_t i=0; i<pixelCount; i++)
     {
-      for (size_t j=0; j<totalComponentsIn; j++)
-      {
-        ((uint16_t*)tempBuffer1)[i*totalComponentsIn + j] = UINT16_MAX * ((float*)input)[i*totalComponentsIn + j];
-        //NSLog(@"Input comp: %f => %d", (float)((float*)input)[i*totalComponentsIn + j],(int)((uint16_t*)tempBuffer1)[i*totalComponentsIn + j]);
-        if ( (float)((float*)input)[i*totalComponentsIn + j] > 1) 
-          {
-            NSLog(@"%s: overflow", __PRETTY_FUNCTION__);
-          }
-      }
+      for (size_t i = 0; i < pixelCount; i++)
+        {
+          for (size_t j = 0; j < totalComponentsIn; j++)
+            {
+              ((uint16_t*)tempBuffer1)[i*totalComponentsIn + j] = UINT16_MAX * ((float*)input)[i*totalComponentsIn + j];
+              //NSLog(@"Input comp: %f => %d", (float)((float*)input)[i*totalComponentsIn + j],(int)((uint16_t*)tempBuffer1)[i*totalComponentsIn + j]);
+              if ((float)((float*)input)[i*totalComponentsIn + j] > 1) 
+                {
+                  NSLog(@"%s: overflow", __PRETTY_FUNCTION__);
+                }
+            }
+        }
+      input = (const unsigned char *)tempBuffer1;
     }
-    input = (const unsigned char *)tempBuffer1;
-  }
   else if (sourceFormat.compFormat == kOPComponentFormat32bpc)
-  {
-    for (size_t i=0; i<pixelCount; i++)
     {
-      for (size_t j=0; j<totalComponentsIn; j++)
-      {
-        ((uint16_t*)tempBuffer1)[i*totalComponentsIn + j] = ((uint32_t*)input)[i*totalComponentsIn + j] >> 16;
-      }
-    }
-    input = tempBuffer1;
+      for (size_t i = 0; i < pixelCount; i++)
+        {
+          for (size_t j = 0; j < totalComponentsIn; j++)
+            {
+              ((uint16_t*)tempBuffer1)[i*totalComponentsIn + j] = ((uint32_t*)input)[i*totalComponentsIn + j] >> 16;
+            }
+        }
+      input = tempBuffer1;
   }
 
   // Special case: if outputting kOPComponentFormatFloat32bpc, we get LCMS
   // to convert to uint32, then manually convert that to float
   if (destFormat.compFormat == kOPComponentFormatFloat32bpc
       || destFormat.compFormat == kOPComponentFormat32bpc)
-  {
-    tempOutput = tempBuffer2;
-  }
+    {
+      tempOutput = tempBuffer2;
+    }
 
   // Unpremultiply alpha in input
   if (sourceFormat.isAlphaPremultiplied)
@@ -251,23 +335,33 @@ static DWORD LcmsFormatForOPImageFormat(OPImageFormat opalFormat, CGColorSpaceRe
   // generate a output alpha channel of alpha=100% if necessary
 
   if (!sourceFormat.hasAlpha && destFormat.hasAlpha)
-	{
-		size_t destIntermediateBytesPerComponent = (destIntermediateIs16bpc ? 2 : 1);
-		size_t destIntermediateTotalComponentsPerPixel = (destFormat.colorComponents + (destFormat.hasAlpha ? 1 : 0));
-		size_t destIntermediateBytesPerRow = pixelCount * destIntermediateTotalComponentsPerPixel * destIntermediateBytesPerComponent;
-		memset(tempOutput, 0xff, destIntermediateBytesPerRow);
-  }
+    {
+      size_t destIntermediateBytesPerComponent = (destIntermediateIs16bpc ? 2 : 1);
+      size_t destIntermediateTotalComponentsPerPixel = (destFormat.colorComponents + (destFormat.hasAlpha ? 1 : 0));
+      size_t destIntermediateBytesPerRow = pixelCount * destIntermediateTotalComponentsPerPixel * destIntermediateBytesPerComponent;
+      memset(tempOutput, 0xff, destIntermediateBytesPerRow);
+    }
  
   // get LCMS to do the main conversion of the color channels
-    
-  cmsDoTransform(xform, (void*)input, tempOutput, pixelCount);
+
+  if (xform != NULL)
+    {
+      cmsDoTransform(xform, (void*)input, tempOutput, pixelCount);
+    }
+  else
+    {
+      size_t destIntermediateBytesPerComponent = (destIntermediateIs16bpc ? 2 : 1);
+      size_t destIntermediateTotalComponentsPerPixel = (destFormat.colorComponents + (destFormat.hasAlpha ? 1 : 0));
+      size_t destIntermediateBytesPerRow = pixelCount * destIntermediateTotalComponentsPerPixel * destIntermediateBytesPerComponent;
+      memcpy(tempOutput, input, destIntermediateBytesPerRow);
+    }
  
   // copy alpha from source to dest if necessary
 
 	if (sourceFormat.hasAlpha && destFormat.hasAlpha)
 	{ 
-    const size_t sourceAlphaCompIndex = (sourceFormat.isAlphaLast ? sourceFormat.colorComponents : 0);
-    const size_t destAlphaCompIndex = (destFormat.isAlphaLast ? destFormat.colorComponents : 0);
+          const size_t sourceAlphaCompIndex = (isAlphaLast(sourceFormat) ? sourceFormat.colorComponents : 0);
+          const size_t destAlphaCompIndex = (isAlphaLast(destFormat) ? destFormat.colorComponents : 0);
     
 		if (sourceIntermediateIs16bpc && destIntermediateIs16bpc)  /* 16 bit -> 16 bit */
 	    for (size_t i=0; i<pixelCount; i++)
