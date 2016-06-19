@@ -24,6 +24,7 @@
 
 #include "CoreGraphics/CGBitmapContext.h"
 #include "CGContext-private.h" 
+#include "CGImage-private.h"
 
 #import "OPImageConversion.h"
 
@@ -436,7 +437,7 @@ CGImageRef CGBitmapContextCreateImage(CGContextRef ctx)
       kCGRenderingIntentDefault
     );
     
-    //img->surf = cairo_get_target(ctx->ct);
+    img->surf = cairo_surface_reference(cairo_get_target(ctx->ct));
     CGDataProviderRelease(dp);
     OPRESTORELOGGING()
     return img;

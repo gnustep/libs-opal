@@ -24,7 +24,8 @@
 
 #include "CoreGraphics/CGImage.h"
 #include "CoreGraphics/CGImageSource.h"
-#include "CGDataProvider-private.h"
+//#include "CGDataProvider-private.h"
+#include "CGImage-private.h"
 #import <Foundation/NSString.h>
 #import <Foundation/NSDictionary.h>
 #include <stdlib.h>
@@ -45,29 +46,6 @@ void DumpPixel(const void *data, NSString *msg)
         (int)(((unsigned char*)data)[2]),
         (int)(((unsigned char*)data)[3]));
 }
-
-@interface CGImage : NSObject
-{
-@public
-  bool ismask;
-  size_t width;
-  size_t height;
-  size_t bitsPerComponent;
-  size_t bitsPerPixel;
-  size_t bytesPerRow;
-  CGDataProviderRef dp;
-  CGFloat *decode;
-  bool shouldInterpolate;
-  /* alphaInfo is always AlphaNone for mask */
-  CGBitmapInfo bitmapInfo;
-  /* cspace and intent are only set for image */
-  CGColorSpaceRef cspace;
-  CGColorRenderingIntent intent;
-  /* used for CGImageCreateWithImageInRect */
-  CGRect crop;
-  cairo_surface_t *surf;
-}
-@end
 
 @implementation CGImage
 
@@ -294,9 +272,10 @@ CGImageRef CGImageCreateWithImageInRect(
   rect = CGRectIntersection(rect, CGRectMake(0, 0, image->width, image->height));
   new->crop = rect;
 
-  // TODO: Implement data provider to crop the data from the source image
-  // TODO: Share underlying cairo surface!
-  new->surf = image->surf;
+  if (image->surf)
+  {
+    new->surf = cairo_surface_reference(image->surf);
+  }
 
   return new;
 }
