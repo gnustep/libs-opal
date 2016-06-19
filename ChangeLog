@@ -1,5 +1,12 @@
 2016-06-19  Fred Kiefer <FredKiefer@gmx.de>
 
+	* Source/GNUmakefile
+	Make this a library with resources.
+	* Source/OpalGraphics/OPColorSpaceLCMS.m
+	Load colour profile via library bundle.
+
+2016-06-19  Fred Kiefer <FredKiefer@gmx.de>
+
 	* Source/OpalGraphics/CGImage-private.h
 	Add private header file.
 	* Source/OpalGraphics/CGImage.m

@@ -74,10 +74,15 @@ static OPColorSpaceLCMS *colorSpaceGenericGrayGamma2_2;
 {
   if (nil == colorSpaceGenericCMYK)
   {
-    NSString *path = [[NSBundle bundleForClass: [self class]]
+    NSString *path = [[NSBundle bundleForLibrary: @"opal"]
                         pathForResource: @"coated_FOGRA39L_argl"
                                  ofType: @"icc"];
     NSData *data = [NSData dataWithContentsOfFile: path];
+    if (data == nil)
+      {
+        NSLog(@"Failed to load colour profile from file %@", path);
+        return nil;
+      }
     colorSpaceGenericCMYK = [[OPColorSpaceLCMS alloc] initWithICCProfile: data];
   }
   return colorSpaceGenericCMYK;

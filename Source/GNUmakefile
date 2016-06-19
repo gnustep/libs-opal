@@ -32,6 +32,9 @@ LIBRARIES_DEPEND_UPON += $(shell pkg-config --libs lcms)
 LIBRARIES_DEPEND_UPON += $(shell pkg-config --libs libpng)
 LIBRARIES_DEPEND_UPON += -ljpeg -ltiff
 
+libopal_HAS_RESOURCE_BUNDLE = yes
+libopal_RESOURCE_FILES = ../Resources/coated_FOGRA39L_argl.icc
+
 -include GNUmakefile.preamble
 include $(GNUSTEP_MAKEFILES)/aggregate.make
 include $(GNUSTEP_MAKEFILES)/library.make
