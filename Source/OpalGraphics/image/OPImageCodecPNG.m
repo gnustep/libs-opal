@@ -406,7 +406,11 @@ static bool opal_has_png_header(CGDataProviderRef dp)
     const CGColorSpaceRef dstColorSpace = [CGColorSpaceCreateDeviceRGB() autorelease];
 
     // init structures
+#if PNG_LIBPNG_VER < 10500
+    // I don't think this was ever needed as png_create_info_struct()
+    // sets up the structure correctly and we rely on that in all other places.
     png_info_init_3(&png_info, png_sizeof(png_info));
+#endif
     png_set_write_fn(png_struct, dc, opal_png_writer_func, NULL);
     png_set_IHDR(png_struct, png_info, srcWidth, srcHeight, 8,
      PNG_COLOR_TYPE_RGB_ALPHA, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT,
