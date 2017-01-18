@@ -1,3 +1,10 @@
+2017-01-18  Fred Kiefer <FredKiefer@gmx.de>
+
+	* Source/OpalGraphics/CGContext.m: Protect against incorrect dash count.
+	* Source/OpalGraphics/cairo/CairoFontX11.m: Correct sign of descender.
+	* Source/OpalGraphics/image/OPImageCodecPNG.m: Prepare for newer
+	libpng versions.
+
 2016-06-19  Fred Kiefer <FredKiefer@gmx.de>
 
 	* Source/GNUmakefile

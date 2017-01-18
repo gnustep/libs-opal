@@ -305,8 +305,8 @@ static FcPattern *opal_FcPatternCacheLookup(const char *name)
 - (int) descent;
 {
   FT_Face ft_face = cairo_ft_scaled_font_lock_face(self->cairofont);
-  int result = ft_face->descender;
-  
+  int result = -ft_face->descender;
+
   cairo_ft_scaled_font_unlock_face(self->cairofont);
   return result;
 }
@@ -366,7 +366,7 @@ static FcPattern *opal_FcPatternCacheLookup(const char *name)
   // see http://www.typophile.com/node/13081
   int result =  ft_face->height - ft_face->ascender + 
     ft_face->descender;
-    
+
   cairo_ft_scaled_font_unlock_face(self->cairofont);
   return result;
 }

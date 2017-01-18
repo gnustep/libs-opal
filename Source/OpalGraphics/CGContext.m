@@ -412,12 +412,19 @@ void CGContextSetLineDash(
   size_t count)
 {
   OPLOGCALL("ctx /*%p*/, %g, <lengths>, %d", ctx, phase, count)
+  if (!lengths && count != 0)
+    {
+      NSLog(@"%s: null 'lengths' passed with count %d. Fixing by setting count to 0.", lengths, (int)count);
+      count = 0;
+    }
 
   double dashes[count]; /* C99 allows this */
   size_t i;
 
   for (i=0; i<count; i++)
-    dashes[i] = lengths[i];
+    {
+      dashes[i] = lengths[i];
+    }
 
   cairo_set_dash(ctx->ct, dashes, count, phase);
   OPRESTORELOGGING()
@@ -426,13 +433,13 @@ void CGContextSetLineDash(
 void CGContextSetFlatness(CGContextRef ctx, CGFloat flatness)
 {
   OPLOGCALL("ctx /*%p*/, %g", ctx, flatness)
-  cairo_set_tolerance(ctx->ct, flatness);
+  cairo_set_tolerance(ctx->ct, flatness / 2);
   OPRESTORELOGGING()
 }
 
 CGInterpolationQuality CGContextGetInterpolationQuality(CGContextRef ctx)
 {
-	return 0;
+  return 0;
 }
 
 void CGContextSetInterpolationQuality(
