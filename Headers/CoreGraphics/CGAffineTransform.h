@@ -42,7 +42,7 @@ typedef struct CGAffineTransform
 
 /* Constants */
 
-const CGAffineTransform CGAffineTransformIdentity;
+extern const CGAffineTransform CGAffineTransformIdentity;
 
 /* Functions */
 
