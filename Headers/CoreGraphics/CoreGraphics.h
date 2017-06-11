@@ -29,6 +29,7 @@
 #include <CoreGraphics/CGBitmapContext.h>
 #include <CoreGraphics/CGColor.h>
 #include <CoreGraphics/CGColorSpace.h>
+#include <CoreGraphics/CGError.h>
 #include <CoreGraphics/CGContext.h>
 #include <CoreGraphics/CGDataConsumer.h>
 #include <CoreGraphics/CGDataProvider.h>
