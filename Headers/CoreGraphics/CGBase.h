@@ -33,13 +33,8 @@
 #include <sys/types.h>
 
 // Note: GNUstep Foundation defines CGFloat
-
 #import <Foundation/Foundation.h>
 #import <CoreFoundation/CoreFoundation.h>
-
-#endif
-
-#ifndef OPAL_CGBase_h
 
 #ifndef MAX
 #define MAX(a,b) ((a)>(b)?(a):(b))
@@ -47,118 +42,6 @@
 
 #ifndef MIN
 #define MIN(a,b) ((a)<(b)?(a):(b))
-#endif
- 
-/* Typedefs for CoreFoundation types */
-
-typedef signed long CFIndex;
-typedef unsigned long CFTypeID;
-typedef NSRange CFRange;
-typedef NSComparisonResult CFComparisonResult;
-
-#ifdef __OBJC__
-@class NSObject;
-typedef NSObject *CFTypeRef;
-#else
-typedef struct NSObject * CFTypeRef;
-#endif
-
-#ifdef __OBJC__
-@class NSString;
-@class NSMutableString;
-typedef NSString* CFStringRef;
-typedef NSMutableString* CFMutableStringRef;
-#else
-typedef const struct __CFString * CFStringRef;
-typedef struct __CFString * CFMutableStringRef;
-#endif
-
-#ifdef __OBJC__
-@class NSAttributedString;
-@class NSMutableAttributedString;
-typedef NSAttributedString* CFAttributedStringRef;
-typedef NSMutableAttributedString* CFMutableAttributedStringRef;
-#else
-typedef struct CFAttributedString * CFAttributedStringRef;
-typedef struct CFMutableAttributedString * CFMutableAttributedStringRef;
-#endif
-
-#ifdef __OBJC__
-@class NSArray;
-@class NSMutableArray;
-typedef NSArray* CFArrayRef;
-typedef NSMutableArray* CFMutableArrayRef;
-#else
-typedef struct CFArray *CFArrayRef;
-typedef struct CFArray *CFMutableArrayRef;
-#endif
-
-#ifdef __OBJC__
-@class NSCharacterSet;
-typedef NSCharacterSet* CFCharacterSetRef;
-#else
-typedef struct CFCharacterSet * CFCharacterSetRef;
-#endif
-
-#ifdef __OBJC__
-@class NSData;
-@class NSMutableData;
-typedef NSData* CFDataRef;
-typedef NSMutableData* CFMutableDataRef;
-#else
-typedef struct CFData *CFDataRef;
-typedef struct CFMutableData *CFMutableDataRef;
-#endif
-
-#ifdef __OBJC__
-@class NSDate;
-@class NSTimeZone;
-typedef NSDate* CFDateRef;
-typedef NSTimeZone* CFTimeZoneRef;
-#else
-typedef struct CFDate *CFDateRef;
-typedef struct CFTimeZone *CFTimeZoneRef;
-#endif
-
-#ifdef __OBJC__
-@class NSDictionary;
-@class NSMutableDictionary;
-typedef NSDictionary* CFDictionaryRef;
-typedef NSMutableDictionary* CFMutableDictionaryRef;
-#else
-typedef struct CFDictionary * CFDictionaryRef;
-typedef struct CFMutableDictionary * CFMutableDictionaryRef;
-#endif
-
-#ifdef __OBJC__
-@class NSError;
-typedef NSError* CFErrorRef;
-#else
-typedef struct CFError *CFErrorRef;
-#endif
-
-#ifdef __OBJC__
-@class NSNumber;
-typedef NSNumber* CFNumberRef;
-#else
-typedef struct NSNumber * CFNumberRef;
-#endif
-
-#ifdef __OBJC__
-@class NSSet;
-@class NSMutableSet;
-typedef NSSet* CFSetRef;
-typedef NSMutableSet* CFMutableSetRef;
-#else
-typedef struct CFSet * CFSetRef;
-typedef struct CFMutableSet * CFMutableSetRef;
-#endif
-
-#ifdef __OBJC__
-@class NSURL;
-typedef NSURL *CFURLRef;
-#else
-typedef struct CFURL *CFURLRef;
 #endif
 
 #endif /* OPAL_CGBase_h */
