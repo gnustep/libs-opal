@@ -32,9 +32,65 @@
 // for off_t
 #include <sys/types.h>
 
-// Note: GNUstep Foundation defines CGFloat
-#import <Foundation/Foundation.h>
 #import <CoreFoundation/CoreFoundation.h>
+
+// Note: GNUstep Foundation defines CGFloat
+#ifdef __OBJC__
+#import <Foundation/Foundation.h>
+#else
+
+#ifndef CGFLOAT_DEFINED
+#define CGFLOAT_DEFINED 1
+
+#if INTPTR_MAX == INT64_MAX
+#define CGFLOAT_TYPE double
+#define CGFLOAT_IS_DOUBLE 1
+#define CGFLOAT_MIN DBL_MIN
+#define CGFLOAT_MAX DBL_MAX
+#else
+#define CGFLOAT_TYPE float
+#define CGFLOAT_IS_DOUBLE 0
+#define CGFLOAT_MIN FLT_MIN
+#define CGFLOAT_MAX FLT_MAX
+#endif
+	
+typedef CGFLOAT_TYPE CGFloat;
+#endif // CGFLOAT_DEFINED
+
+typedef uintptr_t NSUInteger;
+
+typedef struct _NSRange NSRange;
+struct _NSRange
+{
+  NSUInteger location;
+  NSUInteger length;
+};
+
+typedef struct _NSPoint NSPoint;
+struct _NSPoint
+{
+  CGFloat x;
+  CGFloat y;
+};
+
+typedef struct _NSSize NSSize;
+struct _NSSize
+{
+  CGFloat width;
+  CGFloat height;
+};
+
+typedef struct _NSRect NSRect;
+struct _NSRect
+{
+  NSPoint origin;
+  NSSize size;
+};
+
+typedef uint16_t unichar;
+typedef NSUInteger NSStringEncoding;
+
+#endif // __OBJC__
 
 #ifndef MAX
 #define MAX(a,b) ((a)>(b)?(a):(b))
