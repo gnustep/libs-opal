@@ -25,7 +25,9 @@
 #ifndef OPAL_CGColorSpace_h
 #define OPAL_CGColorSpace_h
 
+#ifdef __OBJC__
 #import <Foundation/NSObject.h>
+#endif
 
 /* Data Types */
 
