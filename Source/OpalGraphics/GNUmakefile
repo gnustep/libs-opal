@@ -17,6 +17,7 @@ $(SUBPROJECT_NAME)_HEADER_FILES = \
 	CGColor.h \
 	CGColorSpace.h \
 	CGContext.h \
+	CGError.h \
 	CGDataConsumer.h \
 	CGDataProvider.h \
 	CGFont.h \
