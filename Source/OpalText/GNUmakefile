@@ -31,7 +31,7 @@ $(SUBPROJECT_NAME)_HEADER_FILES = \
 	CTTextTab.h\
 	CTTypesetter.h
 
-ADDITIONAL_OBJCFLAGS += -Wall -g -O0 -std=gnu99
+ADDITIONAL_OBJCFLAGS += -Wall -g -O0 -std=gnu99 -DINTERNAL_BUILD_OBJC
 ADDITIONAL_CPPFLAGS += $(shell pkg-config --cflags cairo)
 ADDITIONAL_CPPFLAGS += $(shell pkg-config --cflags lcms)
 

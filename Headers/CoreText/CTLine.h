@@ -32,7 +32,7 @@
 #include <CoreText/CTRun.h>
 /* Data Types */
 
-#ifdef __OBJC__
+#ifdef INTERNAL_BUILD_OBJC
 @class CTLine;
 typedef CTLine* CTLineRef;
 #else

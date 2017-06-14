@@ -30,7 +30,7 @@
 
 /* Data Types */
 
-#ifdef __OBJC__
+#ifdef INTERNAL_BUILD_OBJC
 @class CTTextTab;
 typedef CTTextTab* CTTextTabRef;
 #else

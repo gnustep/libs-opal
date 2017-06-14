@@ -29,7 +29,7 @@
 
 /* Data Types */
 
-#ifdef __OBJC__
+#ifdef INTERNAL_BUILD_OBJC
 @class CTParagraphStyle;
 typedef CTParagraphStyle* CTParagraphStyleRef;
 #else

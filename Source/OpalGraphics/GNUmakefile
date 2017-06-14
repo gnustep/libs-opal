@@ -47,7 +47,7 @@ $(SUBPROJECT_NAME)_HEADER_FILES = \
 	CGEvent.h \
 	CGEventType.h \
 
-ADDITIONAL_OBJCFLAGS += -Wall -g -O0 -std=gnu99
+ADDITIONAL_OBJCFLAGS += -Wall -g -O0 -std=gnu99 -DINTERNAL_BUILD_OBJC
 ADDITIONAL_CPPFLAGS += $(shell pkg-config --cflags cairo)
 ADDITIONAL_CPPFLAGS += $(shell pkg-config --cflags lcms)
 

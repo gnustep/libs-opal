@@ -33,7 +33,7 @@ extern const CFStringRef kCGImageDestinationBackgroundColor;
 
 /* Data Types */
 
-#ifdef __OBJC__
+#ifdef INTERNAL_BUILD_OBJC
 @class CGImageDestination;
 typedef CGImageDestination* CGImageDestinationRef;
 #else

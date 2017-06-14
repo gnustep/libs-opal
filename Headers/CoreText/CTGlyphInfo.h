@@ -31,7 +31,7 @@
 
 /* Data Types */
 
-#ifdef __OBJC__
+#ifdef INTERNAL_BUILD_OBJC
 @class CTGlyphInfo;
 typedef CTGlyphInfo* CTGlyphInfoRef;
 #else

@@ -27,7 +27,7 @@
 
 /* Data Types */
 
-#ifdef __OBJC__
+#ifdef INTERNAL_BUILD_OBJC
 @class CGFunction;
 typedef CGFunction* CGFunctionRef;
 #else

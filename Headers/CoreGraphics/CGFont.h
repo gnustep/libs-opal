@@ -27,7 +27,7 @@
 
 /* Data Types */
 
-#ifdef __OBJC__
+#ifdef INTERNAL_BUILD_OBJC
 @class CGFont;
 typedef CGFont* CGFontRef;
 #else
