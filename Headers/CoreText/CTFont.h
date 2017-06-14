@@ -33,7 +33,7 @@
 
 /* Data Types */
 
-#ifdef __OBJC__
+#ifdef INTERNAL_BUILD_OBJC
 @class OPFont;
 typedef OPFont* CTFontRef;
 #else

@@ -33,7 +33,7 @@
 
 /* Data Types */
 
-#ifdef __OBJC__
+#ifdef INTERNAL_BUILD_OBJC
 @class CTFramesetter;
 typedef CTFramesetter* CTFramesetterRef;
 #else

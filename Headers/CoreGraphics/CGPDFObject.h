@@ -34,7 +34,7 @@ typedef long int CGPDFInteger;
 
 typedef CGFloat CGPDFReal;
 
-#ifdef __OBJC__
+#ifdef INTERNAL_BUILD_OBJC
 @class CGPDFObject;
 typedef CGPDFObject* CGPDFObjectRef;
 #else

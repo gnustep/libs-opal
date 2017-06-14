@@ -26,7 +26,7 @@
 
 /* Data Types */
 
-#ifdef __OBJC__
+#ifdef INTERNAL_BUILD_OBJC
 @class CGPDFString;
 typedef CGPDFString* CGPDFStringRef;
 #else

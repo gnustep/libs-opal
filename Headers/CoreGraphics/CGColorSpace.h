@@ -25,13 +25,13 @@
 #ifndef OPAL_CGColorSpace_h
 #define OPAL_CGColorSpace_h
 
-#ifdef __OBJC__
+#ifdef INTERNAL_BUILD_OBJC
 #import <Foundation/NSObject.h>
 #endif
 
 /* Data Types */
 
-#ifdef __OBJC__
+#ifdef INTERNAL_BUILD_OBJC
 @protocol CGColorSpace;
 typedef id <CGColorSpace, NSObject>CGColorSpaceRef;
 #else

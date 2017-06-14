@@ -32,7 +32,7 @@
 
 /* Data Types */
 
-#ifdef __OBJC__
+#ifdef INTERNAL_BUILD_OBJC
 @class CTRun;
 typedef CTRun* CTRunRef;
 #else
