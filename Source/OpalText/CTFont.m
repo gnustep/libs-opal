@@ -63,6 +63,9 @@ const CFStringRef kCTFontFeatureSelectorNameKey = @"kCTFontFeatureSelectorNameKe
 const CFStringRef kCTFontFeatureSelectorDefaultKey = @"kCTFontFeatureSelectorDefaultKey";
 const CFStringRef kCTFontFeatureSelectorSettingKey = @"kCTFontFeatureSelectorSettingKey";
 
+const CFStringRef kCTFontOpenTypeFeatureTag = (CFStringRef)@"kCTFontOpenTypeFeatureTag";
+const CFStringRef kCTFontOpenTypeFeatureValue = (CFStringRef)@"kCTFontOpenTypeFeatureValue";
+
 /* Classes */
 
 
@@ -533,3 +536,19 @@ CFTypeID CTFontGetTypeID()
   return (CFTypeID)[OPFont class];
 }
 
+void CTFontDrawGlyphs(
+  CTFontRef font,
+  const CGGlyph glyphs[],
+  const CGPoint positions[],
+  size_t count,
+  CGContextRef context)
+{
+  return;
+}
+
+CTFontDescriptorRef CTFontManagerCreateFontDescriptorFromData(
+  CFDataRef data)
+{
+  // FIXME: unimplemented
+  return NULL;
+}

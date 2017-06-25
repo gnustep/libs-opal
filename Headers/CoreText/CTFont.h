@@ -469,9 +469,22 @@ CFStringRef CTFontCopyFamilyName(CTFontRef font);
 
 CFStringRef CTFontCopyFullName(CTFontRef font);
 
+void CTFontDrawGlyphs(
+  CTFontRef font,
+  const CGGlyph glyphs[],
+  const CGPoint positions[],
+  size_t count,
+  CGContextRef context);
+
+extern const CFStringRef kCTFontOpenTypeFeatureTag;
+extern const CFStringRef kCTFontOpenTypeFeatureValue;
+
 /* CFTypeID */
 
 CFTypeID CTFontGetTypeID();
+
+CTFontDescriptorRef CTFontManagerCreateFontDescriptorFromData(
+  CFDataRef data);
 
 #ifdef __cplusplus
 }
