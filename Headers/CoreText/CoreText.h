@@ -40,5 +40,6 @@
 #include <CoreText/CTStringAttributes.h>
 #include <CoreText/CTTextTab.h>
 #include <CoreText/CTTypesetter.h>
+#include <CoreText/SFNTLayoutTypes.h>
 
 #endif
