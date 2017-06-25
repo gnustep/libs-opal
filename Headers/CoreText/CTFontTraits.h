@@ -43,14 +43,28 @@ enum {
 };
 
 enum {
-  kCTFontItalicTrait = (1 << 0),
-  kCTFontBoldTrait = (1 << 1),
-  kCTFontExpandedTrait = (1 << 5),
-  kCTFontCondensedTrait = (1 << 6),
-  kCTFontMonoSpaceTrait = (1 << 10),
-  kCTFontVerticalTrait = (1 << 11),
-  kCTFontUIOptimizedTrait = (1 << 12),
-  kCTFontClassMaskTrait = (15 << 28)
+  kCTFontTraitItalic = (1 << 0),
+  kCTFontTraitBold = (1 << 1),
+  kCTFontTraitExpanded = (1 << 5),
+  kCTFontTraitCondensed = (1 << 6),
+  kCTFontTraitMonoSpace = (1 << 10),
+  kCTFontTraitVertical = (1 << 11),
+  kCTFontTraitUIOptimized = (1 << 12),
+  kCTFontTraitColorGlyphs = (1 << 13),
+  kCTFontTraitComposite = (1 << 14),
+
+  kCTFontTraitClassMask = (15U << kCTFontClassMaskShift),
+
+  kCTFontItalicTrait = kCTFontTraitItalic,
+  kCTFontBoldTrait = kCTFontTraitBold,
+  kCTFontExpandedTrait = kCTFontTraitExpanded,
+  kCTFontCondensedTrait = kCTFontTraitCondensed,
+  kCTFontMonoSpaceTrait = kCTFontTraitMonoSpace,
+  kCTFontVerticalTrait = kCTFontTraitVertical,
+  kCTFontUIOptimizedTrait = kCTFontTraitUIOptimized,
+  kCTFontColorGlyphsTrait = kCTFontTraitColorGlyphs,
+  kCTFontCompositeTrait = kCTFontTraitComposite,
+  kCTFontClassMaskTrait = kCTFontTraitClassMask
 };
 typedef int CTFontSymbolicTraits;
 
