@@ -1,3 +1,91 @@
+2017-06-30  Daniel Ferreira <dtf@stanford.edu>
+
+	* Headers/CoreGraphics/CGColor.h
+	* Headers/CoreGraphics/CGColorSpace.h
+	* Headers/CoreGraphics/CGContext.h
+	* Headers/CoreGraphics/CGDataConsumer.h
+	* Headers/CoreGraphics/CGDataProvider.h
+	* Headers/CoreGraphics/CGFont.h
+	* Headers/CoreGraphics/CGFunction.h
+	* Headers/CoreGraphics/CGGradient.h
+	* Headers/CoreGraphics/CGImage.h
+	* Headers/CoreGraphics/CGImageDestination.h
+	* Headers/CoreGraphics/CGImageSource.h
+	* Headers/CoreGraphics/CGLayer.h
+	* Headers/CoreGraphics/CGPDFArray.h
+	* Headers/CoreGraphics/CGPDFContentStream.h
+	* Headers/CoreGraphics/CGPDFDictionary.h
+	* Headers/CoreGraphics/CGPDFDocument.h
+	* Headers/CoreGraphics/CGPDFObject.h
+	* Headers/CoreGraphics/CGPDFOperatorTable.h
+	* Headers/CoreGraphics/CGPDFPage.h
+	* Headers/CoreGraphics/CGPDFScanner.h
+	* Headers/CoreGraphics/CGPDFStream.h
+	* Headers/CoreGraphics/CGPDFString.h
+	* Headers/CoreGraphics/CGPSConverter.h
+	* Headers/CoreGraphics/CGPath.h
+	* Headers/CoreGraphics/CGPattern.h
+	* Headers/CoreGraphics/CGShading.h
+	* Headers/CoreText/CTFont.h
+	* Headers/CoreText/CTFontCollection.h
+	* Headers/CoreText/CTFontDescriptor.h
+	* Headers/CoreText/CTFrame.h
+	* Headers/CoreText/CTFramesetter.h
+	* Headers/CoreText/CTGlyphInfo.h
+	* Headers/CoreText/CTLine.h
+	* Headers/CoreText/CTParagraphStyle.h
+	* Headers/CoreText/CTRun.h
+	* Headers/CoreText/CTTextTab.h
+	* Headers/CoreText/CTTypesetter.h:
+	As per 083ef1d802d86db333fa40afeebaea7605737953 ("Opal: remove
+	unnecessary casts", 2010-07-13), we have added @class
+	forward-declarations for every internal Objective-C class that helps
+	implement the CoreGraphics C API. This avoided the need for many casts
+	inside the project, but caused conflicts when these headers were
+	imported by other projects.
+	Now, we guard against making this declaration in public headers unless
+	we are actually building Opal.
+
+	* Source/OpalGraphics/GNUmakefile
+	* Source/OpalText/GNUmakefile:	
+	Add a macro to determine whether we are building Opal.
+
+
+2017-06-14  Daniel Ferreira <dtf@stanford.edu>
+
+	* .gitignore:	
+	Create a .gitignore file which causes Git to ignore products of the
+	project (usually in obj/ folders) and avoids mistakenly adding them to
+	the soruce tree.
+
+2017-06-11  Daniel Ferreira <dtf@stanford.edu>
+
+	* Headers/CoreGraphics/CGAffineTransform.h:	
+	The lack of an `extern` directive on CGAffineTransformIdentity's
+	declaration caused the compilation of C++ files that imported this
+	header to fail. This commit amends the issue.
+
+	* Headers/CoreGraphics/CGBase.h
+	* Headers/CoreGraphics/CGColorSpace.h:	
+	Despite the numerous __OBJC__ guards on CoreGraphics headers to attempt
+	independency from Objective-C, Opal headers would still break any
+	project that tried to build non-ObjC files that included CoreGraphics
+	headers. We amend this issue here.
+
+	* Headers/CoreGraphics/CGBase.h:	
+	To get rid of a CoreBase dependency in Opal, all CF types used by the
+	project were redefined in CGBase.h in r31020. However, this added the
+	setback that any project that includes CoreBase *after* including
+	CoreGraphics would have its build broken due to redefinitions, which is
+	highly undesirable. We amend this issue here.
+
+	* Headers/CoreGraphics/CGError.h
+	* Headers/CoreGraphics/CoreGraphics.h
+	* Source/OpalGraphics/GNUmakefile:	
+	QuartzCore provides a CGError enum for tracking errors returned by the
+	library, which we did not yet supply. This commit creates this
+	definition for compatibility purposes.
+
 2017-01-18  Fred Kiefer <FredKiefer@gmx.de>
 
 	* Source/OpalGraphics/CGContext.m: Protect against incorrect dash count.
