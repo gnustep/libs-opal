@@ -53,6 +53,16 @@ enum {
 };
 typedef int CTLineTruncationType;
 
+typedef uint32_t CTLineBoundsOptions;
+enum {
+    kCTLineBoundsExcludeTypographicLeading  = 1 << 0,
+    kCTLineBoundsExcludeTypographicShifts   = 1 << 1,
+    kCTLineBoundsUseHangingPunctuation      = 1 << 2,
+    kCTLineBoundsUseGlyphPathBounds         = 1 << 3,
+    kCTLineBoundsUseOpticalBounds           = 1 << 4,
+    kCTLineBoundsIncludeLanguageExtents = 1 << 5,
+};
+
 /* Functions */
 
 CFTypeID CTLineGetTypeID();
@@ -110,6 +120,10 @@ CGFloat CTLineGetOffsetForStringIndex(
   CFIndex charIndex,
   CGFloat* secondaryOffset
 );
+
+CGRect CTLineGetBoundsWithOptions(
+  CTLineRef line,
+  CTLineBoundsOptions options);
 
 #ifdef __cplusplus
 }

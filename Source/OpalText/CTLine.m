@@ -185,3 +185,9 @@ CFTypeID CTLineGetTypeID()
   return (CFTypeID)[CTLine class];
 }
 
+CGRect CTLineGetBoundsWithOptions(
+  CTLineRef line,
+  CTLineBoundsOptions options)
+{
+  return CGRectZero;
+}
