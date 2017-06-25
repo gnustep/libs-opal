@@ -28,6 +28,7 @@
 #include <CoreGraphics/CGBase.h>
 #include <CoreGraphics/CGAffineTransform.h>
 #include <CoreGraphics/CGPath.h>
+#include <CoreGraphics/CGContext.h>
 #include <CoreGraphics/CGFont.h>
 #include <CoreText/CTFontDescriptor.h>
 
@@ -45,6 +46,68 @@ typedef struct OPFont* CTFontRef;
 #endif
 
 /* Constants */
+
+enum
+{
+  kCTFontUIFontNone = (uint32_t)-1,
+  kCTFontUIFontUser = 0,
+  kCTFontUIFontUserFixedPitch = 1,
+  kCTFontUIFontSystem = 2,
+  kCTFontUIFontEmphasizedSystem = 3,
+  kCTFontUIFontSmallSystem = 4,
+  kCTFontUIFontSmallEmphasizedSystem = 5,
+  kCTFontUIFontMiniSystem = 6,
+  kCTFontUIFontMiniEmphasizedSystem = 7,
+  kCTFontUIFontViews = 8,
+  kCTFontUIFontApplication = 9,
+  kCTFontUIFontLabel = 10,
+  kCTFontUIFontMenuTitle = 11,
+  kCTFontUIFontMenuItem = 12,
+  kCTFontUIFontMenuItemMark = 13,
+  kCTFontUIFontMenuItemCmdKey = 14,
+  kCTFontUIFontWindowTitle = 15,
+  kCTFontUIFontPushButton = 16,
+  kCTFontUIFontUtilityWindowTitle = 17,
+  kCTFontUIFontAlertHeader = 18,
+  kCTFontUIFontSystemDetail = 19,
+  kCTFontUIFontEmphasizedSystemDetail = 20,
+  kCTFontUIFontToolbar = 21,
+  kCTFontUIFontSmallToolbar = 22,
+  kCTFontUIFontMessage = 23,
+  kCTFontUIFontPalette = 24,
+  kCTFontUIFontToolTip = 25,
+  kCTFontUIFontControlContent = 26,
+
+  kCTFontNoFontType = kCTFontUIFontNone,
+  kCTFontUserFontType = kCTFontUIFontUser,
+  kCTFontUserFixedPitchFontType = kCTFontUIFontUserFixedPitch,
+  kCTFontSystemFontType = kCTFontUIFontSystem,
+  kCTFontEmphasizedSystemFontType = kCTFontUIFontEmphasizedSystem,
+  kCTFontSmallSystemFontType = kCTFontUIFontSmallSystem,
+  kCTFontSmallEmphasizedSystemFontType = kCTFontUIFontSmallEmphasizedSystem,
+  kCTFontMiniSystemFontType = kCTFontUIFontMiniSystem,
+  kCTFontMiniEmphasizedSystemFontType = kCTFontUIFontMiniEmphasizedSystem,
+  kCTFontViewsFontType = kCTFontUIFontViews,
+  kCTFontApplicationFontType = kCTFontUIFontApplication,
+  kCTFontLabelFontType = kCTFontUIFontLabel,
+  kCTFontMenuTitleFontType = kCTFontUIFontMenuTitle,
+  kCTFontMenuItemFontType = kCTFontUIFontMenuItem,
+  kCTFontMenuItemMarkFontType = kCTFontUIFontMenuItemMark,
+  kCTFontMenuItemCmdKeyFontType = kCTFontUIFontMenuItemCmdKey,
+  kCTFontWindowTitleFontType = kCTFontUIFontWindowTitle,
+  kCTFontPushButtonFontType = kCTFontUIFontPushButton,
+  kCTFontUtilityWindowTitleFontType = kCTFontUIFontUtilityWindowTitle,
+  kCTFontAlertHeaderFontType = kCTFontUIFontAlertHeader,
+  kCTFontSystemDetailFontType = kCTFontUIFontSystemDetail,
+  kCTFontEmphasizedSystemDetailFontType = kCTFontUIFontEmphasizedSystemDetail,
+  kCTFontToolbarFontType = kCTFontUIFontToolbar,
+  kCTFontSmallToolbarFontType = kCTFontUIFontSmallToolbar,
+  kCTFontMessageFontType = kCTFontUIFontMessage,
+  kCTFontPaletteFontType = kCTFontUIFontPalette,
+  kCTFontToolTipFontType = kCTFontUIFontToolTip,
+  kCTFontControlContentFontType = kCTFontUIFontControlContent
+};
+typedef uint32_t CTFontUIFontType;
 
 /**
  * The following keys are used to retrieve different names for the font,
@@ -169,38 +232,6 @@ enum {
   kCTFontTableVmtx = OP_TABLETAG('v','m','t','x')
 };
 typedef int CTFontTableTag;
-
-enum {
-  kCTFontNoFontType = -1,
-  kCTFontUserFontType = 0,
-  kCTFontUserFixedPitchFontType = 1,
-  kCTFontSystemFontType = 2,
-  kCTFontEmphasizedSystemFontType = 3,
-  kCTFontSmallSystemFontType = 4,
-  kCTFontSmallEmphasizedSystemFontType = 5,
-  kCTFontMiniSystemFontType = 6,
-  kCTFontMiniEmphasizedSystemFontType = 7,
-  kCTFontViewsFontType = 8,
-  kCTFontApplicationFontType = 9,
-  kCTFontLabelFontType = 10,
-  kCTFontMenuTitleFontType = 11,
-  kCTFontMenuItemFontType = 12,
-  kCTFontMenuItemMarkFontType = 13,
-  kCTFontMenuItemCmdKeyFontType = 14,
-  kCTFontWindowTitleFontType = 15,
-  kCTFontPushButtonFontType = 16,
-  kCTFontUtilityWindowTitleFontType = 17,
-  kCTFontAlertHeaderFontType = 18,
-  kCTFontSystemDetailFontType = 19,
-  kCTFontEmphasizedSystemDetailFontType = 20,
-  kCTFontToolbarFontType = 21,
-  kCTFontSmallToolbarFontType = 22,
-  kCTFontMessageFontType = 23,
-  kCTFontPaletteFontType = 24,
-  kCTFontToolTipFontType = 25,
-  kCTFontControlContentFontType = 26
-};
-typedef int CTFontUIFontType;
 
 /* Functions */
 
