@@ -32,14 +32,15 @@ extern "C" {
 
 /* Constants */
 
-typedef enum CGImageSourceStatus {
+enum {
   kCGImageStatusUnexpectedEOF = -5,
   kCGImageStatusInvalidData = -4,
   kCGImageStatusUnknownType = -3,
   kCGImageStatusReadingHeader = -2,
   kCGImageStatusIncomplete = -1,
   kCGImageStatusComplete = 0
-} CGImageSourceStatus;
+};
+typedef int CGImageSourceStatus;
 
 const extern CFStringRef kCGImageSourceTypeIdentifierHint;
 const extern CFStringRef kCGImageSourceShouldAllowFloat;

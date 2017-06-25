@@ -34,13 +34,14 @@ extern "C" {
 
 /* Constants */
 
-typedef enum CGPathElementType {
+enum {
   kCGPathElementMoveToPoint = 0,
   kCGPathElementAddLineToPoint = 1,
   kCGPathElementAddQuadCurveToPoint = 2,
   kCGPathElementAddCurveToPoint = 3,
   kCGPathElementCloseSubpath = 4
-} CGPathElementType;
+};
+typedef int CGPathElementType;
 
 /* Data Types */
 

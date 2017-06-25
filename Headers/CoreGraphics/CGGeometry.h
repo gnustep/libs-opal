@@ -53,13 +53,14 @@ typedef struct CGRect
 
 /* Constants */
 
-typedef enum CGRectEdge
+enum
 {
   CGRectMinXEdge = 0,
   CGRectMinYEdge = 1,
   CGRectMaxXEdge = 2,
   CGRectMaxYEdge = 3
-} CGRectEdge;
+};
+typedef int CGRectEdge;
 
 /** Point at 0,0 */
 extern const CGPoint CGPointZero;

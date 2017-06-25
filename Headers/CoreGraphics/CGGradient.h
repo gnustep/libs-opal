@@ -42,10 +42,11 @@ extern "C" {
 
 /* Constants */
 
-typedef enum {
+enum {
   kCGGradientDrawsBeforeStartLocation = (1 << 0),
   kCGGradientDrawsAfterEndLocation = (1 << 1)
-} CGGradientDrawingOptions;
+};
+typedef int CGGradientDrawingOptions;
 
 /* Functions */
 

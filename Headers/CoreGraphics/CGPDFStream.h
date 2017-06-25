@@ -42,11 +42,12 @@ extern "C" {
 
 /* Constants */
 
-typedef enum CGPDFDataFormat {
+enum {
   CGPDFDataFormatRaw = 0,
   CGPDFDataFormatJPEGEncoded = 1,
   CGPDFDataFormatJPEG2000 = 2
-} CGPDFDataFormat;
+};
+typedef int CGPDFDataFormat;
 
 /* Functions */
 

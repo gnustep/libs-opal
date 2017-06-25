@@ -45,12 +45,13 @@ extern "C" {
 
 /* Constants */
 
-typedef enum CGPatternTiling
+enum
 {
   kCGPatternTilingNoDistortion = 0,
   kCGPatternTilingConstantSpacingMinimalDistortion = 1,
   kCGPatternTilingConstantSpacing = 2
-} CGPatternTiling;
+};
+typedef int CGPatternTiling;
 
 /* Callbacks */
 

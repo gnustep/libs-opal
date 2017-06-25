@@ -44,14 +44,15 @@ typedef struct CTGlyphInfo* CTGlyphInfoRef;
 
 /* Constants */
 
-typedef enum {
+enum {
   kCTIdentityMappingCharacterCollection = 0,
   kCTAdobeCNS1CharacterCollection = 1,
   kCTAdobeGB1CharacterCollection = 2,
   kCTAdobeJapan1CharacterCollection = 3,
   kCTAdobeJapan2CharacterCollection = 4,
   kCTAdobeKorea1CharacterCollection = 5
-} CTCharacterCollection;
+};
+typedef int CTCharacterCollection;
 
 /* Functions */
 

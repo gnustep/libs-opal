@@ -42,7 +42,7 @@ enum {
   kCTFontClassMaskShift = 28
 };
 
-typedef enum {
+enum {
   kCTFontItalicTrait = (1 << 0),
   kCTFontBoldTrait = (1 << 1),
   kCTFontExpandedTrait = (1 << 5),
@@ -51,9 +51,10 @@ typedef enum {
   kCTFontVerticalTrait = (1 << 11),
   kCTFontUIOptimizedTrait = (1 << 12),
   kCTFontClassMaskTrait = (15 << 28)
-} CTFontSymbolicTraits;
+};
+typedef int CTFontSymbolicTraits;
 
-typedef enum {
+enum {
   kCTFontUnknownClass = (0 << 28),
   kCTFontOldStyleSerifsClass = (1 << 28),
   kCTFontTransitionalSerifsClass = (2 << 28),
@@ -65,7 +66,8 @@ typedef enum {
   kCTFontOrnamentalsClass = (9 << 28),
   kCTFontScriptsClass = (10 << 28),
   kCTFontSymbolicClass = (12 << 28)
-} CTFontStylisticClass;
+};
+typedef int CTFontStylisticClass;
 
 #ifdef __cplusplus
 }

@@ -47,10 +47,11 @@ typedef struct CTFrame* CTFrameRef;
 
 extern const CFStringRef kCTFrameProgressionAttributeName;
 
-typedef enum {
+enum {
   kCTFrameProgressionTopToBottom = 0,
   kCTFrameProgressionRightToLeft = 1
-} CTFrameProgression;
+};
+typedef int CTFrameProgression;
 
 /* Functions */
 

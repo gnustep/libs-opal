@@ -45,12 +45,13 @@ typedef struct CTRun* CTRunRef;
 
 /* Constants */
 
-typedef enum {
+enum {
   kCTRunStatusNoStatus = 0,
   kCTRunStatusRightToLeft = (1 << 0),
   kCTRunStatusNonMonotonic = (1 << 1),
   kCTRunStatusHasNonIdentityMatrix = (1 << 2)
-} CTRunStatus;
+};
+typedef int CTRunStatus;
 
 /* Functions */
  

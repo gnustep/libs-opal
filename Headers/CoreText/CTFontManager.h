@@ -38,19 +38,21 @@ extern "C" {
 extern const CFStringRef kCTFontManagerBundleIdentifier;
 extern const CFStringRef kCTFontManagerRegisteredFontsChangedNotification;
 
-typedef enum {
+enum {
   kCTFontManagerScopeNone = 0,
   kCTFontManagerScopeProcess = 1,
   kCTFontManagerScopeUser = 2,
   kCTFontManagerScopeSession = 3
-} CTFontManagerScope;
+};
+typedef int CTFontManagerScope;
 
-typedef enum {
+enum {
   kCTFontManagerAutoActivationDefault = 0,
   kCTFontManagerAutoActivationDisabled = 1,
   kCTFontManagerAutoActivationEnabled = 2,
   kCTFontManagerAutoActivationPromptUser = 3
-} CTFontManagerAutoActivationSetting;
+};
+typedef int CTFontManagerAutoActivationSetting;
 
 /* Functions */
 
