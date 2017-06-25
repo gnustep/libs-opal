@@ -47,7 +47,7 @@ extern "C" {
 
 /* Constants */
 
-typedef enum CGPDFObjectType {
+enum {
   kCGPDFObjectTypeNull = 1,
   kCGPDFObjectTypeBoolean = 2,
   kCGPDFObjectTypeInteger = 3,
@@ -57,7 +57,8 @@ typedef enum CGPDFObjectType {
   kCGPDFObjectTypeArray = 7,
   kCGPDFObjectTypeDictionary = 8,
   kCGPDFObjectTypeStream = 9
-} CGPDFObjectType;
+};
+typedef int CGPDFObjectType;
 
 /* Functions */
 

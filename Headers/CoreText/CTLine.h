@@ -46,11 +46,12 @@ typedef struct CTLine* CTLineRef;
 
 /* Constants */
 
-typedef enum {
+enum {
   kCTLineTruncationStart = 0,
   kCTLineTruncationEnd = 1,
   kCTLineTruncationMiddle = 2
-} CTLineTruncationType;
+};
+typedef int CTLineTruncationType;
 
 /* Functions */
 

@@ -45,7 +45,7 @@ typedef struct CGColorSpace* CGColorSpaceRef;
 extern "C" {
 #endif
 
-typedef enum CGColorSpaceModel {
+enum {
   kCGColorSpaceModelUnknown = -1,
   kCGColorSpaceModelMonochrome = 0,
   kCGColorSpaceModelRGB = 1,
@@ -54,18 +54,20 @@ typedef enum CGColorSpaceModel {
   kCGColorSpaceModelDeviceN = 4,
   kCGColorSpaceModelIndexed = 5,
   kCGColorSpaceModelPattern = 6
-} CGColorSpaceModel;
+};
+typedef int CGColorSpaceModel;
 
 
 /* Constants */
 
-typedef enum CGColorRenderingIntent {
+enum {
   kCGRenderingIntentDefault = 0,
   kCGRenderingIntentAbsoluteColorimetric = 1,
   kCGRenderingIntentRelativeColorimetric = 2,
   kCGRenderingIntentPerceptual = 3,
   kCGRenderingIntentSaturation = 4
-} CGColorRenderingIntent;
+};
+typedef int CGColorRenderingIntent;
 
 extern const CFStringRef kCGColorSpaceGenericGray;
 extern const CFStringRef kCGColorSpaceGenericRGB;

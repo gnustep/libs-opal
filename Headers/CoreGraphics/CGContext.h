@@ -56,7 +56,7 @@ extern "C" {
 
 /* Constants */
 
-typedef enum CGBlendMode {
+enum {
   kCGBlendModeNormal = 0,
   kCGBlendModeMultiply = 1,
   kCGBlendModeScreen = 2,
@@ -85,37 +85,42 @@ typedef enum CGBlendMode {
   kCGBlendModeXOR = 25,
   kCGBlendModePlusDarker = 26,
   kCGBlendModePlusLighter = 27
-} CGBlendMode;
+};
+typedef int CGBlendMode;
 
-typedef enum CGInterpolationQuality {
+enum {
   kCGInterpolationDefault = 0,
   kCGInterpolationNone = 1,
   kCGInterpolationLow = 2,
   kCGInterpolationMedium = 4,
   kCGInterpolationHigh = 3
-} CGInterpolationQuality;
+};
+typedef int CGInterpolationQuality;
 
-typedef enum CGLineCap {
+enum {
   kCGLineCapButt = 0,
   kCGLineCapRound = 1,
   kCGLineCapSquare = 2
-} CGLineCap;
+};
+typedef int CGLineCap;
 
-typedef enum CGLineJoin {
+enum {
   kCGLineJoinMiter = 0,
   kCGLineJoinRound = 1,
   kCGLineJoinBevel = 2
-} CGLineJoin;
+};
+typedef int CGLineJoin;
 
-typedef enum CGPathDrawingMode {
+enum {
   kCGPathFill = 0,
   kCGPathEOFill = 1,
   kCGPathStroke = 2,
   kCGPathFillStroke = 3,
   kCGPathEOFillStroke = 4
-} CGPathDrawingMode;
+};
+typedef int CGPathDrawingMode;
 
-typedef enum CGTextDrawingMode {
+enum {
   kCGTextFill = 0,
   kCGTextStroke = 1,
   kCGTextFillStroke = 2,
@@ -124,12 +129,14 @@ typedef enum CGTextDrawingMode {
   kCGTextStrokeClip = 5,
   kCGTextFillStrokeClip = 6,
   kCGTextClip = 7
-} CGTextDrawingMode;
+};
+typedef int CGTextDrawingMode;
 
-typedef enum CGTextEncoding {
+enum {
   kCGEncodingFontSpecific = 0,
   kCGEncodingMacRoman = 1
-} CGTextEncoding;
+};
+typedef int CGTextEncoding;
 
 /* Functions */
 

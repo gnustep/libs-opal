@@ -66,29 +66,32 @@ extern const CFStringRef kCTFontFormatAttribute;
 extern const CFStringRef kCTFontRegistrationScopeAttribute;
 extern const CFStringRef kCTFontPriorityAttribute;
 
-typedef enum {
+enum {
   kCTFontDefaultOrientation = 0,
   kCTFontHorizontalOrientation = 1,
   kCTFontVerticalOrientation = 2
-} CTFontOrientation;
+};
+typedef int CTFontOrientation;
 
-typedef enum {
+enum {
   kCTFontFormatUnrecognized = 0,
   kCTFontFormatOpenTypePostScript = 1,
   kCTFontFormatOpenTypeTrueType = 2,
   kCTFontFormatTrueType = 3,
   kCTFontFormatPostScript = 4,
   kCTFontFormatBitmap = 5
-} CTFontFormat;
+};
+typedef int CTFontFormat;
 
-typedef enum {
+enum {
   kCTFontPrioritySystem = 10000,
   kCTFontPriorityNetwork = 20000,
   kCTFontPriorityComputer = 30000,
   kCTFontPriorityUser = 40000,
   kCTFontPriorityDynamic = 50000,
   kCTFontPriorityProcess = 60000
-} CTFontPriority;
+};
+typedef int CTFontPriority;
 
 /* Functions */
 

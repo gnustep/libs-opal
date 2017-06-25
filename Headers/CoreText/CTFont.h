@@ -94,16 +94,18 @@ extern const CFStringRef kCTFontFeatureSelectorNameKey;
 extern const CFStringRef kCTFontFeatureSelectorDefaultKey;
 extern const CFStringRef kCTFontFeatureSelectorSettingKey;
 
-typedef enum {
+enum {
   kCTFontOptionsDefault = 0,
   kCTFontOptionsPreventAutoActivation = 1 << 0,
   kCTFontOptionsPreferSystemFont = 1 << 2,
-} CTFontOptions;
+};
+typedef int CTFontOptions;
 
-typedef enum {
+enum {
   kCTFontTableOptionNoOptions = 0,
   kCTFontTableOptionExcludeSynthetic = 1 << 0
-} CTFontTableOptions;
+};
+typedef int CTFontTableOptions;
 
 #if GS_WORDS_BIGENDIAN
 #define OP_TABLETAG(a,b,c,d) ((((int)a) << 24) | (((int)b) << 16) | (((int)c) << 8) | ((int)d))
@@ -111,7 +113,7 @@ typedef enum {
 #define OP_TABLETAG(a,b,c,d) ((((int)d) << 24) | (((int)c) << 16) | (((int)b) << 8) | ((int)a))
 #endif
 
-typedef enum {
+enum {
   kCTFontTableBASE = OP_TABLETAG('B','A','S','E'),
   kCTFontTableCFF = OP_TABLETAG('C','F','F',' '),
   kCTFontTableDSIG = OP_TABLETAG('D','S','I','G'),
@@ -165,9 +167,10 @@ typedef enum {
   kCTFontTableTrak = OP_TABLETAG('t','r','a','k'),
   kCTFontTableVhea = OP_TABLETAG('v','h','e','a'),
   kCTFontTableVmtx = OP_TABLETAG('v','m','t','x')
-} CTFontTableTag;
+};
+typedef int CTFontTableTag;
 
-typedef enum {
+enum {
   kCTFontNoFontType = -1,
   kCTFontUserFontType = 0,
   kCTFontUserFixedPitchFontType = 1,
@@ -196,7 +199,8 @@ typedef enum {
   kCTFontPaletteFontType = 24,
   kCTFontToolTipFontType = 25,
   kCTFontControlContentFontType = 26
-} CTFontUIFontType;
+};
+typedef int CTFontUIFontType;
 
 /* Functions */
 

@@ -48,20 +48,22 @@ extern const CFStringRef kCTVerticalFormsAttributeName;
 extern const CFStringRef kCTGlyphInfoAttributeName;
 extern const CFStringRef kCTCharacterShapeAttributeName;
 
-typedef enum {
+enum {
   kCTUnderlineStyleNone = 0,
   kCTUnderlineStyleSingle = 1,
   kCTUnderlineStyleThick = 2,
   kCTUnderlineStyleDouble = 9
-} CTUnderlineStyle;
+};
+typedef int CTUnderlineStyle;
 
-typedef enum {
+enum {
   kCTUnderlinePatternSolid = 0x0000,
   kCTUnderlinePatternDot = 0x0100,
   kCTUnderlinePatternDash = 0x0200,
   kCTUnderlinePatternDashDot = 0x0300,
   kCTUnderlinePatternDashDotDot = 0x0400
-} CTUnderlineStyleModifiers;
+};
+typedef int CTUnderlineStyleModifiers;
 
 #ifdef __cplusplus
 }

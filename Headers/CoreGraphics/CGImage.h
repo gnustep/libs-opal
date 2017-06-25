@@ -45,7 +45,7 @@ extern "C" {
 
 /* Constants */
 
-typedef enum CGImageAlphaInfo
+enum
 {
   kCGImageAlphaNone = 0,
   kCGImageAlphaPremultipliedLast = 1,
@@ -55,9 +55,10 @@ typedef enum CGImageAlphaInfo
   kCGImageAlphaNoneSkipLast = 5,
   kCGImageAlphaNoneSkipFirst = 6,
   kCGImageAlphaOnly = 7
-} CGImageAlphaInfo;
+};
 
-typedef enum CGBitmapInfo {
+enum
+{
   kCGBitmapAlphaInfoMask = 0x1F,
   kCGBitmapFloatComponents = (1 << 8),
   kCGBitmapByteOrderMask = 0x7000,
@@ -66,7 +67,11 @@ typedef enum CGBitmapInfo {
   kCGBitmapByteOrder32Little = (2 << 12),
   kCGBitmapByteOrder16Big = (3 << 12),
   kCGBitmapByteOrder32Big = (4 << 12)
-} CGBitmapInfo;
+};
+
+typedef uint32_t CGImageAlphaInfo;
+typedef uint32_t CGBitmapInfo;
+
 
 // FIXME: Verify this endianness check works
 #if GS_WORDS_BIGENDIAN

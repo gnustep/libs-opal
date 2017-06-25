@@ -23,7 +23,7 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
    */
 
-typedef enum {
+enum {
   kCGErrorSuccess = 0,
 
   kCGErrorFailure = 1000,
@@ -36,4 +36,5 @@ typedef enum {
   kCGErrorTypeCheck = 1008,
   kCGErrorInvalidOperation = 1010,
   kCGErrorNoneAvailable = 1011,
-} CGError;
+};
+typedef int CGError;
