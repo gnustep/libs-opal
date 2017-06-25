@@ -583,6 +583,9 @@ OPGStateRef OPContextCopyGState(CGContextRef ctx);
 
 void OPContextSetGState(CGContextRef ctx, OPGStateRef gstate);
 
+bool CGContextPathContainsPoint(CGContextRef c,
+    CGPoint point, CGPathDrawingMode mode);
+
 #ifdef __cplusplus
 }
 #endif
