@@ -38,6 +38,7 @@ typedef struct CGPDFDocument* CGPDFDocumentRef;
 #include <CoreGraphics/CGGeometry.h>
 #include <CoreGraphics/CGDataConsumer.h>
 #include <CoreGraphics/CGDataProvider.h>
+#include <CoreGraphics/CGPDFPage.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -66,6 +67,9 @@ CGRect CGPDFDocumentGetTrimBox(CGPDFDocumentRef document, int page);
 CGRect CGPDFDocumentGetArtBox(CGPDFDocumentRef document, int page);
 
 int CGPDFDocumentGetRotationAngle(CGPDFDocumentRef document, int page);
+
+CGPDFPageRef CGPDFDocumentGetPage(
+  CGPDFDocumentRef document, int pageNumber);
 
 #ifdef __cplusplus
 }
