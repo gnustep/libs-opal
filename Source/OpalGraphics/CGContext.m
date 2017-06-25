@@ -719,6 +719,21 @@ void CGContextAddArcToPoint(
   OPRESTORELOGGING()
 }
 
+bool CGContextPathContainsPoint(CGContextRef ctx,
+  CGPoint point, CGPathDrawingMode mode)
+{
+  cairo_t *cr = ctx->ct;
+  cairo_fill_rule_t cur = cairo_get_fill_rule(cr);
+  
+  bool evenOdd = mode == kCGPathEOFill || mode == kCGPathEOFillStroke;
+  cairo_set_fill_rule(cr, evenOdd ? CAIRO_FILL_RULE_EVEN_ODD : CAIRO_FILL_RULE_WINDING);
+  
+  bool contains = cairo_in_fill(cr, point.x, point.y);
+  cairo_set_fill_rule(cr, cur);
+
+  return contains;
+}
+
 static void OPAddPathApplier(void *info, const CGPathElement *elem)
 {
   CGContextRef ctx = (CGContextRef)info;
