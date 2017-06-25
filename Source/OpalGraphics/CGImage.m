@@ -33,6 +33,115 @@
 
 #import "OPImageConversion.h"
 
+/* Exports */
+#define OPALSTR(x) (CFStringRef)(@ x)
+const CFStringRef kCGImagePropertyOrientation =
+  OPALSTR("kCGImagePropertyOrientation");
+
+const CFStringRef kCGImagePropertyPixelHeight =
+  OPALSTR("kCGImagePropertyPixelHeight");
+const CFStringRef kCGImagePropertyPixelWidth =
+  OPALSTR("kCGImagePropertyPixelWidth");
+
+const CFStringRef kCGImagePropertyTIFFDictionary =
+  OPALSTR("kCGImagePropertyTIFFDictionary");
+const CFStringRef kCGImagePropertyGIFDictionary =
+  OPALSTR("kCGImagePropertyGIFDictionary");
+const CFStringRef kCGImagePropertyJFIFDictionary =
+  OPALSTR("kCGImagePropertyJFIFDictionary");
+const CFStringRef kCGImagePropertyExifDictionary =
+  OPALSTR("kCGImagePropertyExifDictionary");
+const CFStringRef kCGImagePropertyPNGDictionary =
+  OPALSTR("kCGImagePropertyPNGDictionary");
+const CFStringRef kCGImagePropertyIPTCDictionary =
+  OPALSTR("kCGImagePropertyIPTCDictionary");
+const CFStringRef kCGImagePropertyGPSDictionary =
+  OPALSTR("kCGImagePropertyGPSDictionary");
+const CFStringRef kCGImagePropertyRawDictionary =
+  OPALSTR("kCGImagePropertyRawDictionary");
+const CFStringRef kCGImagePropertyCIFFDictionary =
+  OPALSTR("kCGImagePropertyCIFFDictionary");
+const CFStringRef kCGImagePropertyMakerCanonDictionary =
+  OPALSTR("kCGImagePropertyMakerCanonDictionary");
+const CFStringRef kCGImagePropertyMakerNikonDictionary =
+  OPALSTR("kCGImagePropertyMakerNikonDictionary");
+const CFStringRef kCGImagePropertyMakerMinoltaDictionary =
+  OPALSTR("kCGImagePropertyMakerMinoltaDictionary");
+const CFStringRef kCGImagePropertyMakerFujiDictionary =
+  OPALSTR("kCGImagePropertyMakerFujiDictionary");
+const CFStringRef kCGImagePropertyMakerOlympusDictionary =
+  OPALSTR("kCGImagePropertyMakerOlympusDictionary");
+const CFStringRef kCGImagePropertyMakerPentaxDictionary =
+  OPALSTR("kCGImagePropertyMakerPentaxDictionary");
+const CFStringRef kCGImageProperty8BIMDictionary =
+  OPALSTR("kCGImageProperty8BIMDictionary");
+const CFStringRef kCGImagePropertyDNGDictionary =
+  OPALSTR("kCGImagePropertyDNGDictionary");
+const CFStringRef kCGImagePropertyExifAuxDictionary =
+  OPALSTR("kCGImagePropertyExifAuxDictionary");
+const CFStringRef kCGImagePropertyOpenEXRDictionary =
+  OPALSTR("kCGImagePropertyOpenEXRDictionary");
+const CFStringRef kCGImagePropertyMakerAppleDictionary =
+  OPALSTR("kCGImagePropertyMakerAppleDictionary");
+
+const CFStringRef kCGImagePropertyJFIFVersion =
+  OPALSTR("kCGImagePropertyJFIFVersion");
+const CFStringRef kCGImagePropertyJFIFXDensity =
+  OPALSTR("kCGImagePropertyJFIFXDensity");
+const CFStringRef kCGImagePropertyJFIFYDensity =
+  OPALSTR("kCGImagePropertyJFIFYDensity");
+const CFStringRef kCGImagePropertyJFIFDensityUnit =
+  OPALSTR("kCGImagePropertyJFIFDensityUnit");
+const CFStringRef kCGImagePropertyJFIFIsProgressive =
+  OPALSTR("kCGImagePropertyJFIFIsProgressive");
+
+const CFStringRef kCGImagePropertyGIFLoopCount =
+  OPALSTR("kCGImagePropertyGIFLoopCount");
+const CFStringRef kCGImagePropertyGIFDelayTime =
+  OPALSTR("kCGImagePropertyGIFDelayTime");
+const CFStringRef kCGImagePropertyGIFImageColorMap =
+  OPALSTR("kCGImagePropertyGIFImageColorMap");
+const CFStringRef kCGImagePropertyGIFHasGlobalColorMap =
+  OPALSTR("kCGImagePropertyGIFHasGlobalColorMap");
+const CFStringRef kCGImagePropertyGIFUnclampedDelayTime =
+  OPALSTR("kCGImagePropertyGIFUnclampedDelayTime");
+
+const CFStringRef kCGImagePropertyPNGGamma =
+  OPALSTR("kCGImagePropertyPNGGamma");
+const CFStringRef kCGImagePropertyPNGInterlaceType =
+  OPALSTR("kCGImagePropertyPNGInterlaceType");
+const CFStringRef kCGImagePropertyPNGXPixelsPerMeter =
+  OPALSTR("kCGImagePropertyPNGXPixelsPerMeter");
+const CFStringRef kCGImagePropertyPNGYPixelsPerMeter =
+  OPALSTR("kCGImagePropertyPNGYPixelsPerMeter");
+const CFStringRef kCGImagePropertyPNGsRGBIntent =
+  OPALSTR("kCGImagePropertyPNGsRGBIntent");
+const CFStringRef kCGImagePropertyPNGChromaticities =
+  OPALSTR("kCGImagePropertyPNGChromaticities");
+
+const CFStringRef kCGImagePropertyPNGAuthor =
+  OPALSTR("kCGImagePropertyPNGAuthor");
+const CFStringRef kCGImagePropertyPNGCopyright =
+  OPALSTR("kCGImagePropertyPNGCopyright");
+const CFStringRef kCGImagePropertyPNGCreationTime =
+  OPALSTR("kCGImagePropertyPNGCreationTime");
+const CFStringRef kCGImagePropertyPNGDescription =
+  OPALSTR("kCGImagePropertyPNGDescription");
+const CFStringRef kCGImagePropertyPNGModificationTime =
+  OPALSTR("kCGImagePropertyPNGModificationTime");
+const CFStringRef kCGImagePropertyPNGSoftware =
+  OPALSTR("kCGImagePropertyPNGSoftware");
+const CFStringRef kCGImagePropertyPNGTitle =
+  OPALSTR("kCGImagePropertyPNGTitle");
+
+const CFStringRef kCGImagePropertyAPNGLoopCount =
+  OPALSTR("kCGImagePropertyAPNGLoopCount");
+const CFStringRef kCGImagePropertyAPNGDelayTime =
+  OPALSTR("kCGImagePropertyAPNGDelayTime");
+const CFStringRef kCGImagePropertyAPNGUnclampedDelayTime =
+  OPALSTR("kCGImagePropertyAPNGUnclampedDelayTime");
+#undef OPALSTR
+
 void DumpPixel(const void *data, NSString *msg)
 {
   if(!data)

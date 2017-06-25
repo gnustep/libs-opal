@@ -72,6 +72,75 @@ enum
 typedef uint32_t CGImageAlphaInfo;
 typedef uint32_t CGBitmapInfo;
 
+enum
+{
+  kCGImagePropertyOrientationUp = 1,
+  kCGImagePropertyOrientationUpMirrored,
+  kCGImagePropertyOrientationDown,
+  kCGImagePropertyOrientationDownMirrored,
+  kCGImagePropertyOrientationLeftMirrored,
+  kCGImagePropertyOrientationRight,
+  kCGImagePropertyOrientationRightMirrored,
+  kCGImagePropertyOrientationLeft
+};
+typedef int CGImagePropertyOrientation;
+
+extern const CFStringRef kCGImagePropertyOrientation;
+
+extern const CFStringRef kCGImagePropertyPixelHeight;
+extern const CFStringRef kCGImagePropertyPixelWidth;
+
+extern const CFStringRef kCGImagePropertyTIFFDictionary;
+extern const CFStringRef kCGImagePropertyGIFDictionary;
+extern const CFStringRef kCGImagePropertyJFIFDictionary;
+extern const CFStringRef kCGImagePropertyExifDictionary;
+extern const CFStringRef kCGImagePropertyPNGDictionary;
+extern const CFStringRef kCGImagePropertyIPTCDictionary;
+extern const CFStringRef kCGImagePropertyGPSDictionary;
+extern const CFStringRef kCGImagePropertyRawDictionary;
+extern const CFStringRef kCGImagePropertyCIFFDictionary;
+extern const CFStringRef kCGImagePropertyMakerCanonDictionary;
+extern const CFStringRef kCGImagePropertyMakerNikonDictionary;
+extern const CFStringRef kCGImagePropertyMakerMinoltaDictionary;
+extern const CFStringRef kCGImagePropertyMakerFujiDictionary;
+extern const CFStringRef kCGImagePropertyMakerOlympusDictionary;
+extern const CFStringRef kCGImagePropertyMakerPentaxDictionary;
+extern const CFStringRef kCGImageProperty8BIMDictionary;
+extern const CFStringRef kCGImagePropertyDNGDictionary;
+extern const CFStringRef kCGImagePropertyExifAuxDictionary;
+extern const CFStringRef kCGImagePropertyOpenEXRDictionary;
+extern const CFStringRef kCGImagePropertyMakerAppleDictionary;
+
+extern const CFStringRef kCGImagePropertyJFIFVersion;
+extern const CFStringRef kCGImagePropertyJFIFXDensity;
+extern const CFStringRef kCGImagePropertyJFIFYDensity;
+extern const CFStringRef kCGImagePropertyJFIFDensityUnit;
+extern const CFStringRef kCGImagePropertyJFIFIsProgressive;
+
+extern const CFStringRef kCGImagePropertyGIFLoopCount;
+extern const CFStringRef kCGImagePropertyGIFDelayTime;
+extern const CFStringRef kCGImagePropertyGIFImageColorMap;
+extern const CFStringRef kCGImagePropertyGIFHasGlobalColorMap;
+extern const CFStringRef kCGImagePropertyGIFUnclampedDelayTime;
+
+extern const CFStringRef kCGImagePropertyPNGGamma;
+extern const CFStringRef kCGImagePropertyPNGInterlaceType;
+extern const CFStringRef kCGImagePropertyPNGXPixelsPerMeter;
+extern const CFStringRef kCGImagePropertyPNGYPixelsPerMeter;
+extern const CFStringRef kCGImagePropertyPNGsRGBIntent;
+extern const CFStringRef kCGImagePropertyPNGChromaticities;
+
+extern const CFStringRef kCGImagePropertyPNGAuthor;
+extern const CFStringRef kCGImagePropertyPNGCopyright;
+extern const CFStringRef kCGImagePropertyPNGCreationTime;
+extern const CFStringRef kCGImagePropertyPNGDescription;
+extern const CFStringRef kCGImagePropertyPNGModificationTime;
+extern const CFStringRef kCGImagePropertyPNGSoftware;
+extern const CFStringRef kCGImagePropertyPNGTitle;
+
+extern const CFStringRef kCGImagePropertyAPNGLoopCount;
+extern const CFStringRef kCGImagePropertyAPNGDelayTime;
+extern const CFStringRef kCGImagePropertyAPNGUnclampedDelayTime;
 
 // FIXME: Verify this endianness check works
 #if GS_WORDS_BIGENDIAN
