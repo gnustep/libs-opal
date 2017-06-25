@@ -79,3 +79,9 @@ int CGPDFDocumentGetRotationAngle(CGPDFDocumentRef document, int page)
 {
   return 0;
 }
+
+CGPDFPageRef CGPDFDocumentGetPage(
+  CGPDFDocumentRef document, int pageNumber)
+{
+  return NULL;
+}
