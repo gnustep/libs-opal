@@ -13,12 +13,12 @@
    modify it under the terms of the GNU Lesser General Public
    License as published by the Free Software Foundation; either
    version 2.1 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    Lesser General Public License for more details.
-   
+
    You should have received a copy of the GNU Lesser General Public
    License along with this library; if not, write to the Free Software
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
@@ -133,16 +133,16 @@
 }
 
 - (bool) getGlyphAdvances: (const CGGlyph[])glyphs
-                         : (size_t)count
-                         : (int[]) advances
+: (size_t)count
+: (int[]) advances
 {
   [self doesNotRecognizeSelector: _cmd];
   return nil;
 }
 
 - (bool) getGlyphBBoxes: (const CGGlyph[])glyphs
-                       : (size_t)count
-                       : (CGRect[])bboxes
+: (size_t)count
+: (CGRect[])bboxes
 {
   [self doesNotRecognizeSelector: _cmd];
   return nil;
@@ -156,7 +156,7 @@
 
 - (CGGlyph) glyphWithCharacter: (unichar)character
 {
-   [self doesNotRecognizeSelector: _cmd];
+  [self doesNotRecognizeSelector: _cmd];
   return 0;
 }
 
@@ -228,7 +228,7 @@ CFDataRef CGFontCreatePostScriptSubset(
   size_t count,
   const CGGlyph encoding[256])
 {
-  return [font createPostScriptSubset: name : format : glyphs : count : encoding];
+  return [font createPostScriptSubset: name: format: glyphs: count: encoding];
 }
 
 CGFontRef CGFontCreateWithDataProvider(CGDataProviderRef provider)
@@ -279,7 +279,7 @@ bool CGFontGetGlyphAdvances(
   size_t count,
   int advances[])
 {
-  return [font getGlyphAdvances: glyphs : count : advances];
+  return [font getGlyphAdvances: glyphs: count: advances];
 }
 
 bool CGFontGetGlyphBBoxes(
@@ -288,7 +288,7 @@ bool CGFontGetGlyphBBoxes(
   size_t count,
   CGRect bboxes[])
 {
-  return [font getGlyphBBoxes: glyphs : count : bboxes];
+  return [font getGlyphBBoxes: glyphs: count: bboxes];
 }
 
 CGGlyph CGFontGetGlyphWithGlyphName(CGFontRef font, CFStringRef glyphName)

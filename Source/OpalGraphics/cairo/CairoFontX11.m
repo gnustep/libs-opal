@@ -13,12 +13,12 @@
    modify it under the terms of the GNU Lesser General Public
    License as published by the Free Software Foundation; either
    version 2.1 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    Lesser General Public License for more details.
-   
+
    You should have received a copy of the GNU Lesser General Public
    License along with this library; if not, write to the Free Software
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
@@ -59,13 +59,15 @@ static FcPattern *opal_FcPatternCreateFromName(const char *name);
 
 static FT_ListRec pattern_cache;
 
-typedef struct cache_entry {
+typedef struct cache_entry
+{
   FT_ListNodeRec node;
   unsigned int hash;
   FcPattern *pat;
 } cache_entry;
 
-typedef struct iter_state {
+typedef struct iter_state
+{
   unsigned int hash;
   FcPattern *pat;
   int cnt;
@@ -78,11 +80,12 @@ static FT_Error cache_iterator(FT_ListNode node, void *user)
 
   state->cnt++;
   if (!node) return 1;
-  if (entry->hash == state->hash) {
-    state->pat = entry->pat;
-    FT_List_Up(&pattern_cache, node);
-    return 2;
-  }
+  if (entry->hash == state->hash)
+    {
+      state->pat = entry->pat;
+      FT_List_Up(&pattern_cache, node);
+      return 2;
+    }
   return 0;
 }
 
@@ -111,23 +114,25 @@ static FcPattern *opal_FcPatternCacheLookup(const char *name)
   state.pat = opal_FcPatternCreateFromName(name);
   if (!state.pat) return NULL;
 
-  if (state.cnt >= CACHE_SIZE) {  /* Remove last entry from the cache */
-    FT_ListNode node;
+  if (state.cnt >= CACHE_SIZE)    /* Remove last entry from the cache */
+    {
+      FT_ListNode node;
 
-    node = pattern_cache.tail;
-    FT_List_Remove(&pattern_cache, node);
-    FcPatternDestroy(((cache_entry *)node)->pat);
-    free(node);
-  }
+      node = pattern_cache.tail;
+      FT_List_Remove(&pattern_cache, node);
+      FcPatternDestroy(((cache_entry *)node)->pat);
+      free(node);
+    }
   /* Add new entry to the cache */
   {
     cache_entry *entry;
 
     entry = calloc(1, sizeof(*entry));
-    if (!entry) {
-      NSLog(@"calloc failed");
-      return state.pat;
-    }
+    if (!entry)
+      {
+        NSLog(@"calloc failed");
+        return state.pat;
+      }
     entry->hash = state.hash;
     entry->pat = state.pat;
     FT_List_Insert(&pattern_cache, (FT_ListNode)entry);
@@ -152,33 +157,38 @@ static FcPattern *opal_FcPatternCacheLookup(const char *name)
 {
   FT_Face ft_face = cairo_ft_scaled_font_lock_face(self->cairofont);
   CFStringRef result = NULL;
-  
-  if (ft_face) {
-    const int FULL_NAME = 4;
-    FT_SfntName nameStruct;
-    if (0 == FT_Get_Sfnt_Name(ft_face, FULL_NAME, &nameStruct))
+
+  if (ft_face)
     {
-      if (nameStruct.platform_id == TT_PLATFORM_APPLE_UNICODE)
-      {
-        result = [[NSString alloc] initWithBytes: nameStruct.string length: nameStruct.string_len encoding: NSUTF16BigEndianStringEncoding];
-      }
-      else if (nameStruct.platform_id == TT_PLATFORM_MACINTOSH &&
-               nameStruct.encoding_id == TT_MAC_ID_ROMAN)
-      {
-        result = [[NSString alloc] initWithBytes: nameStruct.string length: nameStruct.string_len encoding: NSMacOSRomanStringEncoding];
-      }
-      else if (nameStruct.platform_id == TT_PLATFORM_MICROSOFT &&
-               nameStruct.encoding_id == TT_MS_ID_UNICODE_CS)
-      {
-        result = [[NSString alloc] initWithBytes: nameStruct.string length: nameStruct.string_len encoding: NSUTF16BigEndianStringEncoding];
-      }
+      const int FULL_NAME = 4;
+      FT_SfntName nameStruct;
+      if (0 == FT_Get_Sfnt_Name(ft_face, FULL_NAME, &nameStruct))
+        {
+          if (nameStruct.platform_id == TT_PLATFORM_APPLE_UNICODE)
+            {
+              result = [[NSString alloc] initWithBytes: nameStruct.string length:
+                                         nameStruct.string_len encoding: NSUTF16BigEndianStringEncoding];
+            }
+          else if (nameStruct.platform_id == TT_PLATFORM_MACINTOSH &&
+                   nameStruct.encoding_id == TT_MAC_ID_ROMAN)
+            {
+              result = [[NSString alloc] initWithBytes: nameStruct.string length:
+                                         nameStruct.string_len encoding: NSMacOSRomanStringEncoding];
+            }
+          else if (nameStruct.platform_id == TT_PLATFORM_MICROSOFT &&
+                   nameStruct.encoding_id == TT_MS_ID_UNICODE_CS)
+            {
+              result = [[NSString alloc] initWithBytes: nameStruct.string length:
+                                         nameStruct.string_len encoding: NSUTF16BigEndianStringEncoding];
+            }
+        }
+
+      if (NULL != ft_face->family_name)
+        {
+          result = [[NSString alloc] initWithUTF8String: ft_face->family_name];
+        }
     }
-    
-    if (NULL != ft_face->family_name) {
-      result = [[NSString alloc] initWithUTF8String: ft_face->family_name];
-    }
-  }
-  
+
   cairo_ft_scaled_font_unlock_face(self->cairofont);
   return result;
 }
@@ -187,13 +197,14 @@ static FcPattern *opal_FcPatternCacheLookup(const char *name)
 {
   FT_Face ft_face = cairo_ft_scaled_font_lock_face(self->cairofont);
   CFStringRef result = NULL;
-  
-  if (ft_face) {
-    char buffer[256];
-    FT_Get_Glyph_Name(ft_face, glyph, buffer, 256);
-    result = [[NSString alloc] initWithUTF8String: buffer];
-  }
-  
+
+  if (ft_face)
+    {
+      char buffer[256];
+      FT_Get_Glyph_Name(ft_face, glyph, buffer, 256);
+      result = [[NSString alloc] initWithUTF8String: buffer];
+    }
+
   cairo_ft_scaled_font_unlock_face(self->cairofont);
   return result;
 }
@@ -202,15 +213,17 @@ static FcPattern *opal_FcPatternCacheLookup(const char *name)
 {
   FT_Face ft_face = cairo_ft_scaled_font_lock_face(self->cairofont);
   CFStringRef result = NULL;
-  
-  if (ft_face) {
-    const char *psname = FT_Get_Postscript_Name(ft_face);
-    if (NULL != psname) {
-      result = [[NSString alloc] initWithUTF8String: psname];
-    } 
-  }
-  
-  cairo_ft_scaled_font_unlock_face(self->cairofont);  
+
+  if (ft_face)
+    {
+      const char *psname = FT_Get_Postscript_Name(ft_face);
+      if (NULL != psname)
+        {
+          result = [[NSString alloc] initWithUTF8String: psname];
+        }
+    }
+
+  cairo_ft_scaled_font_unlock_face(self->cairofont);
   return result;
 }
 
@@ -218,22 +231,26 @@ static FcPattern *opal_FcPatternCacheLookup(const char *name)
 {
   FT_Face ft_face = cairo_ft_scaled_font_lock_face(self->cairofont);
   CFDataRef result = NULL;
-  
-  if (ft_face) {
-    FT_ULong length = 0;
-    void *buffer;
-    
-    if (0 == FT_Load_Sfnt_Table(ft_face, tag, 0, NULL, &length)) {
-      buffer = malloc(length);
-      if (buffer) {
-        if (0 == FT_Load_Sfnt_Table(ft_face, tag, 0, buffer, &length)) {
-          result = [[NSData alloc] initWithBytes: buffer length: length];
+
+  if (ft_face)
+    {
+      FT_ULong length = 0;
+      void *buffer;
+
+      if (0 == FT_Load_Sfnt_Table(ft_face, tag, 0, NULL, &length))
+        {
+          buffer = malloc(length);
+          if (buffer)
+            {
+              if (0 == FT_Load_Sfnt_Table(ft_face, tag, 0, buffer, &length))
+                {
+                  result = [[NSData alloc] initWithBytes: buffer length: length];
+                }
+              free(buffer);
+            }
         }
-        free(buffer);
-      }
     }
-  }
-  
+
   cairo_ft_scaled_font_unlock_face(self->cairofont);
   return result;
 }
@@ -242,19 +259,20 @@ static FcPattern *opal_FcPatternCacheLookup(const char *name)
 {
   FT_Face ft_face = cairo_ft_scaled_font_lock_face(self->cairofont);
   CFMutableArrayRef result = [[NSMutableArray alloc] init];
-  
-  if (ft_face) {
-    unsigned int i = 0;
-    unsigned long tag, length;
 
-    while (FT_Err_Table_Missing !=
-           FT_Sfnt_Table_Info(ft_face, i, &tag, &length))
+  if (ft_face)
     {
-      // FIXME: see CGFontCopyTableTags reference, the CFArray should contain raw tags and not NSNumbers
-      [result addObject: [NSNumber numberWithInt: tag]];
-      i++;
+      unsigned int i = 0;
+      unsigned long tag, length;
+
+      while (FT_Err_Table_Missing !=
+             FT_Sfnt_Table_Info(ft_face, i, &tag, &length))
+        {
+          // FIXME: see CGFontCopyTableTags reference, the CFArray should contain raw tags and not NSNumbers
+          [result addObject: [NSNumber numberWithInt: tag]];
+          i++;
+        }
     }
-  }
 
   cairo_ft_scaled_font_unlock_face(self->cairofont);
   return result;
@@ -292,12 +310,13 @@ static FcPattern *opal_FcPatternCacheLookup(const char *name)
 {
   FT_Face ft_face = cairo_ft_scaled_font_lock_face(self->cairofont);
   int result = 0;
-  
+
   TT_OS2 *os2table = (TT_OS2 *)FT_Get_Sfnt_Table(ft_face, ft_sfnt_os2);
-  if (NULL != os2table) {
-    result = os2table->sCapHeight;
-  }
-  
+  if (NULL != os2table)
+    {
+      result = os2table->sCapHeight;
+    }
+
   cairo_ft_scaled_font_unlock_face(self->cairofont);
   return result;
 }
@@ -316,11 +335,11 @@ static FcPattern *opal_FcPatternCacheLookup(const char *name)
   FT_Face ft_face = cairo_ft_scaled_font_lock_face(self->cairofont);
   FT_BBox bbox = ft_face->bbox;
   CGRect result = CGRectMake(
-    bbox.xMin,
-    bbox.yMin, 
-    bbox.xMax - bbox.xMin,
-    bbox.yMax - bbox.yMin);
-    
+                    bbox.xMin,
+                    bbox.yMin,
+                    bbox.xMax - bbox.xMin,
+                    bbox.yMax - bbox.yMin);
+
   cairo_ft_scaled_font_unlock_face(self->cairofont);
   return result;
 }
@@ -329,10 +348,10 @@ static FcPattern *opal_FcPatternCacheLookup(const char *name)
 {
   FT_Face ft_face = cairo_ft_scaled_font_lock_face(self->cairofont);
   CGGlyph result = 0;
-  
+
   const char *name = [glyphName UTF8String];
   result = (CGGlyph)FT_Get_Name_Index(ft_face, (FT_String*)name);
-  
+
   cairo_ft_scaled_font_unlock_face(self->cairofont);
   return result;
 }
@@ -349,12 +368,14 @@ static FcPattern *opal_FcPatternCacheLookup(const char *name)
 {
   FT_Face ft_face = cairo_ft_scaled_font_lock_face(self->cairofont);
   CGFloat result = 0;
-  
-  TT_Postscript *pstable = (TT_Postscript *)FT_Get_Sfnt_Table(ft_face, ft_sfnt_post);
-  if (NULL != pstable) {
-    result = pstable->italicAngle;
-  }
-  
+
+  TT_Postscript *pstable = (TT_Postscript *)FT_Get_Sfnt_Table(ft_face,
+                           ft_sfnt_post);
+  if (NULL != pstable)
+    {
+      result = pstable->italicAngle;
+    }
+
   cairo_ft_scaled_font_unlock_face(self->cairofont);
   return result;
 }
@@ -362,10 +383,10 @@ static FcPattern *opal_FcPatternCacheLookup(const char *name)
 - (int) leading;
 {
   FT_Face ft_face = cairo_ft_scaled_font_lock_face(self->cairofont);
-  
+
   // see http://www.typophile.com/node/13081
-  int result =  ft_face->height - ft_face->ascender + 
-    ft_face->descender;
+  int result =  ft_face->height - ft_face->ascender +
+                ft_face->descender;
 
   cairo_ft_scaled_font_unlock_face(self->cairofont);
   return result;
@@ -374,9 +395,9 @@ static FcPattern *opal_FcPatternCacheLookup(const char *name)
 - (size_t) numberOfGlyphs;
 {
   FT_Face ft_face = cairo_ft_scaled_font_lock_face(self->cairofont);
-  
+
   int result = ft_face->num_glyphs;
-  
+
   cairo_ft_scaled_font_unlock_face(self->cairofont);
   return result;
 }
@@ -389,9 +410,9 @@ static FcPattern *opal_FcPatternCacheLookup(const char *name)
 - (int) unitsPerEm;
 {
   FT_Face ft_face = cairo_ft_scaled_font_lock_face(self->cairofont);
-  
+
   int result = ft_face->units_per_EM;
-  
+
   cairo_ft_scaled_font_unlock_face(self->cairofont);
   return result;
 }
@@ -400,12 +421,13 @@ static FcPattern *opal_FcPatternCacheLookup(const char *name)
 {
   FT_Face ft_face = cairo_ft_scaled_font_lock_face(self->cairofont);
   int result = 0;
-  
+
   TT_OS2 *os2table = (TT_OS2 *)FT_Get_Sfnt_Table(ft_face, ft_sfnt_os2);
-  if (NULL != os2table) {
-    result = os2table->sxHeight;
-  }
-  
+  if (NULL != os2table)
+    {
+      result = os2table->sxHeight;
+    }
+
   cairo_ft_scaled_font_unlock_face(self->cairofont);
   return result;
 }
@@ -444,12 +466,15 @@ static FcPattern *opal_FcPatternCacheLookup(const char *name)
   CairoFontX11 *font = [[CairoFontX11 alloc] init];
   if (!font) return NULL;
 
-  if(pat) {
-    unscaled = cairo_ft_font_face_create_for_pattern(pat);
-  } else {
-    CGFontRelease(font);
-    return NULL;
-  }
+  if (pat)
+    {
+      unscaled = cairo_ft_font_face_create_for_pattern(pat);
+    }
+  else
+    {
+      CGFontRelease(font);
+      return NULL;
+    }
 
   // Create a cairo_scaled_font which we just use to access the underlying
   // FT_Face
@@ -460,10 +485,10 @@ static FcPattern *opal_FcPatternCacheLookup(const char *name)
   cairo_font_options_t *opts = cairo_font_options_create();
   cairo_font_options_set_hint_metrics(opts, CAIRO_HINT_METRICS_OFF);
   cairo_font_options_set_hint_style(opts, CAIRO_HINT_STYLE_NONE);
-  
+
   font->cairofont = cairo_scaled_font_create(unscaled,
-    &ident, &ident, opts);
-    
+                    &ident, &ident, opts);
+
   cairo_font_options_destroy(opts);
 
   font->fullName = [font copyFullName];
@@ -489,31 +514,32 @@ static FcPattern *opal_FcPatternCacheLookup(const char *name)
 
 //FIXME: Not threadsafe
 - (bool) getGlyphAdvances: (const CGGlyph[])glyphs
-                         : (size_t)count
-                         : (int[]) advances
+: (size_t)count
+: (int[]) advances
 {
   FT_Face ft_face = cairo_ft_scaled_font_lock_face(self->cairofont);
   for (size_t i=0; i<count; i++)
-  {
-    FT_Load_Glyph(ft_face, glyphs[i], FT_LOAD_NO_SCALE);
-    advances[i] = ft_face->glyph->metrics.horiAdvance;
-  }
+    {
+      FT_Load_Glyph(ft_face, glyphs[i], FT_LOAD_NO_SCALE);
+      advances[i] = ft_face->glyph->metrics.horiAdvance;
+    }
   cairo_ft_scaled_font_unlock_face(self->cairofont);
   return true;
 }
 
 //FIXME: Not threadsafe
 - (bool) getGlyphBBoxes: (const CGGlyph[])glyphs
-                       : (size_t)count
-                       : (CGRect[])bboxes
+  : (size_t)count
+  : (CGRect[])bboxes
 {
   FT_Face ft_face = cairo_ft_scaled_font_lock_face(self->cairofont);
   for (size_t i=0; i<count; i++)
-  {
-    FT_Load_Glyph(ft_face, glyphs[i], FT_LOAD_NO_SCALE);
-    FT_Glyph_Metrics m = ft_face->glyph->metrics;
-    bboxes[i] = CGRectMake(m.horiBearingX, m.horiBearingY - m.height, m.width, m.height);
-  }
+    {
+      FT_Load_Glyph(ft_face, glyphs[i], FT_LOAD_NO_SCALE);
+      FT_Glyph_Metrics m = ft_face->glyph->metrics;
+      bboxes[i] = CGRectMake(m.horiBearingX, m.horiBearingY - m.height, m.width,
+                             m.height);
+    }
   cairo_ft_scaled_font_unlock_face(self->cairofont);
   return true;
 }
@@ -544,25 +570,27 @@ static FcPattern *opal_FcPatternCreateFromName(const char *name)
   /* Try to parse a Postscript font name and make a corresponding pattern */
   /* Consider everything up to the first dash to be the family name */
   traits = strchr(family, '-');
-  if (traits) {
-    *traits = '\0';
-    traits++;
-  }
+  if (traits)
+    {
+      *traits = '\0';
+      traits++;
+    }
   success = FcPatternAddString(pat, FC_FAMILY, (FcChar8 *)family);
   if (!success) goto error;
-  if (traits) {
-    /* FIXME: The following is incomplete and may also be wrong */
-    /* Fontconfig assumes Medium Roman Regular so don't care about theese */
-    if (strstr(traits, "Bold"))
-      success |= FcPatternAddInteger(pat, FC_WEIGHT, FC_WEIGHT_BOLD);
-    if (strstr(traits, "Italic"))
-      success |= FcPatternAddInteger(pat, FC_SLANT, FC_SLANT_ITALIC);
-    if (strstr(traits, "Oblique"))
-      success |= FcPatternAddInteger(pat, FC_SLANT, FC_SLANT_OBLIQUE);
-    if (strstr(traits, "Condensed"))
-      success |= FcPatternAddInteger(pat, FC_WIDTH, FC_WIDTH_CONDENSED);
-    if (!success) goto error;
-  }
+  if (traits)
+    {
+      /* FIXME: The following is incomplete and may also be wrong */
+      /* Fontconfig assumes Medium Roman Regular so don't care about theese */
+      if (strstr(traits, "Bold"))
+        success |= FcPatternAddInteger(pat, FC_WEIGHT, FC_WEIGHT_BOLD);
+      if (strstr(traits, "Italic"))
+        success |= FcPatternAddInteger(pat, FC_SLANT, FC_SLANT_ITALIC);
+      if (strstr(traits, "Oblique"))
+        success |= FcPatternAddInteger(pat, FC_SLANT, FC_SLANT_OBLIQUE);
+      if (strstr(traits, "Condensed"))
+        success |= FcPatternAddInteger(pat, FC_WIDTH, FC_WIDTH_CONDENSED);
+      if (!success) goto error;
+    }
 
   success = FcConfigSubstitute(NULL, pat, FcMatchPattern);
   if (!success) goto error;

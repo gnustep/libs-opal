@@ -11,12 +11,12 @@
    modify it under the terms of the GNU Lesser General Public
    License as published by the Free Software Foundation; either
    version 2.1 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    Lesser General Public License for more details.
-   
+
    You should have received a copy of the GNU Lesser General Public
    License along with this library; if not, write to the Free Software
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
@@ -52,7 +52,8 @@ typedef struct OPGState* OPGStateRef;
 
 /* Constants */
 
-typedef enum CGBlendMode {
+typedef enum CGBlendMode
+{
   kCGBlendModeNormal = 0,
   kCGBlendModeMultiply = 1,
   kCGBlendModeScreen = 2,
@@ -83,7 +84,8 @@ typedef enum CGBlendMode {
   kCGBlendModePlusLighter = 27
 } CGBlendMode;
 
-typedef enum CGInterpolationQuality {
+typedef enum CGInterpolationQuality
+{
   kCGInterpolationDefault = 0,
   kCGInterpolationNone = 1,
   kCGInterpolationLow = 2,
@@ -91,19 +93,22 @@ typedef enum CGInterpolationQuality {
   kCGInterpolationHigh = 3
 } CGInterpolationQuality;
 
-typedef enum CGLineCap {
+typedef enum CGLineCap
+{
   kCGLineCapButt = 0,
   kCGLineCapRound = 1,
   kCGLineCapSquare = 2
 } CGLineCap;
 
-typedef enum CGLineJoin {
+typedef enum CGLineJoin
+{
   kCGLineJoinMiter = 0,
   kCGLineJoinRound = 1,
   kCGLineJoinBevel = 2
 } CGLineJoin;
 
-typedef enum CGPathDrawingMode {
+typedef enum CGPathDrawingMode
+{
   kCGPathFill = 0,
   kCGPathEOFill = 1,
   kCGPathStroke = 2,
@@ -111,7 +116,8 @@ typedef enum CGPathDrawingMode {
   kCGPathEOFillStroke = 4
 } CGPathDrawingMode;
 
-typedef enum CGTextDrawingMode {
+typedef enum CGTextDrawingMode
+{
   kCGTextFill = 0,
   kCGTextStroke = 1,
   kCGTextFillStroke = 2,
@@ -122,7 +128,8 @@ typedef enum CGTextDrawingMode {
   kCGTextClip = 7
 } CGTextDrawingMode;
 
-typedef enum CGTextEncoding {
+typedef enum CGTextEncoding
+{
   kCGEncodingFontSpecific = 0,
   kCGEncodingMacRoman = 1
 } CGTextEncoding;
@@ -209,7 +216,8 @@ void CGContextSetStrokePattern(
 
 void CGContextSetShouldSmoothFonts(CGContextRef ctx, int shouldSmoothFonts);
 
-void CGContextSetAllowsFontSmoothing(CGContextRef ctx, bool allowsFontSmoothing);
+void CGContextSetAllowsFontSmoothing(CGContextRef ctx,
+                                     bool allowsFontSmoothing);
 
 void CGContextSetBlendMode(CGContextRef ctx, CGBlendMode mode);
 
@@ -321,7 +329,8 @@ void CGContextDrawPath(CGContextRef ctx, CGPathDrawingMode mode);
 
 void CGContextStrokeRect(CGContextRef ctx, CGRect rect);
 
-void CGContextStrokeRectWithWidth(CGContextRef ctx, CGRect rect, CGFloat width);
+void CGContextStrokeRectWithWidth(CGContextRef ctx, CGRect rect,
+                                  CGFloat width);
 
 void CGContextFillRect(CGContextRef ctx, CGRect rect);
 
@@ -357,7 +366,8 @@ void CGContextEOClip(CGContextRef ctx);
 
 void CGContextClipToRect(CGContextRef ctx, CGRect rect);
 
-void CGContextClipToRects(CGContextRef ctx, const CGRect rects[], size_t count);
+void CGContextClipToRects(CGContextRef ctx, const CGRect rects[],
+                          size_t count);
 
 void CGContextClipToMask(CGContextRef ctx, CGRect rect, CGImageRef mask);
 
@@ -373,7 +383,8 @@ void CGContextSetAlpha(CGContextRef ctx, CGFloat alpha);
 
 void CGContextSetFillColorSpace(CGContextRef ctx, CGColorSpaceRef colorspace);
 
-void CGContextSetStrokeColorSpace(CGContextRef ctx, CGColorSpaceRef colorspace);
+void CGContextSetStrokeColorSpace(CGContextRef ctx,
+                                  CGColorSpaceRef colorspace);
 
 void CGContextSetFillColor(CGContextRef ctx, const CGFloat components[]);
 
@@ -381,7 +392,8 @@ void CGContextSetStrokeColor(CGContextRef ctx, const CGFloat components[]);
 
 void CGContextSetGrayFillColor(CGContextRef ctx, CGFloat gray, CGFloat alpha);
 
-void CGContextSetGrayStrokeColor(CGContextRef ctx, CGFloat gray, CGFloat alpha);
+void CGContextSetGrayStrokeColor(CGContextRef ctx, CGFloat gray,
+                                 CGFloat alpha);
 
 void CGContextSetRGBFillColor(
   CGContextRef ctx,
@@ -417,7 +429,8 @@ void CGContextSetCMYKStrokeColor(
   CGFloat alpha
 );
 
-void CGContextSetRenderingIntent(CGContextRef ctx, CGColorRenderingIntent intent);
+void CGContextSetRenderingIntent(CGContextRef ctx,
+                                 CGColorRenderingIntent intent);
 
 /* Drawing Images */
 
@@ -537,7 +550,8 @@ void CGContextEndTransparencyLayer(CGContextRef ctx);
 
 /* User to Device Transformation */
 
-CGAffineTransform CGContextGetUserSpaceToDeviceSpaceTransform(CGContextRef ctx);
+CGAffineTransform CGContextGetUserSpaceToDeviceSpaceTransform(
+  CGContextRef ctx);
 
 CGPoint CGContextConvertPointToDeviceSpace(CGContextRef ctx, CGPoint point);
 
@@ -566,7 +580,7 @@ void OPContextResetClip(CGContextRef ctx);
 void OPContextSetIdentityCTM(CGContextRef ctx);
 
 void OPContextSetCairoDeviceOffset(CGContextRef ctx,
-                                    CGFloat x, CGFloat y);
+                                   CGFloat x, CGFloat y);
 
 OPGStateRef OPContextCopyGState(CGContextRef ctx);
 

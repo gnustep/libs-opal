@@ -11,12 +11,12 @@
    modify it under the terms of the GNU Lesser General Public
    License as published by the Free Software Foundation; either
    version 2.1 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
    Lesser General Public License for more details.
-   
+
    You should have received a copy of the GNU Lesser General Public
    License along with this library; if not, write to the Free Software
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
@@ -44,9 +44,9 @@
                         attributes: (NSDictionary*)attributes;
 - (CTTypesetterRef)typesetter;
 - (CGSize)suggestFrameSizeWithRange: (CFRange)stringRange
-                          attributes: (CFDictionaryRef)attributes
-                         constraints: (CGSize)constraints
-                            fitRange: (CFRange*)fitRange;
+                         attributes: (CFDictionaryRef)attributes
+                        constraints: (CGSize)constraints
+                           fitRange: (CFRange*)fitRange;
 
 @end
 
@@ -56,9 +56,9 @@
 {
   self = [super init];
   if (nil == self)
-  {
-    return nil;
-  }
+    {
+      return nil;
+    }
 
   _string = [string retain];
   _ts = CTTypesetterCreateWithAttributedString(string);
@@ -79,48 +79,50 @@
 {
   CGRect frameRect;
   if (!CGPathIsRect(path, &frameRect))
-  {
-    return nil;
-  }
+    {
+      return nil;
+    }
 
   if (!_string)
-  {
-    return nil;
-  }
+    {
+      return nil;
+    }
 
   CTFrameRef frame = [[CTFrame alloc] initWithPath: path
                                        stringRange: NSMakeRange(range.location, range.length)
                                         attributes: attributes];
-		
+
   // FIXME: take in to account CTTextTab settings (alignment, justification, etc?)
 
   switch ([[attributes objectForKey: kCTFrameProgressionAttributeName] intValue])
-  {
-    default:
-    case kCTFrameProgressionTopToBottom:
     {
-      CFIndex start = 0;
-      while (start < [_string length])
+      default:
+      case kCTFrameProgressionTopToBottom:
       {
-        CFIndex lineBreak = CTTypesetterSuggestLineBreak(_ts, start, frameRect.size.width);
-
-        CTLineRef line = CTTypesetterCreateLine(_ts, CFRangeMake(start, lineBreak));
-        [frame addLine: line];
-        [line release];
-        
-        if (start == lineBreak)
+        CFIndex start = 0;
+        while (start < [_string length])
           {
-            NSLog(@"WARNING: Broke possible infinite loop in %s; string %@", __PRETTY_FUNCTION__, _string);
-            break;
+            CFIndex lineBreak = CTTypesetterSuggestLineBreak(_ts, start,
+                                frameRect.size.width);
+
+            CTLineRef line = CTTypesetterCreateLine(_ts, CFRangeMake(start, lineBreak));
+            [frame addLine: line];
+            [line release];
+
+            if (start == lineBreak)
+              {
+                NSLog(@"WARNING: Broke possible infinite loop in %s; string %@",
+                      __PRETTY_FUNCTION__, _string);
+                break;
+              }
+            start = lineBreak;
           }
-        start = lineBreak;
+        break;
       }
-      break;
+      case kCTFrameProgressionRightToLeft:
+        // FIXME: as above but for right to left, vertical text layout
+        break;
     }
-    case kCTFrameProgressionRightToLeft:
-      // FIXME: as above but for right to left, vertical text layout
-      break;
-  }
 
   return frame;
 }
@@ -147,16 +149,17 @@
 
 /* Functions */
 
-CTFramesetterRef CTFramesetterCreateWithAttributedString(CFAttributedStringRef string)
+CTFramesetterRef CTFramesetterCreateWithAttributedString(
+  CFAttributedStringRef string)
 {
   return [[CTFramesetter alloc] initWithAttributedString: string];
 }
 
 CTFrameRef CTFramesetterCreateFrame(
-	CTFramesetterRef framesetter,
-	CFRange stringRange,
-	CGPathRef path,
-	CFDictionaryRef attributes)
+  CTFramesetterRef framesetter,
+  CFRange stringRange,
+  CGPathRef path,
+  CFDictionaryRef attributes)
 {
   return [framesetter createFrameWithRange: stringRange
                                       path: path
@@ -169,11 +172,11 @@ CTTypesetterRef CTFramesetterGetTypesetter(CTFramesetterRef framesetter)
 }
 
 CGSize CTFramesetterSuggestFrameSizeWithConstraints(
-	CTFramesetterRef framesetter,
-	CFRange stringRange,
-	CFDictionaryRef attributes,
-	CGSize constraints,
-	CFRange* fitRange)
+  CTFramesetterRef framesetter,
+  CFRange stringRange,
+  CFDictionaryRef attributes,
+  CGSize constraints,
+  CFRange* fitRange)
 {
   return [framesetter suggestFrameSizeWithRange: stringRange
                                      attributes: attributes

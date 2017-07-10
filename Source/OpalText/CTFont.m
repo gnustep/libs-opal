@@ -11,12 +11,12 @@
    modify it under the terms of the GNU Lesser General Public
    License as published by the Free Software Foundation; either
    version 2.1 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
    Lesser General Public License for more details.
-   
+
    You should have received a copy of the GNU Lesser General Public
    License along with this library; if not, write to the Free Software
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
@@ -48,20 +48,31 @@ const CFStringRef kCTFontLicenseURLNameKey = @"kCTFontLicenseURLNameKey";
 const CFStringRef kCTFontSampleTextNameKey = @"kCTFontSampleTextNameKey";
 const CFStringRef kCTFontPostScriptCIDNameKey = @"kCTFontPostScriptCIDNameKey";
 
-const CFStringRef kCTFontVariationAxisIdentifierKey = @"kCTFontVariationAxisIdentifierKey";
-const CFStringRef kCTFontVariationAxisMinimumValueKey = @"kCTFontVariationAxisMinimumValueKey";
-const CFStringRef kCTFontVariationAxisMaximumValueKey = @"kCTFontVariationAxisMaximumValueKey";
-const CFStringRef kCTFontVariationAxisDefaultValueKey = @"kCTFontVariationAxisDefaultValueKey";
+const CFStringRef kCTFontVariationAxisIdentifierKey =
+  @"kCTFontVariationAxisIdentifierKey";
+const CFStringRef kCTFontVariationAxisMinimumValueKey =
+  @"kCTFontVariationAxisMinimumValueKey";
+const CFStringRef kCTFontVariationAxisMaximumValueKey =
+  @"kCTFontVariationAxisMaximumValueKey";
+const CFStringRef kCTFontVariationAxisDefaultValueKey =
+  @"kCTFontVariationAxisDefaultValueKey";
 const CFStringRef kCTFontVariationAxisNameKey = @"kCTFontVariationAxisNameKey";
 
-const CFStringRef kCTFontFeatureTypeIdentifierKey = @"kCTFontFeatureTypeIdentifierKey";
+const CFStringRef kCTFontFeatureTypeIdentifierKey =
+  @"kCTFontFeatureTypeIdentifierKey";
 const CFStringRef kCTFontFeatureTypeNameKey = @"kCTFontFeatureTypeNameKey";
-const CFStringRef kCTFontFeatureTypeExclusiveKey = @"kCTFontFeatureTypeExclusiveKey";
-const CFStringRef kCTFontFeatureTypeSelectorsKey = @"kCTFontFeatureTypeSelectorsKey";
-const CFStringRef kCTFontFeatureSelectorIdentifierKey = @"kCTFontFeatureSelectorIdentifierKey";
-const CFStringRef kCTFontFeatureSelectorNameKey = @"kCTFontFeatureSelectorNameKey";
-const CFStringRef kCTFontFeatureSelectorDefaultKey = @"kCTFontFeatureSelectorDefaultKey";
-const CFStringRef kCTFontFeatureSelectorSettingKey = @"kCTFontFeatureSelectorSettingKey";
+const CFStringRef kCTFontFeatureTypeExclusiveKey =
+  @"kCTFontFeatureTypeExclusiveKey";
+const CFStringRef kCTFontFeatureTypeSelectorsKey =
+  @"kCTFontFeatureTypeSelectorsKey";
+const CFStringRef kCTFontFeatureSelectorIdentifierKey =
+  @"kCTFontFeatureSelectorIdentifierKey";
+const CFStringRef kCTFontFeatureSelectorNameKey =
+  @"kCTFontFeatureSelectorNameKey";
+const CFStringRef kCTFontFeatureSelectorDefaultKey =
+  @"kCTFontFeatureSelectorDefaultKey";
+const CFStringRef kCTFontFeatureSelectorSettingKey =
+  @"kCTFontFeatureSelectorSettingKey";
 
 /* Classes */
 
@@ -76,15 +87,18 @@ CTFontRef CTFontCreateForString(
   CFRange range)
 {
   NSRange nsrange = NSMakeRange(range.location, range.length);
-  NSCharacterSet *set = [NSCharacterSet characterSetWithCharactersInString:[str substringWithRange: nsrange]];
+  NSCharacterSet *set = [NSCharacterSet characterSetWithCharactersInString: [str
+                                        substringWithRange: nsrange]];
 
   NSDictionary *attrs = [NSDictionary dictionaryWithObjectsAndKeys:
-	set, kCTFontCharacterSetAttribute,
-    	nil];
+                                      set, kCTFontCharacterSetAttribute,
+                                      nil];
 
-  OPFontDescriptor *descriptor = [OPFontDescriptor fontDescriptorWithFontAttributes: attrs];
+  OPFontDescriptor *descriptor = [OPFontDescriptor
+                                  fontDescriptorWithFontAttributes: attrs];
 
-  return CTFontCreateCopyWithAttributes(base, CTFontGetSize(base), NULL, descriptor);
+  return CTFontCreateCopyWithAttributes(base, CTFontGetSize(base), NULL,
+                                        descriptor);
 }
 
 CTFontRef CTFontCreateWithFontDescriptor(
@@ -92,7 +106,8 @@ CTFontRef CTFontCreateWithFontDescriptor(
   CGFloat size,
   const CGAffineTransform *matrixPtr)
 {
-  return CTFontCreateWithFontDescriptorAndOptions(descriptor, size, matrixPtr, kCTFontOptionsDefault);
+  return CTFontCreateWithFontDescriptorAndOptions(descriptor, size, matrixPtr,
+         kCTFontOptionsDefault);
 }
 
 CTFontRef CTFontCreateWithFontDescriptorAndOptions(
@@ -104,26 +119,28 @@ CTFontRef CTFontCreateWithFontDescriptorAndOptions(
   NSDictionary *addedAttributes;
 
   if (size == 0.0)
-  {
-    size = 12.0;
-  }
+    {
+      size = 12.0;
+    }
 
   if (matrixPtr)
-  {
-    addedAttributes = [NSDictionary dictionaryWithObjectsAndKeys:
-      [NSNumber numberWithDouble: size], kCTFontSizeAttribute,
-      [NSData dataWithBytes: matrixPtr length: sizeof(CGAffineTransform)], kCTFontMatrixAttribute,
-      nil];
-  }
+    {
+      addedAttributes = [NSDictionary dictionaryWithObjectsAndKeys:
+                                      [NSNumber numberWithDouble: size], kCTFontSizeAttribute,
+                                      [NSData dataWithBytes: matrixPtr length: sizeof(CGAffineTransform)],
+                                      kCTFontMatrixAttribute,
+                                      nil];
+    }
   else
-  {
-    addedAttributes = [NSDictionary dictionaryWithObjectsAndKeys:
-      [NSNumber numberWithDouble: size], kCTFontSizeAttribute,
-      nil];
-  }
+    {
+      addedAttributes = [NSDictionary dictionaryWithObjectsAndKeys:
+                                      [NSNumber numberWithDouble: size], kCTFontSizeAttribute,
+                                      nil];
+    }
 
-  return [[OPFont fontWithDescriptor: [descriptor fontDescriptorByAddingAttributes: addedAttributes]
-                             options: opts] retain];
+  return [[OPFont fontWithDescriptor: [descriptor
+                                       fontDescriptorByAddingAttributes: addedAttributes]
+           options: opts] retain];
 }
 
 CTFontRef CTFontCreateWithGraphicsFont(
@@ -135,26 +152,28 @@ CTFontRef CTFontCreateWithGraphicsFont(
   NSDictionary *addedAttributes;
 
   if (size == 0.0)
-  {
-    size = 12.0;
-  }
+    {
+      size = 12.0;
+    }
 
   if (matrixPtr)
-  {
-    addedAttributes = [NSDictionary dictionaryWithObjectsAndKeys:
-      [NSNumber numberWithDouble: size], kCTFontSizeAttribute,
-      [NSData dataWithBytes: matrixPtr length: sizeof(CGAffineTransform)], kCTFontMatrixAttribute,
-      nil];
-  }
+    {
+      addedAttributes = [NSDictionary dictionaryWithObjectsAndKeys:
+                                      [NSNumber numberWithDouble: size], kCTFontSizeAttribute,
+                                      [NSData dataWithBytes: matrixPtr length: sizeof(CGAffineTransform)],
+                                      kCTFontMatrixAttribute,
+                                      nil];
+    }
   else
-  {
-    addedAttributes = [NSDictionary dictionaryWithObjectsAndKeys:
-      [NSNumber numberWithDouble: size], kCTFontSizeAttribute,
-      nil];
-  }
+    {
+      addedAttributes = [NSDictionary dictionaryWithObjectsAndKeys:
+                                      [NSNumber numberWithDouble: size], kCTFontSizeAttribute,
+                                      nil];
+    }
 
   return [[OPFont fontWithGraphicsFont: cgFont
-                  additionalDescriptor: [descriptor fontDescriptorByAddingAttributes: addedAttributes]] retain];
+           additionalDescriptor: [descriptor fontDescriptorByAddingAttributes:
+                                  addedAttributes]] retain];
 }
 
 CTFontRef CTFontCreateWithName(
@@ -162,7 +181,8 @@ CTFontRef CTFontCreateWithName(
   CGFloat size,
   const CGAffineTransform *matrixPtr)
 {
-  return CTFontCreateWithNameAndOptions(name, size, matrixPtr, kCTFontOptionsDefault);
+  return CTFontCreateWithNameAndOptions(name, size, matrixPtr,
+                                        kCTFontOptionsDefault);
 }
 
 CTFontRef CTFontCreateWithNameAndOptions(
@@ -172,12 +192,14 @@ CTFontRef CTFontCreateWithNameAndOptions(
   CTFontOptions opts)
 {
   NSDictionary *attrs = [NSDictionary dictionaryWithObjectsAndKeys:
-    name, kCTFontNameAttribute,
-    nil];
+                                      name, kCTFontNameAttribute,
+                                      nil];
 
-  OPFontDescriptor *descriptor = [OPFontDescriptor fontDescriptorWithFontAttributes: attrs];
+  OPFontDescriptor *descriptor = [OPFontDescriptor
+                                  fontDescriptorWithFontAttributes: attrs];
 
-  return CTFontCreateWithFontDescriptorAndOptions(descriptor, size, matrixPtr, opts);
+  return CTFontCreateWithFontDescriptorAndOptions(descriptor, size, matrixPtr,
+         opts);
 }
 
 CTFontRef CTFontCreateWithPlatformFont(
@@ -203,22 +225,24 @@ CTFontRef CTFontCreateUIFontForLanguage(
   CGFloat size,
   CFStringRef language)
 {
-  if ([[OPFont class] respondsToSelector:@selector(UIFontWithType:size:forLangage:)])
-  {
-    return [[OPFont UIFontWithType: type size: size forLanguage: language] retain];
-  }
+  if ([[OPFont class] respondsToSelector: @selector(UIFontWithType: size:
+                      forLangage:)])
+    {
+      return [[OPFont UIFontWithType: type size: size forLanguage: language] retain];
+    }
   else
-  {
-    NSLog(@"Warning, Opal delegate CTFontCreateUIFontForLanguage to GNUstep gui");
-    
-		NSDictionary *attrs = [NSDictionary dictionaryWithObjectsAndKeys:
-		  [NSArray arrayWithObject: language], kCTFontLanguagesAttribute,
-		  nil];
+    {
+      NSLog(@"Warning, Opal delegate CTFontCreateUIFontForLanguage to GNUstep gui");
 
-		OPFontDescriptor *descriptor = [OPFontDescriptor fontDescriptorWithFontAttributes: attrs];
+      NSDictionary *attrs = [NSDictionary dictionaryWithObjectsAndKeys:
+                                          [NSArray arrayWithObject: language], kCTFontLanguagesAttribute,
+                                          nil];
 
-		return CTFontCreateWithFontDescriptor(descriptor, size, NULL);
-  }
+      OPFontDescriptor *descriptor = [OPFontDescriptor
+                                      fontDescriptorWithFontAttributes: attrs];
+
+      return CTFontCreateWithFontDescriptor(descriptor, size, NULL);
+    }
 }
 
 /* Copying & Conversion */
@@ -249,7 +273,8 @@ CTFontRef CTFontCreateCopyWithFamily(
   CFStringRef family)
 {
   //FIXME: should return nil if the result doesn't have the desired family
-  return CTFontCreateWithFontDescriptor([[font fontDescriptor] fontDescriptorWithFamily: family], size, matrixPtr);
+  return CTFontCreateWithFontDescriptor([[font fontDescriptor]
+                                         fontDescriptorWithFamily: family], size, matrixPtr);
 }
 
 void *CTFontGetPlatformFont(
@@ -485,7 +510,8 @@ CFCharacterSetRef CTFontCopyCharacterSet(CTFontRef font)
 
 CFArrayRef CTFontCopySupportedLanguages(CTFontRef font)
 {
-  return [[[font fontDescriptor] objectForKey: kCTFontLanguagesAttribute] retain]; 
+  return [[[font fontDescriptor] objectForKey: kCTFontLanguagesAttribute]
+                                 retain];
 }
 
 /* Name */
@@ -508,7 +534,7 @@ CFStringRef CTFontCopyLocalizedName(
   CFStringRef *language)
 {
   return [[font localizedNameForKey: key
-                           language: language] retain];
+           language: language] retain];
 }
 
 CFStringRef CTFontCopyPostScriptName(CTFontRef font)

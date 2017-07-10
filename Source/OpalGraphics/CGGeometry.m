@@ -11,12 +11,12 @@
    modify it under the terms of the GNU Lesser General Public
    License as published by the Free Software Foundation; either
    version 2.1 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    Lesser General Public License for more details.
-   
+
    You should have received a copy of the GNU Lesser General Public
    License along with this library; if not, write to the Free Software
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
@@ -88,7 +88,7 @@ CGRect CGRectIntersection(CGRect r1, CGRect r2)
   if (r1.origin.x + r1.size.width <= r2.origin.x ||
       r2.origin.x + r2.size.width <= r1.origin.x ||
       r1.origin.y + r1.size.height <= r2.origin.y ||
-      r2.origin.y + r2.size.height <= r1.origin.y) 
+      r2.origin.y + r2.size.height <= r1.origin.y)
     return CGRectNull;
 
   rect.origin.x = (r1.origin.x > r2.origin.x ? r1.origin.x : r2.origin.x);
@@ -123,46 +123,59 @@ void CGRectDivide(CGRect rect, CGRect *slice, CGRect *remainder,
   rect = CGRectStandardize(rect);
   *slice = rect;
   *remainder = rect;
-  switch (edge) {
-    case CGRectMinXEdge:
-      remainder->origin.x += amount;
-      if (amount < rect.size.width) {
-        slice->size.width = amount;
-        remainder->size.width -= amount;
-      } else {
-        remainder->size.width = 0;
-      }
-      break;
-    case CGRectMinYEdge:
-      remainder->origin.y += amount;
-      if (amount < rect.size.height) {
-        slice->size.height = amount;
-        remainder->size.height -= amount;
-      } else {
-        remainder->size.height = 0;
-      }
-      break;
-    case CGRectMaxXEdge:
-      if (amount < rect.size.width) {
-        slice->origin.x += rect.size.width - amount;
-        slice->size.width = amount;
-        remainder->size.width -= amount;
-      } else {
-        remainder->size.width = 0;
-      }        
-      break;
-    case CGRectMaxYEdge:
-      if (amount < rect.size.height) {
-        slice->origin.y += rect.size.height - amount;
-        slice->size.height = amount;
-        remainder->size.height -= amount;
-      } else {
-        remainder->size.height = 0;
-      }        
-      break;
-    default:
-      break;
-  }
+  switch (edge)
+    {
+      case CGRectMinXEdge:
+        remainder->origin.x += amount;
+        if (amount < rect.size.width)
+          {
+            slice->size.width = amount;
+            remainder->size.width -= amount;
+          }
+        else
+          {
+            remainder->size.width = 0;
+          }
+        break;
+      case CGRectMinYEdge:
+        remainder->origin.y += amount;
+        if (amount < rect.size.height)
+          {
+            slice->size.height = amount;
+            remainder->size.height -= amount;
+          }
+        else
+          {
+            remainder->size.height = 0;
+          }
+        break;
+      case CGRectMaxXEdge:
+        if (amount < rect.size.width)
+          {
+            slice->origin.x += rect.size.width - amount;
+            slice->size.width = amount;
+            remainder->size.width -= amount;
+          }
+        else
+          {
+            remainder->size.width = 0;
+          }
+        break;
+      case CGRectMaxYEdge:
+        if (amount < rect.size.height)
+          {
+            slice->origin.y += rect.size.height - amount;
+            slice->size.height = amount;
+            remainder->size.height -= amount;
+          }
+        else
+          {
+            remainder->size.height = 0;
+          }
+        break;
+      default:
+        break;
+    }
 }
 
 CGRect CGRectUnion(CGRect r1, CGRect r2)
@@ -180,8 +193,10 @@ CGRect CGRectUnion(CGRect r1, CGRect r2)
   r2 = CGRectStandardize(r2);
   rect.origin.x = MIN(r1.origin.x, r2.origin.x);
   rect.origin.y = MIN(r1.origin.y, r2.origin.y);
-  rect.size.width = MAX(r1.origin.x + r1.size.width, r2.origin.x + r2.size.width);
-  rect.size.height = MAX(r1.origin.y + r1.size.height, r2.origin.y + r2.size.height);
+  rect.size.width = MAX(r1.origin.x + r1.size.width,
+                        r2.origin.x + r2.size.width);
+  rect.size.height = MAX(r1.origin.y + r1.size.height,
+                         r2.origin.y + r2.size.height);
   return rect;
 }
 
@@ -189,9 +204,10 @@ CFDictionaryRef CGPointCreateDictionaryRepresentation(CGPoint point)
 {
   // FIXME: implement
   return nil;
-}  
+}
 
-bool CGPointMakeWithDictionaryRepresentation(CFDictionaryRef dict, CGPoint *point)
+bool CGPointMakeWithDictionaryRepresentation(CFDictionaryRef dict,
+    CGPoint *point)
 {
   // FIXME: implement
   return false;

@@ -62,18 +62,20 @@ static const NSString *kOPFreeTypeLibrary = @"OPFreeTypeLibrary";
 - (FT_Library)currentThreadFreeTypeLibrary
 {
   NSMutableDictionary *threadDict = [[NSThread currentThread] threadDictionary];
- 
+
   if (nil == [threadDict objectForKey: kOPFreeTypeLibrary])
-  {
-    FT_Library library = NULL;
-    NSInteger error = FT_Init_FreeType(&library);
-    if (0 != error)
     {
-      [NSException raise: @"OTFontSystemException"
-                  format: @"An error (%ld) occurred when initializing the FreeType library.", error];
+      FT_Library library = NULL;
+      NSInteger error = FT_Init_FreeType(&library);
+      if (0 != error)
+        {
+          [NSException raise: @"OTFontSystemException"
+                      format: @"An error (%ld) occurred when initializing the FreeType library.",
+                       error];
+        }
+      [threadDict setObject: [NSValue valueWithPointer: library] forKey:
+                  kOPFreeTypeLibrary];
     }
-    [threadDict setObject: [NSValue valueWithPointer: library] forKey: kOPFreeTypeLibrary];
-  }
 
   return [[threadDict objectForKey: kOPFreeTypeLibrary] pointerValue];
 }
@@ -86,41 +88,43 @@ static const NSString *kOPFreeTypeLibrary = @"OPFreeTypeLibrary";
   NSInteger faceIndex = NSNotFound;
   if (nil == (self = [super _initWithDescriptor: aDescriptor
                                         options: options]))
-  {
-    return nil;
-  }
+    {
+      return nil;
+    }
   /*
    * FIXME: It is ugly to rely on the font descriptor being a
    * OPFontconfigFontDescriptor but it is probably the most common situation.
    */
   if ([aDescriptor respondsToSelector: @selector(_fontPath)])
-  {
-    path = [[_descriptor _fontPath] UTF8String];
-  }
+    {
+      path = [[_descriptor _fontPath] UTF8String];
+    }
   else
-  {
-    path = NULL;
-  }
+    {
+      path = NULL;
+    }
   if ([aDescriptor respondsToSelector: @selector(_fontfaceIndex)])
-  {
-    faceIndex = [_descriptor _fontfaceIndex];
-  }
+    {
+      faceIndex = [_descriptor _fontfaceIndex];
+    }
 
   if ((NSNotFound == faceIndex) || (NULL == path))
-  {
-    NSWarnMLog(@"Could not read freetype intialization information from font descriptor");
-    [self release];
-    return nil;
-  }
+    {
+      NSWarnMLog(
+        @"Could not read freetype intialization information from font descriptor");
+      [self release];
+      return nil;
+    }
 
-  error = FT_New_Face([self currentThreadFreeTypeLibrary], path, faceIndex, &fontFace);
+  error = FT_New_Face([self currentThreadFreeTypeLibrary], path, faceIndex,
+                      &fontFace);
   if (0 != error)
-  {
-    NSWarnMLog(@"Could not initialize freetype font (error: %ld)",
-      error);
-    [self release];
-    return nil;
-  }
+    {
+      NSWarnMLog(@"Could not initialize freetype font (error: %ld)",
+                 error);
+      [self release];
+      return nil;
+    }
 
   /*
    * Check whether we are dealing with an sfnt packaged font. If not, we may be
@@ -128,22 +132,22 @@ static const NSString *kOPFreeTypeLibrary = @"OPFreeTypeLibrary";
    * metrics from the corresponding afm file.
    */
   if ((0 == faceIndex) && (NO == (BOOL)FT_IS_SFNT(fontFace)))
-  {
-    if (NO == [self attachMetricsForFontAtPath: [_descriptor _fontPath]])
     {
-      [self release];
-      return nil;
+      if (NO == [self attachMetricsForFontAtPath: [_descriptor _fontPath]])
+        {
+          [self release];
+          return nil;
+        }
+      else
+        {
+          /*
+           * We were able to load the metrics for the font and flag the font object
+           * accordingly.
+           * FIXME: Move to another subclass in this case.
+           */
+          isType1 = YES;
+        }
     }
-    else
-    {
-      /*
-       * We were able to load the metrics for the font and flag the font object
-       * accordingly.
-       * FIXME: Move to another subclass in this case.
-       */
-      isType1 = YES;
-    }
-  }
   // At this point, we are sure that freetype has a proper reference to the
   // font, so it's worth setting up our table cache now.
   tableCache = [[NSCache alloc] init];
@@ -168,18 +172,18 @@ static const NSString *kOPFreeTypeLibrary = @"OPFreeTypeLibrary";
   NSInteger error = 0;
 
   if ([@"pfa" isEqual: extension] || [@"pfb" isEqual: extension])
-  {
-    /*
-     * If the file already has a proper Type-1 extension, we assume that we need
-     * to replace that with .afm. Hence, we remove the extension from the path
-     * at this point.
-     */
-    afmPath = [path substringToIndex: ([path length] - 4)];
-  }
+    {
+      /*
+       * If the file already has a proper Type-1 extension, we assume that we need
+       * to replace that with .afm. Hence, we remove the extension from the path
+       * at this point.
+       */
+      afmPath = [path substringToIndex: ([path length] - 4)];
+    }
   else
-  {
-    afmPath = path;
-  }
+    {
+      afmPath = path;
+    }
 
   // Add the proper extension
   afmPath = [afmPath stringByAppendingString: @".afm"];
@@ -200,28 +204,28 @@ static const NSString *kOPFreeTypeLibrary = @"OPFreeTypeLibrary";
   NSData *table = nil;
 
   if (0 == tag)
-  {
-    // tag == 0 means "whole file", and the caller didn't really mean that.
-    return nil;
-  }
+    {
+      // tag == 0 means "whole file", and the caller didn't really mean that.
+      return nil;
+    }
 
   // First, run with a NULL pointer for the buffer to obtain the length needed.
   [fontFaceLock lock];
   error = FT_Load_Sfnt_Table(fontFace, tag, 0, NULL, &length);
 
   if (0 != error)
-  {
-    [fontFaceLock unlock];
-    return nil;
-  }
+    {
+      [fontFaceLock unlock];
+      return nil;
+    }
 
   // Allocate memory for the table:
   buffer = malloc(length);
   if (NULL == buffer)
-  {
-    [fontFaceLock unlock];
-    return nil;
-  }
+    {
+      [fontFaceLock unlock];
+      return nil;
+    }
 
   // Now load the table into the buffer:
   error = FT_Load_Sfnt_Table(fontFace, tag, 0, buffer, &length);
@@ -229,11 +233,11 @@ static const NSString *kOPFreeTypeLibrary = @"OPFreeTypeLibrary";
   [fontFaceLock unlock];
 
   if (0 != error)
-  {
-    // Oops, we could not fill the buffer, so we throw it away.
-    free(buffer);
-    return nil;
-  }
+    {
+      // Oops, we could not fill the buffer, so we throw it away.
+      free(buffer);
+      return nil;
+    }
 
   table = [NSData dataWithBytesNoCopy: buffer
                                length: length];
@@ -256,15 +260,15 @@ static const NSString *kOPFreeTypeLibrary = @"OPFreeTypeLibrary";
                                                       length: 4];
   NSData *table = [tableCache objectForKey: tagString];
   if (nil == table)
-  {
-    table = [self loadTableForTag: tag];
-    if (table != nil)
     {
-      [tableCache setObject: table
-                     forKey: tagString
-		       cost: [table length]];
+      table = [self loadTableForTag: tag];
+      if (table != nil)
+        {
+          [tableCache setObject: table
+                         forKey: tagString
+                           cost: [table length]];
+        }
     }
-  }
 
   [tagString release];
   return table;
@@ -282,7 +286,8 @@ static const NSString *kOPFreeTypeLibrary = @"OPFreeTypeLibrary";
 - (CGFloat)ascender
 {
   [fontFaceLock lock];
-  CGFloat result = ((fontFace->ascender * [_descriptor pointSize]) / (CGFloat)fontFace->units_per_EM);
+  CGFloat result = ((fontFace->ascender * [_descriptor pointSize]) /
+                    (CGFloat)fontFace->units_per_EM);
   [fontFaceLock unlock];
 
   return result;
@@ -292,7 +297,8 @@ static const NSString *kOPFreeTypeLibrary = @"OPFreeTypeLibrary";
 - (CGFloat)descender
 {
   [fontFaceLock lock];
-  CGFloat result = ((fontFace->descender * [_descriptor pointSize]) / (CGFloat)fontFace->units_per_EM);
+  CGFloat result = ((fontFace->descender * [_descriptor pointSize]) /
+                    (CGFloat)fontFace->units_per_EM);
   [fontFaceLock unlock];
 
   return result;
@@ -308,10 +314,10 @@ static const NSString *kOPFreeTypeLibrary = @"OPFreeTypeLibrary";
   [fontFaceLock lock];
   TT_OS2* OS2Table = FT_Get_Sfnt_Table(fontFace, TTAG_OS2);
   if (NULL == OS2Table)
-  {
-    [fontFaceLock unlock];
-    return 0;
-  }
+    {
+      [fontFaceLock unlock];
+      return 0;
+    }
   rawCapHeight = OS2Table->sCapHeight;
   [fontFaceLock unlock];
 
@@ -325,10 +331,10 @@ static const NSString *kOPFreeTypeLibrary = @"OPFreeTypeLibrary";
   [fontFaceLock lock];
   TT_OS2* OS2Table = FT_Get_Sfnt_Table(fontFace, TTAG_OS2);
   if (NULL == OS2Table)
-  {
-    [fontFaceLock unlock];
-    return 0;
-  }
+    {
+      [fontFaceLock unlock];
+      return 0;
+    }
   rawXHeight = OS2Table->sxHeight;
   [fontFaceLock unlock];
 
@@ -343,10 +349,10 @@ static const NSString *kOPFreeTypeLibrary = @"OPFreeTypeLibrary";
   [fontFaceLock lock];
   TT_Postscript *postTable = FT_Get_Sfnt_Table(fontFace, TTAG_post);
   if (NULL == postTable)
-  {
-    [fontFaceLock unlock];
-    return NO;
-  }
+    {
+      [fontFaceLock unlock];
+      return NO;
+    }
   isFixedPitch = postTable->isFixedPitch;
   [fontFaceLock unlock];
 
@@ -359,10 +365,10 @@ static const NSString *kOPFreeTypeLibrary = @"OPFreeTypeLibrary";
   [fontFaceLock lock];
   TT_Postscript *postTable = FT_Get_Sfnt_Table(fontFace, TTAG_post);
   if (NULL == postTable)
-  {
-    [fontFaceLock unlock];
-    return 0;
-  }
+    {
+      [fontFaceLock unlock];
+      return 0;
+    }
   rawItalicAngle = postTable->italicAngle;
   [fontFaceLock unlock];
 
@@ -381,10 +387,10 @@ static const NSString *kOPFreeTypeLibrary = @"OPFreeTypeLibrary";
   [fontFaceLock lock];
   TT_HoriHeader *hheaTable = FT_Get_Sfnt_Table(fontFace, TTAG_hhea);
   if (NULL == hheaTable)
-  {
-    [fontFaceLock unlock];
-    return 0;
-  }
+    {
+      [fontFaceLock unlock];
+      return 0;
+    }
   rawLineGap = hheaTable->Line_Gap;
   [fontFaceLock unlock];
 
@@ -397,7 +403,8 @@ static const NSString *kOPFreeTypeLibrary = @"OPFreeTypeLibrary";
    * FIXME: We should make this conditional on horizontal/vertical orientation.
    */
   [fontFaceLock lock];
-  NSSize size = NSMakeSize(REAL_SIZE(fontFace->max_advance_width), REAL_SIZE(fontFace->max_advance_height));
+  NSSize size = NSMakeSize(REAL_SIZE(fontFace->max_advance_width),
+                           REAL_SIZE(fontFace->max_advance_height));
   [fontFaceLock unlock];
 
   return size;
@@ -412,7 +419,7 @@ static const NSString *kOPFreeTypeLibrary = @"OPFreeTypeLibrary";
    */
   [fontFaceLock lock];
   NSSize size = NSMakeSize(REAL_SIZE((fontFace->bbox).xMin),
-    REAL_SIZE((fontFace->bbox).yMin));
+                           REAL_SIZE((fontFace->bbox).yMin));
   [fontFaceLock unlock];
 
   return size;
@@ -431,10 +438,10 @@ static const NSString *kOPFreeTypeLibrary = @"OPFreeTypeLibrary";
   [fontFaceLock lock];
   TT_Postscript *postTable = FT_Get_Sfnt_Table(fontFace, TTAG_post);
   if (NULL == postTable)
-  {
-    [fontFaceLock unlock];
-    return 0;
-  }
+    {
+      [fontFaceLock unlock];
+      return 0;
+    }
   CGFloat position = TRANSFORMED_SIZE(0, postTable->underlinePosition).height;
   [fontFaceLock unlock];
   return position;
@@ -445,10 +452,10 @@ static const NSString *kOPFreeTypeLibrary = @"OPFreeTypeLibrary";
   [fontFaceLock lock];
   TT_Postscript *postTable = FT_Get_Sfnt_Table(fontFace, TTAG_post);
   if (NULL == postTable)
-  {
-    [fontFaceLock unlock];
-    return 0;
-  }
+    {
+      [fontFaceLock unlock];
+      return 0;
+    }
   CGFloat thickness = TRANSFORMED_SIZE(0, postTable->underlineThickness).height;
   [fontFaceLock unlock];
   return thickness;
@@ -457,13 +464,13 @@ static const NSString *kOPFreeTypeLibrary = @"OPFreeTypeLibrary";
 - (NSSize)advancementForGlyph: (NSGlyph)glyph
 {
   if ((NSNullGlyph == glyph) || (NSControlGlyph == glyph))
-  {
-    return NSMakeSize(0, 0);
-  }
+    {
+      return NSMakeSize(0, 0);
+    }
   [fontFaceLock lock];
   FT_Load_Glyph(fontFace, glyph, FT_LOAD_DEFAULT);
   NSSize size = NSMakeSize(REAL_SIZE(fontFace->glyph->linearHoriAdvance),
-    REAL_SIZE(fontFace->glyph->linearVertAdvance));
+                           REAL_SIZE(fontFace->glyph->linearVertAdvance));
   [fontFaceLock unlock];
 
   return size;
@@ -475,26 +482,26 @@ static const NSString *kOPFreeTypeLibrary = @"OPFreeTypeLibrary";
 
 - (void)getAdvancements: (NSSizeArray)advancements
               forGlyphs: (const NSGlyph*)glyphs
-	          count: (NSUInteger)glyphCount
+                  count: (NSUInteger)glyphCount
 {
   NSSize nullSize = NSMakeSize(0,0);
   for (int i = 0; i < glyphCount; i++, glyphs++, advancements++)
-  {
-    if ((NSNullGlyph == *glyphs) || (NSControlGlyph == *glyphs))
     {
-      *advancements = nullSize;
+      if ((NSNullGlyph == *glyphs) || (NSControlGlyph == *glyphs))
+        {
+          *advancements = nullSize;
+        }
+      else
+        {
+          //TODO: Optimize if too slow.
+          *advancements = [self advancementForGlyph: *glyphs];
+        }
     }
-    else
-    {
-      //TODO: Optimize if too slow.
-      *advancements = [self advancementForGlyph: *glyphs];
-    }
-  }
 }
 
 - (void)getAdvancements: (NSSizeArray)advancements
         forPackedGlyphs: (const void*)packedGlyphs
-	         length: (NSUInteger)length
+                 length: (NSUInteger)length
 {
   /*
    * We only support NSNativeShortGlyphPacking, which gives us glyph streams
@@ -505,24 +512,26 @@ static const NSString *kOPFreeTypeLibrary = @"OPFreeTypeLibrary";
   NSUInteger glyphsPerWord = sizeof(void*)/sizeof(unsigned short);
   NSUInteger maxGlyphCount = length * glyphsPerWord;
   NSUInteger step = 0;
-  for (int i=0; i < maxGlyphCount; i++, step = (i / sizeof(void*)), advancements++)
-  {
-    /*
-     * Mask the value by bit-shifting it to the correct starting point,
-     * truncating it to short, and converting it back to host byte-order.
-     */
+  for (int i=0; i < maxGlyphCount;
+       i++, step = (i / sizeof(void*)), advancements++)
+    {
+      /*
+       * Mask the value by bit-shifting it to the correct starting point,
+       * truncating it to short, and converting it back to host byte-order.
+       */
 
-    /*
-     * The modulus of index and word size calculates how many glyphs we
-     * processed in this word, so we shift the content of the word by n
-     * times the size of short.
-     */
-    NSUInteger shift = ((i % sizeof(void*)) * sizeof(unsigned short));
-    NSGlyph glyph = NSSwapBigShortToHost((unsigned short)(((intptr_t*)packedGlyphs)[step] << shift));
+      /*
+       * The modulus of index and word size calculates how many glyphs we
+       * processed in this word, so we shift the content of the word by n
+       * times the size of short.
+       */
+      NSUInteger shift = ((i % sizeof(void*)) * sizeof(unsigned short));
+      NSGlyph glyph = NSSwapBigShortToHost((unsigned short)(((
+                                             intptr_t*)packedGlyphs)[step] << shift));
 
-    // TODO: Optimize if too slow
-    *advancements = [self advancementForGlyph: glyph];
-  }
+      // TODO: Optimize if too slow
+      *advancements = [self advancementForGlyph: glyph];
+    }
 }
 
 - (NSRect)boundingRectForFont
@@ -543,37 +552,38 @@ static const NSString *kOPFreeTypeLibrary = @"OPFreeTypeLibrary";
 {
   //FIXME: Handle vertical typesetting.
   if ((NSNullGlyph == glyph) || (NSControlGlyph == glyph))
-  {
-    return NSMakeRect(0, 0, 0, 0);
-  }
+    {
+      return NSMakeRect(0, 0, 0, 0);
+    }
 
   [fontFaceLock lock];
   FT_Load_Glyph(fontFace, glyph, FT_LOAD_DEFAULT);
-  NSRect result = NSRectFromCGRect(TRANSFORMED_RECT(fontFace->glyph->metrics.horiBearingX,
-    fontFace->glyph->metrics.horiBearingY,
-    fontFace->glyph->metrics.width,
-    fontFace->glyph->metrics.height));
+  NSRect result = NSRectFromCGRect(TRANSFORMED_RECT(
+                                     fontFace->glyph->metrics.horiBearingX,
+                                     fontFace->glyph->metrics.horiBearingY,
+                                     fontFace->glyph->metrics.width,
+                                     fontFace->glyph->metrics.height));
   [fontFaceLock unlock];
   return result;
 }
 
 - (void)getBoundingRects: (NSRectArray)rects
                forGlyphs: (const NSGlyph*)glyphs
-	           count: (NSUInteger)glyphCount
+                   count: (NSUInteger)glyphCount
 {
   NSRect nullRect = NSMakeRect(0,0,0,0);
   for (int i = 0; i < glyphCount; i++, glyphs++, rects++)
-  {
-    if ((NSNullGlyph == *glyphs) || (NSControlGlyph == *glyphs))
     {
-      *rects = nullRect;
+      if ((NSNullGlyph == *glyphs) || (NSControlGlyph == *glyphs))
+        {
+          *rects = nullRect;
+        }
+      else
+        {
+          //TODO: Optimize if too slow.
+          *rects = [self boundingRectForGlyph: *glyphs];
+        }
     }
-    else
-    {
-      //TODO: Optimize if too slow.
-      *rects = [self boundingRectForGlyph: *glyphs];
-    }
-  }
 }
 
 - (NSGlyph)glyphWithName: (NSString*)name
@@ -581,10 +591,10 @@ static const NSString *kOPFreeTypeLibrary = @"OPFreeTypeLibrary";
   [fontFaceLock lock];
   FT_UInt glyph = FT_Get_Name_Index(fontFace, (FT_String*)[name UTF8String]);
   [fontFaceLock unlock];
-  if(0 == glyph)
-  {
-    return NSNullGlyph;
-  }
+  if (0 == glyph)
+    {
+      return NSNullGlyph;
+    }
   return glyph;
 }
 

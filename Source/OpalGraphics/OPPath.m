@@ -28,24 +28,24 @@ static NSUInteger OPNumberOfPointsForElementType(CGPathElementType type)
 {
   NSUInteger numPoints;
   switch (type)
-  {
-    case kCGPathElementMoveToPoint:
-      numPoints = 1;
-      break;
-    case kCGPathElementAddLineToPoint:
-      numPoints = 1;
-      break;
-    case kCGPathElementAddQuadCurveToPoint:
-      numPoints = 2;
-      break;
-    case kCGPathElementAddCurveToPoint:
-      numPoints = 3;
-      break;
-    case kCGPathElementCloseSubpath:
-    default:
-      numPoints = 0;
-      break;
-  }
+    {
+      case kCGPathElementMoveToPoint:
+        numPoints = 1;
+        break;
+      case kCGPathElementAddLineToPoint:
+        numPoints = 1;
+        break;
+      case kCGPathElementAddQuadCurveToPoint:
+        numPoints = 2;
+        break;
+      case kCGPathElementAddCurveToPoint:
+        numPoints = 3;
+        break;
+      case kCGPathElementCloseSubpath:
+      default:
+        numPoints = 0;
+        break;
+    }
   return numPoints;
 }
 
@@ -59,15 +59,15 @@ static NSUInteger OPNumberOfPointsForElementType(CGPathElementType type)
 - (id) initWithCGPath: (CGPathRef)path
 {
   if (path)
-  {
-    [self release];
-    return [path retain];
-  }
+    {
+      [self release];
+      return [path retain];
+    }
   else
-  {
-    self = [super init];
-    return self;
-  }
+    {
+      self = [super init];
+      return self;
+    }
 }
 
 - (void)dealloc
@@ -81,37 +81,38 @@ static NSUInteger OPNumberOfPointsForElementType(CGPathElementType type)
   return _count;
 }
 
-- (CGPathElementType) elementTypeAtIndex: (NSUInteger)index points: (CGPoint*)outPoints
+- (CGPathElementType) elementTypeAtIndex: (NSUInteger)index points:
+  (CGPoint*)outPoints
 {
   OPPathElement elem = _elementsArray[index];
   if (outPoints)
-  {
-    switch (OPNumberOfPointsForElementType(elem.type))
     {
-      case 3:
-        outPoints[2] = elem.points[2];
-      case 2:
-        outPoints[1] = elem.points[1];
-      case 1:
-        outPoints[0] = elem.points[0];
-      case 0:
-      default:
-        break;
+      switch (OPNumberOfPointsForElementType(elem.type))
+        {
+          case 3:
+            outPoints[2] = elem.points[2];
+          case 2:
+            outPoints[1] = elem.points[1];
+          case 1:
+            outPoints[0] = elem.points[0];
+          case 0:
+          default:
+            break;
+        }
     }
-  }
   return elem.type;
 }
 
-- (BOOL)isEqual:(id)otherObj
+- (BOOL)isEqual: (id)otherObj
 {
   if (self == otherObj)
-  {
-    return YES;
-  }
+    {
+      return YES;
+    }
   if (![otherObj isKindOfClass: [CGPath class]])
-  {
-    return NO;
-  }
+    {
+      return NO;
+    }
 
   CGPath *path2 = (CGPath*)otherObj;
 
@@ -119,97 +120,100 @@ static NSUInteger OPNumberOfPointsForElementType(CGPathElementType type)
   NSUInteger count2 = [path2 count];
 
   if (count1 != count2)
-  {
-    return NO;
-  }
-
-  for (NSUInteger i=0; i<count1; i++)
-  {
-    CGPoint points1[3];
-    CGPoint points2[3];
-    CGPathElementType type1 = [self elementTypeAtIndex: i points: points1];
-    CGPathElementType type2 = [path2 elementTypeAtIndex: i points: points2];
-
-    if (type1 != type2)
     {
       return NO;
     }
 
-    NSUInteger numPoints = OPNumberOfPointsForElementType(type1);
-    for (NSUInteger p=0; p<numPoints; p++)
+  for (NSUInteger i=0; i<count1; i++)
     {
-      if (!CGPointEqualToPoint(points1[p], points2[p]))
-      {
-        return NO;
-      }
+      CGPoint points1[3];
+      CGPoint points2[3];
+      CGPathElementType type1 = [self elementTypeAtIndex: i points: points1];
+      CGPathElementType type2 = [path2 elementTypeAtIndex: i points: points2];
+
+      if (type1 != type2)
+        {
+          return NO;
+        }
+
+      NSUInteger numPoints = OPNumberOfPointsForElementType(type1);
+      for (NSUInteger p=0; p<numPoints; p++)
+        {
+          if (!CGPointEqualToPoint(points1[p], points2[p]))
+            {
+              return NO;
+            }
+        }
     }
-  }
   return YES;
 }
 
 - (BOOL)isRect: (CGRect*)outRect
 {
   if (_count != 5)
-  {
-    return NO;
-  }
+    {
+      return NO;
+    }
 
   if (_elementsArray[0].type != kCGPathElementMoveToPoint ||
-    _elementsArray[1].type != kCGPathElementAddLineToPoint ||
-    _elementsArray[2].type != kCGPathElementAddLineToPoint ||
-    _elementsArray[3].type != kCGPathElementAddLineToPoint ||
-    _elementsArray[4].type != kCGPathElementCloseSubpath)
-  {
-    return NO;
-  }
+      _elementsArray[1].type != kCGPathElementAddLineToPoint ||
+      _elementsArray[2].type != kCGPathElementAddLineToPoint ||
+      _elementsArray[3].type != kCGPathElementAddLineToPoint ||
+      _elementsArray[4].type != kCGPathElementCloseSubpath)
+    {
+      return NO;
+    }
 
   BOOL clockwise;
   if (_elementsArray[1].points[0].x == _elementsArray[0].points[0].x)
-  {
-    clockwise = YES;
-  }
+    {
+      clockwise = YES;
+    }
   if (_elementsArray[1].points[0].y == _elementsArray[0].points[0].y)
-  {
-    clockwise = NO;
-  }
+    {
+      clockwise = NO;
+    }
   else
-  {
-    return NO;
-  }
+    {
+      return NO;
+    }
 
   // Check that it is actually a rectangle
   if (clockwise)
-  {
-    if (_elementsArray[2].points[0].y != _elementsArray[1].points[0].y ||
-        _elementsArray[3].points[0].x != _elementsArray[2].points[0].x ||
-        _elementsArray[3].points[0].y != _elementsArray[0].points[0].y)
     {
-      return NO;
+      if (_elementsArray[2].points[0].y != _elementsArray[1].points[0].y ||
+          _elementsArray[3].points[0].x != _elementsArray[2].points[0].x ||
+          _elementsArray[3].points[0].y != _elementsArray[0].points[0].y)
+        {
+          return NO;
+        }
     }
-  }
   else
-  {
-    if (_elementsArray[2].points[0].x != _elementsArray[1].points[0].x ||
-        _elementsArray[3].points[0].y != _elementsArray[2].points[0].y ||
-        _elementsArray[3].points[0].x != _elementsArray[0].points[0].x)
     {
-      return NO;
+      if (_elementsArray[2].points[0].x != _elementsArray[1].points[0].x ||
+          _elementsArray[3].points[0].y != _elementsArray[2].points[0].y ||
+          _elementsArray[3].points[0].x != _elementsArray[0].points[0].x)
+        {
+          return NO;
+        }
     }
-  }
 
   if (outRect)
-  {
-    outRect->origin = _elementsArray[0].points[0];
-    // FIXME: do we abs the width/height?
-    outRect->size.width = _elementsArray[2].points[0].x - _elementsArray[0].points[0].x;
-    outRect->size.height = _elementsArray[2].points[0].y - _elementsArray[0].points[0].y;
-  }
+    {
+      outRect->origin = _elementsArray[0].points[0];
+      // FIXME: do we abs the width/height?
+      outRect->size.width = _elementsArray[2].points[0].x -
+                            _elementsArray[0].points[0].x;
+      outRect->size.height = _elementsArray[2].points[0].y -
+                             _elementsArray[0].points[0].y;
+    }
   return YES;
 }
 
 - (void) addElementWithType: (CGPathElementType)type points: (CGPoint[])points
 {
-  [NSException raise: NSGenericException format: @"Attempt to modify immutable CGPath"];
+  [NSException raise: NSGenericException format:
+               @"Attempt to modify immutable CGPath"];
 }
 
 @end
@@ -220,32 +224,32 @@ static NSUInteger OPNumberOfPointsForElementType(CGPathElementType type)
 - (void) addElementWithType: (CGPathElementType)type points: (CGPoint[])points
 {
   if (_elementsArray)
-  {
-    if (_count + 1 > _capacity)
     {
-      _capacity += 32;
-      _elementsArray = realloc(_elementsArray, _capacity * sizeof(OPPathElement));
+      if (_count + 1 > _capacity)
+        {
+          _capacity += 32;
+          _elementsArray = realloc(_elementsArray, _capacity * sizeof(OPPathElement));
+        }
     }
-  }
   else
-  {
-    _capacity = 32;
-    _elementsArray = malloc(_capacity * sizeof(OPPathElement));
-  }
+    {
+      _capacity = 32;
+      _elementsArray = malloc(_capacity * sizeof(OPPathElement));
+    }
 
   _elementsArray[_count].type = type;
   switch (OPNumberOfPointsForElementType(type))
-  {
-    case 3:
-      _elementsArray[_count].points[2] = points[2];
-    case 2:
-      _elementsArray[_count].points[1] = points[1];
-    case 1:
-      _elementsArray[_count].points[0] = points[0];
-    case 0:
-    default:
-      break;
-  }
+    {
+      case 3:
+        _elementsArray[_count].points[2] = points[2];
+      case 2:
+        _elementsArray[_count].points[1] = points[1];
+      case 1:
+        _elementsArray[_count].points[0] = points[0];
+      case 0:
+      default:
+        break;
+    }
   _count++;
 }
 
@@ -254,17 +258,17 @@ static NSUInteger OPNumberOfPointsForElementType(CGPathElementType type)
   self = [super init];
 
   if ([path isKindOfClass: [CGPath class]])
-  {
-    _count = path->_count;
-    _capacity = path->_count;
-    _elementsArray = malloc(path->_count * sizeof(OPPathElement));
-    if (NULL == _elementsArray)
     {
-      [self release];
-      return nil;
+      _count = path->_count;
+      _capacity = path->_count;
+      _elementsArray = malloc(path->_count * sizeof(OPPathElement));
+      if (NULL == _elementsArray)
+        {
+          [self release];
+          return nil;
+        }
+      memcpy(_elementsArray, path->_elementsArray, _count * sizeof(OPPathElement));
     }
-    memcpy(_elementsArray, path->_elementsArray, _count * sizeof(OPPathElement));
-  }
 
   return self;
 }
@@ -288,11 +292,12 @@ static NSUInteger OPNumberOfPointsForElementType(CGPathElementType type)
  * simliar appearance for arcs drawn by cairo itself and those added to CGPaths.
  * The values apply for (M_PI / (index + 1)).
  */
-static CGFloat approximationErrorTable[] = {
+static CGFloat approximationErrorTable[] =
+{
   0.0185185185185185036127,
   0.000272567143730179811158,
   2.38647043651461047433e-05,
-  4.2455377443222443279e-06 ,
+  4.2455377443222443279e-06,
   1.11281001494389081528e-06,
   3.72662000942734705475e-07,
   1.47783685574284411325e-07,
@@ -306,12 +311,12 @@ static NSUInteger approximationErrorTableCount = 11;
 
 static inline CGFloat
 _OPPathArcAxisLengthForRadiusByApplyingTransform(CGFloat radius,
-  const CGAffineTransform *m)
+    const CGAffineTransform *m)
 {
   if (NULL == m)
-  {
-    return radius;
-  }
+    {
+      return radius;
+    }
   CGFloat i = ((m->a * m->a) + (m->b * m->b));
   CGFloat j = ((m->c * m->c) + (m->d * m->d));
   CGFloat f = (0.5 * (i + j));
@@ -339,31 +344,34 @@ _OPPathArcMaxAngleForTolerance(CGFloat tolerance)
   NSUInteger index = 0;
 
   for (index = 0; index < approximationErrorTableCount; index++)
-  {
-    if (approximationErrorTable[index] < tolerance)
-	{
-		return (M_PI / (index + 1));
-	}
-  }
+    {
+      if (approximationErrorTable[index] < tolerance)
+        {
+          return (M_PI / (index + 1));
+        }
+    }
   // Increment to get rid of the offset:
   index++;
   do
-  {
-    angle = (M_PI / index++);
-	error = _OPPathArcErrorForAngle(angle);
-  } while (error > tolerance);
+    {
+      angle = (M_PI / index++);
+      error = _OPPathArcErrorForAngle(angle);
+    }
+  while (error > tolerance);
   return 0;
 }
 
 NSUInteger
 _OPPathRequiredArcSegments(CGFloat angle,
-  CGFloat radius,
-  const CGAffineTransform *m)
+                           CGFloat radius,
+                           const CGAffineTransform *m)
 {
   // Transformation can turn the circle arc into the arc of an ellipse, we need
   // its major axis.
-  CGFloat majorAxis = _OPPathArcAxisLengthForRadiusByApplyingTransform(radius, m);
-  CGFloat maxAngle = _OPPathArcMaxAngleForTolerance((OPPathArcDefaultTolerance / majorAxis));
+  CGFloat majorAxis = _OPPathArcAxisLengthForRadiusByApplyingTransform(radius,
+                      m);
+  CGFloat maxAngle = _OPPathArcMaxAngleForTolerance((OPPathArcDefaultTolerance /
+                     majorAxis));
 
   return ceil((fabs(angle) / maxAngle));
 }

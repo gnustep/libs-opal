@@ -8,7 +8,7 @@
 
 /* Taken from GSQuartzCore's CABackingStore */
 static CGContextRef createCGBitmapContext(int pixelsWide,
-                                          int pixelsHigh)
+    int pixelsHigh)
 {
   CGContextRef    context = NULL;
   CGColorSpaceRef colorSpace;
@@ -52,17 +52,17 @@ void draw_red(CGContextRef ctx, CGRect rect)
   CGContextSetRGBFillColor(ctx, r, g, b, a);
   CGContextFillRect(ctx, rect);
 
-} 
+}
 
 void draw(CGContextRef ctx, CGRect rect)
 {
   CGContextRef ctx1 = createCGBitmapContext(rect.size.width,
-                                            rect.size.height);
+                      rect.size.height);
   draw_red(ctx1, rect);
 
   CGImageRef backingImage = CGBitmapContextCreateImage(ctx1);
 
   CGContextDrawImage(ctx, rect, backingImage);
-} 
+}
 
 

@@ -14,9 +14,9 @@
 NSString * affineTransformRepr(CGAffineTransform at)
 {
   return [NSString stringWithFormat: @"((%g %g), (%g %g), (%g %g))",
-                                     at.a, at.b,
-                                     at.c, at.d,
-                                     at.tx, at.ty];
+                   at.a, at.b,
+                   at.c, at.d,
+                   at.tx, at.ty];
 }
 
 void draw(CGContextRef ctx, CGRect rect)
@@ -50,10 +50,12 @@ void draw(CGContextRef ctx, CGRect rect)
       }
     else
       {
-        NSLog(@"- CTM differs from CGAffineTransformIdentity - is %@", affineTransformRepr(ctm));
+        NSLog(@"- CTM differs from CGAffineTransformIdentity - is %@",
+              affineTransformRepr(ctm));
       }
 
-    CGAffineTransform matrix1 = {
+    CGAffineTransform matrix1 =
+    {
       .a = 1.0, .b = 0.0,
       .c = 0.0, .d = 1.0,
       .tx  = 2.0, .ty  = 3.0
@@ -66,10 +68,12 @@ void draw(CGContextRef ctx, CGRect rect)
       }
     else
       {
-        NSLog(@"- Concatenating matrix1 failed - expected %@, got %@", affineTransformRepr(matrix1), affineTransformRepr(ctm));
+        NSLog(@"- Concatenating matrix1 failed - expected %@, got %@",
+              affineTransformRepr(matrix1), affineTransformRepr(ctm));
       }
-    
-    CGAffineTransform matrix2 = {
+
+    CGAffineTransform matrix2 =
+    {
       .a = 2.0, .b = 0.0,
       .c = 0.0, .d = 2.0,
       .tx  = 2.0, .ty  = 3.0
@@ -83,7 +87,8 @@ void draw(CGContextRef ctx, CGRect rect)
       }
     else
       {
-        NSLog(@"- Concatenating matrix2 failed - expected %@, got %@", affineTransformRepr(matrix2), affineTransformRepr(ctm));
+        NSLog(@"- Concatenating matrix2 failed - expected %@, got %@",
+              affineTransformRepr(matrix2), affineTransformRepr(ctm));
       }
 
     CGContextRestoreGState(ctx);
@@ -95,7 +100,8 @@ void draw(CGContextRef ctx, CGRect rect)
       }
     else
       {
-        NSLog(@"- CTM not the same as before - expected %@, got %@", affineTransformRepr(oldctm), affineTransformRepr(ctm));
+        NSLog(@"- CTM not the same as before - expected %@, got %@",
+              affineTransformRepr(oldctm), affineTransformRepr(ctm));
       }
   }
 #else

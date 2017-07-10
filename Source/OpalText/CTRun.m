@@ -11,12 +11,12 @@
    modify it under the terms of the GNU Lesser General Public
    License as published by the Free Software Foundation; either
    version 2.1 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
    Lesser General Public License for more details.
-   
+
    You should have received a copy of the GNU Lesser General Public
    License along with this library; if not, write to the Free Software
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
@@ -73,14 +73,14 @@
   return _stringRange;
 }
 - (double)typographicBoundsForRange: (CFRange)range
-			     ascent: (CGFloat*)ascent
-			    descent: (CGFloat*)descent
-			    leading: (CGFloat*)leading
+                             ascent: (CGFloat*)ascent
+                            descent: (CGFloat*)descent
+                            leading: (CGFloat*)leading
 {
   return 0;
 }
 - (CGRect)imageBoundsForRange: (CFRange)range
-		  withContext: (CGContextRef)context
+                  withContext: (CGContextRef)context
 {
   return CGRectMake(0,0,0,0);
 }
@@ -93,24 +93,25 @@
 - (void)drawRange: (CFRange)range onContext: (CGContextRef)ctx
 {
   if (range.length == 0)
-  {
-    range.length = _count;
-  }
+    {
+      range.length = _count;
+    }
 
   if (range.location > _count || (range.location + range.length) > _count)
-  {
-    NSLog(@"CTRunDraw range out of bounds"); 
-    return;
-  }
+    {
+      NSLog(@"CTRunDraw range out of bounds");
+      return;
+    }
 
-  CGContextShowGlyphsAtPositions(ctx, _glyphs + range.location, _positions, range.length);
+  CGContextShowGlyphsAtPositions(ctx, _glyphs + range.location, _positions,
+                                 range.length);
 }
 
 @end
 
 
 /* Functions */
- 
+
 CFIndex CTRunGetGlyphCount(CTRunRef run)
 {
   return [run glyphCount];
@@ -132,9 +133,9 @@ const CGGlyph* CTRunGetGlyphsPtr(CTRunRef run)
 }
 
 void CTRunGetGlyphs(
-	CTRunRef run,
-	CFRange range,
-	CGGlyph buffer[])
+  CTRunRef run,
+  CFRange range,
+  CGGlyph buffer[])
 {
   memcpy(buffer, [run glyphs] + range.location, sizeof(CGGlyph) * range.length);
 }
@@ -145,11 +146,12 @@ const CGPoint* CTRunGetPositionsPtr(CTRunRef run)
 }
 
 void CTRunGetPositions(
-	CTRunRef run,
-	CFRange range,
-	CGPoint buffer[])
+  CTRunRef run,
+  CFRange range,
+  CGPoint buffer[])
 {
-  memcpy(buffer, [run positions] + range.location, sizeof(CGPoint) * range.length);
+  memcpy(buffer, [run positions] + range.location,
+         sizeof(CGPoint) * range.length);
 }
 
 const CGSize* CTRunGetAdvancesPtr(CTRunRef run)
@@ -158,11 +160,11 @@ const CGSize* CTRunGetAdvancesPtr(CTRunRef run)
 }
 
 void CTRunGetAdvances(
-	CTRunRef run,
-	CFRange range,
-	CGSize buffer[])
+  CTRunRef run,
+  CFRange range,
+  CGSize buffer[])
 {
-   memcpy(buffer, [run advances] + range.location, sizeof(CGSize) * range.length);
+  memcpy(buffer, [run advances] + range.location, sizeof(CGSize) * range.length);
 }
 
 const CFIndex *CTRunGetStringIndicesPtr(CTRunRef run)
@@ -171,11 +173,12 @@ const CFIndex *CTRunGetStringIndicesPtr(CTRunRef run)
 }
 
 void CTRunGetStringIndices(
-	CTRunRef run,
-	CFRange range,
-	CFIndex buffer[])
+  CTRunRef run,
+  CFRange range,
+  CFIndex buffer[])
 {
-  memcpy(buffer, [run stringIndices] + range.location, sizeof(CFIndex) * range.length);
+  memcpy(buffer, [run stringIndices] + range.location,
+         sizeof(CFIndex) * range.length);
 }
 
 CFRange CTRunGetStringRange(CTRunRef run)
@@ -184,25 +187,25 @@ CFRange CTRunGetStringRange(CTRunRef run)
 }
 
 double CTRunGetTypographicBounds(
-	CTRunRef run,
-	CFRange range,
-	CGFloat *ascent,
-	CGFloat *descent,
-	CGFloat *leading)
+  CTRunRef run,
+  CFRange range,
+  CGFloat *ascent,
+  CGFloat *descent,
+  CGFloat *leading)
 {
   return [run typographicBoundsForRange: range
-				 ascent: ascent
-				descent: descent
-				leading: leading];
+                                 ascent: ascent
+                                descent: descent
+                                leading: leading];
 }
 
 CGRect CTRunGetImageBounds(
-	CTRunRef run,
-	CGContextRef context,
-	CFRange range)
+  CTRunRef run,
+  CGContextRef context,
+  CFRange range)
 {
   return [run imageBoundsForRange: range
-		      withContext: context];
+                      withContext: context];
 }
 
 CGAffineTransform CTRunGetTextMatrix(CTRunRef run)
@@ -211,9 +214,9 @@ CGAffineTransform CTRunGetTextMatrix(CTRunRef run)
 }
 
 void CTRunDraw(
-	CTRunRef run,
-	CGContextRef ctx,
-	CFRange range)
+  CTRunRef run,
+  CGContextRef ctx,
+  CFRange range)
 {
   [run drawRange: range onContext: ctx];
 }

@@ -11,12 +11,12 @@
    modify it under the terms of the GNU Lesser General Public
    License as published by the Free Software Foundation; either
    version 2.1 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    Lesser General Public License for more details.
-   
+
    You should have received a copy of the GNU Lesser General Public
    License along with this library; if not, write to the Free Software
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
@@ -30,7 +30,8 @@
 
 /* Constants */
 
-typedef enum CGPathElementType {
+typedef enum CGPathElementType
+{
   kCGPathElementMoveToPoint = 0,
   kCGPathElementAddLineToPoint = 1,
   kCGPathElementAddQuadCurveToPoint = 2,
@@ -54,14 +55,16 @@ typedef CGMutablePath* CGMutablePathRef;
 typedef struct CGMutablePath* CGMutablePathRef;
 #endif
 
-typedef struct CGPathElement {
+typedef struct CGPathElement
+{
   CGPathElementType type;
   CGPoint *points;
 } CGPathElement;
 
 /* Callbacks */
 
-typedef void (*CGPathApplierFunction)(void *info, const CGPathElement *element);
+typedef void (*CGPathApplierFunction)(void *info,
+                                      const CGPathElement *element);
 
 /* Functions */
 
@@ -86,9 +89,9 @@ CGRect CGPathGetPathBoundingBox(CGPathRef path);
 CGPoint CGPathGetCurrentPoint(CGPathRef path);
 
 bool CGPathContainsPoint(
-  CGPathRef path, 
-  const CGAffineTransform *m, 
-  CGPoint point, 
+  CGPathRef path,
+  const CGAffineTransform *m,
+  CGPoint point,
   int eoFill
 );
 
@@ -182,8 +185,8 @@ void CGPathMoveToPoint(
 void CGPathCloseSubpath(CGMutablePathRef path);
 
 void CGPathAddEllipseInRect(
-  CGMutablePathRef path, 
-  const CGAffineTransform *m, 
+  CGMutablePathRef path,
+  const CGAffineTransform *m,
   CGRect rect
 );
 

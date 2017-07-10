@@ -11,12 +11,12 @@
    modify it under the terms of the GNU Lesser General Public
    License as published by the Free Software Foundation; either
    version 2.1 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    Lesser General Public License for more details.
-   
+
    You should have received a copy of the GNU Lesser General Public
    License along with this library; if not, write to the Free Software
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
@@ -41,30 +41,30 @@ static OPColorSpaceLCMS *colorSpaceGenericGrayGamma2_2;
 
 /**
  * Returns a generic RGB color space
- */ 
+ */
 + (id<CGColorSpace>)colorSpaceGenericRGB
 {
   return [self colorSpaceSRGB];
 }
 /**
  * Returns a generic RGB color space with a gamma of 1.0
- */ 
+ */
 + (id<CGColorSpace>)colorSpaceGenericRGBLinear
 {
   if (nil == colorSpaceGenericRGBLinear)
-  {
-    // Use the sRGB white point and primaries with a gamma of 1.0
-    CGFloat whiteCIExy[2] = {0.3127, 0.3290};
-    CGFloat redCIExy[2] = {0.64, 0.33};
-    CGFloat greenCIExy[2] = {0.30, 0.60};
-    CGFloat blueCIExy[2] = {0.15, 0.06};
-    colorSpaceGenericRGBLinear = [[OPColorSpaceLCMS alloc]
-      initWithCalibratedRGBWithWhitePointCIExy: whiteCIExy
-                                      redCIExy: redCIExy
-                                    greenCIExy: greenCIExy
-                                     blueCIExy: blueCIExy
-                                         gamma: 1.0];
-  }
+    {
+      // Use the sRGB white point and primaries with a gamma of 1.0
+      CGFloat whiteCIExy[2] = {0.3127, 0.3290};
+      CGFloat redCIExy[2] = {0.64, 0.33};
+      CGFloat greenCIExy[2] = {0.30, 0.60};
+      CGFloat blueCIExy[2] = {0.15, 0.06};
+      colorSpaceGenericRGBLinear = [[OPColorSpaceLCMS alloc]
+                                    initWithCalibratedRGBWithWhitePointCIExy: whiteCIExy
+                                                                    redCIExy: redCIExy
+                                                                  greenCIExy: greenCIExy
+                                                                   blueCIExy: blueCIExy
+                                                                       gamma: 1.0];
+    }
   return colorSpaceGenericRGBLinear;
 }
 /**
@@ -73,18 +73,18 @@ static OPColorSpaceLCMS *colorSpaceGenericGrayGamma2_2;
 + (id<CGColorSpace>)colorSpaceGenericCMYK
 {
   if (nil == colorSpaceGenericCMYK)
-  {
-    NSString *path = [[NSBundle bundleForLibrary: @"opal"]
-                        pathForResource: @"coated_FOGRA39L_argl"
-                                 ofType: @"icc"];
-    NSData *data = [NSData dataWithContentsOfFile: path];
-    if (data == nil)
-      {
-        NSLog(@"Failed to load colour profile from file %@", path);
-        return nil;
-      }
-    colorSpaceGenericCMYK = [[OPColorSpaceLCMS alloc] initWithICCProfile: data];
-  }
+    {
+      NSString *path = [[NSBundle bundleForLibrary: @"opal"]
+                                   pathForResource: @"coated_FOGRA39L_argl"
+                                            ofType: @"icc"];
+      NSData *data = [NSData dataWithContentsOfFile: path];
+      if (data == nil)
+        {
+          NSLog(@"Failed to load colour profile from file %@", path);
+          return nil;
+        }
+      colorSpaceGenericCMYK = [[OPColorSpaceLCMS alloc] initWithICCProfile: data];
+    }
   return colorSpaceGenericCMYK;
 }
 /**
@@ -93,18 +93,18 @@ static OPColorSpaceLCMS *colorSpaceGenericGrayGamma2_2;
 + (id<CGColorSpace>)colorSpaceAdobeRGB1998
 {
   if (nil == colorSpaceAdobeRGB1998)
-  {
-    CGFloat whiteCIExy[2] = {0.3127, 0.3290};
-    CGFloat redCIExy[2] = {0.6400, 0.3300};
-    CGFloat greenCIExy[2] = {0.2100, 0.7100};
-    CGFloat blueCIExy[2] = {0.1500, 0.0600};
-    colorSpaceAdobeRGB1998 = [[OPColorSpaceLCMS alloc]
-      initWithCalibratedRGBWithWhitePointCIExy: whiteCIExy
-                                      redCIExy: redCIExy
-                                    greenCIExy: greenCIExy
-                                     blueCIExy: blueCIExy
-                                         gamma: (563.0/256.0)];
-  }
+    {
+      CGFloat whiteCIExy[2] = {0.3127, 0.3290};
+      CGFloat redCIExy[2] = {0.6400, 0.3300};
+      CGFloat greenCIExy[2] = {0.2100, 0.7100};
+      CGFloat blueCIExy[2] = {0.1500, 0.0600};
+      colorSpaceAdobeRGB1998 = [[OPColorSpaceLCMS alloc]
+                                initWithCalibratedRGBWithWhitePointCIExy: whiteCIExy
+                                                                redCIExy: redCIExy
+                                                              greenCIExy: greenCIExy
+                                                               blueCIExy: blueCIExy
+                                                                   gamma: (563.0/256.0)];
+    }
   return colorSpaceAdobeRGB1998;
 }
 /**
@@ -113,9 +113,10 @@ static OPColorSpaceLCMS *colorSpaceGenericGrayGamma2_2;
 + (id<CGColorSpace>)colorSpaceSRGB
 {
   if (nil == colorSpaceSRGB)
-  {
-    colorSpaceSRGB = [[OPColorSpaceLCMS alloc] initWithProfile: cmsCreate_sRGBProfile()];
-  }
+    {
+      colorSpaceSRGB = [[OPColorSpaceLCMS alloc] initWithProfile:
+                                                 cmsCreate_sRGBProfile()];
+    }
   return colorSpaceSRGB;
 }
 /**
@@ -131,13 +132,14 @@ static OPColorSpaceLCMS *colorSpaceGenericGrayGamma2_2;
 + (id<CGColorSpace>)colorSpaceGenericGrayGamma2_2
 {
   if (nil == colorSpaceGenericGrayGamma2_2)
-  {
-    CGFloat whiteCIEXYZ[3] = {0.9504, 1.0000, 1.0888};
-    CGFloat blackCIEXYZ[3] = {0, 0, 0};
-    colorSpaceGenericGrayGamma2_2 = [[OPColorSpaceLCMS alloc] initWithCalibratedGrayWithWhitePoint: whiteCIEXYZ
-                                                                                        blackPoint: blackCIEXYZ
-                                                                                             gamma: 2.2];
-  }
+    {
+      CGFloat whiteCIEXYZ[3] = {0.9504, 1.0000, 1.0888};
+      CGFloat blackCIEXYZ[3] = {0, 0, 0};
+      colorSpaceGenericGrayGamma2_2 = [[OPColorSpaceLCMS alloc]
+                                         initWithCalibratedGrayWithWhitePoint: whiteCIEXYZ
+                                       blackPoint: blackCIEXYZ
+                                            gamma: 2.2];
+    }
   return colorSpaceGenericGrayGamma2_2;
 }
 
@@ -170,7 +172,7 @@ static OPColorSpaceLCMS *colorSpaceGenericGrayGamma2_2;
 static inline cmsCIExyY CIExyzToCIExyY(const CGFloat point[3])
 {
   // LittleCMS docs say Y is always 1
-  cmsCIExyY xyY = {point[0], point[1], 1.0}; 
+  cmsCIExyY xyY = {point[0], point[1], 1.0};
   return xyY;
 }
 
@@ -207,9 +209,11 @@ static inline cmsCIExyY CIEXYZToCIExyY(const CGFloat point[3])
 
   LPGAMMATABLE tables[3] = {cmsBuildGamma(256, gamma),
                             cmsBuildGamma(256, gamma),
-                            cmsBuildGamma(256, gamma)};
+                            cmsBuildGamma(256, gamma)
+                           };
   cmsCIExyY whitePoint = {white[0], white[1], 1.0};
-  cmsCIExyYTRIPLE primaries = {
+  cmsCIExyYTRIPLE primaries =
+  {
     {red[0], red[1], 1.0},
     {green[0], green[1], 1.0},
     {blue[0], blue[1], 1.0}
@@ -220,7 +224,7 @@ static inline cmsCIExyY CIEXYZToCIExyY(const CGFloat point[3])
   cmsFreeGamma(tables[0]);
   cmsFreeGamma(tables[1]);
   cmsFreeGamma(tables[2]);
-  
+
   return self;
 }
 - (id)initWithCalibratedRGBWithWhitePoint: (const CGFloat*)whitePoint
@@ -234,7 +238,8 @@ static inline cmsCIExyY CIEXYZToCIExyY(const CGFloat point[3])
 
   LPGAMMATABLE tables[3] = {cmsBuildGamma(256, gamma[0]),
                             cmsBuildGamma(256, gamma[1]),
-                            cmsBuildGamma(256, gamma[2])};
+                            cmsBuildGamma(256, gamma[2])
+                           };
 
   // FIXME: I'm not 100% sure this is the correct interpretation of matrix
 
@@ -253,7 +258,7 @@ static inline cmsCIExyY CIEXYZToCIExyY(const CGFloat point[3])
   cmsFreeGamma(tables[0]);
   cmsFreeGamma(tables[1]);
   cmsFreeGamma(tables[2]);
-  
+
   return self;
 }
 
@@ -274,36 +279,38 @@ static inline cmsCIExyY CIEXYZToCIExyY(const CGFloat point[3])
 {
   self = [super init];
   self->data = [profileData retain];
-	self->profile = cmsOpenProfileFromMem((LPVOID)[profileData bytes], [profileData length]);
+  self->profile = cmsOpenProfileFromMem((LPVOID)[profileData bytes], [profileData
+                                        length]);
   return self;
 }
 
 - (CGColorSpaceRef) initWithPlatformColorSpace: (void *)platformColorSpace
 {
-	[self release];
-	return nil;
+  [self release];
+  return nil;
 }
 
-static CGColorSpaceModel CGColorSpaceModelForSignature(icColorSpaceSignature sig)
+static CGColorSpaceModel CGColorSpaceModelForSignature(icColorSpaceSignature
+    sig)
 {
   switch (sig)
-  {
-    case icSigGrayData:
-      return kCGColorSpaceModelMonochrome;
-    case icSigRgbData:
-      return kCGColorSpaceModelRGB;
-    case icSigCmykData:
-      return kCGColorSpaceModelCMYK;
-    case icSigLabData:
-      return kCGColorSpaceModelLab;
-    default:
-      return kCGColorSpaceModelUnknown;
-  }
+    {
+      case icSigGrayData:
+        return kCGColorSpaceModelMonochrome;
+      case icSigRgbData:
+        return kCGColorSpaceModelRGB;
+      case icSigCmykData:
+        return kCGColorSpaceModelCMYK;
+      case icSigLabData:
+        return kCGColorSpaceModelLab;
+      default:
+        return kCGColorSpaceModelUnknown;
+    }
 }
 
 - (CGColorSpaceModel) model
 {
-	return CGColorSpaceModelForSignature(cmsGetColorSpace(profile));
+  return CGColorSpaceModelForSignature(cmsGetColorSpace(profile));
 
 }
 - (size_t) numberOfComponents
@@ -312,27 +319,27 @@ static CGColorSpaceModel CGColorSpaceModelForSignature(icColorSpaceSignature sig
 }
 
 - (id<OPColorTransform>) colorTransformTo: (id<CGColorSpace>)aColorSpace
-                          sourceFormat: (OPImageFormat)aSourceFormat
-                     destinationFormat: (OPImageFormat)aDestFormat
-                       renderingIntent: (CGColorRenderingIntent)anIntent
-                            pixelCount: (size_t)aPixelCount
+                             sourceFormat: (OPImageFormat)aSourceFormat
+                        destinationFormat: (OPImageFormat)aDestFormat
+                          renderingIntent: (CGColorRenderingIntent)anIntent
+                               pixelCount: (size_t)aPixelCount
 {
   return [[OPColorTransformLCMS alloc]
-       initWithSourceSpace: self
-          destinationSpace: aColorSpace
-              sourceFormat: aSourceFormat
-         destinationFormat: aDestFormat
-           renderingIntent: anIntent
-                pixelCount: aPixelCount];
+          initWithSourceSpace: self
+             destinationSpace: aColorSpace
+                 sourceFormat: aSourceFormat
+            destinationFormat: aDestFormat
+              renderingIntent: anIntent
+                   pixelCount: aPixelCount];
 }
 
 - (BOOL)isEqual: (id)other
 {
   if ([other isKindOfClass: [OPColorSpaceLCMS class]])
-  {
-    // FIXME: Maybe there is a simple way to compare the profiles?
-    return ((OPColorSpaceLCMS*)other)->profile == self->profile;
-  }
+    {
+      // FIXME: Maybe there is a simple way to compare the profiles?
+      return ((OPColorSpaceLCMS*)other)->profile == self->profile;
+    }
   return NO;
 }
 

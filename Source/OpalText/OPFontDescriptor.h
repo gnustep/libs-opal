@@ -1,4 +1,4 @@
-/* 
+/*
    OPFontDescriptor.h
 
    Holds an image to use as a cursor
@@ -7,7 +7,7 @@
 
    Author:  Dr. H. Nikolaus Schaller <hns@computer.org>
    Date: 2006
-   
+
    This file is part of the GNUstep GUI Library.
 
    This library is free software; you can redistribute it and/or
@@ -22,10 +22,10 @@
 
    You should have received a copy of the GNU Lesser General Public
    License along with this library; see the file COPYING.LIB.
-   If not, see <http://www.gnu.org/licenses/> or write to the 
-   Free Software Foundation, 51 Franklin Street, Fifth Floor, 
+   If not, see <http://www.gnu.org/licenses/> or write to the
+   Free Software Foundation, 51 Franklin Street, Fifth Floor,
    Boston, MA 02110-1301, USA.
-*/ 
+*/
 
 
 #ifndef _GNUstep_H_OPFontDescriptor
@@ -58,8 +58,9 @@ typedef enum _OPFontFamilyClass
   OPFontSymbolicClass = 12U << 28
 } OPFontFamilyClass;
 
-enum _OPFontFamilyClassMask {
-    OPFontFamilyClassMask = 0xF0000000
+enum _OPFontFamilyClassMask
+{
+  OPFontFamilyClassMask = 0xF0000000
 };
 
 enum _OPFontTrait
@@ -78,11 +79,11 @@ enum _OPFontTrait
 NSString *OPFontFamilyAttribute;
 NSString *OPFontNameAttribute;
 NSString *OPFontFaceAttribute;
-NSString *OPFontSizeAttribute; 
-NSString *OPFontVisibleNameAttribute; 
+NSString *OPFontSizeAttribute;
+NSString *OPFontVisibleNameAttribute;
 NSString *OPFontColorAttribute;
 /**
- * NOTE: OPFontMatrixAttribute is a NSAffineTransform, unlike kCTFontMatrixAttribute which 
+ * NOTE: OPFontMatrixAttribute is a NSAffineTransform, unlike kCTFontMatrixAttribute which
  * is an NSData containing a CGAffineTransform struct.
  */
 NSString *OPFontMatrixAttribute;
@@ -150,7 +151,8 @@ NSString *OPFontVariationAxisNameKey;
 
 - (NSArray *) matchingFontDescriptorsWithMandatoryKeys: (NSSet *)keys;
 - (id) objectFromPlatformFontPatternForKey: (NSString *)attribute;
-- (id) localizedObjectFromPlatformFontPatternForKey: (NSString*)key language: (NSString*)language;
+- (id) localizedObjectFromPlatformFontPatternForKey: (NSString*)key language:
+  (NSString*)language;
 
 @end
 

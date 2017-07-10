@@ -11,12 +11,12 @@
    modify it under the terms of the GNU Lesser General Public
    License as published by the Free Software Foundation; either
    version 2.1 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
    Lesser General Public License for more details.
-   
+
    You should have received a copy of the GNU Lesser General Public
    License along with this library; if not, write to the Free Software
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
@@ -38,7 +38,8 @@ typedef struct CTParagraphStyle* CTParagraphStyleRef;
 
 /* Constants */
 
-typedef enum {
+typedef enum
+{
   kCTLeftTextAlignment = 0,
   kCTRightTextAlignment = 1,
   kCTCenterTextAlignment = 2,
@@ -46,7 +47,8 @@ typedef enum {
   kCTNaturalTextAlignment = 4
 } CTTextAlignment;
 
-typedef enum {
+typedef enum
+{
   kCTLineBreakByWordWrapping = 0,
   kCTLineBreakByCharWrapping = 1,
   kCTLineBreakByClipping = 2,
@@ -55,13 +57,15 @@ typedef enum {
   kCTLineBreakByTruncatingMiddle = 5
 } CTLineBreakMode;
 
-typedef enum {
+typedef enum
+{
   kCTWritingDirectionNatural = -1,
   kCTWritingDirectionLeftToRight = 0,
   kCTWritingDirectionRightToLeft = 1
 } CTWritingDirection;
 
-typedef enum {
+typedef enum
+{
   kCTParagraphStyleSpecifierAlignment = 0,
   kCTParagraphStyleSpecifierFirstLineHeadIndent = 1,
   kCTParagraphStyleSpecifierHeadIndent = 2,
@@ -82,7 +86,8 @@ typedef enum {
 
 /* Data Types */
 
-typedef struct CTParagraphStyleSetting {
+typedef struct CTParagraphStyleSetting
+{
   CTParagraphStyleSpecifier spec;
   size_t valueSize;
   const void *value;
@@ -98,7 +103,8 @@ CTParagraphStyleRef CTParagraphStyleCreate(
   CFIndex settingCount
 );
 
-CTParagraphStyleRef CTParagraphStyleCreateCopy(CTParagraphStyleRef paragraphStyle);
+CTParagraphStyleRef CTParagraphStyleCreateCopy(CTParagraphStyleRef
+    paragraphStyle);
 
 bool CTParagraphStyleGetValueForSpecifier(
   CTParagraphStyleRef paragraphStyle,

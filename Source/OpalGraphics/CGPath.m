@@ -79,51 +79,51 @@ CGRect CGPathGetPathBoundingBox(CGPathRef path)
   CGFloat maxY = 0.0;
 
   for (NSUInteger i=0; i<count; i++)
-  {
-    CGPoint points[3];
-    CGPathElementType type =[path elementTypeAtIndex: i points: points];
-
-    NSUInteger numPoints;
-    switch (type)
     {
-      case kCGPathElementMoveToPoint:
-        numPoints = 1;
-        break;
-      case kCGPathElementAddLineToPoint:
-        numPoints = 1;
-        break;
-      case kCGPathElementAddQuadCurveToPoint:
-        numPoints = 2;
-        break;
-      case kCGPathElementAddCurveToPoint:
-        numPoints = 3;
-        break;
-      case kCGPathElementCloseSubpath:
-      default:
-        numPoints = 0;
-        break;
-    }
+      CGPoint points[3];
+      CGPathElementType type =[path elementTypeAtIndex: i points: points];
 
-    for (NSUInteger p=0; p<numPoints; p++)
-    {
-      if (points[p].x < minX)
-      {
-        minX = points[p].x;
-      }
-      else if (points[p].x > maxX)
-      {
-        maxX = points[p].x;
-      }
-      else if (points[p].y < minY)
-      {
-        minY = points[p].y;
-      }
-      else if (points[p].y > maxY)
-      {
-        maxY = points[p].y;
-      }
+      NSUInteger numPoints;
+      switch (type)
+        {
+          case kCGPathElementMoveToPoint:
+            numPoints = 1;
+            break;
+          case kCGPathElementAddLineToPoint:
+            numPoints = 1;
+            break;
+          case kCGPathElementAddQuadCurveToPoint:
+            numPoints = 2;
+            break;
+          case kCGPathElementAddCurveToPoint:
+            numPoints = 3;
+            break;
+          case kCGPathElementCloseSubpath:
+          default:
+            numPoints = 0;
+            break;
+        }
+
+      for (NSUInteger p=0; p<numPoints; p++)
+        {
+          if (points[p].x < minX)
+            {
+              minX = points[p].x;
+            }
+          else if (points[p].x > maxX)
+            {
+              maxX = points[p].x;
+            }
+          else if (points[p].y < minY)
+            {
+              minY = points[p].y;
+            }
+          else if (points[p].y > maxY)
+            {
+              maxY = points[p].y;
+            }
+        }
     }
-  }
 
   return CGRectMake(minX, minY, (maxX-minX), (maxY-minY));
 }
@@ -131,31 +131,31 @@ CGRect CGPathGetPathBoundingBox(CGPathRef path)
 CGPoint CGPathGetCurrentPoint(CGPathRef path)
 {
   if (CGPathIsEmpty(path))
-  {
-    return CGPointZero;
-  }
+    {
+      return CGPointZero;
+    }
 
   NSUInteger count = [path count];
   // FIXME: ugly loop
   for (NSUInteger i=(count-1); i>=0 && i<count; i--)
-  {
-    CGPoint points[3];
-    CGPathElementType type =[path elementTypeAtIndex: i points: points];
-
-    switch (type)
     {
-      case kCGPathElementMoveToPoint:
-      case kCGPathElementAddLineToPoint:
-        return points[0];
-      case kCGPathElementAddQuadCurveToPoint:
-        return points[1];
-      case kCGPathElementAddCurveToPoint:
-        return points[2];
-      case kCGPathElementCloseSubpath:
-      default:
-        break;
+      CGPoint points[3];
+      CGPathElementType type =[path elementTypeAtIndex: i points: points];
+
+      switch (type)
+        {
+          case kCGPathElementMoveToPoint:
+          case kCGPathElementAddLineToPoint:
+            return points[0];
+          case kCGPathElementAddQuadCurveToPoint:
+            return points[1];
+          case kCGPathElementAddCurveToPoint:
+            return points[2];
+          case kCGPathElementCloseSubpath:
+          default:
+            break;
+        }
     }
-  }
   return CGPointZero;
 }
 
@@ -177,12 +177,12 @@ bool CGPathContainsPoint(
  */
 static inline void
 _OPPathAddArcSegment(CGMutablePathRef path,
-  const CGAffineTransform *m,
-  CGFloat x,
-  CGFloat y,
-  CGFloat radius,
-  CGFloat startAngle,
-  CGFloat endAngle)
+                     const CGAffineTransform *m,
+                     CGFloat x,
+                     CGFloat y,
+                     CGFloat radius,
+                     CGFloat startAngle,
+                     CGFloat endAngle)
 {
   CGFloat startSinR = radius * sin(startAngle);
   CGFloat startCosR = radius * cos(startAngle);
@@ -197,10 +197,10 @@ _OPPathAddArcSegment(CGMutablePathRef path,
   CGFloat cp2y = y + endSinR - hValue * endCosR;
 
   CGPathAddCurveToPoint(path, m,
-    cp1x, cp1y,
-    cp2x, cp2y,
-    x + endCosR,
-    y + endSinR);
+                        cp1x, cp1y,
+                        cp2x, cp2y,
+                        x + endCosR,
+                        y + endSinR);
 }
 
 void CGPathAddArc(
@@ -216,92 +216,92 @@ void CGPathAddArc(
   CGFloat angleValue = (endAngle - startAngle);
   // Normalize the distance:
   while ((angleValue) > (4 * M_PI))
-  {
-    endAngle -= (2 * M_PI);
-    angleValue = (endAngle - startAngle);
-  }
+    {
+      endAngle -= (2 * M_PI);
+      angleValue = (endAngle - startAngle);
+    }
 
   /*
    * When adding an arc with an angle greater than pi, do it in parts and
    * recurse accordingly.
    */
   if (angleValue > M_PI)
-  {
-	// Define the angle to cut the parts:
-	CGFloat intermediateAngle = (startAngle + (angleValue / 2.0));
+    {
+      // Define the angle to cut the parts:
+      CGFloat intermediateAngle = (startAngle + (angleValue / 2.0));
 
-	// Setup part start and end angles according to direction:
-	CGFloat firstStart = clockwise ? startAngle : intermediateAngle;
-	CGFloat firstEnd = clockwise ? intermediateAngle :  endAngle;
-	CGFloat secondStart = clockwise ? intermediateAngle: startAngle;
-	CGFloat secondEnd = clockwise ? endAngle : intermediateAngle;
+      // Setup part start and end angles according to direction:
+      CGFloat firstStart = clockwise ? startAngle : intermediateAngle;
+      CGFloat firstEnd = clockwise ? intermediateAngle :  endAngle;
+      CGFloat secondStart = clockwise ? intermediateAngle: startAngle;
+      CGFloat secondEnd = clockwise ? endAngle : intermediateAngle;
 
-	// Add the parts:
-	CGPathAddArc(path, m,
-	  x, y,
-	  r,
-	  firstStart, firstEnd,
-	  clockwise);
-	CGPathAddArc(path, m,
-	  x, y,
-	  r,
-	  secondStart, secondEnd,
-	  clockwise);
-  }
+      // Add the parts:
+      CGPathAddArc(path, m,
+                   x, y,
+                   r,
+                   firstStart, firstEnd,
+                   clockwise);
+      CGPathAddArc(path, m,
+                   x, y,
+                   r,
+                   secondStart, secondEnd,
+                   clockwise);
+    }
   else if (0 != angleValue)
-  {
-    // It only makes sense to add the arc if it actually has a non-zero angle.
-    NSUInteger index = 0;
-	NSUInteger segmentCount = 0;
-	CGFloat thisAngle = 0;
-	CGFloat angleStep = 0;
+    {
+      // It only makes sense to add the arc if it actually has a non-zero angle.
+      NSUInteger index = 0;
+      NSUInteger segmentCount = 0;
+      CGFloat thisAngle = 0;
+      CGFloat angleStep = 0;
 
-	/*
-	 * Calculate how many segments we need and set the stepping accordingly.
-	 *
-	 * FIXME: We are using a fixed tolerance to find the number of elements
-	 * needed. This is necessary because we construct the path independently
-	 * from the surface we draw on. Maybe we should store some additional data
-	 * so we can better approximate the arc when we go to draw the curves?
-	 */
-	segmentCount = _OPPathRequiredArcSegments(angleValue, r, m);
-	angleStep = (angleValue / (CGFloat)segmentCount);
+      /*
+       * Calculate how many segments we need and set the stepping accordingly.
+       *
+       * FIXME: We are using a fixed tolerance to find the number of elements
+       * needed. This is necessary because we construct the path independently
+       * from the surface we draw on. Maybe we should store some additional data
+       * so we can better approximate the arc when we go to draw the curves?
+       */
+      segmentCount = _OPPathRequiredArcSegments(angleValue, r, m);
+      angleStep = (angleValue / (CGFloat)segmentCount);
 
-	// Adjust for clockwiseness:
-	if (clockwise)
-	{
-	  thisAngle = startAngle;
-	}
-	else
-	{
-	  thisAngle = endAngle;
-	  angleStep = - angleStep;
-	}
+      // Adjust for clockwiseness:
+      if (clockwise)
+        {
+          thisAngle = startAngle;
+        }
+      else
+        {
+          thisAngle = endAngle;
+          angleStep = - angleStep;
+        }
 
-	if (CGPathIsEmpty(path))
-	{
-	  // Move to the start of drawing:
-	  CGPathMoveToPoint(path, m,
-	    (x + (r * cos(thisAngle))),
-	    (y + (r * sin(thisAngle))));
-	}
-	else
-	{
-		CGPathAddLineToPoint(path, m,
-	    (x + (r * cos(thisAngle))),
-	    (y + (r * sin(thisAngle))));
-	}
+      if (CGPathIsEmpty(path))
+        {
+          // Move to the start of drawing:
+          CGPathMoveToPoint(path, m,
+                            (x + (r * cos(thisAngle))),
+                            (y + (r * sin(thisAngle))));
+        }
+      else
+        {
+          CGPathAddLineToPoint(path, m,
+                               (x + (r * cos(thisAngle))),
+                               (y + (r * sin(thisAngle))));
+        }
 
-	// Add the segments to the path:
-	for (index = 0; index < segmentCount; index++, thisAngle += angleStep)
-	{
-	  _OPPathAddArcSegment(path, m,
-	  x, y,
-	  r,
-	  thisAngle,
-	  (thisAngle + angleStep));
-	}
-  }
+      // Add the segments to the path:
+      for (index = 0; index < segmentCount; index++, thisAngle += angleStep)
+        {
+          _OPPathAddArcSegment(path, m,
+                               x, y,
+                               r,
+                               thisAngle,
+                               (thisAngle + angleStep));
+        }
+    }
 }
 
 void CGPathAddArcToPoint(
@@ -331,13 +331,13 @@ void CGPathAddCurveToPoint(
   points[1] = CGPointMake(cx2, cy2);
   points[2] = CGPointMake(x, y);
   if (NULL != m)
-  {
-     NSUInteger i = 0;
-	 for (i = 0;i < 3; i++)
-	 {
-		 points[i] = CGPointApplyAffineTransform(points[i], *m);
-	 }
-  }
+    {
+      NSUInteger i = 0;
+      for (i = 0; i < 3; i++)
+        {
+          points[i] = CGPointApplyAffineTransform(points[i], *m);
+        }
+    }
   [(CGMutablePath*)path addElementWithType: kCGPathElementAddCurveToPoint
                                     points: (CGPoint*)&points];
 }
@@ -350,9 +350,9 @@ void CGPathAddLines(
 {
   CGPathMoveToPoint(path, m, points[0].x, points[0].y);
   for (NSUInteger i=1; i<count; i++)
-  {
-    CGPathAddLineToPoint(path, m, points[i].x, points[i].y);
-  }
+    {
+      CGPathAddLineToPoint(path, m, points[i].x, points[i].y);
+    }
 }
 
 void CGPathAddLineToPoint (
@@ -363,9 +363,9 @@ void CGPathAddLineToPoint (
 {
   CGPoint point = CGPointMake(x, y);
   if (m)
-  {
-    point = CGPointApplyAffineTransform(point, *m);
-  }
+    {
+      point = CGPointApplyAffineTransform(point, *m);
+    }
   [(CGMutablePath*)path addElementWithType: kCGPathElementAddLineToPoint
                                     points: &point];
 }
@@ -377,19 +377,19 @@ void CGPathAddPath(
 {
   NSUInteger count = [path2 count];
   for (NSUInteger i=0; i<count; i++)
-  {
-    CGPoint points[3];
-    CGPathElementType type = [path2 elementTypeAtIndex: i points: points];
-    if (m)
     {
-      for (NSUInteger j=0; j<3; j++)
-      {
-        // FIXME: transforms unused points
-        points[j] = CGPointApplyAffineTransform(points[j], *m);
-      }
+      CGPoint points[3];
+      CGPathElementType type = [path2 elementTypeAtIndex: i points: points];
+      if (m)
+        {
+          for (NSUInteger j=0; j<3; j++)
+            {
+              // FIXME: transforms unused points
+              points[j] = CGPointApplyAffineTransform(points[j], *m);
+            }
+        }
+      [(CGMutablePath*)path1 addElementWithType: type points: points];
     }
-    [(CGMutablePath*)path1 addElementWithType: type points: points];
-  }
 }
 
 void CGPathAddQuadCurveToPoint(
@@ -400,16 +400,17 @@ void CGPathAddQuadCurveToPoint(
   CGFloat x,
   CGFloat y)
 {
-  CGPoint points[2] = {
+  CGPoint points[2] =
+  {
     CGPointMake(cx, cy),
     CGPointMake(x, y)
 
   };
   if (m)
-  {
-    points[0] = CGPointApplyAffineTransform(points[0], *m);
-    points[1] = CGPointApplyAffineTransform(points[1], *m);
-  }
+    {
+      points[0] = CGPointApplyAffineTransform(points[0], *m);
+      points[1] = CGPointApplyAffineTransform(points[1], *m);
+    }
   [(CGMutablePath*)path addElementWithType: kCGPathElementAddQuadCurveToPoint
                                     points: points];
 }
@@ -433,9 +434,9 @@ void CGPathAddRects(
   size_t count)
 {
   for (NSUInteger i=0; i<count; i++)
-  {
-    CGPathAddRect(path, m, rects[i]);
-  }
+    {
+      CGPathAddRect(path, m, rects[i]);
+    }
 }
 
 void CGPathApply(
@@ -445,13 +446,13 @@ void CGPathApply(
 {
   NSUInteger count = [path count];
   for (NSUInteger i=0; i<count; i++)
-  {
-    CGPoint points[3];
-    CGPathElement e;
-    e.type = [path elementTypeAtIndex: i points: points];
-    e.points = points;
-    function(info, &e);
-  }
+    {
+      CGPoint points[3];
+      CGPathElement e;
+      e.type = [path elementTypeAtIndex: i points: points];
+      e.points = points;
+      function(info, &e);
+    }
 }
 
 void CGPathMoveToPoint(
@@ -462,9 +463,9 @@ void CGPathMoveToPoint(
 {
   CGPoint point = CGPointMake(x, y);
   if (m)
-  {
-    point = CGPointApplyAffineTransform(point, *m);
-  }
+    {
+      point = CGPointApplyAffineTransform(point, *m);
+    }
   [(CGMutablePath*)path addElementWithType: kCGPathElementMoveToPoint
                                     points: &point];
 }
@@ -487,25 +488,25 @@ void CGPathAddEllipseInRect(
   const CGFloat height = aRect.size.height;
   const CGFloat hdiff = width / 2 * KAPPA;
   const CGFloat vdiff = height / 2 * KAPPA;
-  
+
   p = CGPointMake(originx + width / 2, originy + height);
   CGPathMoveToPoint(path, m, p.x, p.y);
-  
+
   p = CGPointMake(originx, originy + height / 2);
   p1 = CGPointMake(originx + width / 2 - hdiff, originy + height);
   p2 = CGPointMake(originx, originy + height / 2 + vdiff);
   CGPathAddCurveToPoint(path, m, p1.x, p1.y, p2.x, p2.y, p.x, p.y);
-  
+
   p = CGPointMake(originx + width / 2, originy);
   p1 = CGPointMake(originx, originy + height / 2 - vdiff);
   p2 = CGPointMake(originx + width / 2 - hdiff, originy);
   CGPathAddCurveToPoint(path, m, p1.x, p1.y, p2.x, p2.y, p.x, p.y);
-  
+
   p = CGPointMake(originx + width, originy + height / 2);
   p1 = CGPointMake(originx + width / 2 + hdiff, originy);
   p2 = CGPointMake(originx + width, originy + height / 2 - vdiff);
   CGPathAddCurveToPoint(path, m, p1.x, p1.y, p2.x, p2.y, p.x, p.y);
-  
+
   p = CGPointMake(originx + width / 2, originy + height);
   p1 = CGPointMake(originx + width, originy + height / 2 + vdiff);
   p2 = CGPointMake(originx + width / 2 + hdiff, originy + height);

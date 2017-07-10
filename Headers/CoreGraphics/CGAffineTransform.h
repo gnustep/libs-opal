@@ -11,12 +11,12 @@
    modify it under the terms of the GNU Lesser General Public
    License as published by the Free Software Foundation; either
    version 2.1 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    Lesser General Public License for more details.
-   
+
    You should have received a copy of the GNU Lesser General Public
    License along with this library; if not, write to the Free Software
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
@@ -54,7 +54,7 @@ extern const CGAffineTransform CGAffineTransformIdentity;
  */
 #ifdef IN_CGAFFINETRANSFORM_C
 #define	GS_AFTR_SCOPE	extern
-#define GS_AFTR_ATTR	
+#define GS_AFTR_ATTR
 #else
 #define	GS_AFTR_SCOPE	static inline
 #define GS_AFTR_ATTR	__attribute__((unused))
@@ -106,7 +106,7 @@ GS_AFTR_SCOPE CGAffineTransform CGAffineTransformRotate(
 GS_AFTR_SCOPE bool CGAffineTransformEqualToTransform(
   CGAffineTransform t1,
   CGAffineTransform t2
-) GS_AFTR_ATTR; 
+) GS_AFTR_ATTR;
 
 GS_AFTR_SCOPE bool CGAffineTransformIsIdentity(
   CGAffineTransform t
@@ -158,7 +158,8 @@ GS_AFTR_SCOPE CGAffineTransform CGAffineTransformMakeTranslation(
   return matrix;
 }
 
-GS_AFTR_SCOPE CGAffineTransform CGAffineTransformMakeScale(CGFloat sx, CGFloat sy)
+GS_AFTR_SCOPE CGAffineTransform CGAffineTransformMakeScale(CGFloat sx,
+    CGFloat sy)
 {
   CGAffineTransform matrix;
 
@@ -210,26 +211,33 @@ GS_AFTR_SCOPE CGAffineTransform CGAffineTransformRotate(
   return CGAffineTransformConcat(CGAffineTransformMakeRotation(angle), t);
 }
 
-GS_AFTR_SCOPE bool CGAffineTransformEqualToTransform(CGAffineTransform t1, CGAffineTransform t2)
+GS_AFTR_SCOPE bool CGAffineTransformEqualToTransform(CGAffineTransform t1,
+    CGAffineTransform t2)
 {
-  if (t1.a != t2.a) {
-    return false;
-  }
-  if (t1.b != t2.b) {
-    return false;
-  }
-  if (t1.c != t2.c) {
-    return false;
-  }
-  if (t1.d != t2.d) {
-    return false;
-  }
-  if (t1.tx != t2.tx) {
-    return false;
-  }
-  if (t1.ty != t2.ty) {
-    return false;
-  }
+  if (t1.a != t2.a)
+    {
+      return false;
+    }
+  if (t1.b != t2.b)
+    {
+      return false;
+    }
+  if (t1.c != t2.c)
+    {
+      return false;
+    }
+  if (t1.d != t2.d)
+    {
+      return false;
+    }
+  if (t1.tx != t2.tx)
+    {
+      return false;
+    }
+  if (t1.ty != t2.ty)
+    {
+      return false;
+    }
   return true;
 }
 

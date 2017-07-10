@@ -11,12 +11,12 @@
    modify it under the terms of the GNU Lesser General Public
    License as published by the Free Software Foundation; either
    version 2.1 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    Lesser General Public License for more details.
-   
+
    You should have received a copy of the GNU Lesser General Public
    License along with this library; if not, write to the Free Software
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
@@ -40,7 +40,7 @@ extern void DumpPixel(const void *data, NSString *msg);
 
 @interface OPTIFFHandle : NSObject
 {
-	NSData *data;
+  NSData *data;
   off_t pos;
   BOOL mutable;
   CGDataConsumerRef consumer;
@@ -73,9 +73,9 @@ extern void DumpPixel(const void *data, NSString *msg);
 {
   // FIXME: this is ugly
   if (mutable)
-  {
-    OPDataConsumerPutBytes(consumer, [data bytes], [data length]);
-  }
+    {
+      OPDataConsumerPutBytes(consumer, [data bytes], [data length]);
+    }
   [data release];
   [consumer release];
   [super dealloc];
@@ -88,7 +88,8 @@ extern void DumpPixel(const void *data, NSString *msg);
 }
 - (size_t) write: (const unsigned char *)buf count: (size_t)count
 {
-  [(NSMutableData*)data replaceBytesInRange: NSMakeRange(pos, MAX(0, (off_t)[data length] - pos))
+  [(NSMutableData*)data replaceBytesInRange: NSMakeRange(pos, MAX(0,
+                           (off_t)[data length] - pos))
                                   withBytes: buf
                                      length: count];
   pos += count;
@@ -96,28 +97,28 @@ extern void DumpPixel(const void *data, NSString *msg);
 }
 - (off_t) seek: (off_t)off mode: (int)mode
 {
-  switch(mode) 
-  {
-    case SEEK_SET:
-      pos = off;
-      break;
-    case SEEK_CUR:
-      pos += off;
-      break;
-    case SEEK_END: 
-      pos = ([data length] - 1) + off;
-      break;
-		default:
-      break;
-  }
+  switch (mode)
+    {
+      case SEEK_SET:
+        pos = off;
+        break;
+      case SEEK_CUR:
+        pos += off;
+        break;
+      case SEEK_END:
+        pos = ([data length] - 1) + off;
+        break;
+      default:
+        break;
+    }
   if (pos < 0)
-  {
-    pos = 0;
-  }
+    {
+      pos = 0;
+    }
   else if (pos > [data length] && !mutable)
-  {
-    pos = [data length];
-  }
+    {
+      pos = [data length];
+    }
   return pos;
 }
 - (size_t)size
@@ -127,13 +128,13 @@ extern void DumpPixel(const void *data, NSString *msg);
 - (void)map: (tdata_t*)bytes size: (toff_t*)size
 {
   if (mutable)
-  {
-    *bytes = [(NSMutableData*)data mutableBytes];
-  }
+    {
+      *bytes = [(NSMutableData*)data mutableBytes];
+    }
   else
-  {
-    *bytes = (tdata_t*)[data bytes];
-  }
+    {
+      *bytes = (tdata_t*)[data bytes];
+    }
   *size = [data length];
 }
 
@@ -198,10 +199,10 @@ static void OPTIFFUnmapProc(thandle_t handle, tdata_t data, toff_t size)
   // Will be released by libtiff via OPTIFFCloseProc
   OPTIFFHandle *handle = [[OPTIFFHandle alloc] initWithDataProvider: provider];
 
-  tiff = TIFFClientOpen("OPTIFFWithDataProvider", "r", handle, 
-    OPTIFFReadProc, OPTIFFWriteProc, OPTIFFSeekProc,
-    OPTIFFCloseProc, OPTIFFSizeProc, OPTIFFMapProc,
-    OPTIFFUnmapProc);
+  tiff = TIFFClientOpen("OPTIFFWithDataProvider", "r", handle,
+                        OPTIFFReadProc, OPTIFFWriteProc, OPTIFFSeekProc,
+                        OPTIFFCloseProc, OPTIFFSizeProc, OPTIFFMapProc,
+                        OPTIFFUnmapProc);
 
   if (tiff == NULL)
     {
@@ -226,22 +227,23 @@ static void OPTIFFUnmapProc(thandle_t handle, tdata_t data, toff_t size)
   return [NSDictionary dictionary];
 }
 
-- (NSDictionary*)propertiesWithOptions: (NSDictionary*)opts atIndex: (size_t)index
+- (NSDictionary*)propertiesWithOptions: (NSDictionary*)opts atIndex:
+  (size_t)index
 {
-  return [NSDictionary dictionary];  
+  return [NSDictionary dictionary];
 }
 
 - (size_t)count
 {
   size_t dirs = 0;
   if (1 == TIFFSetDirectory(tiff, 0))
-  {
-    do
     {
-      dirs++;
+      do
+        {
+          dirs++;
+        }
+      while (1 == TIFFReadDirectory(tiff));
     }
-    while (1 == TIFFReadDirectory(tiff));
-  }
   return dirs;
 }
 
@@ -249,37 +251,39 @@ static void OPTIFFUnmapProc(thandle_t handle, tdata_t data, toff_t size)
 {
   CGImageRef img = NULL;
 
-  TIFFSetDirectory(tiff, index);    
-  
+  TIFFSetDirectory(tiff, index);
+
   uint32_t width;
   uint32_t height;
-	TIFFGetField(tiff, TIFFTAG_IMAGEWIDTH, &width);
-	TIFFGetField(tiff, TIFFTAG_IMAGELENGTH, &height);
+  TIFFGetField(tiff, TIFFTAG_IMAGEWIDTH, &width);
+  TIFFGetField(tiff, TIFFTAG_IMAGELENGTH, &height);
 
-  NSMutableData *imgData = [[NSMutableData alloc] initWithLength: height * width * 4];
-	
-  if (1 == TIFFReadRGBAImageOriented(tiff, width, height, [imgData mutableBytes], 
-           ORIENTATION_TOPLEFT, 0))
-  { 
-    CGDataProviderRef imgDataProvider = CGDataProviderCreateWithCFData(imgData);
-    CGColorSpaceRef cs = CGColorSpaceCreateDeviceRGB();
+  NSMutableData *imgData = [[NSMutableData alloc] initWithLength: height * width
+                                                  * 4];
 
-    img = CGImageCreate(width, height, 8, 32, 4 * width, cs,
-      kCGBitmapByteOrderDefault | kCGImageAlphaPremultipliedLast, imgDataProvider,
-      NULL, true, kCGRenderingIntentDefault);
+  if (1 == TIFFReadRGBAImageOriented(tiff, width, height, [imgData mutableBytes],
+                                     ORIENTATION_TOPLEFT, 0))
+    {
+      CGDataProviderRef imgDataProvider = CGDataProviderCreateWithCFData(imgData);
+      CGColorSpaceRef cs = CGColorSpaceCreateDeviceRGB();
 
-		DumpPixel([imgData bytes], @"read from TIFF: (expecting R G B A)");
+      img = CGImageCreate(width, height, 8, 32, 4 * width, cs,
+                          kCGBitmapByteOrderDefault | kCGImageAlphaPremultipliedLast, imgDataProvider,
+                          NULL, true, kCGRenderingIntentDefault);
 
-    CGColorSpaceRelease(cs);
-    CGDataProviderRelease(imgDataProvider);
-	}
+      DumpPixel([imgData bytes], @"read from TIFF: (expecting R G B A)");
 
-  [imgData release];  
+      CGColorSpaceRelease(cs);
+      CGDataProviderRelease(imgDataProvider);
+    }
+
+  [imgData release];
 
   return img;
 }
 
-- (CGImageRef)createThumbnailAtIndex: (size_t)index options: (NSDictionary*)opts
+- (CGImageRef)createThumbnailAtIndex: (size_t)index options:
+  (NSDictionary*)opts
 {
   return nil;
 }
@@ -299,7 +303,8 @@ static void OPTIFFUnmapProc(thandle_t handle, tdata_t data, toff_t size)
   return @"public.tiff";
 }
 
-- (void)updateDataProvider: (CGDataProviderRef)provider finalUpdate: (bool)finalUpdate
+- (void)updateDataProvider: (CGDataProviderRef)provider finalUpdate:
+  (bool)finalUpdate
 {
   ;
 }
@@ -333,21 +338,21 @@ static void OPTIFFUnmapProc(thandle_t handle, tdata_t data, toff_t size)
                     options: (CFDictionaryRef)opts
 {
   self = [super init];
-  
+
   if ([type isEqualToString: @"public.tiff"] || count != 1)
-  {
-    [self release];
-    return nil;
-  }
-  
+    {
+      [self release];
+      return nil;
+    }
+
   // Will be released by libtiff via OPTIFFCloseProc
   OPTIFFHandle *handle = [[OPTIFFHandle alloc] initWithDataConsumer: consumer];
 
-  tiff = TIFFClientOpen("OPTIFFWithDataConsumer", "w", handle, 
-    OPTIFFReadProc, OPTIFFWriteProc, OPTIFFSeekProc,
-    OPTIFFCloseProc, OPTIFFSizeProc, OPTIFFMapProc,
-    OPTIFFUnmapProc);
-  
+  tiff = TIFFClientOpen("OPTIFFWithDataConsumer", "w", handle,
+                        OPTIFFReadProc, OPTIFFWriteProc, OPTIFFSeekProc,
+                        OPTIFFCloseProc, OPTIFFSizeProc, OPTIFFMapProc,
+                        OPTIFFUnmapProc);
+
   return self;
 }
 
@@ -357,7 +362,7 @@ static void OPTIFFUnmapProc(thandle_t handle, tdata_t data, toff_t size)
   TIFFClose(tiff);
   [props release];
   CGImageRelease(img);
-  [super dealloc];    
+  [super dealloc];
 }
 
 - (void) setProperties: (CFDictionaryRef)properties

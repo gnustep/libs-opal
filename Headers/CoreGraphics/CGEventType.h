@@ -1,5 +1,5 @@
 
-/* 
+/*
    CGEventType.h
 
    Copyright (C) 2012 Free Software Foundation, Inc.
@@ -29,7 +29,8 @@
 typedef struct __CGEvent *CGEventRef;
 typedef struct __CGEventSource *CGEventSourceRef;
 
-typedef enum {
+typedef enum
+{
   kCGScrollWheelEventIsContinuous = 88,
   kCGScrollWheelEventFixedPtDeltaAxis1 = 93,
   kCGScrollWheelEventFixedPtDeltaAxis2 = 94,

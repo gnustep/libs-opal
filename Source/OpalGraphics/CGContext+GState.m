@@ -62,10 +62,10 @@
   if (status != CAIRO_STATUS_SUCCESS)
     {
       /*
-	Due to an interesting programming concept in cairo this does not
-	mean that an error has occured. It may as well just be that the 
-	old path had no elements. 
-	At least in cairo 1.4.10 (See file cairo-path.c, line 379).
+      Due to an interesting programming concept in cairo this does not
+      mean that an error has occured. It may as well just be that the
+      old path had no elements.
+      At least in cairo 1.4.10 (See file cairo-path.c, line 379).
       */
       // NSLog(@"Cairo status '%s' in copy path", cairo_status_to_string(status));
     }
@@ -84,14 +84,14 @@
 
   dashes_count = cairo_get_dash_count(aCairo);
   if (dashes_count > 0)
-  {
-    dashes = malloc(dashes_count);
-    
-    if (dashes != NULL)
-  	{
-  	  cairo_get_dash(aCairo, dashes, &dashes_offset);
-  	}
-  }
+    {
+      dashes = malloc(dashes_count);
+
+      if (dashes != NULL)
+        {
+          cairo_get_dash(aCairo, dashes, &dashes_offset);
+        }
+    }
   cliprects = cairo_copy_clip_rectangle_list(aCairo);
 
   // opal additions
@@ -123,9 +123,9 @@
 
   status = cairo_status(aCairo);
   if (status != CAIRO_STATUS_SUCCESS)
-  {
-    NSLog(@"Cairo status '%s' in set matrix", cairo_status_to_string(status));
-  }
+    {
+      NSLog(@"Cairo status '%s' in set matrix", cairo_status_to_string(status));
+    }
 
   // next restore the clip rects, since setting the clip involves
   // setting the path.
@@ -133,27 +133,27 @@
   cairo_new_path(aCairo);
 
   if (cliprects != NULL && cliprects->status == CAIRO_STATUS_SUCCESS)
-  {
-    for (int i=0; i<cliprects->num_rectangles; i++)
     {
-      cairo_rectangle_t rect = cliprects->rectangles[i];
+      for (int i=0; i<cliprects->num_rectangles; i++)
+        {
+          cairo_rectangle_t rect = cliprects->rectangles[i];
 
-      cairo_rectangle(aCairo, rect.x, rect.y, rect.width, rect.height);
-    }
-    cairo_clip(aCairo);
+          cairo_rectangle(aCairo, rect.x, rect.y, rect.width, rect.height);
+        }
+      cairo_clip(aCairo);
 
-    status = cairo_status(aCairo);
-    if (status != CAIRO_STATUS_SUCCESS)
-    {
-      NSLog(@"Cairo status '%s' in restore clip", cairo_status_to_string(status));
+      status = cairo_status(aCairo);
+      if (status != CAIRO_STATUS_SUCCESS)
+        {
+          NSLog(@"Cairo status '%s' in restore clip", cairo_status_to_string(status));
+        }
     }
-  }
 
   cairo_new_path(aCairo);
   if (path->status == CAIRO_STATUS_SUCCESS)
-  {
-     cairo_append_path(aCairo, path);
-  }
+    {
+      cairo_append_path(aCairo, path);
+    }
 
   cairo_set_operator(aCairo, op);
   cairo_set_source(aCairo, pattern);

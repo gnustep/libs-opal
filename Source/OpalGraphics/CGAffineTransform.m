@@ -11,12 +11,12 @@
    modify it under the terms of the GNU Lesser General Public
    License as published by the Free Software Foundation; either
    version 2.1 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    Lesser General Public License for more details.
-   
+
    You should have received a copy of the GNU Lesser General Public
    License along with this library; if not, write to the Free Software
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
@@ -51,10 +51,11 @@ CGAffineTransform CGAffineTransformInvert(CGAffineTransform t)
   CGFloat det;
 
   det = t.a * t.d - t.b *t.c;
-  if (det == 0) {
-    NSLog(@"CGAffineTransformInvert: Cannot invert matrix, determinant is 0");
-    return t;
-  }
+  if (det == 0)
+    {
+      NSLog(@"CGAffineTransformInvert: Cannot invert matrix, determinant is 0");
+      return t;
+    }
 
   inv.a = t.d / det;
   inv.b = -t.b / det;
@@ -69,13 +70,14 @@ CGAffineTransform CGAffineTransformInvert(CGAffineTransform t)
 /**
  * Returns the smallest rectangle which contains the four supplied points.
  */
-static CGRect make_bounding_rect(CGPoint p1, CGPoint p2, CGPoint p3, CGPoint p4)
+static CGRect make_bounding_rect(CGPoint p1, CGPoint p2, CGPoint p3,
+                                 CGPoint p4)
 {
   CGFloat minX = MIN(p1.x, MIN(p2.x, MIN(p3.x, p4.x)));
   CGFloat minY = MIN(p1.y, MIN(p2.y, MIN(p3.y, p4.y)));
   CGFloat maxX = MAX(p1.x, MAX(p2.x, MAX(p3.x, p4.x)));
   CGFloat maxY = MAX(p1.y, MAX(p2.y, MAX(p3.y, p4.y)));
-  
+
   return CGRectMake(minX, minY, (maxX - minX), (maxY - minY));
 }
 
@@ -86,11 +88,11 @@ CGRect CGRectApplyAffineTransform(CGRect rect, CGAffineTransform t)
   CGPoint p2 = CGPointMake(CGRectGetMaxX(rect), CGRectGetMinY(rect));
   CGPoint p3 = CGPointMake(CGRectGetMinX(rect), CGRectGetMaxY(rect));
   CGPoint p4 = CGPointMake(CGRectGetMaxX(rect), CGRectGetMaxY(rect));
-  
+
   p1 = CGPointApplyAffineTransform(p1, t);
   p2 = CGPointApplyAffineTransform(p2, t);
   p3 = CGPointApplyAffineTransform(p3, t);
   p4 = CGPointApplyAffineTransform(p4, t);
-  
+
   return make_bounding_rect(p1, p2, p3, p4);
 }

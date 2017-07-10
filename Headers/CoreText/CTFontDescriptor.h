@@ -11,12 +11,12 @@
    modify it under the terms of the GNU Lesser General Public
    License as published by the Free Software Foundation; either
    version 2.1 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
    Lesser General Public License for more details.
-   
+
    You should have received a copy of the GNU Lesser General Public
    License along with this library; if not, write to the Free Software
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
@@ -62,13 +62,15 @@ extern const CFStringRef kCTFontFormatAttribute;
 extern const CFStringRef kCTFontRegistrationScopeAttribute;
 extern const CFStringRef kCTFontPriorityAttribute;
 
-typedef enum {
+typedef enum
+{
   kCTFontDefaultOrientation = 0,
   kCTFontHorizontalOrientation = 1,
   kCTFontVerticalOrientation = 2
 } CTFontOrientation;
 
-typedef enum {
+typedef enum
+{
   kCTFontFormatUnrecognized = 0,
   kCTFontFormatOpenTypePostScript = 1,
   kCTFontFormatOpenTypeTrueType = 2,
@@ -77,7 +79,8 @@ typedef enum {
   kCTFontFormatBitmap = 5
 } CTFontFormat;
 
-typedef enum {
+typedef enum
+{
   kCTFontPrioritySystem = 10000,
   kCTFontPriorityNetwork = 20000,
   kCTFontPriorityComputer = 30000,
@@ -93,8 +96,9 @@ CTFontDescriptorRef CTFontDescriptorCreateWithNameAndSize(
   CGFloat size
 );
 
-CTFontDescriptorRef CTFontDescriptorCreateWithAttributes(CFDictionaryRef attributes);
-  
+CTFontDescriptorRef CTFontDescriptorCreateWithAttributes(
+  CFDictionaryRef attributes);
+
 CTFontDescriptorRef CTFontDescriptorCreateCopyWithAttributes(
   CTFontDescriptorRef original,
   CFDictionaryRef attributes
