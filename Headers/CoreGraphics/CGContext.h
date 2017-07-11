@@ -50,6 +50,10 @@ typedef struct OPGState* OPGStateRef;
 #include <CoreGraphics/CGGradient.h>
 #include <CoreGraphics/CGShading.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Constants */
 
 typedef enum CGBlendMode {
@@ -571,6 +575,10 @@ void OPContextSetCairoDeviceOffset(CGContextRef ctx,
 OPGStateRef OPContextCopyGState(CGContextRef ctx);
 
 void OPContextSetGState(CGContextRef ctx, OPGStateRef gstate);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* OPAL_CGContext_h */
 

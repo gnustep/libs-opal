@@ -29,6 +29,10 @@
 #include <CoreGraphics/CGContext.h>
 #include <CoreGraphics/CGDataConsumer.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Constants */
 
 extern const CFStringRef kOPPostScriptContextIsEPS;
@@ -53,5 +57,9 @@ CGContextRef OPPostScriptContextCreateWithURL(
 );
 
 void OPPostScriptContextEndPage(CGContextRef ctx);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* OPAL_OPPostScriptContext_h */

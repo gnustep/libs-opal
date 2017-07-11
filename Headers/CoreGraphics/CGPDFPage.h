@@ -38,6 +38,10 @@ typedef struct CGPDFPage* CGPDFPageRef;
 #include <CoreGraphics/CGAffineTransform.h>
 #include <CoreGraphics/CGPDFDictionary.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Constants */
 
 typedef enum CGPDFBox {
@@ -73,5 +77,9 @@ CFTypeID CGPDFPageGetTypeID(void);
 CGPDFPageRef CGPDFPageRetain(CGPDFPageRef page);
 
 void CGPDFPageRelease(CGPDFPageRef page);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* OPAL_CGPDFPage_h */

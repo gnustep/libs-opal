@@ -28,5 +28,13 @@
 
 #import "CGEventType.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 extern int64_t CGEventGetIntegerValueField(CGEventRef event, CGEventField field);
 extern CGEventSourceRef CGEventCreateSourceFromEvent(CGEventRef event);
+
+#ifdef __cplusplus
+}
+#endif

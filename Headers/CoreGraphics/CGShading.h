@@ -39,6 +39,10 @@ typedef struct CGShading* CGShadingRef;
 #include <CoreGraphics/CGGeometry.h>
 #include <CoreGraphics/CGColorSpace.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Functions */
 
 CGShadingRef CGShadingCreateAxial(
@@ -66,5 +70,9 @@ CFTypeID CGShadingGetTypeID();
 CGShadingRef CGShadingRetain(CGShadingRef shading);
 
 void CGShadingRelease(CGShadingRef shading);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* OPAL_CGShading_h */

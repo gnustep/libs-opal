@@ -38,6 +38,10 @@ typedef struct CGPDFDictionary* CGPDFDictionaryRef;
 #include <CoreGraphics/CGPDFArray.h>
 #include <CoreGraphics/CGPDFStream.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Callbacks */
 
 typedef void (*CGPDFDictionaryApplierFunction)(
@@ -69,5 +73,9 @@ bool CGPDFDictionaryGetObject(CGPDFDictionaryRef dict, const char *key, CGPDFObj
 bool CGPDFDictionaryGetStream(CGPDFDictionaryRef dict, const char *key, CGPDFStreamRef *value);
 
 bool CGPDFDictionaryGetString(CGPDFDictionaryRef dict, const char *key, CGPDFStringRef *value);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* OPAL_CGPDFDictionary_h */

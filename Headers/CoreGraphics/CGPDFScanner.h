@@ -40,6 +40,10 @@ typedef struct CGPDFScanner* CGPDFScannerRef;
 #include <CoreGraphics/CGPDFDictionary.h>
 #include <CoreGraphics/CGPDFObject.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Functions */
 
 CGPDFScannerRef CGPDFScannerCreate(
@@ -73,5 +77,9 @@ bool CGPDFScannerPopString(CGPDFScannerRef scanner, CGPDFStringRef *value);
 CGPDFScannerRef CGPDFScannerRetain(CGPDFScannerRef scanner);
 
 void CGPDFScannerRelease(CGPDFScannerRef scanner);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* OPAL_CGPDFScanner_h */

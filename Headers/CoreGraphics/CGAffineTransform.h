@@ -28,6 +28,10 @@
 #include <CoreGraphics/CGBase.h>
 #include <CoreGraphics/CGGeometry.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Data Types */
 
 typedef struct CGAffineTransform
@@ -257,5 +261,9 @@ GS_AFTR_SCOPE CGSize CGSizeApplyAffineTransform(
 
   return r;
 }
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* OPAL_CGAffineTransform_h */

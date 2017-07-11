@@ -29,6 +29,10 @@
 
 /* Data Types */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct CGPoint
 {
   CGFloat x;
@@ -425,5 +429,9 @@ OP_GEOM_SCOPE CGRect CGRectInset(CGRect rect, CGFloat dx, CGFloat dy)
   rect.size.height -= (2 * dy);
   return rect;
 }
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* OPAL_CGGeometry_h */

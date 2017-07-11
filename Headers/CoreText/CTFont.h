@@ -31,6 +31,10 @@
 #include <CoreGraphics/CGFont.h>
 #include <CoreText/CTFontDescriptor.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Data Types */
 
 #ifdef INTERNAL_BUILD_OBJC
@@ -433,5 +437,9 @@ CFStringRef CTFontCopyFullName(CTFontRef font);
 /* CFTypeID */
 
 CFTypeID CTFontGetTypeID();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

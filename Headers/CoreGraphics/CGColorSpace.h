@@ -41,6 +41,10 @@ typedef struct CGColorSpace* CGColorSpaceRef;
 #include <CoreGraphics/CGBase.h>
 #include <CoreGraphics/CGDataProvider.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef enum CGColorSpaceModel {
   kCGColorSpaceModelUnknown = -1,
   kCGColorSpaceModelMonochrome = 0,
@@ -140,5 +144,9 @@ CFTypeID CGColorSpaceGetTypeID();
 CGColorSpaceRef CGColorSpaceRetain(CGColorSpaceRef cs);
 
 void CGColorSpaceRelease(CGColorSpaceRef cs);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* OPAL_CGColorSpace_h */

@@ -36,6 +36,10 @@ typedef struct CGDataConsumer* CGDataConsumerRef;
 
 #include <CoreGraphics/CGBase.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Callbacks */
 
 typedef size_t (*CGDataConsumerPutBytesCallback)(
@@ -68,5 +72,9 @@ CFTypeID CGDataConsumerGetTypeID();
 void CGDataConsumerRelease(CGDataConsumerRef consumer);
 
 CGDataConsumerRef CGDataConsumerRetain(CGDataConsumerRef consumer);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* OPAL_CGDataConsumer_h */

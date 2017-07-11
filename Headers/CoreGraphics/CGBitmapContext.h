@@ -28,6 +28,10 @@
 #include <CoreGraphics/CGContext.h>
 #include <CoreGraphics/CGImage.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Callbacks */
 
 typedef void (*CGBitmapContextReleaseDataCallback)(
@@ -78,5 +82,9 @@ size_t CGBitmapContextGetHeight(CGContextRef ctx);
 size_t CGBitmapContextGetWidth(CGContextRef ctx);
 
 CGImageRef CGBitmapContextCreateImage(CGContextRef ctx);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* OPAL_CGBitmapContext_h */

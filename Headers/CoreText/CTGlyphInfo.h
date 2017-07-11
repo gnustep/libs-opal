@@ -29,6 +29,10 @@
 #include <CoreGraphics/CGFont.h>
 #include <CoreText/CTFont.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Data Types */
 
 #ifdef INTERNAL_BUILD_OBJC
@@ -76,5 +80,9 @@ CFStringRef CTGlyphInfoGetGlyphName(CTGlyphInfoRef glyphInfo);
 CGFontIndex CTGlyphInfoGetCharacterIdentifier(CTGlyphInfoRef glyphInfo);
 
 CTCharacterCollection CTGlyphInfoGetCharacterCollection(CTGlyphInfoRef glyphInfo);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

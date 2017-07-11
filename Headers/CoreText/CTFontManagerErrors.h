@@ -27,6 +27,10 @@
 
 #include <CoreGraphics/CGBase.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Data Types */
 
 typedef CFIndex CTFontManagerError;
@@ -49,5 +53,9 @@ enum {
   kCTFontManagerErrorInUse = 202,
   kCTFontManagerErrorSystemRequired = 202,
 };
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

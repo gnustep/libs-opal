@@ -39,6 +39,10 @@ typedef struct CGLayer* CGLayerRef;
 
 /* Functions */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 CGLayerRef CGLayerCreateWithContext(
   CGContextRef referenceCtxt,
   CGSize size,
@@ -66,5 +70,9 @@ void CGContextDrawLayerAtPoint(
 );
 
 CFTypeID CGLayerGetTypeID();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

@@ -38,6 +38,10 @@ typedef struct CGFont* CGFontRef;
 #include <CoreGraphics/CGGeometry.h>
 #include <CoreGraphics/CGDataProvider.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef unsigned short CGGlyph;
 
 typedef unsigned short CGFontIndex;
@@ -159,5 +163,9 @@ CGFontRef OPFontCreateWithFcPattern(FcPattern * pat);
 CGSize OPFontGetMaximumAdvancement(CGFontRef font);
 
 CGGlyph OPFontGetGlyphWithCharacter(CGFontRef font, unichar character);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* OPAL_CGFont_h */

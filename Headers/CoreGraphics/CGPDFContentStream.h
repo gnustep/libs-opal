@@ -40,6 +40,10 @@ typedef struct CGPDFContentStream* CGPDFContentStreamRef;
 
 /* Functions */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 CGPDFContentStreamRef CGPDFContentStreamCreateWithPage(CGPDFPageRef page);
 
 CGPDFContentStreamRef CGPDFContentStreamCreateWithStream(
@@ -59,5 +63,9 @@ CFArrayRef CGPDFContentStreamGetStreams(CGPDFContentStreamRef stream);
 CGPDFContentStreamRef CGPDFContentStreamRetain(CGPDFContentStreamRef stream);
 
 void CGPDFContentStreamRelease(CGPDFContentStreamRef stream);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* OPAL_CGPDFContentStream_h */

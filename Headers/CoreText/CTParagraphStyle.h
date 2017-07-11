@@ -27,6 +27,10 @@
 
 #include <CoreGraphics/CGBase.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Data Types */
 
 #ifdef INTERNAL_BUILD_OBJC
@@ -106,5 +110,9 @@ bool CTParagraphStyleGetValueForSpecifier(
   size_t valueBufferSize,
   void* valueBuffer
 );
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

@@ -41,6 +41,10 @@ typedef CGPDFObject* CGPDFObjectRef;
 typedef struct CGPDFObject* CGPDFObjectRef;
 #endif
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Constants */
 
 typedef enum CGPDFObjectType {
@@ -60,5 +64,9 @@ typedef enum CGPDFObjectType {
 CGPDFObjectType CGPDFObjectGetType(CGPDFObjectRef object);
 
 bool CGPDFObjectGetValue(CGPDFObjectRef object, CGPDFObjectType type, void *value);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* OPAL_CGPDFDictionary_h */

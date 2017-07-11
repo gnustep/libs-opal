@@ -28,6 +28,10 @@
 #include <CoreGraphics/CGBase.h>
 #include <CoreText/CTParagraphStyle.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Data Types */
 
 #ifdef INTERNAL_BUILD_OBJC
@@ -56,5 +60,9 @@ CTTextAlignment CTTextTabGetAlignment(CTTextTabRef tab);
 double CTTextTabGetLocation(CTTextTabRef tab);
 
 CFDictionaryRef CTTextTabGetOptions(CTTextTabRef tab);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

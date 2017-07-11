@@ -29,6 +29,10 @@
 #include <CoreText/CTFontDescriptor.h>
 #include <CoreFoundation/CoreFoundation.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Constants */
 
 extern const CFStringRef kCTFontManagerBundleIdentifier;
@@ -112,5 +116,9 @@ void CTFontManagerSetAutoActivationSetting(
 CTFontManagerAutoActivationSetting CTFontManagerGetAutoActivationSetting(
   CFStringRef bundleIdentifier
 );
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

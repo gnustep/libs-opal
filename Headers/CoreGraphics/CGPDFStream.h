@@ -36,6 +36,10 @@ typedef struct CGPDFStream* CGPDFStreamRef;
 #include <CoreGraphics/CGPDFDictionary.h>
 #include <CoreGraphics/CGBase.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Constants */
 
 typedef enum CGPDFDataFormat {
@@ -49,5 +53,9 @@ typedef enum CGPDFDataFormat {
 CGPDFDictionaryRef CGPDFStreamGetDictionary(CGPDFStreamRef stream);
 
 CFDataRef CGPDFStreamCopyData(CGPDFStreamRef stream, CGPDFDataFormat *format);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* OPAL_CGPDFStream_h */
