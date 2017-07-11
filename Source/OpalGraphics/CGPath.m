@@ -227,80 +227,80 @@ void CGPathAddArc(
    */
   if (angleValue > M_PI)
   {
-	// Define the angle to cut the parts:
-	CGFloat intermediateAngle = (startAngle + (angleValue / 2.0));
+    // Define the angle to cut the parts:
+    CGFloat intermediateAngle = (startAngle + (angleValue / 2.0));
 
-	// Setup part start and end angles according to direction:
-	CGFloat firstStart = clockwise ? startAngle : intermediateAngle;
-	CGFloat firstEnd = clockwise ? intermediateAngle :  endAngle;
-	CGFloat secondStart = clockwise ? intermediateAngle: startAngle;
-	CGFloat secondEnd = clockwise ? endAngle : intermediateAngle;
+    // Setup part start and end angles according to direction:
+    CGFloat firstStart = clockwise ? startAngle : intermediateAngle;
+    CGFloat firstEnd = clockwise ? intermediateAngle :  endAngle;
+    CGFloat secondStart = clockwise ? intermediateAngle: startAngle;
+    CGFloat secondEnd = clockwise ? endAngle : intermediateAngle;
 
-	// Add the parts:
-	CGPathAddArc(path, m,
-	  x, y,
-	  r,
-	  firstStart, firstEnd,
-	  clockwise);
-	CGPathAddArc(path, m,
-	  x, y,
-	  r,
-	  secondStart, secondEnd,
-	  clockwise);
+    // Add the parts:
+    CGPathAddArc(path, m,
+                 x, y,
+                 r,
+                 firstStart, firstEnd,
+                 clockwise);
+    CGPathAddArc(path, m,
+                 x, y,
+                 r,
+                 secondStart, secondEnd,
+                 clockwise);
   }
   else if (0 != angleValue)
   {
     // It only makes sense to add the arc if it actually has a non-zero angle.
     NSUInteger index = 0;
-	NSUInteger segmentCount = 0;
-	CGFloat thisAngle = 0;
-	CGFloat angleStep = 0;
+    NSUInteger segmentCount = 0;
+    CGFloat thisAngle = 0;
+    CGFloat angleStep = 0;
 
-	/*
-	 * Calculate how many segments we need and set the stepping accordingly.
-	 *
-	 * FIXME: We are using a fixed tolerance to find the number of elements
-	 * needed. This is necessary because we construct the path independently
-	 * from the surface we draw on. Maybe we should store some additional data
-	 * so we can better approximate the arc when we go to draw the curves?
-	 */
-	segmentCount = _OPPathRequiredArcSegments(angleValue, r, m);
-	angleStep = (angleValue / (CGFloat)segmentCount);
+    /*
+     * Calculate how many segments we need and set the stepping accordingly.
+     *
+     * FIXME: We are using a fixed tolerance to find the number of elements
+     * needed. This is necessary because we construct the path independently
+     * from the surface we draw on. Maybe we should store some additional data
+     * so we can better approximate the arc when we go to draw the curves?
+     */
+    segmentCount = _OPPathRequiredArcSegments(angleValue, r, m);
+    angleStep = (angleValue / (CGFloat)segmentCount);
 
-	// Adjust for clockwiseness:
-	if (clockwise)
-	{
-	  thisAngle = startAngle;
-	}
-	else
-	{
-	  thisAngle = endAngle;
-	  angleStep = - angleStep;
-	}
+    // Adjust for clockwiseness:
+    if (clockwise)
+    {
+      thisAngle = startAngle;
+    }
+    else
+    {
+      thisAngle = endAngle;
+      angleStep = - angleStep;
+    }
 
-	if (CGPathIsEmpty(path))
-	{
-	  // Move to the start of drawing:
-	  CGPathMoveToPoint(path, m,
-	    (x + (r * cos(thisAngle))),
-	    (y + (r * sin(thisAngle))));
-	}
-	else
-	{
-		CGPathAddLineToPoint(path, m,
-	    (x + (r * cos(thisAngle))),
-	    (y + (r * sin(thisAngle))));
-	}
+    if (CGPathIsEmpty(path))
+    {
+      // Move to the start of drawing:
+      CGPathMoveToPoint(path, m,
+                        (x + (r * cos(thisAngle))),
+                        (y + (r * sin(thisAngle))));
+    }
+    else
+    {
+      CGPathAddLineToPoint(path, m,
+                           (x + (r * cos(thisAngle))),
+                           (y + (r * sin(thisAngle))));
+    }
 
-	// Add the segments to the path:
-	for (index = 0; index < segmentCount; index++, thisAngle += angleStep)
-	{
-	  _OPPathAddArcSegment(path, m,
-	  x, y,
-	  r,
-	  thisAngle,
-	  (thisAngle + angleStep));
-	}
+    // Add the segments to the path:
+    for (index = 0; index < segmentCount; index++, thisAngle += angleStep)
+    {
+      _OPPathAddArcSegment(path, m,
+                           x, y,
+                           r,
+                           thisAngle,
+                           (thisAngle + angleStep));
+    }
   }
 }
 
@@ -332,11 +332,11 @@ void CGPathAddCurveToPoint(
   points[2] = CGPointMake(x, y);
   if (NULL != m)
   {
-     NSUInteger i = 0;
-	 for (i = 0;i < 3; i++)
-	 {
-		 points[i] = CGPointApplyAffineTransform(points[i], *m);
-	 }
+    NSUInteger i = 0;
+    for (i = 0; i < 3; i++)
+    {
+      points[i] = CGPointApplyAffineTransform(points[i], *m);
+    }
   }
   [(CGMutablePath*)path addElementWithType: kCGPathElementAddCurveToPoint
                                     points: (CGPoint*)&points];
