@@ -38,6 +38,10 @@ typedef struct CGColor* CGColorRef;
 #include <CoreGraphics/CGColorSpace.h>
 #include <CoreGraphics/CGPattern.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Constants */
 
 const extern CFStringRef kCGColorWhite;
@@ -93,5 +97,9 @@ CFTypeID CGColorGetTypeID();
 void CGColorRelease(CGColorRef clr);
 
 CGColorRef CGColorRetain(CGColorRef clr);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* OPAL_CGColor_h */

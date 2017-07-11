@@ -26,6 +26,10 @@
 #include <CoreGraphics/CGBase.h>
 #include <CoreGraphics/CGDataProvider.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Constants */
 
 typedef enum CGImageSourceStatus {
@@ -133,5 +137,9 @@ void CGImageSourceUpdateDataProvider(
 );
 
 CFTypeID CGImageSourceGetTypeID();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* OPAL_CGImageSource_h */

@@ -26,6 +26,10 @@
 #include <CoreGraphics/CGBase.h>
 #include <CoreGraphics/CGDataConsumer.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Constants */
 
 extern const CFStringRef kCGImageDestinationLossyCompressionQuality;
@@ -97,5 +101,9 @@ void CGImageDestinationAddImageFromSource(
 bool CGImageDestinationFinalize(CGImageDestinationRef dest);
 
 CFTypeID CGImageDestinationGetTypeID();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* OPAL_CGImageDestination_h */

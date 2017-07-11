@@ -36,6 +36,10 @@ typedef struct CGGradient* CGGradientRef;
 #include <CoreGraphics/CGBase.h>
 #include <CoreGraphics/CGColorSpace.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Constants */
 
 typedef enum {
@@ -63,5 +67,9 @@ CFTypeID CGGradientGetTypeID();
 CGGradientRef CGGradientRetain(CGGradientRef grad);
 
 void CGGradientRelease(CGGradientRef grad);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

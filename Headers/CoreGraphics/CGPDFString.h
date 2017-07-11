@@ -35,6 +35,10 @@ typedef struct CGPDFString* CGPDFStringRef;
 
 #include <CoreGraphics/CGBase.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Functions */
 
 size_t CGPDFStringGetLength(CGPDFStringRef string);
@@ -44,5 +48,9 @@ const unsigned char *CGPDFStringGetBytePtr(CGPDFStringRef string);
 CFStringRef CGPDFStringCopyTextString(CGPDFStringRef string);
 
 CFDateRef CGPDFStringCopyDate(CGPDFStringRef string);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* OPAL_CGPDFString_h */

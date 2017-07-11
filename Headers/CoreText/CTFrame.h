@@ -30,6 +30,10 @@
 #include <CoreGraphics/CGGeometry.h>
 #include <CoreText/CTLine.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Data Types */
 
 #ifdef INTERNAL_BUILD_OBJC
@@ -72,5 +76,9 @@ void CTFrameDraw(
   CTFrameRef frame,
   CGContextRef context
 );
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

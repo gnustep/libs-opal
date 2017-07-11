@@ -30,6 +30,10 @@
 #include <CoreGraphics/CGAffineTransform.h>
 #include <CoreGraphics/CGContext.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Data Types */
 
 #ifdef INTERNAL_BUILD_OBJC
@@ -113,5 +117,9 @@ void CTRunDraw(
 );
 
 CFTypeID CTRunGetTypeID();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

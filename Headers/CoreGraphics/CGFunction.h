@@ -36,6 +36,10 @@ typedef struct CGFunction* CGFunctionRef;
 
 #include <CoreGraphics/CGBase.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Callbacks */
 
 typedef void (*CGFunctionEvaluateCallback)(
@@ -66,5 +70,9 @@ CGFunctionRef CGFunctionCreate(
 CGFunctionRef CGFunctionRetain(CGFunctionRef function);
 
 void CGFunctionRelease(CGFunctionRef function);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* OPAL_CGFunction_h */

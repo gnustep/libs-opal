@@ -36,6 +36,10 @@ typedef struct CGDataProvider* CGDataProviderRef;
 
 #include <CoreGraphics/CGBase.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Callbacks */
 
 /**
@@ -193,5 +197,9 @@ CGDataProviderRef CGDataProviderRetain(CGDataProviderRef provider);
 void CGDataProviderRelease(CGDataProviderRef provider);
 
 CFTypeID CGDataProviderGetTypeID();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* OPAL_CGDataProvider_h */

@@ -30,6 +30,11 @@
 #include <CoreGraphics/CGFont.h>
 #include <CoreGraphics/CGGeometry.h>
 #include <CoreText/CTRun.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Data Types */
 
 #ifdef INTERNAL_BUILD_OBJC
@@ -104,5 +109,9 @@ CGFloat CTLineGetOffsetForStringIndex(
   CFIndex charIndex,
   CGFloat* secondaryOffset
 );
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

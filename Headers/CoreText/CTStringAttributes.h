@@ -27,6 +27,10 @@
 
 #include <CoreGraphics/CGBase.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Constants */
 
 extern const CFStringRef kCTFontAttributeName;
@@ -58,5 +62,9 @@ typedef enum {
   kCTUnderlinePatternDashDot = 0x0300,
   kCTUnderlinePatternDashDotDot = 0x0400
 } CTUnderlineStyleModifiers;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

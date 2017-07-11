@@ -29,6 +29,10 @@
 #include <CoreGraphics/CGContext.h>
 #include <CoreGraphics/CGDataConsumer.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Constants */
 
 /**
@@ -56,5 +60,9 @@ CGContextRef OPSVGContextCreateWithURL(
 );
 
 void OPSVGContextEndPage(CGContextRef ctx);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* OPAL_OPSVGContext_h */

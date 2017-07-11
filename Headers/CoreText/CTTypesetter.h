@@ -28,6 +28,10 @@
 #include <CoreGraphics/CGBase.h>
 #include <CoreText/CTLine.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Data Types */
 
 #ifdef INTERNAL_BUILD_OBJC
@@ -69,5 +73,9 @@ CFIndex CTTypesetterSuggestLineBreak(
 );
 
 CFTypeID CTTypesetterGetTypeID();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

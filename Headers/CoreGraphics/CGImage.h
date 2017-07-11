@@ -39,6 +39,10 @@ typedef struct CGImage* CGImageRef;
 #include <CoreGraphics/CGColorSpace.h>
 #include <CoreGraphics/CGGeometry.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Constants */
 
 typedef enum CGImageAlphaInfo
@@ -167,5 +171,9 @@ const CGFloat *CGImageGetDecode(CGImageRef image);
 bool CGImageGetShouldInterpolate(CGImageRef image);
 
 CGColorRenderingIntent CGImageGetRenderingIntent(CGImageRef image);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* OPAL_CGImage_h */

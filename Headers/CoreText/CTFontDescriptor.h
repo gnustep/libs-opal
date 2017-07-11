@@ -28,6 +28,10 @@
 #include <CoreGraphics/CGBase.h>
 #include <CoreText/CTFontTraits.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Data Types */
 
 #ifdef INTERNAL_BUILD_OBJC
@@ -136,5 +140,9 @@ CFTypeRef CTFontDescriptorCopyLocalizedAttribute(
 );
 
 CFTypeID CTFontDescriptorGetTypeID();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

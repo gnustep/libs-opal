@@ -28,6 +28,10 @@
 #include <CoreGraphics/CGBase.h>
 #include <CoreGraphics/CGAffineTransform.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Constants */
 
 typedef enum CGPathElementType {
@@ -181,5 +185,9 @@ void CGPathAddEllipseInRect(
   const CGAffineTransform *m, 
   CGRect rect
 );
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* OPAL_CGPath_h */

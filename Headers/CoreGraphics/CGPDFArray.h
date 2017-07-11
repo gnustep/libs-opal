@@ -39,6 +39,10 @@ typedef struct CGPDFArray* CGPDFArrayRef;
 #include <CoreGraphics/CGPDFDictionary.h>
 #include <CoreGraphics/CGPDFStream.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Functions */
 
 bool CGPDFArrayGetArray(CGPDFArrayRef array, size_t index, CGPDFArrayRef *value);
@@ -62,5 +66,9 @@ bool CGPDFArrayGetObject(CGPDFArrayRef array, size_t index, CGPDFObjectRef *valu
 bool CGPDFArrayGetStream(CGPDFArrayRef array, size_t index, CGPDFStreamRef *value);
 
 bool CGPDFArrayGetString(CGPDFArrayRef array, size_t index, CGPDFStringRef *value);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* OPAL_CGPDFArray_h */

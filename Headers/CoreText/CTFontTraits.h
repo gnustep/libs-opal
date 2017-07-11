@@ -27,6 +27,10 @@
 
 #include <CoreGraphics/CGBase.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Constants */
 
 extern const CFStringRef kCTFontSymbolicTrait;
@@ -62,5 +66,9 @@ typedef enum {
   kCTFontScriptsClass = (10 << 28),
   kCTFontSymbolicClass = (12 << 28)
 } CTFontStylisticClass;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

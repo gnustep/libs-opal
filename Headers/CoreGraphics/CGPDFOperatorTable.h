@@ -36,6 +36,10 @@ typedef struct CGPDFOperatorTable* CGPDFOperatorTableRef;
 #include <CoreGraphics/CGBase.h>
 #include <CoreGraphics/CGPDFScanner.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Callbacks */
 
 typedef void (*CGPDFOperatorCallback)(CGPDFScannerRef scanner, void *info);
@@ -53,5 +57,9 @@ void CGPDFOperatorTableSetCallback(
 CGPDFOperatorTableRef CGPDFOperatorTableRetain(CGPDFOperatorTableRef table);
 
 void CGPDFOperatorTableRelease(CGPDFOperatorTableRef table);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* OPAL_CGPDFOperatorTable_h */

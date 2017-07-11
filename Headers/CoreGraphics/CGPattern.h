@@ -39,6 +39,10 @@ typedef struct CGPattern* CGPatternRef;
 #include <CoreGraphics/CGGeometry.h>
 #include <CoreGraphics/CGAffineTransform.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Constants */
 
 typedef enum CGPatternTiling
@@ -78,5 +82,9 @@ CFTypeID CGPatternGetTypeID();
 void CGPatternRelease(CGPatternRef pattern);
 
 CGPatternRef CGPatternRetain(CGPatternRef pattern);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* OPAL_CGPattern_h */

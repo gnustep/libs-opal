@@ -28,6 +28,10 @@
 #include <CoreGraphics/CGDataProvider.h>
 #include <CoreGraphics/CGDataConsumer.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Callbacks */
 
 typedef void (*CGPSConverterBeginDocumentCallback)(void *info);
@@ -93,5 +97,9 @@ bool CGPSConverterAbort(CGPSConverterRef converter);
 bool CGPSConverterIsConverting(CGPSConverterRef converter);
 
 CFTypeID CGPSConverterGetTypeID();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* OPAL_CGPSConverter_h */

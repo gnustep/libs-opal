@@ -31,6 +31,10 @@
 #include <CoreText/CTFrame.h>
 #include <CoreText/CTTypesetter.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Data Types */
 
 #ifdef INTERNAL_BUILD_OBJC
@@ -62,5 +66,9 @@ CGSize CTFramesetterSuggestFrameSizeWithConstraints(
   CGSize constraints,
   CFRange* fitRange
 );
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

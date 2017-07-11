@@ -29,6 +29,10 @@
 #include <CoreGraphics/CGContext.h>
 #include <CoreGraphics/CGDataConsumer.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Constants */
 
 extern const CFStringRef kCGPDFContextAuthor;
@@ -90,5 +94,9 @@ void CGPDFContextSetDestinationForRect(
 );
 
 void CGPDFContextSetURLForRect(CGContextRef ctx, CFURLRef url, CGRect rect);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* OPAL_CGPDFContext_h */

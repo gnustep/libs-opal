@@ -39,6 +39,10 @@ typedef struct CGPDFDocument* CGPDFDocumentRef;
 #include <CoreGraphics/CGDataConsumer.h>
 #include <CoreGraphics/CGDataProvider.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Functions */
 
 CGPDFDocumentRef CGPDFDocumentCreateWithProvider(CGDataProviderRef provider);
@@ -62,5 +66,9 @@ CGRect CGPDFDocumentGetTrimBox(CGPDFDocumentRef document, int page);
 CGRect CGPDFDocumentGetArtBox(CGPDFDocumentRef document, int page);
 
 int CGPDFDocumentGetRotationAngle(CGPDFDocumentRef document, int page);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* OPAL_CGPDFDocument_h */
