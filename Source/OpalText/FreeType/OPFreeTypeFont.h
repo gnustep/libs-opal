@@ -28,7 +28,7 @@
 
 #import "../OPFont.h"
 #include <stdint.h>
-@interface OPFreeTypeFont: OPFont
+@interface OPFreeTypeFont : OPFont
 {
   FT_Face fontFace;
   /**

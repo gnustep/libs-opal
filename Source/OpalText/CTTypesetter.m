@@ -11,12 +11,12 @@
    modify it under the terms of the GNU Lesser General Public
    License as published by the Free Software Foundation; either
    version 2.1 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
    Lesser General Public License for more details.
-   
+
    You should have received a copy of the GNU Lesser General Public
    License along with this library; if not, write to the Free Software
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
@@ -30,8 +30,10 @@
 
 /* Constants */
 
-const CFStringRef kCTTypesetterOptionDisableBidiProcessing = @"kCTTypesetterOptionDisableBidiProcessing";
-const CFStringRef kCTTypesetterOptionForcedEmbeddingLevel = @"kCTTypesetterOptionForcedEmbeddingLevel";
+const CFStringRef kCTTypesetterOptionDisableBidiProcessing =
+  @"kCTTypesetterOptionDisableBidiProcessing";
+const CFStringRef kCTTypesetterOptionForcedEmbeddingLevel =
+  @"kCTTypesetterOptionForcedEmbeddingLevel";
 
 /* Classes */
 
@@ -61,10 +63,10 @@ const CFStringRef kCTTypesetterOptionForcedEmbeddingLevel = @"kCTTypesetterOptio
                        options: (NSDictionary*)options
 {
   if ((self = [super init]))
-  {
-    _as = [string retain];
-    _options = [options retain];
-  }
+    {
+      _as = [string retain];
+      _options = [options retain];
+    }
   return self;
 }
 
@@ -81,11 +83,11 @@ const CFStringRef kCTTypesetterOptionForcedEmbeddingLevel = @"kCTTypesetterOptio
   // - divide the attributed string into runs with the same attributes.
   // - run the bidirectional algorithm if needed
   // - call the shaper on each run
-  
+
   NSArray *runs = [NSMutableArray array];
-  
+
   CTLineRef line = [[CTLine alloc] initWithRuns: runs];
-  
+
   return line;
 }
 - (CFIndex)suggestClusterBreakAtIndex: (CFIndex)start
@@ -103,15 +105,16 @@ const CFStringRef kCTTypesetterOptionForcedEmbeddingLevel = @"kCTTypesetterOptio
 
 /* Functions */
 
-CTTypesetterRef CTTypesetterCreateWithAttributedString(CFAttributedStringRef string)
+CTTypesetterRef CTTypesetterCreateWithAttributedString(CFAttributedStringRef
+    string)
 {
   return [[CTTypesetter alloc] initWithAttributedString: string
                                                 options: nil];
 }
 
 CTTypesetterRef CTTypesetterCreateWithAttributedStringAndOptions(
-	CFAttributedStringRef string,
-	CFDictionaryRef opts)
+  CFAttributedStringRef string,
+  CFDictionaryRef opts)
 {
   return [[CTTypesetter alloc] initWithAttributedString: string
                                                 options: opts];
@@ -123,17 +126,17 @@ CTLineRef CTTypesetterCreateLine(CTTypesetterRef ts, CFRange range)
 }
 
 CFIndex CTTypesetterSuggestClusterBreak(
-	CTTypesetterRef ts,
-	CFIndex start,
-	double width)
+  CTTypesetterRef ts,
+  CFIndex start,
+  double width)
 {
   return [ts suggestClusterBreakAtIndex: start width: width];
 }
 
 CFIndex CTTypesetterSuggestLineBreak(
-	CTTypesetterRef ts,
-	CFIndex start,
-	double width)
+  CTTypesetterRef ts,
+  CFIndex start,
+  double width)
 {
   return [ts suggestLineBreakAtIndex: start width: width];
 }

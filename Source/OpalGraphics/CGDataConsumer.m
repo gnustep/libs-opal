@@ -11,12 +11,12 @@
    modify it under the terms of the GNU Lesser General Public
    License as published by the Free Software Foundation; either
    version 2.1 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    Lesser General Public License for more details.
-   
+
    You should have received a copy of the GNU Lesser General Public
    License along with this library; if not, write to the Free Software
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
@@ -49,25 +49,26 @@
 - (void) dealloc
 {
   if (cb.releaseConsumer)
-  {
-    cb.releaseConsumer(info);
-  }
-  [super dealloc];    
+    {
+      cb.releaseConsumer(info);
+    }
+  [super dealloc];
 }
 
 @end
 
 /* Opal-internal access */
 
-size_t OPDataConsumerPutBytes(CGDataConsumerRef dc, const void *buffer, size_t count)
+size_t OPDataConsumerPutBytes(CGDataConsumerRef dc, const void *buffer,
+                              size_t count)
 {
   if (NULL != dc)
-  {
-    return dc->cb.putBytes(
-      dc->info, 
-      buffer,
-      count);
-  }
+    {
+      return dc->cb.putBytes(
+               dc->info,
+               buffer,
+               count);
+    }
   return 0;
 }
 
@@ -82,10 +83,10 @@ static size_t opal_URLConsumerPutBytes(
                                               length: count
                                         freeWhenDone: NO];
   // FIXME: catch exceptions?
-  [(NSFileHandle*)info writeData: data];  
-  
+  [(NSFileHandle*)info writeData: data];
+
   [data release];
-  return count; 
+  return count;
 }
 
 static void opal_URLConsumerReleaseInfo(void *info)
@@ -97,9 +98,9 @@ static void opal_URLConsumerReleaseInfo(void *info)
 /* CFData consumer */
 
 static size_t opal_CFDataConsumerPutBytes(
-   void *info,
-   const void *buffer,
-   size_t count)
+  void *info,
+  const void *buffer,
+  size_t count)
 {
   [(NSMutableData*)info appendBytes: buffer length: count];
   return count;
@@ -122,16 +123,18 @@ CGDataConsumerRef CGDataConsumerCreate(
 
 CGDataConsumerRef CGDataConsumerCreateWithCFData(CFMutableDataRef data)
 {
-  CGDataConsumerCallbacks opal_CFDataConsumerCallbacks = {
-    opal_CFDataConsumerPutBytes, opal_CFDataConsumerReleaseInfo 
+  CGDataConsumerCallbacks opal_CFDataConsumerCallbacks =
+  {
+    opal_CFDataConsumerPutBytes, opal_CFDataConsumerReleaseInfo
   };
   return CGDataConsumerCreate([data retain], &opal_CFDataConsumerCallbacks);
 }
 
 CGDataConsumerRef CGDataConsumerCreateWithURL(CFURLRef url)
 {
-  CGDataConsumerCallbacks opal_URLConsumerCallbacks = {
-    opal_URLConsumerPutBytes, opal_URLConsumerReleaseInfo 
+  CGDataConsumerCallbacks opal_URLConsumerCallbacks =
+  {
+    opal_URLConsumerPutBytes, opal_URLConsumerReleaseInfo
   };
 
   NSString *path = [(NSURL*)url path];
@@ -139,7 +142,8 @@ CGDataConsumerRef CGDataConsumerCreateWithURL(CFURLRef url)
   NSFileHandle *handle = [NSFileHandle fileHandleForWritingAtPath: path];
   if (handle == nil)
     {
-      [[NSFileManager defaultManager] createFileAtPath: path contents:nil attributes:nil];
+      [[NSFileManager defaultManager] createFileAtPath: path contents: nil
+                                      attributes: nil];
       handle = [NSFileHandle fileHandleForWritingAtPath: path];
     }
 

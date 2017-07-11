@@ -13,12 +13,12 @@
    modify it under the terms of the GNU Lesser General Public
    License as published by the Free Software Foundation; either
    version 2.1 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    Lesser General Public License for more details.
-   
+
    You should have received a copy of the GNU Lesser General Public
    License along with this library; if not, write to the Free Software
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
@@ -48,7 +48,8 @@
 - (size_t) size;
 - (const void *)bytePointer;
 - (void)releaseBytePointer: (const void *)pointer;
-- (size_t) getBytes: (void *)buffer atPosition: (off_t)position count: (size_t)count;
+- (size_t) getBytes: (void *)buffer atPosition: (off_t)position count:
+  (size_t)count;
 
 - (CFDataRef) copyData;
 
@@ -84,7 +85,8 @@
 {
   [self doesNotRecognizeSelector: _cmd];
 }
-- (size_t) getBytes: (void *)buffer atPosition: (off_t)position count: (size_t)count
+- (size_t) getBytes: (void *)buffer atPosition: (off_t)position count:
+  (size_t)count
 {
   [self doesNotRecognizeSelector: _cmd];
   return (size_t)0;
@@ -121,13 +123,13 @@
 - (void) dealloc
 {
   if (releaseInfoCallback)
-  {
-    releaseInfoCallback(info);
-  }
+    {
+      releaseInfoCallback(info);
+    }
   [super dealloc];
 }
-  
-  
+
+
 /* Opal internal access - Sequential */
 
 - (size_t)getBytes: (void *)buffer count: (size_t)count
@@ -136,9 +138,9 @@
   const void *bytePointer = [self bytePointer];
   memcpy(buffer, bytePointer + pos, bytesToCopy);
   [self releaseBytePointer: bytePointer];
-  
+
   pos += bytesToCopy;
-  
+
   return bytesToCopy;
 }
 - (off_t)skipForward: (off_t)count
@@ -160,28 +162,29 @@
 - (const void *)bytePointer
 {
   if (getBytePointerCallback)
-  {
-    return getBytePointerCallback(info);
-  }
+    {
+      return getBytePointerCallback(info);
+    }
   return NULL;
 }
 - (void)releaseBytePointer: (const void *)pointer
 {
   if (releaseBytePointerCallback)
-  {
-    releaseBytePointerCallback(info, pointer);
-  }
+    {
+      releaseBytePointerCallback(info, pointer);
+    }
 }
-- (size_t) getBytes: (void *)buffer atPosition: (off_t)position count: (size_t)count
+- (size_t) getBytes: (void *)buffer atPosition: (off_t)position count:
+  (size_t)count
 {
   if (getBytesAtOffsetCallback)
-  {
-    return getBytesAtOffsetCallback(info, buffer, position, count);
-  }
+    {
+      return getBytesAtOffsetCallback(info, buffer, position, count);
+    }
   else if (getBytesAtPositionCallback)
-  {
-    return getBytesAtPositionCallback(info, buffer, (int)position, count);
-  }
+    {
+      return getBytesAtPositionCallback(info, buffer, (int)position, count);
+    }
   return 0;
 }
 
@@ -211,9 +214,9 @@
 - (void) dealloc
 {
   if (releaseInfoCallback)
-  {
-    releaseInfoCallback(info);
-  }
+    {
+      releaseInfoCallback(info);
+    }
   [directBuffer release];
   [super dealloc];
 }
@@ -223,30 +226,30 @@
 - (size_t)getBytes: (void *)buffer count: (size_t)count
 {
   if (getBytesCallback)
-  {
-    return getBytesCallback(info, buffer, count);
-  }
+    {
+      return getBytesCallback(info, buffer, count);
+    }
   return 0;
 }
 - (off_t)skipForward: (off_t)count
 {
   if (skipBytesCallback)
-  {
-    skipBytesCallback(info, count);
-    return count;
-  }
+    {
+      skipBytesCallback(info, count);
+      return count;
+    }
   else if (skipForwardCallback)
-  {
-    return skipForwardCallback(info, count);
-  }
+    {
+      return skipForwardCallback(info, count);
+    }
   return 0;
 }
 - (void)rewind
 {
   if (rewindCallback)
-  {
-    rewindCallback(info);
-  }
+    {
+      rewindCallback(info);
+    }
 }
 
 /* Opal internal access - Direct */
@@ -254,20 +257,20 @@
 - (NSData *)directBuffer
 {
   if (NULL == directBuffer)
-  {
-    NSMutableData *buf = [[NSMutableData alloc] initWithLength: 65536];
-    [self rewind];
-    size_t got;
-    off_t total = 0;
-    while ((got = [self getBytes: ([buf mutableBytes] + total) count: 65536]) > 0)
     {
-      total += got;
-      [buf setLength: total + 65536];
+      NSMutableData *buf = [[NSMutableData alloc] initWithLength: 65536];
+      [self rewind];
+      size_t got;
+      off_t total = 0;
+      while ((got = [self getBytes: ([buf mutableBytes] + total) count: 65536]) > 0)
+        {
+          total += got;
+          [buf setLength: total + 65536];
+        }
+      [buf setLength: total];
+
+      directBuffer = buf;
     }
-    [buf setLength: total];
-    
-    directBuffer = buf;
-  } 
   return directBuffer;
 }
 - (size_t)size
@@ -282,10 +285,12 @@
 {
   ;
 }
-- (size_t) getBytes: (void *)buffer atPosition: (off_t)position count: (size_t)count
+- (size_t) getBytes: (void *)buffer atPosition: (off_t)position count:
+  (size_t)count
 {
   size_t bytesToCopy = MIN(count, ([[self directBuffer] length] - position));
-  [[self directBuffer] getBytes:buffer range: NSMakeRange(position, bytesToCopy)];
+  [[self directBuffer] getBytes: buffer range: NSMakeRange(position,
+                          bytesToCopy)];
   return bytesToCopy;
 }
 
@@ -325,13 +330,14 @@ const void *OPDataProviderGetBytePointer(CGDataProviderRef dp)
   return [dp bytePointer];
 }
 
-void OPDataProviderReleaseBytePointer(CGDataProviderRef dp, const void *pointer)
+void OPDataProviderReleaseBytePointer(CGDataProviderRef dp,
+                                      const void *pointer)
 {
   [dp releaseBytePointer: pointer];
 }
 
 size_t OPDataProviderGetBytesAtPositionCallback(
-  CGDataProviderRef dp, 
+  CGDataProviderRef dp,
   void *buffer,
   off_t position,
   size_t count)
@@ -346,7 +352,8 @@ size_t OPDataProviderGetBytesAtPositionCallback(
 
 /* Data callbacks */
 
-typedef struct DataInfo {
+typedef struct DataInfo
+{
   size_t size;
   const void *data;
   CGDataProviderReleaseDataCallback releaseData;
@@ -360,7 +367,7 @@ static const void *opal_DataGetBytePointer(void *info)
 static void opal_DataReleaseBytePointer(void *info, const void *pointer)
 {
   ;
-}  
+}
 
 static size_t opal_DataGetBytesAtPosition(
   void *info,
@@ -378,12 +385,13 @@ static void opal_DataReleaseInfo(void *info)
   free((DataInfo*)info);
 }
 
-static const CGDataProviderDirectCallbacks opal_DataCallbacks = {
-   0,
-   opal_DataGetBytePointer,
-   opal_DataReleaseBytePointer,
-   opal_DataGetBytesAtPosition,
-   opal_DataReleaseInfo
+static const CGDataProviderDirectCallbacks opal_DataCallbacks =
+{
+  0,
+  opal_DataGetBytePointer,
+  opal_DataReleaseBytePointer,
+  opal_DataGetBytesAtPosition,
+  opal_DataReleaseInfo
 };
 
 /* CFData callbacks */
@@ -396,7 +404,7 @@ static const void *opal_CFDataGetBytePointer(void *info)
 static void opal_CFDataReleaseBytePointer(void *info, const void *pointer)
 {
   ;
-}  
+}
 
 static size_t opal_CFDataGetBytesAtPosition(
   void *info,
@@ -405,7 +413,7 @@ static size_t opal_CFDataGetBytesAtPosition(
   size_t count)
 {
   size_t bytesToCopy = MIN(count, ([(NSData*)info length] - position));
-  [(NSData*)info getBytes:buffer range: NSMakeRange(position, bytesToCopy)];
+  [(NSData*)info getBytes: buffer range: NSMakeRange(position, bytesToCopy)];
   return bytesToCopy;
 }
 
@@ -414,12 +422,13 @@ static void opal_CFDataReleaseInfo(void *info)
   [(NSData*)info release];
 }
 
-static const CGDataProviderDirectCallbacks opal_CFDataCallbacks = {
-   0,
-   opal_CFDataGetBytePointer,
-   opal_CFDataReleaseBytePointer,
-   opal_CFDataGetBytesAtPosition,
-   opal_CFDataReleaseInfo
+static const CGDataProviderDirectCallbacks opal_CFDataCallbacks =
+{
+  0,
+  opal_CFDataGetBytePointer,
+  opal_CFDataReleaseBytePointer,
+  opal_CFDataGetBytesAtPosition,
+  opal_CFDataReleaseInfo
 };
 
 /* File callbacks */
@@ -433,7 +442,7 @@ static off_t opal_fileSkipForward(void *info, off_t count)
 {
   fseek((FILE*)info, count, SEEK_CUR);
   return count;
-}  
+}
 
 static void opal_fileRewind(void *info)
 {
@@ -445,12 +454,13 @@ static void opal_fileReleaseInfo(void *info)
   fclose((FILE*)info);
 }
 
-static const CGDataProviderSequentialCallbacks opal_fileCallbacks = {
-   0,
-   opal_fileGetBytes,
-   opal_fileSkipForward,
-   opal_fileRewind,
-   opal_fileReleaseInfo
+static const CGDataProviderSequentialCallbacks opal_fileCallbacks =
+{
+  0,
+  opal_fileGetBytes,
+  opal_fileSkipForward,
+  opal_fileRewind,
+  opal_fileReleaseInfo
 };
 
 
@@ -463,13 +473,13 @@ static const CGDataProviderSequentialCallbacks opal_fileCallbacks = {
 
 CFDataRef CGDataProviderCopyData(CGDataProviderRef provider)
 {
-  return [(CGDataProvider*)provider copyData];  
+  return [(CGDataProvider*)provider copyData];
 }
 
 CGDataProviderRef CGDataProviderCreateDirect(
   void *info,
   off_t size,
-  const CGDataProviderDirectCallbacks *callbacks) 
+  const CGDataProviderDirectCallbacks *callbacks)
 {
   CGDataProviderDirect *provider = [[CGDataProviderDirect alloc] init];
   provider->info = info;
@@ -478,7 +488,7 @@ CGDataProviderRef CGDataProviderCreateDirect(
   provider->releaseBytePointerCallback = callbacks->releaseBytePointer;
   provider->getBytesAtPositionCallback = callbacks->getBytesAtPosition;
   provider->releaseInfoCallback = callbacks->releaseInfo;
-    
+
   return provider;
 }
 
@@ -497,7 +507,7 @@ CGDataProviderRef CGDataProviderCreateDirectAccess(
   provider->releaseBytePointerCallback = callbacks->releaseBytePointer;
   provider->getBytesAtOffsetCallback = callbacks->getBytes;
   provider->releaseInfoCallback = callbacks->releaseProvider;
-    
+
   return provider;
 }
 
@@ -511,7 +521,7 @@ CGDataProviderRef CGDataProviderCreateSequential(
   provider->skipForwardCallback = callbacks->skipForward;
   provider->rewindCallback = callbacks->rewind;
   provider->releaseInfoCallback = callbacks->releaseInfo;
-    
+
   return provider;
 }
 
@@ -529,7 +539,7 @@ CGDataProviderRef CGDataProviderCreate(
   provider->skipBytesCallback = callbacks->skipBytes;
   provider->rewindCallback = callbacks->rewind;
   provider->releaseInfoCallback = callbacks->releaseProvider;
-    
+
   return provider;
 }
 
@@ -543,13 +553,14 @@ CGDataProviderRef CGDataProviderCreateWithData(
   i->size = size;
   i->data = data;
   i->releaseData = releaseData;
-  
+
   return CGDataProviderCreateDirect(i, size, &opal_DataCallbacks);
 }
 
 CGDataProviderRef CGDataProviderCreateWithCFData(CFDataRef data)
 {
-  return CGDataProviderCreateDirect([(NSData*)data retain], [(NSData*)data length], &opal_CFDataCallbacks);
+  return CGDataProviderCreateDirect([(NSData*)data retain], [(NSData*)data
+                                    length], &opal_CFDataCallbacks);
 }
 
 CGDataProviderRef CGDataProviderCreateWithURL(CFURLRef url)
@@ -561,9 +572,9 @@ CGDataProviderRef CGDataProviderCreateWithFilename(const char *filename)
 {
   FILE *info = fopen(filename, "rb");
   if (NULL == info)
-  {
-    return nil;
-  }
+    {
+      return nil;
+    }
   return CGDataProviderCreateSequential(info, &opal_fileCallbacks);
 }
 

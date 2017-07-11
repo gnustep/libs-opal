@@ -17,70 +17,78 @@ void draw(CGContextRef ctx, CGRect rect)
 {
   CGContextSetRGBFillColor(ctx, 0.45, 0.45, 0.45, 1.0);
   CGContextFillRect(ctx, rect);
-  
+
   // Draw a checkerboard
   CGContextSetRGBFillColor(ctx, 0.4, 0.4, 0.4, 1.0);
-	unsigned int x, y;
-	for (x=0; x<rect.size.width; x+=10)
-	{
-		for (y=0; y<rect.size.height; y+=10)
-		{
-			if (((x % 20) == 0) != ((y % 20) == 0))
-			{
-  			CGContextFillRect(ctx,  CGRectMake(x, y, 10, 10));
-			}
-  	}	
-  }
-  
+  unsigned int x, y;
+  for (x=0; x<rect.size.width; x+=10)
+    {
+      for (y=0; y<rect.size.height; y+=10)
+        {
+          if (((x % 20) == 0) != ((y % 20) == 0))
+            {
+              CGContextFillRect(ctx,  CGRectMake(x, y, 10, 10));
+            }
+        }
+    }
+
   if (nil == png)
-  {
-    CGDataProviderRef pngData = CGDataProviderCreateWithFilename("test.png");
-    png = CGImageCreateWithPNGDataProvider(pngData, NULL, YES, kCGRenderingIntentDefault);
-    CGDataProviderRelease(pngData);
-  }
+    {
+      CGDataProviderRef pngData = CGDataProviderCreateWithFilename("test.png");
+      png = CGImageCreateWithPNGDataProvider(pngData, NULL, YES,
+                                             kCGRenderingIntentDefault);
+      CGDataProviderRelease(pngData);
+    }
 
   CGRect pngRect = CGRectMake(0,0,rect.size.width/3,rect.size.height);
   CGContextDrawImage(ctx, pngRect, png);
-   
-  if (nil == jpeg)
-  { 
-    CGDataProviderRef jpegData = CGDataProviderCreateWithFilename("test.jpg");
-    jpeg = CGImageCreateWithJPEGDataProvider(jpegData, NULL, YES, kCGRenderingIntentDefault);
-    CGDataProviderRelease(jpegData);
-  }
 
-  CGRect jpegRect = CGRectMake(rect.size.width/3,0,rect.size.width/3, rect.size.height);
+  if (nil == jpeg)
+    {
+      CGDataProviderRef jpegData = CGDataProviderCreateWithFilename("test.jpg");
+      jpeg = CGImageCreateWithJPEGDataProvider(jpegData, NULL, YES,
+             kCGRenderingIntentDefault);
+      CGDataProviderRelease(jpegData);
+    }
+
+  CGRect jpegRect = CGRectMake(rect.size.width/3,0,rect.size.width/3,
+                               rect.size.height);
   CGContextDrawImage(ctx, jpegRect, jpeg);
 
   if (nil == tiff)
-  { 
-    CGDataProviderRef tiffData = CGDataProviderCreateWithFilename("test.tiff");
-    CGImageSourceRef tiffSource = CGImageSourceCreateWithDataProvider(tiffData, nil);
-    
-    tiff = CGImageSourceCreateImageAtIndex(tiffSource, 0, nil);
+    {
+      CGDataProviderRef tiffData = CGDataProviderCreateWithFilename("test.tiff");
+      CGImageSourceRef tiffSource = CGImageSourceCreateWithDataProvider(tiffData,
+                                    nil);
 
-    CGDataProviderRelease(tiffData);
-    [tiffSource release];
-  }
+      tiff = CGImageSourceCreateImageAtIndex(tiffSource, 0, nil);
 
-  CGRect tiffRect = CGRectMake((2*rect.size.width)/3,0,rect.size.width/3, rect.size.height);
+      CGDataProviderRelease(tiffData);
+      [tiffSource release];
+    }
+
+  CGRect tiffRect = CGRectMake((2*rect.size.width)/3,0,rect.size.width/3,
+                               rect.size.height);
   CGContextDrawImage(ctx, tiffRect, tiff);
-    
+
   // Draw some sub-images
-    
+
   if (nil == worldmap)
-  {
-      CGDataProviderRef mapData = CGDataProviderCreateWithFilename("World_Map_1689.png");
+    {
+      CGDataProviderRef mapData =
+        CGDataProviderCreateWithFilename("World_Map_1689.png");
       CGImageSourceRef mapSource = CGImageSourceCreateWithDataProvider(mapData, nil);
-      
+
       worldmap = CGImageSourceCreateImageAtIndex(mapSource, 0, nil);
-      
+
       CGDataProviderRelease(mapData);
       [mapSource release];
-  }
-        
-  CGImageRef america = CGImageCreateWithImageInRect(worldmap, CGRectMake(14, 54, 126, 132));
-  CGRect americaRect = CGRectMake(rect.size.width/3,rect.size.height * 0.3,rect.size.width/3, rect.size.height * 0.7);
+    }
+
+  CGImageRef america = CGImageCreateWithImageInRect(worldmap, CGRectMake(14, 54,
+                       126, 132));
+  CGRect americaRect = CGRectMake(rect.size.width/3,rect.size.height * 0.3,
+                                  rect.size.width/3, rect.size.height * 0.7);
   CGContextSaveGState(ctx);
   CGContextSetAlpha(ctx, 0.25);
   CGContextDrawImage(ctx,americaRect, america);

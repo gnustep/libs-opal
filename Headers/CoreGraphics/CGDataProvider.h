@@ -11,12 +11,12 @@
    modify it under the terms of the GNU Lesser General Public
    License as published by the Free Software Foundation; either
    version 2.1 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    Lesser General Public License for more details.
-   
+
    You should have received a copy of the GNU Lesser General Public
    License along with this library; if not, write to the Free Software
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
@@ -62,7 +62,7 @@ typedef void (*CGDataProviderReleaseInfoCallback)(void *info);
 /**
  * Direct access data provider callbacks
  */
- 
+
 typedef const void *(*CGDataProviderGetBytePointerCallback)(void *info);
 
 typedef void (*CGDataProviderReleaseBytePointerCallback)(
@@ -84,7 +84,7 @@ typedef size_t (*CGDataProviderGetBytesAtPositionCallback)(
   size_t count
 );
 
-/** 
+/**
  * Callback for CGDataProviderCreateWithData
  */
 
@@ -101,11 +101,11 @@ typedef void (*CGDataProviderReleaseDataCallback)(
  */
 typedef struct CGDataProviderDirectCallbacks
 {
-   unsigned int version;
-   CGDataProviderGetBytePointerCallback getBytePointer;
-   CGDataProviderReleaseBytePointerCallback releaseBytePointer;
-   CGDataProviderGetBytesAtPositionCallback getBytesAtPosition;
-   CGDataProviderReleaseInfoCallback releaseInfo;
+  unsigned int version;
+  CGDataProviderGetBytePointerCallback getBytePointer;
+  CGDataProviderReleaseBytePointerCallback releaseBytePointer;
+  CGDataProviderGetBytesAtPositionCallback getBytesAtPosition;
+  CGDataProviderReleaseInfoCallback releaseInfo;
 } CGDataProviderDirectCallbacks;
 
 /**
@@ -124,11 +124,11 @@ typedef struct CGDataProviderDirectAccessCallbacks
  */
 typedef struct CGDataProviderSequentialCallbacks
 {
-   unsigned int version;
-   CGDataProviderGetBytesCallback getBytes;
-   CGDataProviderSkipForwardCallback skipForward;
-   CGDataProviderRewindCallback rewind;
-   CGDataProviderReleaseInfoCallback releaseInfo;
+  unsigned int version;
+  CGDataProviderGetBytesCallback getBytes;
+  CGDataProviderSkipForwardCallback skipForward;
+  CGDataProviderRewindCallback rewind;
+  CGDataProviderReleaseInfoCallback releaseInfo;
 } CGDataProviderSequentialCallbacks;
 
 /**
@@ -146,14 +146,14 @@ typedef struct CGDataProviderCallbacks
 /* Functions */
 
 CGDataProviderRef CGDataProviderCreateDirect(
-   void *info,
-   off_t size,
-   const CGDataProviderDirectCallbacks *callbacks
+  void *info,
+  off_t size,
+  const CGDataProviderDirectCallbacks *callbacks
 );
 
 CGDataProviderRef CGDataProviderCreateSequential(
-   void *info,
-   const CGDataProviderSequentialCallbacks *callbacks
+  void *info,
+  const CGDataProviderSequentialCallbacks *callbacks
 );
 
 /**

@@ -40,9 +40,10 @@ typedef struct
 }
 - (id) initWithCGPath: (CGPathRef)path;
 - (NSUInteger) count;
-- (CGPathElementType) elementTypeAtIndex: (NSUInteger)index points: (CGPoint*)outPoints;
+- (CGPathElementType) elementTypeAtIndex: (NSUInteger)index points:
+  (CGPoint*)outPoints;
 - (void) addElementWithType: (CGPathElementType)type points: (CGPoint[])points;
-- (BOOL) isEqual:(id)otherObj;
+- (BOOL) isEqual: (id)otherObj;
 - (BOOL) isRect: (CGRect*)outRect;
 
 @end
@@ -70,6 +71,6 @@ typedef struct
  */
 NSUInteger
 _OPPathRequiredArcSegments(CGFloat angle,
-  CGFloat radius,
-  const CGAffineTransform *m);
+                           CGFloat radius,
+                           const CGAffineTransform *m);
 

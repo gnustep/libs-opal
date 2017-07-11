@@ -11,12 +11,12 @@
    modify it under the terms of the GNU Lesser General Public
    License as published by the Free Software Foundation; either
    version 2.1 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
    Lesser General Public License for more details.
-   
+
    You should have received a copy of the GNU Lesser General Public
    License along with this library; if not, write to the Free Software
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
@@ -90,13 +90,15 @@ extern const CFStringRef kCTFontFeatureSelectorNameKey;
 extern const CFStringRef kCTFontFeatureSelectorDefaultKey;
 extern const CFStringRef kCTFontFeatureSelectorSettingKey;
 
-typedef enum {
+typedef enum
+{
   kCTFontOptionsDefault = 0,
   kCTFontOptionsPreventAutoActivation = 1 << 0,
   kCTFontOptionsPreferSystemFont = 1 << 2,
 } CTFontOptions;
 
-typedef enum {
+typedef enum
+{
   kCTFontTableOptionNoOptions = 0,
   kCTFontTableOptionExcludeSynthetic = 1 << 0
 } CTFontTableOptions;
@@ -107,7 +109,8 @@ typedef enum {
 #define OP_TABLETAG(a,b,c,d) ((((int)d) << 24) | (((int)c) << 16) | (((int)b) << 8) | ((int)a))
 #endif
 
-typedef enum {
+typedef enum
+{
   kCTFontTableBASE = OP_TABLETAG('B','A','S','E'),
   kCTFontTableCFF = OP_TABLETAG('C','F','F',' '),
   kCTFontTableDSIG = OP_TABLETAG('D','S','I','G'),
@@ -163,7 +166,8 @@ typedef enum {
   kCTFontTableVmtx = OP_TABLETAG('v','m','t','x')
 } CTFontTableTag;
 
-typedef enum {
+typedef enum
+{
   kCTFontNoFontType = -1,
   kCTFontUserFontType = 0,
   kCTFontUserFixedPitchFontType = 1,

@@ -1,5 +1,5 @@
 
-/* 
+/*
    CGEvent.h
 
    Copyright (C) 2012 Free Software Foundation, Inc.
@@ -28,5 +28,6 @@
 
 #import "CGEventType.h"
 
-extern int64_t CGEventGetIntegerValueField(CGEventRef event, CGEventField field);
+extern int64_t CGEventGetIntegerValueField(CGEventRef event,
+    CGEventField field);
 extern CGEventSourceRef CGEventCreateSourceFromEvent(CGEventRef event);

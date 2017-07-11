@@ -6,10 +6,10 @@
    Copyright (C) 2010 Free Software Foundation, Inc.
 
    Written by:  Eric Wasylishen <ewasylishen@gmail.com>
-   Date: July 2010   
+   Date: July 2010
    Written by: Alexander Malmberg <alexander@malmberg.org>
    Date: 2003-12-07
-   
+
    This file is part of the GNUstep GUI Library.
 
    This library is free software; you can redistribute it and/or
@@ -24,8 +24,8 @@
 
    You should have received a copy of the GNU Lesser General Public
    License along with this library; see the file COPYING.LIB.
-   If not, see <http://www.gnu.org/licenses/> or write to the 
-   Free Software Foundation, 51 Franklin Street, Fifth Floor, 
+   If not, see <http://www.gnu.org/licenses/> or write to the
+   Free Software Foundation, 51 Franklin Street, Fifth Floor,
    Boston, MA 02110-1301, USA.
 */
 
@@ -66,13 +66,14 @@ static void opal_png_error_fn(png_structp png_ptr, png_const_charp error_msg)
   [NSException raise: @"PNGException" format: @"%s", error_msg];
 }
 
-static void opal_png_warning_fn(png_structp png_ptr, png_const_charp warning_msg)
+static void opal_png_warning_fn(png_structp png_ptr,
+                                png_const_charp warning_msg)
 {
-  NSLog(@"PNG Warning: '%s'", warning_msg);   
+  NSLog(@"PNG Warning: '%s'", warning_msg);
 }
 
 static void opal_png_reader_func(png_structp png_struct, png_bytep data,
-			png_size_t length)
+                                 png_size_t length)
 {
   CGDataProviderRef dp = (CGDataProviderRef)png_get_io_ptr(png_struct);
 
@@ -84,7 +85,7 @@ static void opal_png_reader_func(png_structp png_struct, png_bytep data,
 }
 
 static void opal_png_writer_func(png_structp png_struct, png_bytep data,
-			png_size_t length)
+                                 png_size_t length)
 {
   CGDataConsumerRef dc = (CGDataConsumerRef)png_get_io_ptr(png_struct);
   OPDataConsumerPutBytes(dc, data, length);
@@ -131,7 +132,7 @@ static bool opal_has_png_header(CGDataProviderRef dp)
       [self release];
       return nil;
     }
-    
+
   OPDataProviderRewind(dp);
 
   return self;
@@ -148,9 +149,10 @@ static bool opal_has_png_header(CGDataProviderRef dp)
   return [NSDictionary dictionary];
 }
 
-- (NSDictionary*)propertiesWithOptions: (NSDictionary*)opts atIndex: (size_t)index
+- (NSDictionary*)propertiesWithOptions: (NSDictionary*)opts atIndex:
+  (size_t)index
 {
-  return [NSDictionary dictionary];  
+  return [NSDictionary dictionary];
 }
 
 - (size_t)count
@@ -163,16 +165,17 @@ static bool opal_has_png_header(CGDataProviderRef dp)
   CGImageRef img = NULL;
   png_structp png_struct;
   png_infop png_info, png_end_info;
-  
+
   NS_DURING
   {
-    png_struct = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, opal_png_error_fn, opal_png_warning_fn);
+    png_struct = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL,
+                                        opal_png_error_fn, opal_png_warning_fn);
     if (!png_struct)
       {
         RELEASE(self);
         return NULL;
       }
-  
+
     png_info = png_create_info_struct(png_struct);
     if (!png_info)
       {
@@ -180,7 +183,7 @@ static bool opal_has_png_header(CGDataProviderRef dp)
         RELEASE(self);
         return NULL;
       }
-  
+
     png_end_info = png_create_info_struct(png_struct);
     if (!png_end_info)
       {
@@ -190,83 +193,85 @@ static bool opal_has_png_header(CGDataProviderRef dp)
       }
 
     png_set_read_fn(png_struct, dp, opal_png_reader_func);
-  
+
     png_read_info(png_struct, png_info);
-  
+
     int width = png_get_image_width(png_struct, png_info);
     int height = png_get_image_height(png_struct, png_info);
     int bytes_per_row = png_get_rowbytes(png_struct, png_info);
     int type = png_get_color_type(png_struct, png_info);
     int channels = png_get_channels(png_struct, png_info); // includes alpha
     int depth = png_get_bit_depth(png_struct, png_info);
-  
+
     BOOL alpha = NO;
     CGColorSpaceRef cs = NULL;
-    
-    switch (type)
-    {
-      case PNG_COLOR_TYPE_GRAY_ALPHA:
-        alpha = YES;
-      case PNG_COLOR_TYPE_GRAY:
-      	cs = CGColorSpaceCreateWithName(kCGColorSpaceGenericGray);
-      	break;
-      
-    	case PNG_COLOR_TYPE_RGB_ALPHA:	
-    	  alpha = YES;
-      case PNG_COLOR_TYPE_RGB:
-      	cs = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
-        break;
-                	
-      case PNG_COLOR_TYPE_PALETTE:
-      	png_set_palette_to_rgb(png_struct);
-      	if (png_get_valid(png_struct, png_info, PNG_INFO_tRNS))
-        {
-          alpha = YES;
-          png_set_tRNS_to_alpha(png_struct);
-        }
-        cs = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
-      	break;
 
-      default:
-      	NSLog(@"NSBitmapImageRep+PNG: unknown color type %i", type);
-      	RELEASE(self);
-      	return NULL;
-    }
-  
+    switch (type)
+      {
+        case PNG_COLOR_TYPE_GRAY_ALPHA:
+          alpha = YES;
+        case PNG_COLOR_TYPE_GRAY:
+          cs = CGColorSpaceCreateWithName(kCGColorSpaceGenericGray);
+          break;
+
+        case PNG_COLOR_TYPE_RGB_ALPHA:
+          alpha = YES;
+        case PNG_COLOR_TYPE_RGB:
+          cs = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
+          break;
+
+        case PNG_COLOR_TYPE_PALETTE:
+          png_set_palette_to_rgb(png_struct);
+          if (png_get_valid(png_struct, png_info, PNG_INFO_tRNS))
+            {
+              alpha = YES;
+              png_set_tRNS_to_alpha(png_struct);
+            }
+          cs = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
+          break;
+
+        default:
+          NSLog(@"NSBitmapImageRep+PNG: unknown color type %i", type);
+          RELEASE(self);
+          return NULL;
+      }
+
     // FIXME: Handle colorspaces properly
     // FIXME: Handle color rendering intent
     // FIXME: Handle gamma
     // FIXME: Handle resolution
 
     // Create the CGImage
-    
-    NSMutableData *imgData = [[NSMutableData alloc] initWithLength: height * bytes_per_row];
+
+    NSMutableData *imgData = [[NSMutableData alloc] initWithLength: height *
+                                                    bytes_per_row];
     {
       unsigned char *row_pointers[height];
       unsigned char *buf = [imgData mutableBytes];
       for (int i = 0; i < height; i++)
-      {
-        row_pointers[i] = buf + (i * bytes_per_row);
-      }
+        {
+          row_pointers[i] = buf + (i * bytes_per_row);
+        }
       png_read_image(png_struct, row_pointers);
-    }    
-    CGDataProviderRef imgDataProvider = CGDataProviderCreateWithCFData((CFDataRef)imgData);
+    }
+    CGDataProviderRef imgDataProvider = CGDataProviderCreateWithCFData((
+                                          CFDataRef)imgData);
     [imgData release];
-    
-    img = CGImageCreate(
-      width,
-      height,
-      depth,
-      channels * depth,
-      bytes_per_row,
-      cs,
-      kCGBitmapByteOrderDefault | (alpha ? kCGImageAlphaLast : kCGImageAlphaNone),
-      imgDataProvider,
-      NULL,
-      true,
-      kCGRenderingIntentDefault);
 
-		DumpPixel([imgData bytes], @"read from png: (expecting R G B A)");
+    img = CGImageCreate(
+            width,
+            height,
+            depth,
+            channels * depth,
+            bytes_per_row,
+            cs,
+            kCGBitmapByteOrderDefault | (alpha ? kCGImageAlphaLast : kCGImageAlphaNone),
+            imgDataProvider,
+            NULL,
+            true,
+            kCGRenderingIntentDefault);
+
+    DumpPixel([imgData bytes], @"read from png: (expecting R G B A)");
 
     CGColorSpaceRelease(cs);
     CGDataProviderRelease(imgDataProvider);
@@ -278,13 +283,14 @@ static bool opal_has_png_header(CGDataProviderRef dp)
     NS_VALUERETURN(nil, CGImageRef);
   }
   NS_ENDHANDLER
-  
+
   png_destroy_read_struct(&png_struct, &png_info, &png_end_info);
-  
+
   return img;
 }
 
-- (CGImageRef)createThumbnailAtIndex: (size_t)index options: (NSDictionary*)opts
+- (CGImageRef)createThumbnailAtIndex: (size_t)index options:
+  (NSDictionary*)opts
 {
   return nil;
 }
@@ -304,7 +310,8 @@ static bool opal_has_png_header(CGDataProviderRef dp)
   return @"public.png";
 }
 
-- (void)updateDataProvider: (CGDataProviderRef)provider finalUpdate: (bool)finalUpdate
+- (void)updateDataProvider: (CGDataProviderRef)provider finalUpdate:
+  (bool)finalUpdate
 {
   ;
 }
@@ -338,15 +345,15 @@ static bool opal_has_png_header(CGDataProviderRef dp)
                     options: (CFDictionaryRef)opts
 {
   self = [super init];
-  
+
   if (![type isEqualToString: @"public.png"] || count != 1)
-  {
-    [self release];
-    return nil;
-  }
-  
+    {
+      [self release];
+      return nil;
+    }
+
   dc = [consumer retain];
-  
+
   return self;
 }
 
@@ -355,7 +362,7 @@ static bool opal_has_png_header(CGDataProviderRef dp)
   CGDataConsumerRelease(dc);
   [props release];
   CGImageRelease(img);
-  [super dealloc];    
+  [super dealloc];
 }
 
 - (void) setProperties: (CFDictionaryRef)properties
@@ -375,20 +382,21 @@ static bool opal_has_png_header(CGDataProviderRef dp)
   png_infop png_info;
 
   // make the PNG structures
-  png_struct = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, opal_png_error_fn, opal_png_warning_fn);
+  png_struct = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL,
+                                       opal_png_error_fn, opal_png_warning_fn);
   if (!png_struct)
-  {
-    return false;
-  }
+    {
+      return false;
+    }
 
   png_info = png_create_info_struct(png_struct);
   if (!png_info)
-  {
-    png_destroy_write_struct(&png_struct, NULL);
-    return false;
-  }
+    {
+      png_destroy_write_struct(&png_struct, NULL);
+      return false;
+    }
 
-  NS_DURING  
+  NS_DURING
   {
     const int srcWidth = CGImageGetWidth(img);
     const int srcHeight = CGImageGetHeight(img);
@@ -399,11 +407,13 @@ static bool opal_has_png_header(CGDataProviderRef dp)
     const CGColorSpaceRef srcColorSpace = CGImageGetColorSpace(img);
     const CGColorRenderingIntent srcIntent = CGImageGetRenderingIntent(img);
 
-    const size_t dstBitmapInfo = kCGBitmapByteOrderDefault /* unpacked */ | kCGImageAlphaLast;
+    const size_t dstBitmapInfo = kCGBitmapByteOrderDefault /* unpacked */ |
+                                 kCGImageAlphaLast;
     const size_t dstBitsPerComponent = 8;
     const size_t dstBitsPerPixel = 32;
     const size_t dstBytesPerRow = 4 * srcWidth;
-    const CGColorSpaceRef dstColorSpace = [CGColorSpaceCreateDeviceRGB() autorelease];
+    const CGColorSpaceRef dstColorSpace = [CGColorSpaceCreateDeviceRGB()
+                                           autorelease];
 
     // init structures
 #if PNG_LIBPNG_VER < 10500
@@ -413,38 +423,38 @@ static bool opal_has_png_header(CGDataProviderRef dp)
 #endif
     png_set_write_fn(png_struct, dc, opal_png_writer_func, NULL);
     png_set_IHDR(png_struct, png_info, srcWidth, srcHeight, 8,
-     PNG_COLOR_TYPE_RGB_ALPHA, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT,
-     PNG_FILTER_TYPE_DEFAULT);
+                 PNG_COLOR_TYPE_RGB_ALPHA, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT,
+                 PNG_FILTER_TYPE_DEFAULT);
 
     // with the default libpng settings, it expects unpacked, unpremultiplied RGBA
 
     png_write_info(png_struct, png_info);
-    
+
     unsigned char *srcData = malloc(srcBytesPerRow);
     unsigned char *dstData = malloc(dstBytesPerRow);
 
     CGDataProviderRef dp = CGImageGetDataProvider(img);
 
     OPDataProviderRewind(dp);
-    for (int j=0; j<srcHeight; j++) 
+    for (int j=0; j<srcHeight; j++)
       {
         OPDataProviderGetBytes(dp, srcData, srcBytesPerRow);
 
-	OPImageConvert(dstData, srcData,
-		       srcWidth, 1,
-		       dstBitsPerComponent, srcBitsPerComponent,
-		       dstBitsPerPixel, srcBitsPerPixel,
-		       dstBytesPerRow, srcBytesPerRow,
-		       dstBitmapInfo, srcBitmapInfo,
-		       dstColorSpace, srcColorSpace,
-		       srcIntent);
+        OPImageConvert(dstData, srcData,
+                       srcWidth, 1,
+                       dstBitsPerComponent, srcBitsPerComponent,
+                       dstBitsPerPixel, srcBitsPerPixel,
+                       dstBytesPerRow, srcBytesPerRow,
+                       dstBitmapInfo, srcBitmapInfo,
+                       dstColorSpace, srcColorSpace,
+                       srcIntent);
 
         png_write_row(png_struct, dstData);
       }
 
     free(srcData);
     free(dstData);
-    
+
     png_write_end(png_struct, png_info);
   }
   NS_HANDLER
@@ -453,7 +463,7 @@ static bool opal_has_png_header(CGDataProviderRef dp)
     NS_VALUERETURN(false, bool);
   }
   NS_ENDHANDLER
-              
+
   png_destroy_write_struct(&png_struct, &png_info);
   return true;
 }

@@ -35,16 +35,17 @@
 
 void DumpPixel(const void *data, NSString *msg)
 {
-  if(!data)
+  if (!data)
     {
       NSDebugLLog(@"Opal", @"%@: <null data>", msg);
       return;
     }
 
-  NSDebugLLog(@"Opal", @"%@: (%02x,%02x,%02x,%02x)", msg, (int)(((unsigned char*)data)[0]), 
-        (int)(((unsigned char*)data)[1]),
-        (int)(((unsigned char*)data)[2]),
-        (int)(((unsigned char*)data)[3]));
+  NSDebugLLog(@"Opal", @"%@: (%02x,%02x,%02x,%02x)", msg,
+              (int)(((unsigned char*)data)[0]),
+              (int)(((unsigned char*)data)[1]),
+              (int)(((unsigned char*)data)[2]),
+              (int)(((unsigned char*)data)[3]));
 }
 
 @implementation CGImage
@@ -63,20 +64,20 @@ void DumpPixel(const void *data, NSString *msg)
 {
   self = [super init];
   if (nil == self)
-  {
-    [super release];
-    return nil;
-  }
+    {
+      [super release];
+      return nil;
+    }
 
   size_t numComponents;
   if ((aBitmapInfo & kCGBitmapAlphaInfoMask) == kCGImageAlphaOnly)
-  {
-    numComponents = 0;
-  }
+    {
+      numComponents = 0;
+    }
   else
-  {
-    numComponents = CGColorSpaceGetNumberOfComponents(aColorspace);
-  }
+    {
+      numComponents = CGColorSpaceGetNumberOfComponents(aColorspace);
+    }
 
   const bool hasAlpha =
     ((aBitmapInfo & kCGBitmapAlphaInfoMask) == kCGImageAlphaPremultipliedLast) ||
@@ -88,41 +89,42 @@ void DumpPixel(const void *data, NSString *msg)
   const size_t numComponentsIncludingAlpha = numComponents + (hasAlpha ? 1 : 0);
 
   if (aBitsPerComponent < 1 || aBitsPerComponent > 32)
-  {
-    NSLog(@"Unsupported bitsPerComponent: %d", aBitsPerComponent);
-    [self release];
-    return nil;
-  }
-  if ((aBitmapInfo & kCGBitmapFloatComponents) != 0 && aBitsPerComponent != 32)
-  {
-    NSLog(@"Only 32 bitsPerComponents supported for float components");
-    [self release];
-    return nil;
-  }
-  if (aBitsPerPixel < aBitsPerComponent * numComponentsIncludingAlpha)
-  {
-    // Note if an alpha channel is requrested, we require it to be the same size 
-    // as the other components
-    NSLog(@"Too few bitsPerPixel for bitsPerComponent");
-    [self release];
-    return nil;
-  }
-
-  if(aDecode && numComponents) {
-    size_t i;
-
-    self->decode = malloc(2 * numComponents * sizeof(CGFloat));
-    if (!self->decode)
     {
-      NSLog(@"Malloc failed");
+      NSLog(@"Unsupported bitsPerComponent: %d", aBitsPerComponent);
       [self release];
       return nil;
     }
-    for(i = 0; i < 2 * numComponents; i++)
+  if ((aBitmapInfo & kCGBitmapFloatComponents) != 0 && aBitsPerComponent != 32)
     {
-      self->decode[i] = aDecode[i];
+      NSLog(@"Only 32 bitsPerComponents supported for float components");
+      [self release];
+      return nil;
     }
-  }
+  if (aBitsPerPixel < aBitsPerComponent * numComponentsIncludingAlpha)
+    {
+      // Note if an alpha channel is requrested, we require it to be the same size
+      // as the other components
+      NSLog(@"Too few bitsPerPixel for bitsPerComponent");
+      [self release];
+      return nil;
+    }
+
+  if (aDecode && numComponents)
+    {
+      size_t i;
+
+      self->decode = malloc(2 * numComponents * sizeof(CGFloat));
+      if (!self->decode)
+        {
+          NSLog(@"Malloc failed");
+          [self release];
+          return nil;
+        }
+      for (i = 0; i < 2 * numComponents; i++)
+        {
+          self->decode[i] = aDecode[i];
+        }
+    }
 
   self->ismask = false;
   self->width = aWidth;
@@ -157,7 +159,11 @@ void DumpPixel(const void *data, NSString *msg)
 
 - (NSString *)description
 {
-  return [NSString stringWithFormat: @"<CGImage %p width: %d  height: %d bits-per-component: %d bpp: %d bytes-per-row: %d provider: %@ shouldInterpolate: %d crop: %g,%g,%g,%g>", self, (int)width, (int)height, (int)bitsPerComponent, (int)bitsPerPixel, (int)bytesPerRow, dp, (int)shouldInterpolate, crop.origin.x, crop.origin.y, crop.size.width, crop.size.height];
+  return [NSString stringWithFormat:
+                   @"<CGImage %p width: %d  height: %d bits-per-component: %d bpp: %d bytes-per-row: %d provider: %@ shouldInterpolate: %d crop: %g,%g,%g,%g>",
+                   self, (int)width, (int)height, (int)bitsPerComponent, (int)bitsPerPixel,
+                   (int)bytesPerRow, dp, (int)shouldInterpolate, crop.origin.x, crop.origin.y,
+                   crop.size.width, crop.size.height];
 }
 
 @end
@@ -207,12 +213,12 @@ CGImageRef CGImageMaskCreate(
                                          provider: provider
                                            decode: decode
                                 shouldInterpolate: shouldInterpolate
-                                   intent: 0]; // FIXME
+                                           intent: 0]; // FIXME
 
   if (!img)
-  {
-    return nil;
-  }
+    {
+      return nil;
+    }
 
   img->ismask = true;
 
@@ -234,26 +240,26 @@ CGImageRef CGImageCreateCopyWithColorSpace(
   // FIXME: is this supposed to convert pixel data?
 
   if (image->ismask ||
-    CGColorSpaceGetNumberOfComponents(image->cspace)
-    != CGColorSpaceGetNumberOfComponents(colorspace))
-  {
-    return nil;
-  }
+      CGColorSpaceGetNumberOfComponents(image->cspace)
+      != CGColorSpaceGetNumberOfComponents(colorspace))
+    {
+      return nil;
+    }
   else
-  {
-    new = CGImageCreate(image->width, image->height,
-      image->bitsPerComponent, image->bitsPerPixel, image->bytesPerRow,
-      colorspace, image->bitmapInfo, image->dp, image->decode,
-      image->shouldInterpolate, image->intent);
-  }
+    {
+      new = CGImageCreate(image->width, image->height,
+                          image->bitsPerComponent, image->bitsPerPixel, image->bytesPerRow,
+                          colorspace, image->bitmapInfo, image->dp, image->decode,
+                          image->shouldInterpolate, image->intent);
+    }
 
   if (!new) return NULL;
 
   // Since CGImage is immutable, we can reference the source image's surface
   if (image->surf)
-  {
-    new->surf = cairo_surface_reference(image->surf);
-  }
+    {
+      new->surf = cairo_surface_reference(image->surf);
+    }
   return new;
 }
 
@@ -262,9 +268,9 @@ CGImageRef CGImageCreateWithImageInRect(
   CGRect rect)
 {
   CGImageRef new = CGImageCreate(image->width, image->height,
-      image->bitsPerComponent, image->bitsPerPixel, image->bytesPerRow,
-      image->cspace, image->bitmapInfo, image->dp, image->decode,
-      image->shouldInterpolate, image->intent);
+                                 image->bitsPerComponent, image->bitsPerPixel, image->bytesPerRow,
+                                 image->cspace, image->bitmapInfo, image->dp, image->decode,
+                                 image->shouldInterpolate, image->intent);
   if (!new) return NULL;
 
   // Set the crop rect
@@ -273,9 +279,9 @@ CGImageRef CGImageCreateWithImageInRect(
   new->crop = rect;
 
   if (image->surf)
-  {
-    new->surf = cairo_surface_reference(image->surf);
-  }
+    {
+      new->surf = cairo_surface_reference(image->surf);
+    }
 
   return new;
 }
@@ -296,35 +302,36 @@ static CGImageRef createWithDataProvider(
   CFStringRef type)
 {
   NSDictionary *opts = [[NSDictionary alloc] initWithObjectsAndKeys:
-    type, kCGImageSourceTypeIdentifierHint,
-    nil];
+                                             type, kCGImageSourceTypeIdentifierHint,
+                                             nil];
 
   CGImageSourceRef src = CGImageSourceCreateWithDataProvider(provider, opts);
   CGImageRef img = nil;
   if ([CGImageSourceGetType(src) isEqual: type])
-  {
-    if (CGImageSourceGetCount(src) >= 1)
     {
-      img = CGImageSourceCreateImageAtIndex(src, 0, opts);
+      if (CGImageSourceGetCount(src) >= 1)
+        {
+          img = CGImageSourceCreateImageAtIndex(src, 0, opts);
+        }
+      else
+        {
+          NSLog(@"No images found");
+        }
     }
-    else
-    {
-      NSLog(@"No images found");
-    }
-  }
   else
-  {
-    NSLog(@"Unexpected type of image. expected %@, found %@", type, CGImageSourceGetType(src));
-  }
+    {
+      NSLog(@"Unexpected type of image. expected %@, found %@", type,
+            CGImageSourceGetType(src));
+    }
   [src release];
   [opts release];
 
   if (img)
-  {
-    img->shouldInterpolate = shouldInterpolate;
-    img->intent = intent;
-    // FIXME: decode array???
-  }
+    {
+      img->shouldInterpolate = shouldInterpolate;
+      img->intent = intent;
+      // FIXME: decode array???
+    }
 
   return img;
 }
@@ -340,7 +347,8 @@ CGImageRef CGImageCreateWithJPEGDataProvider(
   // compressed data to the surface with cairo_surface_set_mime_data (so embedding
   // images in to PDF/SVG output works optimally)
 
-  return createWithDataProvider(source, decode, shouldInterpolate, intent, @"public.jpeg");
+  return createWithDataProvider(source, decode, shouldInterpolate, intent,
+                                @"public.jpeg");
 }
 
 CGImageRef CGImageCreateWithPNGDataProvider(
@@ -349,7 +357,8 @@ CGImageRef CGImageCreateWithPNGDataProvider(
   bool shouldInterpolate,
   CGColorRenderingIntent intent)
 {
-  return createWithDataProvider(source, decode, shouldInterpolate, intent, @"public.png");
+  return createWithDataProvider(source, decode, shouldInterpolate, intent,
+                                @"public.png");
 }
 
 CFTypeID CGImageGetTypeID()
@@ -440,85 +449,92 @@ CGColorRenderingIntent CGImageGetRenderingIntent(CGImageRef image)
  *
  *
  */
-cairo_surface_t *opal_CGImageGetSurfaceForImage(CGImageRef img, cairo_surface_t *contextSurface)
+cairo_surface_t *opal_CGImageGetSurfaceForImage(CGImageRef img,
+    cairo_surface_t *contextSurface)
 {
   if (NULL == img)
-  {
-    return NULL;
-  }
-  if (NULL == img->surf)
-  {
-    cairo_surface_t *memSurf = cairo_image_surface_create(CAIRO_FORMAT_ARGB32,
-                                           CGImageGetWidth(img),
-                                           CGImageGetHeight(img));
-    if (cairo_surface_status(memSurf) != CAIRO_STATUS_SUCCESS)
     {
-      NSLog(@"Cairo error creating image\n");
       return NULL;
     }
-
-    cairo_surface_flush(memSurf); // going to modify the surface outside of cairo
-
-    const unsigned char *srcData = OPDataProviderGetBytePointer(img->dp);
-    const size_t srcWidth = CGImageGetWidth(img);
-    const size_t srcHeight = CGImageGetHeight(img);
-    const size_t srcBitsPerComponent = CGImageGetBitsPerComponent(img);
-    const size_t srcBitsPerPixel = CGImageGetBitsPerPixel(img);
-    const size_t srcBytesPerRow = CGImageGetBytesPerRow(img);
-    const CGBitmapInfo srcBitmapInfo = CGImageGetBitmapInfo(img);
-    const CGColorSpaceRef srcColorSpace = CGImageGetColorSpace(img);
-    const CGColorRenderingIntent srcIntent = CGImageGetRenderingIntent(img);
-
-    unsigned char *dstData = cairo_image_surface_get_data(memSurf);
-    const size_t dstBitsPerComponent = 8;
-    const size_t dstBitsPerPixel = 32;
-    const size_t dstBytesPerRow = cairo_image_surface_get_stride(memSurf);
-    CGBitmapInfo dstBitmapInfo = kCGBitmapByteOrder32Host | kCGImageAlphaPremultipliedFirst;
-    const CGColorSpaceRef dstColorSpace = srcColorSpace;
-
-    OPImageConvert(
-      dstData, srcData,
-      srcWidth, srcHeight,
-      dstBitsPerComponent, srcBitsPerComponent,
-      dstBitsPerPixel, srcBitsPerPixel,
-      dstBytesPerRow, srcBytesPerRow,
-      dstBitmapInfo, srcBitmapInfo,
-      dstColorSpace, srcColorSpace,
-      srcIntent);
-
-    DumpPixel(srcData, @"OPImageConvert src (expecting R G B A)");
-    DumpPixel(dstData, @"OPImageConvert dst (expecting A R G B premult)");
-		
-    OPDataProviderReleaseBytePointer(img->dp, srcData);
-
-    cairo_surface_mark_dirty(memSurf); // done modifying the surface outside of cairo
-
-
-    // Now, draw the image into (hopefully) a surface on the window server
-
-    img->surf = cairo_surface_create_similar(contextSurface,
-                                 CAIRO_CONTENT_COLOR_ALPHA,
+  if (NULL == img->surf)
+    {
+      cairo_surface_t *memSurf = cairo_image_surface_create(CAIRO_FORMAT_ARGB32,
                                  CGImageGetWidth(img),
                                  CGImageGetHeight(img));
-    cairo_t *ctx = cairo_create(img->surf);
-    cairo_set_source_surface(ctx, memSurf, 0, 0);
-    cairo_paint(ctx);
-    cairo_destroy(ctx);
-    cairo_surface_destroy(memSurf);
-  }
+      if (cairo_surface_status(memSurf) != CAIRO_STATUS_SUCCESS)
+        {
+          NSLog(@"Cairo error creating image\n");
+          return NULL;
+        }
+
+      cairo_surface_flush(memSurf); // going to modify the surface outside of cairo
+
+      const unsigned char *srcData = OPDataProviderGetBytePointer(img->dp);
+      const size_t srcWidth = CGImageGetWidth(img);
+      const size_t srcHeight = CGImageGetHeight(img);
+      const size_t srcBitsPerComponent = CGImageGetBitsPerComponent(img);
+      const size_t srcBitsPerPixel = CGImageGetBitsPerPixel(img);
+      const size_t srcBytesPerRow = CGImageGetBytesPerRow(img);
+      const CGBitmapInfo srcBitmapInfo = CGImageGetBitmapInfo(img);
+      const CGColorSpaceRef srcColorSpace = CGImageGetColorSpace(img);
+      const CGColorRenderingIntent srcIntent = CGImageGetRenderingIntent(img);
+
+      unsigned char *dstData = cairo_image_surface_get_data(memSurf);
+      const size_t dstBitsPerComponent = 8;
+      const size_t dstBitsPerPixel = 32;
+      const size_t dstBytesPerRow = cairo_image_surface_get_stride(memSurf);
+      CGBitmapInfo dstBitmapInfo = kCGBitmapByteOrder32Host |
+                                   kCGImageAlphaPremultipliedFirst;
+      const CGColorSpaceRef dstColorSpace = srcColorSpace;
+
+      OPImageConvert(
+        dstData, srcData,
+        srcWidth, srcHeight,
+        dstBitsPerComponent, srcBitsPerComponent,
+        dstBitsPerPixel, srcBitsPerPixel,
+        dstBytesPerRow, srcBytesPerRow,
+        dstBitmapInfo, srcBitmapInfo,
+        dstColorSpace, srcColorSpace,
+        srcIntent);
+
+      DumpPixel(srcData, @"OPImageConvert src (expecting R G B A)");
+      DumpPixel(dstData, @"OPImageConvert dst (expecting A R G B premult)");
+
+      OPDataProviderReleaseBytePointer(img->dp, srcData);
+
+      cairo_surface_mark_dirty(
+        memSurf); // done modifying the surface outside of cairo
+
+
+      // Now, draw the image into (hopefully) a surface on the window server
+
+      img->surf = cairo_surface_create_similar(contextSurface,
+                  CAIRO_CONTENT_COLOR_ALPHA,
+                  CGImageGetWidth(img),
+                  CGImageGetHeight(img));
+      cairo_t *ctx = cairo_create(img->surf);
+      cairo_set_source_surface(ctx, memSurf, 0, 0);
+      cairo_paint(ctx);
+      cairo_destroy(ctx);
+      cairo_surface_destroy(memSurf);
+    }
 
   return img->surf;
 }
 
 CGRect opal_CGImageGetSourceRect(CGImageRef image)
 {
-  if (NULL == image) {
-    return CGRectMake(0, 0, 0, 0);
-  }
+  if (NULL == image)
+    {
+      return CGRectMake(0, 0, 0, 0);
+    }
 
-  if (CGRectIsNull(image->crop)) {
-    return CGRectMake(0, 0, image->width, image->height);
-  } else {
-    return image->crop;
-  }
+  if (CGRectIsNull(image->crop))
+    {
+      return CGRectMake(0, 0, image->width, image->height);
+    }
+  else
+    {
+      return image->crop;
+    }
 }

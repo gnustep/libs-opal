@@ -11,12 +11,12 @@
    modify it under the terms of the GNU Lesser General Public
    License as published by the Free Software Foundation; either
    version 2.1 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    Lesser General Public License for more details.
-   
+
    You should have received a copy of the GNU Lesser General Public
    License along with this library; if not, write to the Free Software
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
@@ -40,7 +40,8 @@ static CGColorRef _clearColor;
 
 @implementation CGColor
 
-- (id) initWithColorSpace: (CGColorSpaceRef)cs components: (const CGFloat*)components
+- (id) initWithColorSpace: (CGColorSpaceRef)cs components:
+  (const CGFloat*)components
 {
   self = [super init];
   if (nil == self) return nil;
@@ -48,16 +49,17 @@ static CGColorRef _clearColor;
   size_t nc, i;
   nc = CGColorSpaceGetNumberOfComponents(cs);
   self->comps = malloc((nc+1)*sizeof(CGFloat));
-  if (NULL == self->comps) {
-    NSLog(@"malloc failed");
-    [self release];
-    return nil;
-  }
+  if (NULL == self->comps)
+    {
+      NSLog(@"malloc failed");
+      [self release];
+      return nil;
+    }
   self->cspace = CGColorSpaceRetain(cs);
   self->pattern = nil;
   for (i=0; i<=nc; i++)
-    self->comps[i] = components[i];    
-  return self;  
+    self->comps[i] = components[i];
+  return self;
 }
 
 - (void) dealloc
@@ -65,27 +67,29 @@ static CGColorRef _clearColor;
   CGColorSpaceRelease(self->cspace);
   CGPatternRelease(self->pattern);
   free(self->comps);
-  [super dealloc];    
+  [super dealloc];
 }
 
 - (BOOL) isEqual: (id)other
 {
   if (![other isKindOfClass: [CGColor class]]) return NO;
   CGColor *otherColor = (CGColor *)other;
-  
+
   int nc = CGColorSpaceGetNumberOfComponents(self->cspace);
 
   if (![self->cspace isEqual: otherColor->cspace]) return NO;
   if (![self->pattern isEqual: otherColor->pattern]) return NO;
-  
-  for (int i = 0; i <= nc; i++) {
-    if (self->comps[i] != otherColor->comps[i])
-      return NO;
-  }
+
+  for (int i = 0; i <= nc; i++)
+    {
+      if (self->comps[i] != otherColor->comps[i])
+        return NO;
+    }
   return YES;
 }
 
-- (CGColor*) transformToColorSpace: (CGColorSpaceRef)destSpace withRenderingIntent: (CGColorRenderingIntent)intent
+- (CGColor*) transformToColorSpace: (CGColorSpaceRef)destSpace
+  withRenderingIntent: (CGColorRenderingIntent)intent
 {
   CGColorSpaceRef sourceSpace = CGColorGetColorSpace(self);
 
@@ -96,9 +100,9 @@ static CGColorRef _clearColor;
   float tranformedComps[CGColorSpaceGetNumberOfComponents(destSpace) + 1];
 
   for (size_t i=0; i < CGColorSpaceGetNumberOfComponents(sourceSpace) + 1; i++)
-  {
-    originalComps[i] = comps[i];
-  }
+    {
+      originalComps[i] = comps[i];
+    }
 
   OPImageFormat sourceFormat;
   sourceFormat.compFormat = kOPComponentFormatFloat32bpc;
@@ -117,35 +121,39 @@ static CGColorRef _clearColor;
   destFormat.needs32Swap = false;
 
   id<OPColorTransform> xform = [sourceSpace colorTransformTo: destSpace
-                                             sourceFormat: sourceFormat
-                                        destinationFormat: destFormat
-                                          renderingIntent: intent
-                                               pixelCount: 1];
+                                                sourceFormat: sourceFormat
+                                           destinationFormat: destFormat
+                                             renderingIntent: intent
+                                                  pixelCount: 1];
 
   [xform transformPixelData: (const unsigned char *)originalComps
                      output: (unsigned char *)tranformedComps];
-  
-  CGFloat cgfloatTransformedComps[CGColorSpaceGetNumberOfComponents(destSpace) + 1];
-  for (size_t i=0; i < CGColorSpaceGetNumberOfComponents(destSpace) + 1; i++)
-  {
-    cgfloatTransformedComps[i] = tranformedComps[i];
-  }
- // FIXME: release xform?
 
-  return [[[CGColor alloc] initWithColorSpace: destSpace components: cgfloatTransformedComps] autorelease];
+  CGFloat cgfloatTransformedComps[CGColorSpaceGetNumberOfComponents(
+                                    destSpace) + 1];
+  for (size_t i=0; i < CGColorSpaceGetNumberOfComponents(destSpace) + 1; i++)
+    {
+      cgfloatTransformedComps[i] = tranformedComps[i];
+    }
+// FIXME: release xform?
+
+  return [[[CGColor alloc] initWithColorSpace: destSpace components:
+                            cgfloatTransformedComps] autorelease];
 }
 
 @end
 
-CGColorRef CGColorCreate(CGColorSpaceRef colorspace, const CGFloat components[])
+CGColorRef CGColorCreate(CGColorSpaceRef colorspace,
+                         const CGFloat components[])
 {
-  CGColor *clr = [[CGColor alloc] initWithColorSpace: colorspace components: components];
+  CGColor *clr = [[CGColor alloc] initWithColorSpace: colorspace components:
+                                  components];
   return clr;
 }
 
 CFTypeID CGColorGetTypeID()
 {
-  return (CFTypeID)[CGColor class];   
+  return (CFTypeID)[CGColor class];
 }
 
 CGColorRef CGColorRetain(CGColorRef clr)
@@ -244,29 +252,29 @@ const CGFloat *CGColorGetComponents(CGColorRef clr)
 CGColorRef CGColorGetConstantColor(CFStringRef name)
 {
   if ([name isEqual: kCGColorWhite])
-  {
-    if (nil == _whiteColor)
     {
-      _whiteColor = CGColorCreateGenericGray(1, 1);
+      if (nil == _whiteColor)
+        {
+          _whiteColor = CGColorCreateGenericGray(1, 1);
+        }
+      return  _whiteColor;
     }
-    return  _whiteColor;
-  }
   else if ([name isEqual: kCGColorBlack])
-  {
-    if (nil == _blackColor)
     {
-      _blackColor = CGColorCreateGenericGray(0, 1);
+      if (nil == _blackColor)
+        {
+          _blackColor = CGColorCreateGenericGray(0, 1);
+        }
+      return _blackColor;
     }
-    return _blackColor;
-  }
   else if ([name isEqual: kCGColorClear])
-  {
-    if (nil == _clearColor)
     {
-      _clearColor = CGColorCreateGenericGray(0, 0);
+      if (nil == _clearColor)
+        {
+          _clearColor = CGColorCreateGenericGray(0, 0);
+        }
+      return _clearColor;
     }
-    return _clearColor;
-  }
   return nil;
 }
 
@@ -280,7 +288,8 @@ CGPatternRef CGColorGetPattern(CGColorRef clr)
   return clr->pattern;
 }
 
-CGColorRef OPColorGetTransformedToSpace(CGColorRef clr, CGColorSpaceRef space, CGColorRenderingIntent intent)
+CGColorRef OPColorGetTransformedToSpace(CGColorRef clr, CGColorSpaceRef space,
+                                        CGColorRenderingIntent intent)
 {
   return [clr transformToColorSpace: space withRenderingIntent: intent];
 }

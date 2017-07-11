@@ -4,17 +4,17 @@
 
    Copyright (C) 2010 Free Software Foundation, Inc.
    Author: Eric Wasylishen <ewasylishen@gmail.com>
-    
+
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
    License as published by the Free Software Foundation; either
    version 2.1 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    Lesser General Public License for more details.
-   
+
    You should have received a copy of the GNU Lesser General Public
    License along with this library; if not, write to the Free Software
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
@@ -30,13 +30,19 @@
 
 /* Constants */
 
-const CFStringRef kCGImageSourceTypeIdentifierHint = @"kCGImageSourceTypeIdentifierHint";
-const CFStringRef kCGImageSourceShouldAllowFloat = @"kCGImageSourceShouldAllowFloat";
+const CFStringRef kCGImageSourceTypeIdentifierHint =
+  @"kCGImageSourceTypeIdentifierHint";
+const CFStringRef kCGImageSourceShouldAllowFloat =
+  @"kCGImageSourceShouldAllowFloat";
 const CFStringRef kCGImageSourceShouldCache = @"kCGImageSourceShouldCache";
-const CFStringRef kCGImageSourceCreateThumbnailFromImageIfAbsent = @"kCGImageSourceCreateThumbnailFromImageIfAbsent";
-const CFStringRef kCGImageSourceCreateThumbnailFromImageAlways = @"kCGImageSourceCreateThumbnailFromImageAlways";
-const CFStringRef kCGImageSourceThumbnailMaxPixelSize = @"kCGImageSourceThumbnailMaxPixelSize";
-const CFStringRef kCGImageSourceCreateThumbnailWithTransform = @"kCGImageSourceCreateThumbnailWithTransform";
+const CFStringRef kCGImageSourceCreateThumbnailFromImageIfAbsent =
+  @"kCGImageSourceCreateThumbnailFromImageIfAbsent";
+const CFStringRef kCGImageSourceCreateThumbnailFromImageAlways =
+  @"kCGImageSourceCreateThumbnailFromImageAlways";
+const CFStringRef kCGImageSourceThumbnailMaxPixelSize =
+  @"kCGImageSourceThumbnailMaxPixelSize";
+const CFStringRef kCGImageSourceCreateThumbnailWithTransform =
+  @"kCGImageSourceCreateThumbnailWithTransform";
 
 
 static NSMutableArray *sourceClasses = nil;
@@ -46,17 +52,18 @@ static NSMutableArray *sourceClasses = nil;
 + (void) registerSourceClass: (Class)cls
 {
   if (nil == sourceClasses)
-  {
-    sourceClasses = [[NSMutableArray alloc] init];
-  }
+    {
+      sourceClasses = [[NSMutableArray alloc] init];
+    }
   if ([cls isSubclassOfClass: [CGImageSource class]])
-  {
-    [sourceClasses addObject: cls];
-  }
+    {
+      [sourceClasses addObject: cls];
+    }
   else
-  {
-    [NSException raise: NSInvalidArgumentException format: @"+[CGImageSource registerSourceClass:] called with invalid class"];
-  }  
+    {
+      [NSException raise: NSInvalidArgumentException format:
+                   @"+[CGImageSource registerSourceClass:] called with invalid class"];
+    }
 }
 + (NSArray*) sourceClasses
 {
@@ -83,7 +90,8 @@ static NSMutableArray *sourceClasses = nil;
   [self doesNotRecognizeSelector: _cmd];
   return nil;
 }
-- (NSDictionary*)propertiesWithOptions: (NSDictionary*)options atIndex: (size_t)index
+- (NSDictionary*)propertiesWithOptions: (NSDictionary*)options atIndex:
+  (size_t)index
 {
   [self doesNotRecognizeSelector: _cmd];
   return nil;
@@ -98,7 +106,8 @@ static NSMutableArray *sourceClasses = nil;
   [self doesNotRecognizeSelector: _cmd];
   return nil;
 }
-- (CGImageRef)createThumbnailAtIndex: (size_t)index options: (NSDictionary*)options
+- (CGImageRef)createThumbnailAtIndex: (size_t)index options:
+  (NSDictionary*)options
 {
   [self doesNotRecognizeSelector: _cmd];
   return nil;
@@ -118,17 +127,18 @@ static NSMutableArray *sourceClasses = nil;
   [self doesNotRecognizeSelector: _cmd];
   return nil;
 }
-- (void)updateDataProvider: (CGDataProviderRef)provider finalUpdate: (bool)finalUpdate
+- (void)updateDataProvider: (CGDataProviderRef)provider finalUpdate:
+  (bool)finalUpdate
 {
   [self doesNotRecognizeSelector: _cmd];
 }
 
 @end
 
-/** 
+/**
  * Proxy class used to implement CGImageSourceCreateIncremental.
  * It simply waits for enough data from CGImageSourceUpdateData[Provider] calls
- * to create a real CGImageSource, then forwards messages to the real 
+ * to create a real CGImageSource, then forwards messages to the real
  * image source.
  */
 @interface CGImageSourceIncremental : CGImageSource
@@ -161,7 +171,8 @@ static NSMutableArray *sourceClasses = nil;
 {
   return [[self realSource] propertiesWithOptions: options];
 }
-- (NSDictionary*)propertiesWithOptions: (NSDictionary*)options atIndex: (size_t)index
+- (NSDictionary*)propertiesWithOptions: (NSDictionary*)options atIndex:
+  (size_t)index
 {
   return [[self realSource] propertiesWithOptions: options atIndex: index];
 }
@@ -173,41 +184,43 @@ static NSMutableArray *sourceClasses = nil;
 {
   return [[self realSource] createImageAtIndex: index options: options];
 }
-- (CGImageRef)createThumbnailAtIndex: (size_t)index options: (NSDictionary*)options
+- (CGImageRef)createThumbnailAtIndex: (size_t)index options:
+  (NSDictionary*)options
 {
   return [[self realSource] createThumbnailAtIndex: index options: options];
 }
 - (CGImageSourceStatus)status
 {
   if (![self realSource])
-  {
-     return kCGImageStatusReadingHeader; // FIXME ??
-  }
+    {
+      return kCGImageStatusReadingHeader; // FIXME ??
+    }
   return [[self realSource] status];
 }
 - (CGImageSourceStatus)statusAtIndex: (size_t)index
 {
   if (![self realSource])
-  {
-     return kCGImageStatusReadingHeader; // FIXME ??
-  }
+    {
+      return kCGImageStatusReadingHeader; // FIXME ??
+    }
   return [[self realSource] statusAtIndex: index];
 }
 - (NSString*)type
 {
   return [[self realSource] type];
 }
-- (void)updateDataProvider: (CGDataProviderRef)provider finalUpdate: (bool)finalUpdate
+- (void)updateDataProvider: (CGDataProviderRef)provider finalUpdate:
+  (bool)finalUpdate
 {
   if (![self realSource])
-  {
-    // See if there is enough data to create a real image source
-    real = CGImageSourceCreateWithDataProvider(provider, opts);
-  }
+    {
+      // See if there is enough data to create a real image source
+      real = CGImageSourceCreateWithDataProvider(provider, opts);
+    }
   else
-  {
-    [[self realSource] updateDataProvider: provider finalUpdate: finalUpdate];
-  }
+    {
+      [[self realSource] updateDataProvider: provider finalUpdate: finalUpdate];
+    }
 }
 
 @end
@@ -239,35 +252,35 @@ CGImageSourceRef CGImageSourceCreateWithDataProvider(
 {
   const NSUInteger cnt = [sourceClasses count];
   NSString *possibleType = [options valueForKey:
-    kCGImageSourceTypeIdentifierHint];
-    
+                                    kCGImageSourceTypeIdentifierHint];
+
   if (possibleType)
-  {
-    for (NSUInteger i=0; i<cnt; i++)
-    {    
+    {
+      for (NSUInteger i=0; i<cnt; i++)
+        {
+          Class cls = [sourceClasses objectAtIndex: i];
+          if ([[cls typeIdentifiers] containsObject: possibleType])
+            {
+              CGImageSource *src = [[cls alloc] initWithProvider: provider];
+              if (src)
+                {
+                  return src;
+                }
+            }
+        }
+    }
+
+  for (NSUInteger i=0; i<cnt; i++)
+    {
       Class cls = [sourceClasses objectAtIndex: i];
-      if ([[cls typeIdentifiers] containsObject: possibleType])
-      {
-        CGImageSource *src = [[cls alloc] initWithProvider: provider];
-        if (src)
+
+      CGImageSource *src = [[cls alloc] initWithProvider: provider];
+      if (src)
         {
           return src;
         }
-      }
     }
-  }
-  
-  for (NSUInteger i=0; i<cnt; i++)
-  {    
-    Class cls = [sourceClasses objectAtIndex: i];
-    
-    CGImageSource *src = [[cls alloc] initWithProvider: provider];
-    if (src)
-    {
-      return src;
-    }
-  }
-  
+
   return nil;
 }
 
@@ -308,9 +321,9 @@ CFArrayRef CGImageSourceCopyTypeIdentifiers()
   NSArray *classes = [CGImageSource sourceClasses];
   NSUInteger cnt = [classes count];
   for (NSUInteger i=0; i<cnt; i++)
-  {    
-    [set addObjectsFromArray: [[classes objectAtIndex: i] typeIdentifiers]];
-  }
+    {
+      [set addObjectsFromArray: [[classes objectAtIndex: i] typeIdentifiers]];
+    }
   return [[set allObjects] retain];
 }
 
@@ -339,7 +352,7 @@ CGImageRef CGImageSourceCreateThumbnailAtIndex(
 
 CGImageSourceStatus CGImageSourceGetStatus(CGImageSourceRef source)
 {
-  return [source status];  
+  return [source status];
 }
 
 CGImageSourceStatus CGImageSourceGetStatusAtIndex(

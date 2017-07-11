@@ -4,22 +4,22 @@
 
    Copyright (C) 2010 Free Software Foundation, Inc.
    Author: Eric Wasylishen <ewasylishen@gmail.com>
-    
+
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
    License as published by the Free Software Foundation; either
    version 2.1 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    Lesser General Public License for more details.
-   
+
    You should have received a copy of the GNU Lesser General Public
    License along with this library; if not, write to the Free Software
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
    */
-   
+
 #include "CoreGraphics/CGImageDestination.h"
 
 #import <Foundation/NSException.h>
@@ -30,8 +30,10 @@
 
 /* Constants */
 
-const CFStringRef kCGImageDestinationLossyCompressionQuality = @"kCGImageDestinationLossyCompressionQuality";
-const CFStringRef kCGImageDestinationBackgroundColor = @"kCGImageDestinationBackgroundColor";
+const CFStringRef kCGImageDestinationLossyCompressionQuality =
+  @"kCGImageDestinationLossyCompressionQuality";
+const CFStringRef kCGImageDestinationBackgroundColor =
+  @"kCGImageDestinationBackgroundColor";
 
 
 static NSMutableArray *destinationClasses = nil;
@@ -41,17 +43,18 @@ static NSMutableArray *destinationClasses = nil;
 + (void) registerDestinationClass: (Class)cls
 {
   if (nil == destinationClasses)
-  {
-    destinationClasses = [[NSMutableArray alloc] init];
-  }
+    {
+      destinationClasses = [[NSMutableArray alloc] init];
+    }
   if ([cls isSubclassOfClass: [CGImageDestination class]])
-  {
-    [destinationClasses addObject: cls];
-  }
+    {
+      [destinationClasses addObject: cls];
+    }
   else
-  {
-    [NSException raise: NSInvalidArgumentException format: @"+[CGImageDestination registerDestinationClass:] called with invalid class"];
-  }  
+    {
+      [NSException raise: NSInvalidArgumentException format:
+                   @"+[CGImageDestination registerDestinationClass:] called with invalid class"];
+    }
 }
 + (NSArray*) destinationClasses
 {
@@ -61,13 +64,13 @@ static NSMutableArray *destinationClasses = nil;
 {
   NSUInteger cnt = [destinationClasses count];
   for (NSUInteger i=0; i<cnt; i++)
-  {    
-    Class cls = [destinationClasses objectAtIndex: i];
-    if ([[cls typeIdentifiers] containsObject: type])
     {
-      return cls;
+      Class cls = [destinationClasses objectAtIndex: i];
+      if ([[cls typeIdentifiers] containsObject: type])
+        {
+          return cls;
+        }
     }
-  }
   return Nil;
 }
 
@@ -133,9 +136,10 @@ CGImageDestinationRef CGImageDestinationCreateWithDataConsumer(
   CFStringRef type,
   size_t count,
   CFDictionaryRef opts)
-{  
+{
   Class cls = [CGImageDestination destinationClassForType: type];
-  return [[cls alloc] initWithDataConsumer: consumer type: type count: count options: opts];
+  return [[cls alloc] initWithDataConsumer: consumer type: type count: count
+                      options: opts];
 }
 
 CGImageDestinationRef CGImageDestinationCreateWithURL(
@@ -159,9 +163,9 @@ CFArrayRef CGImageDestinationCopyTypeIdentifiers()
   NSArray *classes = [CGImageDestination destinationClasses];
   NSUInteger cnt = [classes count];
   for (NSUInteger i=0; i<cnt; i++)
-  {    
-    [set addObjectsFromArray: [[classes objectAtIndex: i] typeIdentifiers]];
-  }
+    {
+      [set addObjectsFromArray: [[classes objectAtIndex: i] typeIdentifiers]];
+    }
   return [[set allObjects] retain];
 }
 
@@ -191,7 +195,8 @@ void CGImageDestinationAddImageFromSource(
   CFDictionaryRef properties)
 {
   // FIXME: We could support short-circuiting in some cases, but it's probably not worth the complexity
-  CGImageDestinationAddImage(dest, CGImageSourceCreateImageAtIndex(source, index, nil), properties);
+  CGImageDestinationAddImage(dest, CGImageSourceCreateImageAtIndex(source, index,
+                             nil), properties);
 }
 
 bool CGImageDestinationFinalize(CGImageDestinationRef dest)

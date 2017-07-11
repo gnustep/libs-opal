@@ -23,10 +23,10 @@
 
    You should have received a copy of the GNU Lesser General Public
    License along with this library; see the file COPYING.LIB.
-   If not, see <http://www.gnu.org/licenses/> or write to the 
-   Free Software Foundation, 51 Franklin Street, Fifth Floor, 
+   If not, see <http://www.gnu.org/licenses/> or write to the
+   Free Software Foundation, 51 Franklin Street, Fifth Floor,
    Boston, MA 02110-1301, USA.
-*/ 
+*/
 
 #import <Foundation/NSArray.h>
 #import <Foundation/NSCoder.h>
@@ -49,26 +49,27 @@
 
 + (id) fontDescriptorWithFontAttributes: (NSDictionary *)attributes
 {
-  return AUTORELEASE([[[self fontDescriptorClass] alloc] initWithFontAttributes: attributes]);
+  return AUTORELEASE([[[self fontDescriptorClass] alloc] initWithFontAttributes:
+                                                  attributes]);
 }
 
 + (id) fontDescriptorWithName: (NSString *)name
-		       matrix: (NSAffineTransform *)matrix
+                       matrix: (NSAffineTransform *)matrix
 {
   return [self fontDescriptorWithFontAttributes:
-    [NSDictionary dictionaryWithObjectsAndKeys:
-      name, OPFontNameAttribute,
-      matrix, OPFontMatrixAttribute,
-      nil]];
+               [NSDictionary dictionaryWithObjectsAndKeys:
+                name, OPFontNameAttribute,
+                matrix, OPFontMatrixAttribute,
+                nil]];
 }
 
 + (id) fontDescriptorWithName: (NSString *)name size: (CGFloat)size
 {
   return [self fontDescriptorWithFontAttributes:
-    [NSDictionary dictionaryWithObjectsAndKeys:
-      name, OPFontNameAttribute,
-      [NSString stringWithFormat: @"%f", size], OPFontSizeAttribute,
-      nil]];
+               [NSDictionary dictionaryWithObjectsAndKeys:
+                name, OPFontNameAttribute,
+                [NSString stringWithFormat: @"%f", size], OPFontSizeAttribute,
+                nil]];
 }
 
 - (NSDictionary *) fontAttributes
@@ -93,26 +94,26 @@
 - (OPFontDescriptor *) fontDescriptorWithFace: (NSString *)face
 {
   return [self fontDescriptorByAddingAttributes:
-    [NSDictionary dictionaryWithObject: face forKey: OPFontFaceAttribute]];
+               [NSDictionary dictionaryWithObject: face forKey: OPFontFaceAttribute]];
 }
 
 - (OPFontDescriptor *) fontDescriptorWithFamily: (NSString *)family
 {
   return [self fontDescriptorByAddingAttributes:
-    [NSDictionary dictionaryWithObject: family forKey: OPFontFamilyAttribute]];
+               [NSDictionary dictionaryWithObject: family forKey: OPFontFamilyAttribute]];
 }
 
 - (OPFontDescriptor *) fontDescriptorWithMatrix: (NSAffineTransform *)matrix
 {
   return [self fontDescriptorByAddingAttributes:
-    [NSDictionary dictionaryWithObject: matrix forKey: OPFontMatrixAttribute]];
+               [NSDictionary dictionaryWithObject: matrix forKey: OPFontMatrixAttribute]];
 }
 
 - (OPFontDescriptor *) fontDescriptorWithSize: (CGFloat)size
 {
   return [self fontDescriptorByAddingAttributes:
-    [NSDictionary dictionaryWithObject: [NSString stringWithFormat:@"%f", size]
-				forKey: OPFontSizeAttribute]];
+               [NSDictionary dictionaryWithObject: [NSString stringWithFormat: @"%f", size]
+                forKey: OPFontSizeAttribute]];
 }
 
 - (OPFontDescriptor *) fontDescriptorWithSymbolicTraits:
@@ -123,60 +124,60 @@
   traits = [_attributes objectForKey: OPFontTraitsAttribute];
   if (traits == nil)
     {
-      traits = [NSDictionary dictionaryWithObject: 
-			       [NSNumber numberWithUnsignedInt: symbolicTraits]
-			     forKey: OPFontSymbolicTrait];
+      traits = [NSDictionary dictionaryWithObject:
+                  [NSNumber numberWithUnsignedInt: symbolicTraits]
+                                           forKey: OPFontSymbolicTrait];
     }
   else
     {
       traits = AUTORELEASE([traits mutableCopy]);
-      [(NSMutableDictionary*)traits setObject: 
-			       [NSNumber numberWithUnsignedInt: symbolicTraits]
-			     forKey: OPFontSymbolicTrait];
+      [(NSMutableDictionary*)traits setObject:
+              [NSNumber numberWithUnsignedInt: symbolicTraits]
+                                       forKey: OPFontSymbolicTrait];
     }
 
   return [self fontDescriptorByAddingAttributes:
-		 [NSDictionary dictionaryWithObject: traits
-			       forKey: OPFontTraitsAttribute]];
+               [NSDictionary dictionaryWithObject: traits
+                forKey: OPFontTraitsAttribute]];
 }
 
 - (id) initWithFontAttributes: (NSDictionary *)attributes
 {
   if ((self = [super init]) != nil)
-  {
-    if (attributes)
-      _attributes = [attributes copy];
-    else
-      _attributes = [NSDictionary new];
-  }
+    {
+      if (attributes)
+        _attributes = [attributes copy];
+      else
+        _attributes = [NSDictionary new];
+    }
   return self;
 }
 
 - (void) encodeWithCoder: (NSCoder *)aCoder
 {
-	if ([aCoder allowsKeyedCoding])
-  {
-    [aCoder encodeObject: _attributes forKey: @"NSAttributes"];
-  }
+  if ([aCoder allowsKeyedCoding])
+    {
+      [aCoder encodeObject: _attributes forKey: @"NSAttributes"];
+    }
   else
-  {
-    [aCoder encodeObject: _attributes];
-  }
+    {
+      [aCoder encodeObject: _attributes];
+    }
 }
 
 - (id) initWithCoder: (NSCoder *)aDecoder
 {
   if ([aDecoder allowsKeyedCoding])
-  {
-    _attributes = RETAIN([aDecoder decodeObjectForKey: @"NSAttributes"]);
-  }
+    {
+      _attributes = RETAIN([aDecoder decodeObjectForKey: @"NSAttributes"]);
+    }
   else
-  {
-    [aDecoder decodeValueOfObjCType: @encode(id) at: &_attributes];
-  }
+    {
+      [aDecoder decodeValueOfObjCType: @encode(id) at: &_attributes];
+    }
   return self;
 }
-	
+
 - (void) dealloc;
 {
   RELEASE(_attributes);
@@ -188,9 +189,9 @@
   OPFontDescriptor *f = [isa allocWithZone: z];
 
   if (f != nil)
-  {
-    f->_attributes = [_attributes copyWithZone: z];
-  }
+    {
+      f->_attributes = [_attributes copyWithZone: z];
+    }
   return f;
 }
 
@@ -207,13 +208,13 @@
   NSArray *found = [self matchingFontDescriptorsWithMandatoryKeys: keys];
 
   if (found && ([found count] > 0))
-  {
-    return [found objectAtIndex: 0];
-  }
+    {
+      return [found objectAtIndex: 0];
+    }
   else
-  {
-    return nil;
-  }
+    {
+      return nil;
+    }
 }
 
 - (NSAffineTransform *) matrix
@@ -232,7 +233,8 @@
 /**
  * Override in subclass
  */
-- (id) localizedObjectFromPlatformFontPatternForKey: (NSString*)key language: (NSString*)language
+- (id) localizedObjectFromPlatformFontPatternForKey: (NSString*)key language:
+  (NSString*)language
 {
   return nil;
 }
@@ -242,20 +244,22 @@
   id object = [_attributes objectForKey: attribute];
 
   if (nil == object)
-  {
-    return [self objectFromPlatformFontPatternForKey: attribute];
-  }
+    {
+      return [self objectFromPlatformFontPatternForKey: attribute];
+    }
   return object;
 }
 
-- (id) localizedObjectForKey: (NSString*)attribute language: (NSString*)language
+- (id) localizedObjectForKey: (NSString*)attribute language:
+  (NSString*)language
 {
-  id object = [self localizedObjectFromPlatformFontPatternForKey: attribute language: language];
+  id object = [self localizedObjectFromPlatformFontPatternForKey: attribute
+                    language: language];
 
   if (nil == object)
-  {
-    return [self objectForKey: attribute];
-  }
+    {
+      return [self objectForKey: attribute];
+    }
   return object;
 }
 
@@ -274,13 +278,13 @@
 {
   NSDictionary *traits = [self objectForKey: OPFontTraitsAttribute];
   if (traits == nil)
-  {
-    return 0;
-  }
+    {
+      return 0;
+    }
   else
-  {
-    return [[traits objectForKey: OPFontSymbolicTrait] unsignedIntValue];
-  }
+    {
+      return [[traits objectForKey: OPFontSymbolicTrait] unsignedIntValue];
+    }
 }
 
 @end

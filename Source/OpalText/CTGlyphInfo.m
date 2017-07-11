@@ -11,12 +11,12 @@
    modify it under the terms of the GNU Lesser General Public
    License as published by the Free Software Foundation; either
    version 2.1 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
    Lesser General Public License for more details.
-   
+
    You should have received a copy of the GNU Lesser General Public
    License along with this library; if not, write to the Free Software
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
@@ -27,7 +27,7 @@
 /* Classes */
 
 /**
- * Specifies a custom mapping from a sequence of Unicode characters to a 
+ * Specifies a custom mapping from a sequence of Unicode characters to a
  * single glyph.
  */
 @interface CTGlyphInfo : NSObject
@@ -43,7 +43,7 @@
   /**
    * Alternative representation of the glpyh to map to
    */
-  CTCharacterCollection _characterCollection;  
+  CTCharacterCollection _characterCollection;
   CGFontIndex _characterIdentifier;
 }
 
@@ -70,9 +70,9 @@
 {
   self = [super init];
   if (nil == self)
-  {
-    return nil;
-  }
+    {
+      return nil;
+    }
   _characterCollection = kCTIdentityMappingCharacterCollection;
   _characterIdentifier = CTFontGetGlyphWithName(font, glyphName);
   _glpyhName = [glyphName retain];
@@ -87,9 +87,9 @@
 {
   self = [super init];
   if (nil == self)
-  {
-    return nil;
-  }
+    {
+      return nil;
+    }
   CGFontRef graphicsFont = CTFontCopyGraphicsFont(font, NULL);
   _glpyhName = CGFontCopyGlyphNameForGlyph(graphicsFont, glyph);
   [graphicsFont release];
@@ -107,9 +107,9 @@
 {
   self = [super init];
   if (nil == self)
-  {
-    return nil;
-  }
+    {
+      return nil;
+    }
   _characterCollection = kCTIdentityMappingCharacterCollection;
   _characterIdentifier = cid;
   // FIXME: need to look up in the character collections's database
@@ -147,9 +147,9 @@
 /* Functions */
 
 CTGlyphInfoRef CTGlyphInfoCreateWithGlyphName(
-	CFStringRef glyphName,
-	CTFontRef font,
-	CFStringRef baseString)
+  CFStringRef glyphName,
+  CTFontRef font,
+  CFStringRef baseString)
 {
   return [[CTGlyphInfo alloc] initWithGlyphName: glyphName
                                            font: font
@@ -157,9 +157,9 @@ CTGlyphInfoRef CTGlyphInfoCreateWithGlyphName(
 }
 
 CTGlyphInfoRef CTGlyphInfoCreateWithGlyph(
-	CGGlyph glyph,
-	CTFontRef font,
-	CFStringRef baseString)
+  CGGlyph glyph,
+  CTFontRef font,
+  CFStringRef baseString)
 {
   return [[CTGlyphInfo alloc] initWithGlyph: glyph
                                        font: font
@@ -167,9 +167,9 @@ CTGlyphInfoRef CTGlyphInfoCreateWithGlyph(
 }
 
 CTGlyphInfoRef CTGlyphInfoCreateWithCharacterIdentifier(
-	CGFontIndex cid,
-	CTCharacterCollection collection,
-	CFStringRef baseString)
+  CGFontIndex cid,
+  CTCharacterCollection collection,
+  CFStringRef baseString)
 {
   return [[CTGlyphInfo alloc] initWithCharacterIdentifier: cid
                                       characterCollection: collection
@@ -186,7 +186,8 @@ CGFontIndex CTGlyphInfoGetCharacterIdentifier(CTGlyphInfoRef glyphInfo)
   return [glyphInfo characterIdentifier];
 }
 
-CTCharacterCollection CTGlyphInfoGetCharacterCollection(CTGlyphInfoRef glyphInfo)
+CTCharacterCollection CTGlyphInfoGetCharacterCollection(
+  CTGlyphInfoRef glyphInfo)
 {
   return [glyphInfo characterCollection];
 }

@@ -11,12 +11,12 @@
    modify it under the terms of the GNU Lesser General Public
    License as published by the Free Software Foundation; either
    version 2.1 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
    Lesser General Public License for more details.
-   
+
    You should have received a copy of the GNU Lesser General Public
    License along with this library; if not, write to the Free Software
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
@@ -27,7 +27,8 @@
 
 /* Constants */
 
-const CFStringRef kCTFrameProgressionAttributeName = @"kCTFrameProgressionAttributeName";
+const CFStringRef kCTFrameProgressionAttributeName =
+  @"kCTFrameProgressionAttributeName";
 
 /* Classes */
 
@@ -38,12 +39,12 @@ const CFStringRef kCTFrameProgressionAttributeName = @"kCTFrameProgressionAttrib
          attributes: (NSDictionary*)attribs
 {
   if ((self = [super init]))
-  {
-    _path = [aPath retain];
-    _lines = [[NSMutableArray alloc] init];
-    _attributes = [attribs copy];
-    _stringRange = aRange;
-  }
+    {
+      _path = [aPath retain];
+      _lines = [[NSMutableArray alloc] init];
+      _attributes = [attribs copy];
+      _stringRange = aRange;
+    }
   return self;
 }
 
@@ -72,7 +73,7 @@ const CFStringRef kCTFrameProgressionAttributeName = @"kCTFrameProgressionAttrib
 
 - (NSRange)stringRange
 {
-  return _stringRange; 
+  return _stringRange;
 }
 
 - (NSRange)visibleStringRange
@@ -95,11 +96,11 @@ const CFStringRef kCTFrameProgressionAttributeName = @"kCTFrameProgressionAttrib
   // FIXME: see CTFrameProgression docs comment about rotating 90 degrees
   NSUInteger linesCount = [_lines count];
   for (NSUInteger i=0; i<linesCount; i++)
-  {
-    CTLineRef line = [_lines objectAtIndex: i];
-    // FIXME: How does positioning work?
-    CTLineDraw(line, ctx);
-  }
+    {
+      CTLineRef line = [_lines objectAtIndex: i];
+      // FIXME: How does positioning work?
+      CTLineDraw(line, ctx);
+    }
 }
 
 @end
@@ -134,9 +135,9 @@ CFArrayRef CTFrameGetLines(CTFrameRef frame)
 }
 
 void CTFrameGetLineOrigins(
-	CTFrameRef frame,
-	CFRange range,
-	CGPoint origins[])
+  CTFrameRef frame,
+  CFRange range,
+  CGPoint origins[])
 {
 }
 

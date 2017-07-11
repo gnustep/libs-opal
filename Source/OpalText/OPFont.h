@@ -45,18 +45,21 @@
 
 typedef unsigned int NSGlyph;
 
-enum {
+enum
+{
   NSControlGlyph = 0x00ffffff,
   GSAttachmentGlyph = 0x00fffffe,
   NSNullGlyph = 0x0
 };
 
-typedef enum _NSGlyphRelation {
+typedef enum _NSGlyphRelation
+{
   NSGlyphBelow,
   NSGlyphAbove,
 } NSGlyphRelation;
 
-typedef enum _NSMultibyteGlyphPacking {
+typedef enum _NSMultibyteGlyphPacking
+{
   NSOneByteGlyphPacking,
   NSJapaneseEUCGlyphPacking,
   NSAsciiWithDoubleByteEUCGlyphPacking,
@@ -193,7 +196,7 @@ typedef union _OPAffineTransform
 - (NSString*) nameForGlyph: (CGGlyph)graphicsGlyph;
 + (CTFontRef) fontWithData: (NSData*)fontData
                       size: (CGFloat)size
-       		          matrix: (const CGFloat*)fontMatrix
+                    matrix: (const CGFloat*)fontMatrix
       additionalDescriptor: (OPFontDescriptor*)descriptor;
 
 - (id)_initWithDescriptor: (OPFontDescriptor*)descriptor
@@ -209,7 +212,8 @@ typedef union _OPAffineTransform
                   matrix: (const CGFloat*)fontMatrix;
 + (OPFont*) fontWithName: (NSString*)aFontName
                     size: (CGFloat)fontSize;
-+ (OPFont*) fontWithDescriptor: (OPFontDescriptor*)descriptor size: (CGFloat)size;
++ (OPFont*) fontWithDescriptor: (OPFontDescriptor*)descriptor size:
+  (CGFloat)size;
 + (OPFont*) fontWithDescriptor: (OPFontDescriptor*)descriptor
                  textTransform: (NSAffineTransform*)transform;
 // This method was a mistake in the 10.4 documentation
@@ -275,14 +279,14 @@ typedef union _OPAffineTransform
 - (BOOL) glyphIsEncoded: (NSGlyph)aGlyph;
 - (NSMultibyteGlyphPacking) glyphPacking;
 - (NSPoint) positionOfGlyph: (NSGlyph)curGlyph
-	    precededByGlyph: (NSGlyph)prevGlyph
-		  isNominal: (BOOL*)nominal;
+            precededByGlyph: (NSGlyph)prevGlyph
+                  isNominal: (BOOL*)nominal;
 - (NSPoint) positionOfGlyph: (NSGlyph)aGlyph
-	       forCharacter: (unichar)aChar
-	     struckOverRect: (NSRect)aRect;
+               forCharacter: (unichar)aChar
+             struckOverRect: (NSRect)aRect;
 - (NSPoint) positionOfGlyph: (NSGlyph)aGlyph
-	    struckOverGlyph: (NSGlyph)baseGlyph
-	metricsExist: (BOOL*)flag;
+            struckOverGlyph: (NSGlyph)baseGlyph
+               metricsExist: (BOOL*)flag;
 - (NSPoint) positionOfGlyph: (NSGlyph)aGlyph
              struckOverRect: (NSRect)aRect
                metricsExist: (BOOL*)flag;

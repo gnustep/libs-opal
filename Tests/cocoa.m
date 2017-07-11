@@ -7,7 +7,8 @@ void draw(CGContextRef ctx, CGRect r);
 @implementation MyView
 - (void)drawRect: (NSRect)rect
 {
-  CGRect r = CGRectMake(rect.origin.x, rect.origin.y, rect.size.width, rect.size.height);
+  CGRect r = CGRectMake(rect.origin.x, rect.origin.y, rect.size.width,
+                        rect.size.height);
   draw([[NSGraphicsContext currentContext] graphicsPort], r);
 }
 @end
@@ -25,9 +26,9 @@ void draw(CGContextRef ctx, CGRect r);
 {
   NSRect r = NSMakeRect(0,0,640,480);
   win = [[NSWindow alloc] initWithContentRect: r
-     styleMask:NSResizableWindowMask | NSTitledWindowMask | NSClosableWindowMask
-     backing:NSBackingStoreBuffered
-     defer:NO];
+                                    styleMask: NSResizableWindowMask | NSTitledWindowMask | NSClosableWindowMask
+                                      backing: NSBackingStoreBuffered
+                                        defer: NO];
   view = [[MyView alloc] initWithFrame: r];
   [win setContentView: view];
   [win makeKeyAndOrderFront: nil];

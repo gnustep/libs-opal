@@ -13,12 +13,12 @@
    modify it under the terms of the GNU Lesser General Public
    License as published by the Free Software Foundation; either
    version 2.1 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    Lesser General Public License for more details.
-   
+
    You should have received a copy of the GNU Lesser General Public
    License along with this library; if not, write to the Free Software
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
@@ -34,10 +34,12 @@
 const CFStringRef kCGColorSpaceGenericGray = @"kCGColorSpaceGenericGray";
 const CFStringRef kCGColorSpaceGenericRGB = @"kCGColorSpaceGenericRGB";
 const CFStringRef kCGColorSpaceGenericCMYK = @"kCGColorSpaceGenericCMYK";
-const CFStringRef kCGColorSpaceGenericRGBLinear = @"kCGColorSpaceGenericRGBLinear";
+const CFStringRef kCGColorSpaceGenericRGBLinear =
+  @"kCGColorSpaceGenericRGBLinear";
 const CFStringRef kCGColorSpaceAdobeRGB1998 = @"kCGColorSpaceAdobeRGB1998";
 const CFStringRef kCGColorSpaceSRGB = @"kCGColorSpaceSRGB";
-const CFStringRef kCGColorSpaceGenericGrayGamma2_2 = @"kCGColorSpaceGenericGrayGamma2_2";
+const CFStringRef kCGColorSpaceGenericGrayGamma2_2 =
+  @"kCGColorSpaceGenericGrayGamma2_2";
 
 
 /**
@@ -96,9 +98,9 @@ CGColorSpaceRef CGColorSpaceCreateCalibratedGray(
   CGFloat gamma)
 {
   return [[OPColorSpaceClass() alloc]
-             initWithCalibratedGrayWithWhitePoint: whitePoint
-                                       blackPoint: blackPoint
-                                            gamma: gamma];
+          initWithCalibratedGrayWithWhitePoint: whitePoint
+                                    blackPoint: blackPoint
+                                         gamma: gamma];
 
 }
 
@@ -108,11 +110,11 @@ CGColorSpaceRef CGColorSpaceCreateCalibratedRGB(
   const CGFloat *gamma,
   const CGFloat *matrix)
 {
-  return [[OPColorSpaceClass() alloc] 
-      initWithCalibratedRGBWithWhitePoint: whitePoint
-                               blackPoint: blackPoint
-                                    gamma: gamma
-                                   matrix: matrix]; 
+  return [[OPColorSpaceClass() alloc]
+          initWithCalibratedRGBWithWhitePoint: whitePoint
+                                   blackPoint: blackPoint
+                                        gamma: gamma
+                                       matrix: matrix];
 }
 
 CGColorSpaceRef CGColorSpaceCreateDeviceCMYK()
@@ -137,9 +139,9 @@ CGColorSpaceRef CGColorSpaceCreateICCBased(
   CGColorSpaceRef alternateSpace)
 {
   return [[OPColorSpaceClass() alloc] initICCBasedWithComponents: nComponents
-                           range: range
-                         profile: profile
-                  alternateSpace: alternateSpace]; 
+                                                           range: range
+                                                         profile: profile
+                                                  alternateSpace: alternateSpace];
 }
 
 CGColorSpaceRef CGColorSpaceCreateIndexed(
@@ -150,7 +152,7 @@ CGColorSpaceRef CGColorSpaceCreateIndexed(
   return [[OPColorSpaceIndexed alloc] initWithBaseSpace: baseSpace
                                               lastIndex: lastIndex
                                              colorTable: colorTable];
-}  
+}
 
 CGColorSpaceRef CGColorSpaceCreateLab(
   const CGFloat *whitePoint,
@@ -158,8 +160,8 @@ CGColorSpaceRef CGColorSpaceCreateLab(
   const CGFloat *range)
 {
   return [[OPColorSpaceClass() alloc] initLabWithWhitePoint: whitePoint
-                                                            blackPoint: blackPoint
-                                                                 range: range];
+                                                 blackPoint: blackPoint
+                                                      range: range];
 }
 
 CGColorSpaceRef CGColorSpaceCreatePattern(CGColorSpaceRef baseSpace)
@@ -176,46 +178,47 @@ CGColorSpaceRef CGColorSpaceCreateWithICCProfile(CFDataRef data)
 CGColorSpaceRef CGColorSpaceCreateWithName(CFStringRef name)
 {
   if ([name isEqualToString: kCGColorSpaceGenericGray])
-  {
-		return [[OPColorSpaceClass() colorSpaceGenericGray] retain];
-  }
+    {
+      return [[OPColorSpaceClass() colorSpaceGenericGray] retain];
+    }
   else if ([name isEqualToString: kCGColorSpaceGenericRGB])
-  {
-    return [[OPColorSpaceClass() colorSpaceGenericRGB] retain];
-  }
+    {
+      return [[OPColorSpaceClass() colorSpaceGenericRGB] retain];
+    }
   else if ([name isEqualToString: kCGColorSpaceGenericCMYK])
-  {
-    return [[OPColorSpaceClass() colorSpaceGenericCMYK] retain];
-  }
+    {
+      return [[OPColorSpaceClass() colorSpaceGenericCMYK] retain];
+    }
   else if ([name isEqualToString: kCGColorSpaceGenericRGBLinear])
-  {
-    return [[OPColorSpaceClass() colorSpaceGenericRGBLinear] retain];
-  }
+    {
+      return [[OPColorSpaceClass() colorSpaceGenericRGBLinear] retain];
+    }
   else if ([name isEqualToString: kCGColorSpaceAdobeRGB1998])
-  {
-    return [[OPColorSpaceClass() colorSpaceAdobeRGB1998] retain];
-  }
+    {
+      return [[OPColorSpaceClass() colorSpaceAdobeRGB1998] retain];
+    }
   else if ([name isEqualToString: kCGColorSpaceSRGB])
-  {
-    return [[OPColorSpaceClass() colorSpaceSRGB] retain];
-  }
+    {
+      return [[OPColorSpaceClass() colorSpaceSRGB] retain];
+    }
   else if ([name isEqualToString: kCGColorSpaceGenericGrayGamma2_2])
-  {
-    return [[OPColorSpaceClass() colorSpaceGenericGrayGamma2_2] retain];
-  }
+    {
+      return [[OPColorSpaceClass() colorSpaceGenericGrayGamma2_2] retain];
+    }
   return nil;
 }
 
 CGColorSpaceRef CGColorSpaceCreateWithPlatformColorSpace(
   void *platformColorSpace)
 {
-  return [[OPColorSpaceClass() alloc] initWithPlatformColorSpace: platformColorSpace];
+  return [[OPColorSpaceClass() alloc] initWithPlatformColorSpace:
+                                      platformColorSpace];
 }
 
 CGColorSpaceRef CGColorSpaceGetBaseColorSpace(CGColorSpaceRef cs)
 {
   // FIXME: fail silently on non-indexed space?
-  return [(OPColorSpaceIndexed*)cs baseColorSpace];  
+  return [(OPColorSpaceIndexed*)cs baseColorSpace];
 }
 
 void CGColorSpaceGetColorTable(CGColorSpaceRef cs, unsigned char *table)
@@ -242,7 +245,7 @@ size_t CGColorSpaceGetNumberOfComponents(CGColorSpaceRef cs)
 
 CFTypeID CGColorSpaceGetTypeID()
 {
-  return (CFTypeID)OPColorSpaceClass(); 
+  return (CFTypeID)OPColorSpaceClass();
 }
 
 CGColorSpaceRef CGColorSpaceRetain(CGColorSpaceRef cs)

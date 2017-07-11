@@ -198,68 +198,69 @@ const CGFloat *OPFontIdentityMatrix;
 {
   // FIXME: placeholder code.
   return [[[OPFont alloc] _initWithDescriptor: descriptor
-                                      options: options] autorelease];
+                           options: options] autorelease];
 }
 
 + (OPFont*) fontWithGraphicsFont: (CGFontRef)graphics
             additionalDescriptor: (OPFontDescriptor*)descriptor
 {
-	return nil;
+  return nil;
 }
 
 - (id)_initWithDescriptor: (OPFontDescriptor*)aDescriptor
                   options: (CTFontOptions)options
 {
   if (nil == (self = [super init]))
-  {
-    return nil;
-  }
+    {
+      return nil;
+    }
   ASSIGN(_descriptor, aDescriptor);
-  NSAffineTransform *transform = [_descriptor objectForKey: OPFontMatrixAttribute];
+  NSAffineTransform *transform = [_descriptor objectForKey:
+                                              OPFontMatrixAttribute];
   if (transform == nil)
-  {
-    _matrix.CGTransform = CGAffineTransformIdentity;
-  }
+    {
+      _matrix.CGTransform = CGAffineTransformIdentity;
+    }
   else
-  {
-    _matrix.NSTransform = [transform transformStruct];
-  }
+    {
+      _matrix.NSTransform = [transform transformStruct];
+    }
   return self;
 }
 
 - (CGFloat) unitsPerEm
 {
-	return 0;
+  return 0;
 }
 - (NSString*) nameForKey: (NSString*)nameKey
 {
-	return nil;
+  return nil;
 }
 - (NSString*) localizedNameForKey: (NSString*)nameKey
                          language: (NSString**)languageOut
 {
-	return nil;
+  return nil;
 }
 - (bool) getGraphicsGlyphsForCharacters: (const unichar *)characters
                          graphicsGlyphs: (const CGGlyph *)glyphs
                                   count: (CFIndex)count
 {
-	return 0;
+  return 0;
 }
 - (double) getAdvancesForGraphicsGlyphs: (const CGGlyph *)glyphs
                                advances: (CGSize*)advances
                             orientation: (CTFontOrientation)orientation
                                   count: (CFIndex)count
 {
-	return 0;
+  return 0;
 }
 - (CGRect) getBoundingRectsForGraphicsGlyphs: (const CGGlyph *)glyphs
                                        rects: (CGRect*)rects
                                  orientation: (CTFontOrientation)orientation
                                        count: (CFIndex)count
 {
-	CGRect r = {{0,0},{0,0}};
-	return r;
+  CGRect r = {{0,0},{0,0}};
+  return r;
 }
 - (void) getVerticalTranslationForGraphicsGlyphs: (const CGGlyph*)glyphs
                                      translation: (CGSize*)translation
@@ -269,28 +270,28 @@ const CGFloat *OPFontIdentityMatrix;
 - (CGPathRef) graphicsPathForGlyph: (CGGlyph)glyph
                          transform: (const CGAffineTransform *)xform
 {
-	return nil;
+  return nil;
 }
 - (NSArray*) variationAxes
 {
-	return nil;
+  return nil;
 }
 - (NSDictionary*) variation
 {
-	return nil;
+  return nil;
 }
 - (CGFontRef) graphicsFontWithDescriptor: (OPFontDescriptor**)descriptorOut
 {
-	return nil;
+  return nil;
 }
 - (NSArray*) availableTablesWithOptions: (CTFontTableOptions)options
 {
-	return nil;
+  return nil;
 }
 - (NSData*) tableForTag: (CTFontTableTag)tag
             withOptions: (CTFontTableOptions)options
 {
-	return nil;
+  return nil;
 }
 
 //
@@ -298,14 +299,14 @@ const CGFloat *OPFontIdentityMatrix;
 //
 - (NSString*) nameForGlyph: (CGGlyph)graphicsGlyph
 {
-	return nil;
+  return nil;
 }
 + (CTFontRef) fontWithData: (NSData*)fontData
                       size: (CGFloat)size
-       		          matrix: (const CGFloat*)fontMatrix
+                    matrix: (const CGFloat*)fontMatrix
       additionalDescriptor: (OPFontDescriptor*)descriptor
 {
-	return nil;
+  return nil;
 }
 
 @end

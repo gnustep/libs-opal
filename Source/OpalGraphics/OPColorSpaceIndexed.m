@@ -11,12 +11,12 @@
    modify it under the terms of the GNU Lesser General Public
    License as published by the Free Software Foundation; either
    version 2.1 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    Lesser General Public License for more details.
-   
+
    You should have received a copy of the GNU Lesser General Public
    License along with this library; if not, write to the Free Software
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
@@ -38,10 +38,10 @@
 
   table = malloc([self tableSize]);
   if (NULL == table)
-  {
-    [self release];
-    return nil;
-  }
+    {
+      [self release];
+      return nil;
+    }
   memmove(table, aColorTable, [self tableSize]);
 
   return self;
@@ -54,19 +54,19 @@
 {
   free(table);
   CGColorSpaceRelease(base);
-  [super dealloc];    
+  [super dealloc];
 }
 - (NSData*)ICCProfile
 {
-	return [base ICCProfile]; // FIXME: ???
+  return [base ICCProfile]; // FIXME: ???
 }
 - (NSString*)name
 {
-	return [base name]; // FIXME: ???
+  return [base name]; // FIXME: ???
 }
 - (CGColorSpaceRef) baseColorSpace
 {
-	return base;
+  return base;
 }
 - (size_t) numberOfComponents
 {
@@ -82,27 +82,27 @@
 }
 - (CGColorSpaceModel) model
 {
-	return [base model];
+  return [base model];
 }
 - (BOOL) isEqual: (id)other
 {
   if ([other isKindOfClass: [OPColorSpaceIndexed class]])
-  {
-    OPColorSpaceIndexed *otherIndexed = (OPColorSpaceIndexed*)other;
-    return [self->base isEqual: otherIndexed->base]
-      && self->lastIndex == otherIndexed->lastIndex
-      && (0 == memcmp(otherIndexed->table, 
-                      self->table,
-                      [self tableSize]));
-  }
+    {
+      OPColorSpaceIndexed *otherIndexed = (OPColorSpaceIndexed*)other;
+      return [self->base isEqual: otherIndexed->base]
+             && self->lastIndex == otherIndexed->lastIndex
+             && (0 == memcmp(otherIndexed->table,
+                             self->table,
+                             [self tableSize]));
+    }
   return NO;
 }
 
 - (id<OPColorTransform>) colorTransformTo: (id<CGColorSpace>)otherColor
-                          sourceFormat: (OPImageFormat)sourceFormat
-                     destinationFormat: (OPImageFormat)destFormat
+                             sourceFormat: (OPImageFormat)sourceFormat
+                        destinationFormat: (OPImageFormat)destFormat
 {
-	return [[[OPColorTransformIndexed alloc] init] autorelease];
+  return [[[OPColorTransformIndexed alloc] init] autorelease];
 }
 
 @end
@@ -112,7 +112,7 @@
 - (void) transformPixelData: (const unsigned char *)input
                      output: (unsigned char *)output
 {
-	// FIXME:
+  // FIXME:
 }
 
 @end

@@ -11,12 +11,12 @@
    modify it under the terms of the GNU Lesser General Public
    License as published by the Free Software Foundation; either
    version 2.1 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
    Lesser General Public License for more details.
-   
+
    You should have received a copy of the GNU Lesser General Public
    License along with this library; if not, write to the Free Software
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
@@ -34,11 +34,13 @@ extern const CFStringRef kCTFontWeightTrait;
 extern const CFStringRef kCTFontWidthTrait;
 extern const CFStringRef kCTFontSlantTrait;
 
-enum {
+enum
+{
   kCTFontClassMaskShift = 28
 };
 
-typedef enum {
+typedef enum
+{
   kCTFontItalicTrait = (1 << 0),
   kCTFontBoldTrait = (1 << 1),
   kCTFontExpandedTrait = (1 << 5),
@@ -49,7 +51,8 @@ typedef enum {
   kCTFontClassMaskTrait = (15 << 28)
 } CTFontSymbolicTraits;
 
-typedef enum {
+typedef enum
+{
   kCTFontUnknownClass = (0 << 28),
   kCTFontOldStyleSerifsClass = (1 << 28),
   kCTFontTransitionalSerifsClass = (2 << 28),

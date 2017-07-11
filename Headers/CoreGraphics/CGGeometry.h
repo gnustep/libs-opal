@@ -11,12 +11,12 @@
    modify it under the terms of the GNU Lesser General Public
    License as published by the Free Software Foundation; either
    version 2.1 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    Lesser General Public License for more details.
-   
+
    You should have received a copy of the GNU Lesser General Public
    License along with this library; if not, write to the Free Software
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
@@ -82,7 +82,7 @@ extern const CGRect CGRectInfinite;
  */
 #ifdef IN_CGGEOMETRY_C
 #define	OP_GEOM_SCOPE	extern
-#define OP_GEOM_ATTR	
+#define OP_GEOM_ATTR
 #else
 #define	OP_GEOM_SCOPE	static inline
 #define OP_GEOM_ATTR	__attribute__((unused))
@@ -97,7 +97,8 @@ OP_GEOM_SCOPE CGPoint CGPointMake(CGFloat x, CGFloat y) OP_GEOM_ATTR;
 OP_GEOM_SCOPE CGSize CGSizeMake(CGFloat width, CGFloat height) OP_GEOM_ATTR;
 
 /** Returns a CGRect having point of origin (x, y) and size (width, height). */
-OP_GEOM_SCOPE CGRect CGRectMake(CGFloat x, CGFloat y, CGFloat width, CGFloat height) OP_GEOM_ATTR;
+OP_GEOM_SCOPE CGRect CGRectMake(CGFloat x, CGFloat y, CGFloat width,
+                                CGFloat height) OP_GEOM_ATTR;
 
 OP_GEOM_SCOPE CGRect NSRectToCGRect(NSRect rect);
 OP_GEOM_SCOPE NSRect NSRectFromCGRect(CGRect rect);
@@ -111,13 +112,15 @@ OP_GEOM_SCOPE CGRect CGRectStandardize(CGRect rect) OP_GEOM_ATTR;
 
 /** Returns the rectangle obtained by translating rect
  * horizontally by dx and vertically by dy. */
-OP_GEOM_SCOPE CGRect CGRectOffset(CGRect rect, CGFloat dx, CGFloat dy) OP_GEOM_ATTR;
+OP_GEOM_SCOPE CGRect CGRectOffset(CGRect rect, CGFloat dx,
+                                  CGFloat dy) OP_GEOM_ATTR;
 
 /** Returns the rectangle obtained by moving each of rect's
  * horizontal sides inward by dy and each of rect's vertical
  * sides inward by dx with the center point preserved. A larger
  * rectangle can be created by using negative values. */
-OP_GEOM_SCOPE CGRect CGRectInset(CGRect rect, CGFloat dx, CGFloat dy) OP_GEOM_ATTR;
+OP_GEOM_SCOPE CGRect CGRectInset(CGRect rect, CGFloat dx,
+                                 CGFloat dy) OP_GEOM_ATTR;
 
 /** Returns a rectangle obtained by expanding rect minimally
  * so that all four of its defining components are integers. */
@@ -179,7 +182,8 @@ OP_GEOM_SCOPE int CGRectIsEmpty(CGRect rect) OP_GEOM_ATTR;
 int CGRectIsInfinite(CGRect rect);
 
 /** Returns 1 iff rect1 and rect2 are intersecting. */
-OP_GEOM_SCOPE int CGRectIntersectsRect(CGRect rect1, CGRect rect2) OP_GEOM_ATTR;
+OP_GEOM_SCOPE int CGRectIntersectsRect(CGRect rect1,
+                                       CGRect rect2) OP_GEOM_ATTR;
 
 /** Returns 1 iff rect1 contains rect2. */
 OP_GEOM_SCOPE int CGRectContainsRect(CGRect rect1, CGRect rect2) OP_GEOM_ATTR;
@@ -194,19 +198,23 @@ OP_GEOM_SCOPE int CGRectEqualToRect(CGRect rect1, CGRect rect2) OP_GEOM_ATTR;
 OP_GEOM_SCOPE int CGSizeEqualToSize(CGSize size1, CGSize size2) OP_GEOM_ATTR;
 
 /** Returns 1 iff point1's and point2's x- and y-coordinates are the same. */
-OP_GEOM_SCOPE int CGPointEqualToPoint(CGPoint point1, CGPoint point2) OP_GEOM_ATTR;
+OP_GEOM_SCOPE int CGPointEqualToPoint(CGPoint point1,
+                                      CGPoint point2) OP_GEOM_ATTR;
 
 CFDictionaryRef CGPointCreateDictionaryRepresentation(CGPoint point);
-  
-bool CGPointMakeWithDictionaryRepresentation(CFDictionaryRef dict, CGPoint *point);
+
+bool CGPointMakeWithDictionaryRepresentation(CFDictionaryRef dict,
+    CGPoint *point);
 
 CFDictionaryRef CGSizeCreateDictionaryRepresentation(CGSize size);
 
-bool CGSizeMakeWithDictionaryRepresentation(CFDictionaryRef dict, CGSize *size);
+bool CGSizeMakeWithDictionaryRepresentation(CFDictionaryRef dict,
+    CGSize *size);
 
 CFDictionaryRef CGRectCreateDictionaryRepresentation(CGRect rect);
 
-bool CGRectMakeWithDictionaryRepresentation(CFDictionaryRef dict, CGRect *rect);
+bool CGRectMakeWithDictionaryRepresentation(CFDictionaryRef dict,
+    CGRect *rect);
 
 /* Inlined functions */
 
@@ -327,7 +335,8 @@ OP_GEOM_SCOPE CGSize CGSizeMake(CGFloat width, CGFloat height)
   return size;
 }
 
-OP_GEOM_SCOPE CGRect CGRectMake(CGFloat x, CGFloat y, CGFloat width, CGFloat height)
+OP_GEOM_SCOPE CGRect CGRectMake(CGFloat x, CGFloat y, CGFloat width,
+                                CGFloat height)
 {
   CGRect rect;
 
@@ -341,7 +350,7 @@ OP_GEOM_SCOPE CGRect CGRectMake(CGFloat x, CGFloat y, CGFloat width, CGFloat hei
 OP_GEOM_SCOPE CGRect NSRectToCGRect(NSRect rect)
 {
   CGRect cgrect;
-  
+
   cgrect.origin.x = rect.origin.x;
   cgrect.origin.y = rect.origin.y;
   cgrect.size.width = rect.size.width;
@@ -352,7 +361,7 @@ OP_GEOM_SCOPE CGRect NSRectToCGRect(NSRect rect)
 OP_GEOM_SCOPE NSRect NSRectFromCGRect(CGRect rect)
 {
   NSRect nsrect;
-  
+
   nsrect.origin.x = rect.origin.x;
   nsrect.origin.y = rect.origin.y;
   nsrect.size.width = rect.size.width;
@@ -398,14 +407,16 @@ OP_GEOM_SCOPE CGSize NSSizeToCGSize(NSSize size)
 
 OP_GEOM_SCOPE CGRect CGRectStandardize(CGRect rect)
 {
-  if (rect.size.width < 0) {
-    rect.origin.x += rect.size.width;
-    rect.size.width = -rect.size.width;
-  }
-  if (rect.size.height < 0) {
-    rect.origin.y += rect.size.height;
-    rect.size.height = -rect.size.height;
-  }
+  if (rect.size.width < 0)
+    {
+      rect.origin.x += rect.size.width;
+      rect.size.width = -rect.size.width;
+    }
+  if (rect.size.height < 0)
+    {
+      rect.origin.y += rect.size.height;
+      rect.size.height = -rect.size.height;
+    }
   return rect;
 }
 
