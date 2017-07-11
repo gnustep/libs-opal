@@ -42,16 +42,11 @@ typedef enum CGPathElementType {
 
 #ifdef INTERNAL_BUILD_OBJC
 @class CGPath;
-typedef CGPath* CGPathRef;
+typedef const CGPath* CGPathRef;
+typedef CGPath* CGMutablePathRef;
 #else
-typedef struct CGPath* CGPathRef;
-#endif
-
-#ifdef INTERNAL_BUILD_OBJC
-@class CGMutablePath;
-typedef CGMutablePath* CGMutablePathRef;
-#else
-typedef struct CGMutablePath* CGMutablePathRef;
+typedef const struct CGPath* CGPathRef;
+typedef struct CGPath* CGMutablePathRef;
 #endif
 
 typedef struct CGPathElement {
