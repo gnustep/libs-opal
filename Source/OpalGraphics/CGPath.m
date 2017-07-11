@@ -208,99 +208,94 @@ void CGPathAddArc(
   const CGAffineTransform *m,
   CGFloat x,
   CGFloat y,
-  CGFloat r,
+  CGFloat radius,
   CGFloat startAngle,
   CGFloat endAngle,
   int clockwise)
 {
-  CGFloat angleValue = (endAngle - startAngle);
-  // Normalize the distance:
-  while ((angleValue) > (4 * M_PI))
-  {
-    endAngle -= (2 * M_PI);
-    angleValue = (endAngle - startAngle);
-  }
+  CGFloat diff;
+  CGPoint p0, p1, p2, p3;
 
-  /*
-   * When adding an arc with an angle greater than pi, do it in parts and
-   * recurse accordingly.
-   */
-  if (angleValue > M_PI)
-  {
-    // Define the angle to cut the parts:
-    CGFloat intermediateAngle = (startAngle + (angleValue / 2.0));
-
-    // Setup part start and end angles according to direction:
-    CGFloat firstStart = clockwise ? startAngle : intermediateAngle;
-    CGFloat firstEnd = clockwise ? intermediateAngle :  endAngle;
-    CGFloat secondStart = clockwise ? intermediateAngle: startAngle;
-    CGFloat secondEnd = clockwise ? endAngle : intermediateAngle;
-
-    // Add the parts:
-    CGPathAddArc(path, m,
-                 x, y,
-                 r,
-                 firstStart, firstEnd,
-                 clockwise);
-    CGPathAddArc(path, m,
-                 x, y,
-                 r,
-                 secondStart, secondEnd,
-                 clockwise);
-  }
-  else if (0 != angleValue)
-  {
-    // It only makes sense to add the arc if it actually has a non-zero angle.
-    NSUInteger index = 0;
-    NSUInteger segmentCount = 0;
-    CGFloat thisAngle = 0;
-    CGFloat angleStep = 0;
-
-    /*
-     * Calculate how many segments we need and set the stepping accordingly.
-     *
-     * FIXME: We are using a fixed tolerance to find the number of elements
-     * needed. This is necessary because we construct the path independently
-     * from the surface we draw on. Maybe we should store some additional data
-     * so we can better approximate the arc when we go to draw the curves?
-     */
-    segmentCount = _OPPathRequiredArcSegments(angleValue, r, m);
-    angleStep = (angleValue / (CGFloat)segmentCount);
-
-    // Adjust for clockwiseness:
-    if (clockwise)
+  if (clockwise)
     {
-      thisAngle = startAngle;
+      if (startAngle != endAngle)
+        {
+          while (startAngle <= endAngle)
+            endAngle -= 2 * M_PI;
+        }
+
+      diff = -M_PI_2;
     }
-    else
+  else
     {
-      thisAngle = endAngle;
-      angleStep = - angleStep;
+      if (startAngle != endAngle)
+        {
+          while (endAngle < startAngle)
+            endAngle += 2 * M_PI;
+        }
+      
+      diff = M_PI_2;
     }
 
-    if (CGPathIsEmpty(path))
-    {
-      // Move to the start of drawing:
-      CGPathMoveToPoint(path, m,
-                        (x + (r * cos(thisAngle))),
-                        (y + (r * sin(thisAngle))));
-    }
-    else
-    {
-      CGPathAddLineToPoint(path, m,
-                           (x + (r * cos(thisAngle))),
-                           (y + (r * sin(thisAngle))));
-    }
+  CGPoint center = CGPointMake(x, y);
 
-    // Add the segments to the path:
-    for (index = 0; index < segmentCount; index++, thisAngle += angleStep)
+  p0 = CGPointMake (center.x + radius * cos (startAngle), 
+		    center.y + radius * sin (startAngle));
+  if ([path count] == 0)
     {
-      _OPPathAddArcSegment(path, m,
-                           x, y,
-                           r,
-                           thisAngle,
-                           (thisAngle + angleStep));
+      CGPathMoveToPoint(path, m, p0.x, p0.y);
     }
+  else
+    {
+      CGPoint ps = CGPathGetCurrentPoint(path);
+      
+      if (p0.x != ps.x || p0.y != ps.y)
+        {
+          CGPathAddLineToPoint(path, m, p0.x, p0.y);
+        }
+    }
+  
+  while ((clockwise) ? (startAngle > endAngle) 
+	 : (startAngle < endAngle))
+    {
+      if ((clockwise) ? (startAngle + diff >= endAngle) 
+      : (startAngle + diff <= endAngle))
+        {
+          CGFloat sin_start = sin (startAngle);
+          CGFloat cos_start = cos (startAngle);
+          CGFloat sign = (clockwise) ? -1.0 : 1.0;
+
+          p1 = CGPointMake (center.x 
+              + radius * (cos_start - KAPPA * sin_start * sign), 
+              center.y 
+              + radius * (sin_start + KAPPA * cos_start * sign));
+          p2 = CGPointMake (center.x 
+              + radius * (-sin_start * sign + KAPPA * cos_start),
+              center.y 
+              + radius * (cos_start * sign + KAPPA * sin_start));
+          p3 = CGPointMake (center.x + radius * (-sin_start * sign),
+              center.y + radius *   cos_start * sign);
+
+          CGPathAddCurveToPoint(path, m, p1.x, p1.y, p2.x, p2.y, p3.x, p3.y);
+          startAngle += diff;
+        }
+      else
+        {
+          CGPoint ps = CGPathGetCurrentPoint(path);
+          if (m) ps = CGPointApplyAffineTransform(ps, CGAffineTransformInvert(*m));
+          CGFloat tangent = tan ((endAngle - startAngle) / 2);
+          CGFloat trad = radius * tangent;
+          CGPoint pt = CGPointMake (ps.x - trad * sin (startAngle),
+                        ps.y + trad * cos (startAngle));
+          CGFloat f = (4.0 / 3.0) / (1.0 + sqrt (1.0 +  (tangent * tangent)));
+          
+          p1 = CGPointMake (ps.x + (pt.x - ps.x) * f, ps.y + (pt.y - ps.y) * f);
+          p3 = CGPointMake(center.x + radius * cos (endAngle),
+                   center.y + radius * sin (endAngle));
+          p2 = CGPointMake (p3.x + (pt.x - p3.x) * f, p3.y + (pt.y - p3.y) * f);
+          CGPathAddCurveToPoint(path, m, p1.x, p1.y, p2.x, p2.y, p3.x, p3.y);
+          break;
+      }
   }
 }
 
