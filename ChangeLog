@@ -1,3 +1,101 @@
+2017-07-12  Daniel Ferreira <dtf@stanford.edu>
+
+	* Headers/CoreGraphics/CGGeometry.h:	
+	Define CGGeometry basic structs as equivalent to their NSGeometry
+	counterparts. This allows them to be interchangeable as in the reference
+	platform.
+
+2017-07-11  Daniel Ferreira <dtf@stanford.edu>
+
+	* Headers/CoreGraphics/CGColorSpace.h
+	* Headers/CoreGraphics/CGContext.h
+	* Headers/CoreGraphics/CGError.h
+	* Headers/CoreGraphics/CGEventType.h
+	* Headers/CoreGraphics/CGFont.h
+	* Headers/CoreGraphics/CGGeometry.h
+	* Headers/CoreGraphics/CGGradient.h
+	* Headers/CoreGraphics/CGImage.h
+	* Headers/CoreGraphics/CGImageSource.h
+	* Headers/CoreGraphics/CGPDFObject.h
+	* Headers/CoreGraphics/CGPDFPage.h
+	* Headers/CoreGraphics/CGPDFStream.h
+	* Headers/CoreGraphics/CGPath.h
+	* Headers/CoreGraphics/CGPattern.h
+	* Headers/CoreText/CTFont.h
+	* Headers/CoreText/CTFontDescriptor.h
+	* Headers/CoreText/CTFontManager.h
+	* Headers/CoreText/CTFontTraits.h
+	* Headers/CoreText/CTFrame.h
+	* Headers/CoreText/CTGlyphInfo.h
+	* Headers/CoreText/CTLine.h
+	* Headers/CoreText/CTParagraphStyle.h
+	* Headers/CoreText/CTRun.h
+	* Headers/CoreText/CTStringAttributes.h:	
+	Remove `typedef enum` declarations from public Opal headers, which
+	caused type errors if a client tried to bitwise-OR two values of
+	different enum types, which is usually allowed per the API
+	specification.
+
+2017-07-11  Daniel Ferreira <dtf@stanford.edu>
+
+	* Headers/CoreGraphics/CGAffineTransform.h
+	* Headers/CoreGraphics/CGBitmapContext.h
+	* Headers/CoreGraphics/CGColor.h
+	* Headers/CoreGraphics/CGColorSpace.h
+	* Headers/CoreGraphics/CGContext.h
+	* Headers/CoreGraphics/CGDataConsumer.h
+	* Headers/CoreGraphics/CGDataProvider.h
+	* Headers/CoreGraphics/CGEvent.h
+	* Headers/CoreGraphics/CGFont.h
+	* Headers/CoreGraphics/CGFunction.h
+	* Headers/CoreGraphics/CGGeometry.h
+	* Headers/CoreGraphics/CGGradient.h
+	* Headers/CoreGraphics/CGImage.h
+	* Headers/CoreGraphics/CGImageDestination.h
+	* Headers/CoreGraphics/CGImageSource.h
+	* Headers/CoreGraphics/CGLayer.h
+	* Headers/CoreGraphics/CGPDFArray.h
+	* Headers/CoreGraphics/CGPDFContentStream.h
+	* Headers/CoreGraphics/CGPDFContext.h
+	* Headers/CoreGraphics/CGPDFDictionary.h
+	* Headers/CoreGraphics/CGPDFDocument.h
+	* Headers/CoreGraphics/CGPDFObject.h
+	* Headers/CoreGraphics/CGPDFOperatorTable.h
+	* Headers/CoreGraphics/CGPDFPage.h
+	* Headers/CoreGraphics/CGPDFScanner.h
+	* Headers/CoreGraphics/CGPDFStream.h
+	* Headers/CoreGraphics/CGPDFString.h
+	* Headers/CoreGraphics/CGPSConverter.h
+	* Headers/CoreGraphics/CGPath.h
+	* Headers/CoreGraphics/CGPattern.h
+	* Headers/CoreGraphics/CGShading.h
+	* Headers/CoreGraphics/OPPostScriptContext.h
+	* Headers/CoreGraphics/OPSVGContext.h
+	* Headers/CoreText/CTFont.h
+	* Headers/CoreText/CTFontCollection.h
+	* Headers/CoreText/CTFontDescriptor.h
+	* Headers/CoreText/CTFontManager.h
+	* Headers/CoreText/CTFontManagerErrors.h
+	* Headers/CoreText/CTFontTraits.h
+	* Headers/CoreText/CTFrame.h
+	* Headers/CoreText/CTFramesetter.h
+	* Headers/CoreText/CTGlyphInfo.h
+	* Headers/CoreText/CTLine.h
+	* Headers/CoreText/CTParagraphStyle.h
+	* Headers/CoreText/CTRun.h
+	* Headers/CoreText/CTStringAttributes.h
+	* Headers/CoreText/CTTextTab.h
+	* Headers/CoreText/CTTypesetter.h:	
+	Add `extern "C"` declarations to all Opal headers to allow them to be
+	used from within C++ programs.
+
+2017-07-11  Daniel Ferreira <dtf@stanford.edu>
+
+	* Headers/CoreGraphics/CGPath.h:	
+	Export `CGMutablePathRef` as `CGPath *`, and not `CGMutablePath *`.
+	This allows CGPathRef to be replaced with CGMutablePathRef seamlessly on
+	a C++ context, improving compatibility with Quartz.
+
 2017-06-30  Daniel Ferreira <dtf@stanford.edu>
 
 	* Headers/CoreGraphics/CGColor.h
