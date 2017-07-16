@@ -715,3 +715,11 @@ void CGPathAddRoundedRect(CGMutablePathRef path,
   CGPathCloseSubpath(path);
 }
 
+CGPathRef CGPathCreateWithRect(CGRect rect,
+                               const CGAffineTransform *m)
+{
+  CGMutablePathRef path = CGPathCreateMutable();
+  CGPathAddRect(path, m, rect);
+
+  return path;
+}
