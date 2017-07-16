@@ -196,6 +196,9 @@ void CGPathAddRoundedRect(CGMutablePathRef  path,
   const CGAffineTransform *transform, CGRect rect,
   CGFloat cornerWidth, CGFloat cornerHeight);
 
+CGPathRef CGPathCreateWithRect(CGRect rect,
+  const CGAffineTransform *transform);
+
 #ifdef __cplusplus
 }
 #endif
