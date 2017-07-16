@@ -503,40 +503,6 @@ bool CGPathContainsPoint(
   }
 }
 
-/**
- * Implements approximation of an arc through a cubic bezier spline. The
- * algorithm used is the same as in cairo and comes from Goldapp, Michael:
- * "Approximation of circular arcs by cubic poynomials". In: Computer Aided
- * Geometric Design 8 (1991), pp. 227--238.
- */
-static inline void
-_OPPathAddArcSegment(CGMutablePathRef path,
-  const CGAffineTransform *m,
-  CGFloat x,
-  CGFloat y,
-  CGFloat radius,
-  CGFloat startAngle,
-  CGFloat endAngle)
-{
-  CGFloat startSinR = radius * sin(startAngle);
-  CGFloat startCosR = radius * cos(startAngle);
-  CGFloat endSinR = radius * sin(endAngle);
-  CGFloat endCosR = radius * cos(endAngle);
-  CGFloat hValue = 4.0/3.0 * tan ((endAngle - startAngle) / 4.0);
-
-
-  CGFloat cp1x = x + startCosR - hValue * startSinR;
-  CGFloat cp1y = y + startSinR + hValue * startCosR;
-  CGFloat cp2x = x + endCosR + hValue * endSinR;
-  CGFloat cp2y = y + endSinR - hValue * endCosR;
-
-  CGPathAddCurveToPoint(path, m,
-    cp1x, cp1y,
-    cp2x, cp2y,
-    x + endCosR,
-    y + endSinR);
-}
-
 void CGPathAddArc(
   CGMutablePathRef path,
   const CGAffineTransform *m,
@@ -640,9 +606,87 @@ void CGPathAddArcToPoint(
   CGFloat y1,
   CGFloat x2,
   CGFloat y2,
-  CGFloat r)
+  CGFloat radius)
 {
-  // FIXME:
+  CGFloat dx1, dy1, dx2, dy2;
+  CGFloat l, a1, a2;
+  CGPoint p;
+
+  p = CGPathGetCurrentPoint(path);
+ 
+  dx1 = p.x - x1;
+  dy1 = p.y - y1;
+  
+  l= dx1*dx1 + dy1*dy1;
+  if (l <= 0)
+    {
+      CGPathAddLineToPoint(path, m, x1, y1);
+      return;
+    }
+  l = 1/sqrt(l);
+  dx1 *= l;
+  dy1 *= l;
+  
+  dx2 = x2 - x1;
+  dy2 = y2 - y1;
+
+  l = dx2*dx2 + dy2*dy2;
+  if (l <= 0)
+    {
+      CGPathAddLineToPoint(path, m, x1, y1);
+      return;
+    }
+	
+  l = 1/sqrt(l);
+  dx2 *= l; 
+  dy2 *= l;
+  
+  l = dx1*dx2 + dy1*dy2;
+  if (l < -0.999)
+    {
+      CGPathAddLineToPoint(path, m, x1, y1);
+      return;
+    }
+
+  l = radius/sin(acos(l));
+  p.x = x1 + (dx1 + dx2)*l;
+  p.y = y1 + (dy1 + dy2)*l;
+
+  if (dx1 < -1)
+    a1 = M_PI;
+  else if (dx1 > 1)
+    a1 = 0;
+  else
+    a1 = acos(dx1);
+  if (dy1 < 0)
+    {   
+      a1 = -a1;
+    }
+
+  if (dx2 < -1)
+    a2 = M_PI;
+  else if (dx2 > 1)
+    a2 = 0;
+  else
+    a2 = acos(dx2);
+  if (dy2 < 0)
+    {   
+      a2 = -a2;
+    }
+
+  l = dx1*dy2 - dx2*dy1;
+  if (l < 0)
+    {
+      a2 = a2 - M_PI_2;
+      a1 = a1 + M_PI_2;
+      CGPathAddArc(path, m, p.x, p.y, radius, a1, a2, NO);
+    }
+  else
+    {
+      a2 = a2 + M_PI_2;
+      a1 = a1 - M_PI_2;
+      CGPathAddArc(path, m, p.x, p.y, radius, a1, a2, YES);
+    }
 }
 
 void CGPathAddCurveToPoint(
