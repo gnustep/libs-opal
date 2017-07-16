@@ -30,6 +30,32 @@
 // This magic number is 4 *(sqrt(2) -1)/3
 #define KAPPA 0.5522847498
 
+static NSUInteger _OPPathElementPointCount(CGPathElementType type)
+{
+  NSUInteger numPoints;
+  switch (type)
+  {
+    case kCGPathElementMoveToPoint:
+      numPoints = 1;
+      break;
+    case kCGPathElementAddLineToPoint:
+      numPoints = 1;
+      break;
+    case kCGPathElementAddQuadCurveToPoint:
+      numPoints = 2;
+      break;
+    case kCGPathElementAddCurveToPoint:
+      numPoints = 3;
+      break;
+    case kCGPathElementCloseSubpath:
+    default:
+      numPoints = 0;
+      break;
+  }
+
+  return numPoints;
+}
+
 CGPathRef CGPathCreateCopy(CGPathRef path)
 {
   return [path copy];
@@ -43,6 +69,29 @@ CGMutablePathRef CGPathCreateMutable()
 CGMutablePathRef CGPathCreateMutableCopy(CGPathRef path)
 {
   return [[CGMutablePath alloc] initWithCGPath: path];
+}
+
+CGMutablePathRef CGPathCreateMutableCopyByTransformingPath(
+  CGPathRef path, const CGAffineTransform *m)
+{
+  CGMutablePathRef ret = CGPathCreateMutable();
+
+  NSUInteger count = [path count];
+  for (NSUInteger i = 0; i < count; i++)
+  {
+    CGPoint points[3];
+    CGPathElementType type = [path elementTypeAtIndex: i points: points];
+    NSUInteger numPoints = _OPPathElementPointCount(type);
+
+    for (NSUInteger i = 0; i < numPoints; i++)
+    {
+      points[i] = CGPointApplyAffineTransform(points[i], *m);
+    }
+    [ret addElementWithType: type
+                     points: points];
+  }
+
+  return ret;
 }
 
 CGPathRef CGPathRetain(CGPathRef path)

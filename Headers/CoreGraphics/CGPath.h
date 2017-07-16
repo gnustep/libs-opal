@@ -187,6 +187,9 @@ void CGPathAddEllipseInRect(
   CGRect rect
 );
 
+CGMutablePathRef CGPathCreateMutableCopyByTransformingPath(
+  CGPathRef path, const CGAffineTransform *transform);
+
 #ifdef __cplusplus
 }
 #endif
