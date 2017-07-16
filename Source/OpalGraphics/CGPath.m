@@ -665,3 +665,53 @@ CGRect CGPathGetPathBoundingBox(CGPathRef path)
   return CGRectMake(min.x, min.y, max.x - min.x, max.y - min.y);
 }
 
+void CGPathAddRoundedRect(CGMutablePathRef path,
+                          const CGAffineTransform *m, CGRect rect,
+                          CGFloat cornerWidth, CGFloat cornerHeight)
+{
+  CGPoint startp, endp, controlp1, controlp2, topLeft, topRight, bottomRight;
+
+  cornerWidth = MIN(cornerWidth, rect.size.width / 2.0);
+  cornerHeight = MIN(cornerHeight, rect.size.height / 2.0);
+
+  if (cornerWidth == 0.0 || cornerHeight == 0.0)
+  {
+    CGPathAddRect(path, m, rect);
+    return;
+  }
+
+  topLeft = CGPointMake(CGRectGetMinX(rect), CGRectGetMaxY(rect));
+  topRight = CGPointMake(CGRectGetMaxX(rect), CGRectGetMaxY(rect));
+  bottomRight = CGPointMake(CGRectGetMaxX(rect), CGRectGetMinY(rect));
+
+  startp = CGPointMake(topLeft.x + cornerWidth, topLeft.y);
+  endp = CGPointMake(topLeft.x, topLeft.y - cornerHeight);
+  controlp1 = CGPointMake(startp.x - (KAPPA * cornerWidth), startp.y);
+  controlp2 = CGPointMake(endp.x, endp.y + (KAPPA * cornerHeight));
+  CGPathMoveToPoint(path, m, startp.x, startp.y);
+  CGPathAddCurveToPoint(path, m, controlp1.x, controlp1.y, controlp2.x, controlp2.y, endp.x, endp.y);
+
+  startp = CGPointMake(rect.origin.x, rect.origin.y + cornerHeight);
+  endp = CGPointMake(rect.origin.x + cornerWidth, rect.origin.y);
+  controlp1 = CGPointMake(startp.x, startp.y - (KAPPA * cornerHeight));
+  controlp2 = CGPointMake(endp.x - (KAPPA * cornerWidth), endp.y);
+  CGPathAddLineToPoint(path, m, startp.x, startp.y);
+  CGPathAddCurveToPoint(path, m, controlp1.x, controlp1.y, controlp2.x, controlp2.y, endp.x, endp.y);
+
+  startp = CGPointMake(bottomRight.x - cornerWidth, bottomRight.y);
+  endp = CGPointMake(bottomRight.x, bottomRight.y + cornerHeight);
+  controlp1 = CGPointMake(startp.x + (KAPPA * cornerWidth), startp.y);
+  controlp2 = CGPointMake(endp.x, endp.y - (KAPPA * cornerHeight));
+  CGPathAddLineToPoint(path, m, startp.x, startp.y);
+  CGPathAddCurveToPoint(path, m, controlp1.x, controlp1.y, controlp2.x, controlp2.y, endp.x, endp.y);
+
+  startp = CGPointMake(topRight.x, topRight.y - cornerHeight);
+  endp = CGPointMake(topRight.x - cornerWidth, topRight.y);
+  controlp1 = CGPointMake(startp.x, startp.y + (KAPPA * cornerHeight));
+  controlp2 = CGPointMake(endp.x + (KAPPA * cornerWidth), endp.y);
+  CGPathAddLineToPoint(path, m, startp.x, startp.y);
+  CGPathAddCurveToPoint(path, m, controlp1.x, controlp1.y, controlp2.x, controlp2.y, endp.x, endp.y);
+
+  CGPathCloseSubpath(path);
+}
+

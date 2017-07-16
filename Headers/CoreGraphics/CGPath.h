@@ -192,6 +192,10 @@ CGMutablePathRef CGPathCreateMutableCopyByTransformingPath(
 
 CGRect CGPathGetBoundingBox(CGPathRef path);
 
+void CGPathAddRoundedRect(CGMutablePathRef  path,
+  const CGAffineTransform *transform, CGRect rect,
+  CGFloat cornerWidth, CGFloat cornerHeight);
+
 #ifdef __cplusplus
 }
 #endif
