@@ -190,6 +190,8 @@ void CGPathAddEllipseInRect(
 CGMutablePathRef CGPathCreateMutableCopyByTransformingPath(
   CGPathRef path, const CGAffineTransform *transform);
 
+CGRect CGPathGetBoundingBox(CGPathRef path);
+
 #ifdef __cplusplus
 }
 #endif
