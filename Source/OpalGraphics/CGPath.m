@@ -27,6 +27,11 @@
 
 #import "OPPath.h"
 
+typedef struct
+{
+  double x, y;
+} double_point;
+
 // This magic number is 4 *(sqrt(2) -1)/3
 #define KAPPA 0.5522847498
 
@@ -197,14 +202,305 @@ CGPoint CGPathGetCurrentPoint(CGPathRef path)
   return CGPointZero;
 }
 
+static int winding_line(double_point from, double_point to, double_point p)
+{
+  int y_dir;
+  double k, x;
+
+  if (from.y == to.y)
+    return 0;
+
+  if (to.y < from.y)
+    {
+      y_dir = -2;
+      if (p.y < to.y)
+	return 0;
+      if (p.y > from.y)
+	return 0;
+    }
+  else
+    {
+      y_dir = 2;
+      if (p.y < from.y)
+	return 0;
+      if (p.y > to.y)
+	return 0;
+    }
+
+  if (p.y == from.y || p.y == to.y)
+    y_dir /= 2;
+
+  /* The line is intersected.  Check if the intersection is outside the
+     line's bounding box.  */
+  if (to.x < from.x)
+    {
+      if (p.x < to.x)
+	return 0;
+      if (p.x > from.x)
+	return y_dir;
+    }
+  else
+    {
+      if (p.x < from.x)
+	return 0;
+      if (p.x > to.x)
+	return y_dir;
+    }
+
+  /* Determine the exact x coordinate of the intersection.  */
+  k = (double)(from.x - to.x) / (double)(from.y - to.y);
+  x = to.x + k * (double)(p.y - to.y);
+  if (x < p.x)
+    return y_dir;
+
+  return 0;
+}
+
+static int winding_curve(double_point from, double_point to, double_point c1,
+                         double_point c2, double_point p, int depth)
+{
+  double x0, x1;
+  double y0, y1;
+  double scale;
+
+  /* Get the vertical extents of the convex hull.  */
+  y0 = y1 = from.y;
+  if (to.y < y0)
+    y0 = to.y;
+  else if (to.y > y1)
+    y1 = to.y;
+  if (c1.y < y0)
+    y0 = c1.y;
+  else if (c1.y > y1)
+    y1 = c1.y;
+  if (c2.y < y0)
+    y0 = c2.y;
+  else if (c2.y > y1)
+    y1 = c2.y;
+
+  /* If the point is outside the convex hull, the line can't intersect the
+     curve.  */
+  if (p.y < y0 || p.y > y1)
+    return 0;
+
+  /* Get the horizontal convex hull.  */
+  x0 = x1 = from.x;
+  if (to.x < x0)
+    x0 = to.x;
+  else if (to.x > x1)
+    x1 = to.x;
+  if (c1.x < x0)
+    x0 = c1.x;
+  else if (c1.x > x1)
+    x1 = c1.x;
+  if (c2.x < x0)
+    x0 = c2.x;
+  else if (c2.x > x1)
+    x1 = c2.x;
+
+  /* If the point is left of the convex hull, the line doesn't intersect
+     the curve.  */
+  if (p.x < x0)
+    return 0;
+
+  /* If the point is right of the convex hull, the net winding count is 0,
+     1, or -1, and it depends only on how the end-points are placed in
+     relation to the point.  Essentially, it's equivalent to a line.  */
+  if (p.x > x1)
+    return winding_line(from, to, p);
+
+  /* Limit the recursion, just to be safe.  */
+  if (depth >= 40)
+    return winding_line(from, to, p);
+
+  /* The line possibly intersects the curve in some interesting way.  If the
+     curve is flat enough, we can pretend it's a line.  Otherwise, we
+     subdivide and recurse.
+
+     First, calculate a suitable scale based on the coordinates of the
+     convex hull.  This is used to get a good cutoff for the subdivision.
+     Since it's based on the coordinates in the curve, scaling the curve
+     up or down won't affect relative accuracy.  Note that if the scale is
+     zero, the convex hull, and thus the curve, has no extent.  */
+
+  scale = fabs(x0) + fabs(x1) + fabs(y0) + fabs(y1);
+  if (!scale)
+    return 0;
+
+  scale /= 40000000.0;
+
+  /* Deal with the degenerate case to == from.  */
+  if (to.x == from.x && to.y == from.y)
+    {
+      if (x1 - x0 < scale && y1 - y0 < scale)
+	return winding_line(from, to, p);
+    }
+  else
+    {
+      double dx, dy;
+      double nx, ny;
+      double d0, d1, d2, d3;
+
+      /* Get the direction vector and the normal vector.  */
+      dx = to.x - from.x;
+      dy = to.y - from.y;
+      d0 = sqrt(dx * dx + dy * dy);
+      dx /= d0;
+      dy /= d0;
+      nx = dy;
+      ny = -dx;
+
+      /* Check that the distances along the direction vector are
+	 monotone.  */
+
+      d0 = from.x * dx + from.y * dy;
+      d1 = c1.x * dx + c1.y * dy;
+      d2 = c2.x * dx + c2.y * dy;
+      d3 = to.x * dx + to.y * dy;
+
+      if ((d3 > d2 && d2 > d1 && d1 > d0)
+	  || (d3 < d2 && d2 < d1 && d1 < d0))
+	{
+	  /* Check that the control points are close to the straigt line
+	     between from and to.  */
+	  d0 = to.x * nx + to.y * ny;
+	  d1 = c1.x * nx + c1.y * ny;
+	  d2 = c2.x * nx + c2.y * ny;
+
+	  if (fabs(d0 - d1) < scale && fabs(d0 - d2) < scale)
+	    {
+	      /* It's flat enough.  */
+	      return winding_line(from, to, p);
+	    }
+	}
+    }
+
+  {
+    /* Subdivide.  */
+    double_point m, l1, l2, r1, r2;
+
+    m.x = (from.x + to.x + 3 * (c1.x + c2.x)) / 8;
+    m.y = (from.y + to.y + 3 * (c1.y + c2.y)) / 8;
+
+    l1.x = (from.x + c1.x) / 2;
+    l1.y = (from.y + c1.y) / 2;
+
+    l2.x = (from.x + 2 * c1.x + c2.x) / 4;
+    l2.y = (from.y + 2 * c1.y + c2.y) / 4;
+
+    r2.x = (to.x + c2.x) / 2;
+    r2.y = (to.y + c2.y) / 2;
+
+    r1.x = (to.x + 2 * c2.x + c1.x) / 4;
+    r1.y = (to.y + 2 * c2.y + c1.y) / 4;
+
+    return winding_curve(from, m, l1, l2, p, depth + 1)
+           + winding_curve(m, to, r1, r2, p, depth + 1);
+  }
+}
+
+static int _OPPathGetWindingCount(CGPathRef path, CGPoint point)
+{
+  int total;
+  CGPathElementType type;
+  NSInteger count;
+  BOOL first;
+  CGPoint pts[3];
+  CGPoint first_p, last_p;
+  NSInteger i;
+
+  total = 0;
+  count = [path count];
+
+  if (count == 0)
+    return 0;
+
+  type = [path elementTypeAtIndex: 0 points: pts];
+  if (type != kCGPathElementMoveToPoint)
+    {
+      return 0;
+    }
+  last_p = first_p = pts[0];
+  first = NO;
+
+#define D(a) (double_point){a.x,a.y}
+  for (i = 1; i < count; i++)
+    {
+      type = [path elementTypeAtIndex: i points: pts];
+      switch(type)
+	{
+	  case kCGPathElementMoveToPoint:
+	    if (!first)
+	      {
+		total += winding_line(D(last_p), D(first_p), D(point));
+	      }
+	    last_p = first_p = pts[0];
+	    first = NO;
+	    break;
+	  case kCGPathElementAddLineToPoint:
+	    if (first)
+	      {
+		return 0;
+	      }
+	    total += winding_line(D(last_p), D(pts[0]), D(point));
+	    last_p = pts[0];
+	    break;
+          case kCGPathElementAddQuadCurveToPoint:
+            // FIXME!!!: The winding count for a quad curve is currently
+            // unimplemented.
+            break;
+
+	  case kCGPathElementAddCurveToPoint:
+	    if (first)
+	      {
+		return 0;
+	      }
+	    total += winding_curve(D(last_p), D(pts[2]), D(pts[0]), D(pts[1]), D(point), 0);
+	    last_p = pts[2];
+	    break;
+	  case kCGPathElementCloseSubpath:
+	    if (first)
+	      {
+		return 0;
+	      }
+	    first = YES;
+	    total += winding_line(D(last_p), D(first_p), D(point));
+	    break;
+	  default:
+	    return 0;
+	}
+    }
+
+  if (!first)
+    total += winding_line(D(last_p), D(first_p), D(point));
+#undef D
+
+  return total / 2;
+}
+
 bool CGPathContainsPoint(
   CGPathRef path,
   const CGAffineTransform *m,
   CGPoint point,
   int eoFill)
 {
-  // FIXME: use cairo function
-  return false;
+  int sum;
+
+  if ([path count] == 0)
+    return NO;
+
+  if (!CGRectContainsPoint(CGPathGetPathBoundingBox(path), point))
+    return NO;
+
+  sum = _OPPathGetWindingCount(path, point);
+  if (!eoFill)
+  {
+    return !(sum == 0);
+  }
+  else
+  {
+    return ((sum % 2) != 0);
+  }
 }
 
 /**
