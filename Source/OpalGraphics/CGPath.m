@@ -119,7 +119,7 @@ bool CGPathIsRect(CGPathRef path, CGRect *rect)
   return [path isRect: rect];
 }
 
-CGRect CGPathGetPathBoundingBox(CGPathRef path)
+CGRect CGPathGetBoundingBox(CGPathRef path)
 {
   NSUInteger count = [path count];
   CGFloat minX = 0.0;
@@ -130,27 +130,15 @@ CGRect CGPathGetPathBoundingBox(CGPathRef path)
   for (NSUInteger i=0; i<count; i++)
   {
     CGPoint points[3];
-    CGPathElementType type =[path elementTypeAtIndex: i points: points];
-
-    NSUInteger numPoints;
-    switch (type)
+    CGPathElementType type = [path elementTypeAtIndex: i points: points];
+    NSUInteger numPoints = _OPPathElementPointCount(type);
+      
+    if (i == 0)
     {
-      case kCGPathElementMoveToPoint:
-        numPoints = 1;
-        break;
-      case kCGPathElementAddLineToPoint:
-        numPoints = 1;
-        break;
-      case kCGPathElementAddQuadCurveToPoint:
-        numPoints = 2;
-        break;
-      case kCGPathElementAddCurveToPoint:
-        numPoints = 3;
-        break;
-      case kCGPathElementCloseSubpath:
-      default:
-        numPoints = 0;
-        break;
+      minX = points[0].x;
+      minY = points[0].y;
+      maxX = points[0].x;
+      maxY = points[0].y;
     }
 
     for (NSUInteger p=0; p<numPoints; p++)
@@ -163,7 +151,8 @@ CGRect CGPathGetPathBoundingBox(CGPathRef path)
       {
         maxX = points[p].x;
       }
-      else if (points[p].y < minY)
+      
+      if (points[p].y < minY)
       {
         minY = points[p].y;
       }
@@ -555,3 +544,124 @@ void CGPathAddEllipseInRect(
   p2 = CGPointMake(originx + width / 2 + hdiff, originy + height);
   CGPathAddCurveToPoint(path, m, p1.x, p1.y, p2.x, p2.y, p.x, p.y);
 }
+
+static CGPoint point_on_quad_curve(double t, CGPoint a, CGPoint b, CGPoint c)
+{
+  double ti = 1.0 - t;
+  return CGPointMake(ti * ti * a.x + 2 * ti * t * b.x + t * t * c.x,
+                     ti * ti * a.y + 2 * ti * t * b.y + t * t * c.y);
+}
+
+static CGPoint point_on_cubic_curve(double t, CGPoint a, CGPoint b, CGPoint c,
+			            CGPoint d)
+{
+  double ti = 1.0 - t;
+  return CGPointMake(ti * ti * ti * a.x + 3 * ti * ti * t * b.x
+		       + 3 * ti * t * t * c.x + t * t * t * d.x,
+		     ti * ti * ti * a.y + 3 * ti * ti * t * b.y
+		       + 3 * ti * t * t * c.y + t * t * t * d.y);
+}
+
+#define CHECK_MAX(max, p) \
+  if (p.x > max.x) max.x = p.x; \
+  if (p.y > max.y) max.y = p.y;
+#define CHECK_MIN(min, p) \
+  if (p.x < min.x) min.x = p.x; \
+  if (p.y < min.y) min.y = p.y;
+#define CHECK_QUADRATIC_CURVE_EXTREMES(x) \
+  t = (p.x - points[0].x) / (p.x - 2*points[0].x + points[1].x); \
+  if (t > 0.0 && t < 1.0) \
+    { \
+      q = point_on_quad_curve(t, p, points[0], points[1]); \
+      CHECK_MAX(max, q); \
+      CHECK_MIN(min, q); \
+    }
+#define CHECK_CUBIC_CURVE_EXTREMES(x) \
+  t = (p.x * (points[2].x - points[1].x) \
+       + points[0].x * (-points[2].x - points[1].x) \
+       + points[1].x * points[1].x + points[0].x * points[0].x); \
+  if (t >= 0.0) \
+    { \
+      t = sqrt(t); \
+      t0 = (points[1].x - 2 * points[0].x + p.x + t) \
+           / (-points[2].x + 3 * points[1].x - 3 * points[0].x + p.x); \
+      t1 = (points[1].x - 2 * points[0].x + p.x - t) \
+           / (-points[2].x + 3 * points[1].x - 3 * points[0].x + p.x); \
+  \
+      if (t0 > 0.0 && t0 < 1.0) \
+        { \
+          q = point_on_cubic_curve(t0, p, points[0], points[1], points[2]); \
+          CHECK_MAX(max, q) \
+          CHECK_MIN(min, q) \
+        } \
+      if (t1 > 0.0 && t1 < 1.0) \
+        { \
+          q = point_on_cubic_curve(t1, p, points[0], points[1], points[2]); \
+          CHECK_MAX(max, q) \
+          CHECK_MIN(min, q) \
+        } \
+    }
+
+CGRect CGPathGetPathBoundingBox(CGPathRef path)
+{
+  CGPoint p;
+  CGPoint min, max;
+
+  NSUInteger count = [path count];
+  if (count == 0)
+    return CGRectZero;
+
+  for (NSUInteger i = 0; i < count; i++)
+    {
+      CGPoint points[3];
+      CGPathElementType type = [path elementTypeAtIndex: i points: points];
+
+      if (i == 0)
+        min = max = p = points[0];
+
+      switch (type)
+        {
+          case kCGPathElementCloseSubpath:
+            p = points[0];
+            continue;
+
+          case kCGPathElementMoveToPoint:
+          case kCGPathElementAddLineToPoint:
+            CHECK_MAX(max, points[0]);
+            CHECK_MIN(min, points[0]);
+            p = points[0];
+            break;
+          
+          case kCGPathElementAddQuadCurveToPoint:
+            {
+              double t;
+              CGPoint q;
+
+              CHECK_MAX(max, points[1]);
+              CHECK_MIN(min, points[1]);
+
+              CHECK_QUADRATIC_CURVE_EXTREMES(x);
+              CHECK_QUADRATIC_CURVE_EXTREMES(y);
+              break;
+            }
+
+          case kCGPathElementAddCurveToPoint:
+            {
+              double t0, t1, t;
+              CGPoint q;
+
+              CHECK_MAX(max, points[2]);
+              CHECK_MIN(min, points[2]);
+              
+              CHECK_CUBIC_CURVE_EXTREMES(x);
+              CHECK_CUBIC_CURVE_EXTREMES(y);
+
+              p = points[2];
+              break;
+            }
+        }
+    }
+
+  return CGRectMake(min.x, min.y, max.x - min.x, max.y - min.y);
+}
+
