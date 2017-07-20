@@ -1,3 +1,79 @@
+2017-07-17  Daniel Ferreira <dtf@stanford.edu>
+
+	* Tests/paths.m:	
+	Improve the CGPath tests to cover more cases.
+
+2017-07-17  Daniel Ferreira <dtf@stanford.edu>
+
+	* Headers/CoreGraphics/CGPath.h
+	* Source/OpalGraphics/CGPath.m:	
+	Implement CGPathContainsPoint() with logic taken from GNUstep-GUI's
+	NSBezierPath.
+	
+	Add an implementation to CGPathAddArcToPoint(), a Quartz function for
+	creating curves in a convenient way.
+	
+	Implement CGPathCreateWithRect(), a function which create a CGPath from
+	a rect.
+	
+	Implement CGPathCreateMutableCopyByTransformingPath(), a function which
+	creates a new CGPath from another one by applying a transformation to
+	its points.
+
+2017-07-17  Daniel Ferreira <dtf@stanford.edu>
+
+	* Headers/CoreGraphics/CGPath.h
+	* Source/OpalGraphics/CGPath.m:	
+	According to the Quartz specification, CGPathGetBoundingBox() should
+	include Bézier control points in its return rectangle, while
+	CGPathGetPathBoundingBox() should not.
+
+	This commit creates CGPathGetBoundingBox() with the exact same behavior
+	as the old Opal CGPathGetPathBoundingBox(), which mistakenly considered
+	Bézier control points in its return value. It also rewrites
+	CGPathGetPathBoundingBox() to exclude the control points from the return
+	value as per the specification.
+
+2017-07-12  Daniel Ferreira <dtf@stanford.edu>
+
+	* Source/OpalGraphics/CGPath.m:	
+	Rewrite the implementation of CGPathAddArc() to use the implementation
+	provided by NSBezierPath in GNUstep GUI. This amends a number of bugs in
+	its implementation, such as clockwise/counterclockwise handling.
+
+2017-07-12  Daniel Ferreira <dtf@stanford.edu>
+
+	* Headers/CoreGraphics/CGPDFDocument.h
+	* Source/OpalGraphics/CGPDFDocument.m:	
+	Add a stub for CGPDFDocumentGetPage() for increased Quartz
+	compatibility.
+
+2017-07-12  Daniel Ferreira <dtf@stanford.edu>
+
+	* Headers/CoreGraphics/CGImage.h
+	* Source/OpalGraphics/CGImage.m:	
+	Define stubs for constants to get CGImage properties. This increases
+	compatibility with Quartz.
+
+2017-07-12  Daniel Ferreira <dtf@stanford.edu>
+
+	* Headers/CoreGraphics/CGContext.h
+	* Source/OpalGraphics/CGContext.m:	
+	Implement CGContextPathContainsPoint() using Cairo fill functions. This
+	improves compatibility with Quartz.
+
+2017-07-12  Daniel Ferreira <dtf@stanford.edu>
+
+	* Source/OpalGraphics/CGPath.m:	
+	Fix badly indented parts of CGPath.m which gravely hindered the code's
+	readability.
+
+2017-07-12  Daniel Ferreira <dtf@stanford.edu>
+
+	* .gitignore:	
+	Make Git ignore *.orig and *.swp files, which are text editor
+	byproducts.
+
 2017-07-12  Daniel Ferreira <dtf@stanford.edu>
 
 	* Headers/CoreGraphics/CGGeometry.h:	
