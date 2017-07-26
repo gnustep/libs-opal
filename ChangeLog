@@ -1,3 +1,30 @@
+2017-07-26  Daniel Ferreira <dtf@stanford.edu>
+
+	* Headers/CoreText/CoreText.h
+	* Headers/CoreText/SFNTLayoutTypes.h:	
+	Define SFNTLayoutTypes constants on CoreText for increased compatibility
+	with Quartz.
+
+2017-07-26  Daniel Ferreira <dtf@stanford.edu>
+
+	* Headers/CoreText/CTLine.h
+	* Source/OpalText/CTLine.m:	
+	Add unimplemented stub to CTLine for increased compatibility with
+	Quartz.
+
+	* Headers/CoreText/CTFont.h
+	* Source/OpalText/CTFont.m:	
+	Add stubs for some CTFont* functions for increased compatibility with
+	Quartz.
+
+2017-07-26  Daniel Ferreira <dtf@stanford.edu>
+
+	* Headers/CoreText/CTFont.h
+	* Headers/CoreText/CTFontDescriptor.h
+	* Headers/CoreText/CTFontTraits.h:	
+	Update enumeration values for CTFont types, which have been updated in
+	the latest versions of the reference platform.
+
 2017-07-17  Daniel Ferreira <dtf@stanford.edu>
 
 	* Tests/paths.m:	
