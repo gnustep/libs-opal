@@ -29,7 +29,8 @@ $(SUBPROJECT_NAME)_HEADER_FILES = \
 	CTRun.h\
 	CTStringAttributes.h\
 	CTTextTab.h\
-	CTTypesetter.h
+	CTTypesetter.h\
+	SFNTLayoutTypes.h
 
 ADDITIONAL_OBJCFLAGS += -Wall -g -O0 -std=gnu99 -DINTERNAL_BUILD_OBJC
 ADDITIONAL_CPPFLAGS += $(shell pkg-config --cflags cairo)
