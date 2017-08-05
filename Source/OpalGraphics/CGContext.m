@@ -290,6 +290,16 @@ CGAffineTransform CGContextGetCTM(CGContextRef ctx)
   return CGAffineTransformMake(result.xx, result.yx, result.xy, result.yy, result.x0, result.y0);
 }
 
+void CGContextSetCTM(CGContextRef ctx, CGAffineTransform m)
+{
+  // FIXME: it looks like we do not need to do anything related to the
+  // flip transformation here like in GetCTM() above, but we may be wrong
+  // here.
+  cairo_matrix_t cairoMatrix;
+  cairo_matrix_init(&cairoMatrix, m.a, m.b, m.c, m.d, m.tx, m.ty);
+  cairo_set_matrix(ctx->ct, &cairoMatrix);
+}
+
 void OPContextSetCairoDeviceOffset(CGContextRef ctx, CGFloat x, CGFloat y)
 {
   OPLOGCALL("ctx /*%p*/, %g, %g", ctx, x, y)

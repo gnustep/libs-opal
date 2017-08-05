@@ -589,6 +589,8 @@ bool CGContextGetShouldAntialias(CGContextRef ctx);
 
 CGContextType CGContextGetType(CGContextRef ctx);
 
+void CGContextSetCTM(CGContextRef ctx, CGAffineTransform m);
+
 /* Opal Extensions */
 
 // FIXME: Move extensions to a separate header?
