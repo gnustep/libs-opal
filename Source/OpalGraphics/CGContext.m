@@ -772,7 +772,11 @@ void CGContextAddPath(CGContextRef ctx, CGPathRef path)
 void CGContextAddEllipseInRect(CGContextRef ctx, CGRect rect)
 {
   OPLOGCALL("ctx /*%p*/, CGRectMake(%g, %g, %g, %g)", ctx, rect.origin.x, rect.origin.y,
-            rect.size.width, rect.size.height)
+            rect.size.width, rect.size.height);
+  CGPathRef path = CGPathCreateMutable();
+  CGPathAddEllipseInRect(path, NULL, rect);
+  CGContextAddPath(ctx, path);
+  CGPathRelease(path);
   OPRESTORELOGGING()
 }
 
@@ -951,6 +955,20 @@ void CGContextClearRect(CGContextRef ctx, CGRect rect)
   CGContextAddRect(ctx, rect);
   CGContextClearPath(ctx);
   OPRESTORELOGGING()
+}
+
+void CGContextFillEllipseInRect(CGContextRef ctx, CGRect rect)
+{
+  CGContextBeginPath(ctx);
+  CGContextAddEllipseInRect(ctx, rect);
+  CGContextFillPath(ctx);
+}
+
+void CGContextStrokeEllipseInRect(CGContextRef ctx, CGRect rect)
+{
+  CGContextBeginPath(ctx);
+  CGContextAddEllipseInRect(ctx, rect);
+  CGContextStrokePath(ctx);
 }
 
 void CGContextStrokeLineSegments(
