@@ -1526,8 +1526,11 @@ void CGContextDrawRadialGradient(
 
 void CGContextDrawShading(
   CGContextRef ctx,
-  CGShadingRef shading
-);
+  CGShadingRef shading)
+{
+  // FIXME: unimplemented
+  return;
+}
 
 void CGContextSetFont(CGContextRef ctx, CGFontRef font)
 {
