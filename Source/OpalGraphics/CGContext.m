@@ -1987,6 +1987,13 @@ CGRect CGContextConvertRectToUserSpace(CGContextRef ctx, CGRect rect)
     CGAffineTransformInvert(CGContextGetUserSpaceToDeviceSpaceTransform(ctx)));
 }
 
+CGContextType CGContextGetType(CGContextRef ctx)
+{
+  // NOTE: This is not wrong, since Opal does not currently seem to support
+  // any other context type.
+  return kCGContextTypeBitmap;
+}
+
 void OpalContextSetScaleFactor(CGContextRef ctx, CGFloat scale)
 {
   if (scale == 0)

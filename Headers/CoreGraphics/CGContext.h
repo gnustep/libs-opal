@@ -138,6 +138,22 @@ enum {
 };
 typedef int CGTextEncoding;
 
+// NOTE: This `typedef enum` in opposition to defining enum constants and
+// their types as integers is here to maintain compatibility with the original
+// CoreGraphics API, although this is *NOT* an ideal way to define these types.
+typedef enum {
+  kCGContextTypeUnknown,
+  kCGContextTypePDF,
+  kCGContextTypePostScript,
+  kCGContextTypeWindow,
+  kCGContextTypeBitmap,
+  kCGContextTypeGL,
+  kCGContextTypeDisplayList,
+  kCGContextTypeKSeparation,
+  kCGContextTypeIOSurface,
+  kCGContextTypeCount
+} CGContextType;
+
 /* Functions */
 
 /* Managing Graphics Contexts */
@@ -570,6 +586,8 @@ bool CGContextPathContainsPoint(CGContextRef c,
 bool CGContextGetShouldSmoothFonts(CGContextRef ctx);
 
 bool CGContextGetShouldAntialias(CGContextRef ctx);
+
+CGContextType CGContextGetType(CGContextRef ctx);
 
 /* Opal Extensions */
 
