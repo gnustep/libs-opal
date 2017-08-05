@@ -562,6 +562,15 @@ CGRect CGContextConvertRectToDeviceSpace(CGContextRef ctx, CGRect rect);
 
 CGRect CGContextConvertRectToUserSpace(CGContextRef ctx, CGRect rect);
 
+bool CGContextPathContainsPoint(CGContextRef c,
+    CGPoint point, CGPathDrawingMode mode);
+
+/* CoreGraphics Private APIs */
+
+bool CGContextGetShouldSmoothFonts(CGContextRef ctx);
+
+bool CGContextGetShouldAntialias(CGContextRef ctx);
+
 /* Opal Extensions */
 
 // FIXME: Move extensions to a separate header?
@@ -582,9 +591,6 @@ void OPContextSetCairoDeviceOffset(CGContextRef ctx,
 OPGStateRef OPContextCopyGState(CGContextRef ctx);
 
 void OPContextSetGState(CGContextRef ctx, OPGStateRef gstate);
-
-bool CGContextPathContainsPoint(CGContextRef c,
-    CGPoint point, CGPathDrawingMode mode);
 
 #ifdef __cplusplus
 }

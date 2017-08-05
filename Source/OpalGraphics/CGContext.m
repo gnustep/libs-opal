@@ -377,6 +377,11 @@ void CGContextSetShouldAntialias(CGContextRef ctx, int shouldAntialias)
   OPRESTORELOGGING()
 }
 
+bool CGContextGetShouldAntialias(CGContextRef ctx)
+{
+  return cairo_get_antialias(ctx->ct) != CAIRO_ANTIALIAS_NONE;
+}
+
 void CGContextSetLineWidth(CGContextRef ctx, CGFloat width)
 {
   OPLOGCALL("ctx /*%p*/, %g", ctx, width)
@@ -478,6 +483,11 @@ void CGContextSetShouldSmoothFonts(CGContextRef ctx, int shouldSmoothFonts)
 {
   OPLOGCALL("ctx /*%p*/, %d", ctx, shouldSmoothFonts)
   OPRESTORELOGGING()
+}
+
+bool CGContextGetShouldSmoothFonts(CGContextRef ctx)
+{
+  return false;
 }
 
 void CGContextSetAllowsFontSmoothing(CGContextRef ctx, bool allowsFontSmoothing)
