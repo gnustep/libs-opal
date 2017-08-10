@@ -2004,6 +2004,40 @@ CGContextType CGContextGetType(CGContextRef ctx)
   return kCGContextTypeBitmap;
 }
 
+CGAffineTransform CGContextGetBaseCTM(CGContextRef ctx)
+{
+  // FIXME: unimplemented
+  return (CGAffineTransform){0, 0, 0, 0, 0, 0};
+}
+
+void CGContextSetBaseCTM(CGContextRef ctx, CGAffineTransform m)
+{
+  // FIXME: unimplemented
+}
+
+CGColorSpaceRef CGContextCopyDeviceColorSpace(CGContextRef ctx)
+{
+  // FIXME: unimplemented
+  return NULL;
+}
+
+void CGContextSetShouldAntialiasFonts(CGContextRef ctx, bool shouldAntialiasFonts)
+{
+  // FIXME: unimplemented
+}
+
+bool CGDisplayUsesInvertedPolarity(void)
+{
+  // FIXME: unimplemented
+  return false;
+}
+
+bool CGDisplayUsesForceToGray(void)
+{
+  // FIXME: unimplemented
+  return false;
+}
+
 void OpalContextSetScaleFactor(CGContextRef ctx, CGFloat scale)
 {
   if (scale == 0)

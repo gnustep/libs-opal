@@ -591,6 +591,18 @@ CGContextType CGContextGetType(CGContextRef ctx);
 
 void CGContextSetCTM(CGContextRef ctx, CGAffineTransform m);
 
+CGAffineTransform CGContextGetBaseCTM(CGContextRef);
+
+void CGContextSetBaseCTM(CGContextRef, CGAffineTransform);
+
+CGColorSpaceRef CGContextCopyDeviceColorSpace(CGContextRef);
+
+void CGContextSetShouldAntialiasFonts(CGContextRef, bool shouldAntialiasFonts);
+
+bool CGDisplayUsesInvertedPolarity(void);
+
+bool CGDisplayUsesForceToGray(void);
+
 /* Opal Extensions */
 
 // FIXME: Move extensions to a separate header?
