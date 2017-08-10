@@ -486,6 +486,37 @@ CFTypeID CTFontGetTypeID();
 CTFontDescriptorRef CTFontManagerCreateFontDescriptorFromData(
   CFDataRef data);
 
+/* Private APIs */
+
+bool CTFontGetVerticalGlyphsForCharacters(
+  CTFontRef,
+  const UniChar characters[],
+  CGGlyph glyphs[],
+  CFIndex count);
+
+bool CTFontTransformGlyphs(
+  CTFontRef,
+  CGGlyph glyphs[],
+  CGSize advances[],
+  CFIndex count,
+  int);
+
+CTFontRef CTFontCreateForCSS(
+  CFStringRef name,
+  uint16_t weight,
+  CTFontSymbolicTraits,
+  CGFloat size);
+
+CTFontRef CTFontCreateForCharactersWithLanguage(
+  CTFontRef currentFont,
+  const UTF16Char *characters,
+  CFIndex length,
+  CFStringRef language, CFIndex *coveredLength);
+
+extern const CFStringRef kCTFontReferenceURLAttribute;
+extern const CFStringRef kCTFontOpticalSizeAttribute;
+extern const CFStringRef kCTFontPostScriptNameAttribute;
+
 #ifdef __cplusplus
 }
 #endif
