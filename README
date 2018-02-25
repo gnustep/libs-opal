@@ -39,7 +39,7 @@ Requirements
 - libjpeg
 - libpng
 - libtiff
-- lcms (version 1)
+- lcms (version 2)
 
 and on non-Windows platforms:
 - freetype

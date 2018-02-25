@@ -1,8 +1,35 @@
+2018-02-24  Yavor Doganov  <yavor@gnu.org>
+
+	* Source/OpalGraphics/OPColorSpaceLCMS.m: Don't include lcms
+	header, already included from OPColorSpaceLCMS.h.
+	(name): Get profile with cmsGetProfileInfoASCII.
+	(initWithCalibratedGrayWithWhitePoint:blackPoint:gamma:):
+	(initWithCalibratedRGBWithWhitePointCIExy:redCIExy:greenCIExy:blueCIExy:gamma:):
+	(initWithCalibratedRGBWithWhitePoint:blackPoint:gamma:matrix:):
+	Replace LPGAMMMATABLE with cmsToneCurve*.
+	(initWithICCProfile:): Replace LPVOID with const void*.
+	(CGColorSpaceModelForSignature): Change function parameter type to
+	cmsColorSpaceSignature.  Update switch statement.
+	(numberOfComponents): Replace _cmsChannelsOf with cmsChannelsOf.
+	* Source/OpalGraphics/OPColorTransformLCMS.m: Don't include lcms
+	header, already included from OPColorTransformLCMS.h.
+	(LcmsFormatForOPImageFormat): Replace DWORD with cmsUInt32Number,
+	including the return type.
+	* Source/OpalGraphics/OPImageConversion.m: Don't include lcms
+	header, unnecessary.
+	* Source/OpalGraphics/OPColorSpaceLCMS.h: Include <lcms2.h>.
+	* Source/OpalGraphics/OPColorTransformLCMS.h: Likewise.
+	* Source/GNUmakefile (LIBRARIES_DEPEND_UPON): Detect lcms2.
+	* Source/OpalGraphics/GNUmakefile (ADDITIONAL_CPPFLAGS): Likewise.
+	* Source/OpalText/GNUmakefile (ADDITIONAL_CPPFLAGS): Remove lcms
+	detection, not necessary.
+	* README: Require lcms version 2.
+
 2017-08-04  Daniel Ferreira <dtf@stanford.edu>
 
 	* Headers/ImageIO/ImageIO.h
 	* Headers/ImageIO/ImageIOBase.h
-	* Source/OpalGraphics/GNUmakefile.postamble:	
+	* Source/OpalGraphics/GNUmakefile.postamble:
 	CGImageSource and CGImageDestination are not actually CoreGraphics APIs
 	on the reference platform; rather, they are part of the ImageIO
 	framework and should be installed on the system as such.

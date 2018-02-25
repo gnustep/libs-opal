@@ -28,7 +28,7 @@ else
 LIBRARIES_DEPEND_UPON += -lgdi32 -lcairo
 endif
 
-LIBRARIES_DEPEND_UPON += $(shell pkg-config --libs lcms)
+LIBRARIES_DEPEND_UPON += $(shell pkg-config --libs lcms2)
 LIBRARIES_DEPEND_UPON += $(shell pkg-config --libs libpng)
 LIBRARIES_DEPEND_UPON += -ljpeg -ltiff
 

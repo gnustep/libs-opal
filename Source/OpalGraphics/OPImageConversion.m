@@ -23,7 +23,6 @@
    */
 
 
-#include <lcms.h>
 #import <Foundation/NSString.h>
 
 #include "CoreGraphics/CGColorSpace.h"

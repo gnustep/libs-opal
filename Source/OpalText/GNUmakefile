@@ -34,7 +34,6 @@ $(SUBPROJECT_NAME)_HEADER_FILES = \
 
 ADDITIONAL_OBJCFLAGS += -Wall -g -O0 -std=gnu99 -DINTERNAL_BUILD_OBJC
 ADDITIONAL_CPPFLAGS += $(shell pkg-config --cflags cairo)
-ADDITIONAL_CPPFLAGS += $(shell pkg-config --cflags lcms)
 
 ifneq ($(GNUSTEP_TARGET_OS), mingw32)
 ADDITIONAL_CPPFLAGS += $(shell pkg-config --cflags freetype2)
