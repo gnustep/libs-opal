@@ -74,34 +74,33 @@ enum _OPFontTrait
 };
 
 // FIXME: Document these with the value type
-
-NSString *OPFontFamilyAttribute;
-NSString *OPFontNameAttribute;
-NSString *OPFontFaceAttribute;
-NSString *OPFontSizeAttribute; 
-NSString *OPFontVisibleNameAttribute; 
-NSString *OPFontColorAttribute;
+extern NSString *OPFontFamilyAttribute;
+extern NSString *OPFontNameAttribute;
+extern NSString *OPFontFaceAttribute;
+extern NSString *OPFontSizeAttribute; 
+extern NSString *OPFontVisibleNameAttribute; 
+extern NSString *OPFontColorAttribute;
 /**
  * NOTE: OPFontMatrixAttribute is a NSAffineTransform, unlike kCTFontMatrixAttribute which 
  * is an NSData containing a CGAffineTransform struct.
  */
-NSString *OPFontMatrixAttribute;
-NSString *OPFontVariationAttribute;
-NSString *OPFontCharacterSetAttribute;
-NSString *OPFontCascadeListAttribute;
-NSString *OPFontTraitsAttribute;
-NSString *OPFontFixedAdvanceAttribute;
+extern NSString *OPFontMatrixAttribute;
+extern NSString *OPFontVariationAttribute;
+extern NSString *OPFontCharacterSetAttribute;
+extern NSString *OPFontCascadeListAttribute;
+extern NSString *OPFontTraitsAttribute;
+extern NSString *OPFontFixedAdvanceAttribute;
 
-NSString *OPFontSymbolicTrait;
-NSString *OPFontWeightTrait;
-NSString *OPFontWidthTrait;
-NSString *OPFontSlantTrait;
+extern NSString *OPFontSymbolicTrait;
+extern NSString *OPFontWeightTrait;
+extern NSString *OPFontWidthTrait;
+extern NSString *OPFontSlantTrait;
 
-NSString *OPFontVariationAxisIdentifierKey;
-NSString *OPFontVariationAxisMinimumValueKey;
-NSString *OPFontVariationAxisMaximumValueKey;
-NSString *OPFontVariationAxisDefaultValueKey;
-NSString *OPFontVariationAxisNameKey;
+extern NSString *OPFontVariationAxisIdentifierKey;
+extern NSString *OPFontVariationAxisMinimumValueKey;
+extern NSString *OPFontVariationAxisMaximumValueKey;
+extern NSString *OPFontVariationAxisDefaultValueKey;
+extern NSString *OPFontVariationAxisNameKey;
 
 @interface OPFontDescriptor : NSObject <NSCopying>
 {
