@@ -72,7 +72,7 @@ typedef enum _OPFontRenderingMode
   OPFontAntialiasedIntegerAdvancementsRenderingMode
 } OPFontRenderingMode;
 
-const CGFloat *OPFontIdentityMatrix;
+extern const CGFloat *OPFontIdentityMatrix;
 
 
 /**
