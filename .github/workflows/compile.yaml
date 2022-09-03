@@ -13,12 +13,12 @@ jobs:
     - name: Install GNUstep
       run: |
         /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/gnustep/tools-scripts/master/gnustep-web-install)"
-    - name: Install GNUstep
+    - name: Install GNUstep Corebase
       run: |
         cd gnustep/libs-corebase 
-        . /usr/GNUstep/System/Library/Makefiles/GNUstep.sh
         ./configure
-        sudo make install
+        . /usr/GNUstep/System/Library/Makefiles/GNUstep.sh
+        sudo PATH=$PATH make install
     - name: Compile lib-opal
       run: |
         . /usr/GNUstep/System/Library/Makefiles/GNUstep.sh
