@@ -1,0 +1,26 @@
+name: Run GNUstep tests
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Prepare
+      run: |
+        sudo apt-get update
+    - name: Install GNUstep
+      run: |
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/gnustep/tools-scripts/master/gnustep-web-install)"
+    - name: Install GNUstep Corebase
+      run: |
+        cd gnustep/libs-corebase 
+        ./configure
+        . /usr/GNUstep/System/Library/Makefiles/GNUstep.sh
+        sudo PATH=$PATH make install
+    - name: Compile lib-opal
+      run: |
+        . /usr/GNUstep/System/Library/Makefiles/GNUstep.sh
+        make distclean
+        make
