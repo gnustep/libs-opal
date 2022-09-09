@@ -290,6 +290,16 @@ CGAffineTransform CGContextGetCTM(CGContextRef ctx)
   return CGAffineTransformMake(result.xx, result.yx, result.xy, result.yy, result.x0, result.y0);
 }
 
+void CGContextSetCTM(CGContextRef ctx, CGAffineTransform m)
+{
+  // FIXME: it looks like we do not need to do anything related to the
+  // flip transformation here like in GetCTM() above, but we may be wrong
+  // here.
+  cairo_matrix_t cairoMatrix;
+  cairo_matrix_init(&cairoMatrix, m.a, m.b, m.c, m.d, m.tx, m.ty);
+  cairo_set_matrix(ctx->ct, &cairoMatrix);
+}
+
 void OPContextSetCairoDeviceOffset(CGContextRef ctx, CGFloat x, CGFloat y)
 {
   OPLOGCALL("ctx /*%p*/, %g, %g", ctx, x, y)
@@ -375,6 +385,11 @@ void CGContextSetShouldAntialias(CGContextRef ctx, int shouldAntialias)
   cairo_set_antialias(ctx->ct,
     (shouldAntialias ? CAIRO_ANTIALIAS_DEFAULT : CAIRO_ANTIALIAS_NONE));
   OPRESTORELOGGING()
+}
+
+bool CGContextGetShouldAntialias(CGContextRef ctx)
+{
+  return cairo_get_antialias(ctx->ct) != CAIRO_ANTIALIAS_NONE;
 }
 
 void CGContextSetLineWidth(CGContextRef ctx, CGFloat width)
@@ -478,6 +493,11 @@ void CGContextSetShouldSmoothFonts(CGContextRef ctx, int shouldSmoothFonts)
 {
   OPLOGCALL("ctx /*%p*/, %d", ctx, shouldSmoothFonts)
   OPRESTORELOGGING()
+}
+
+bool CGContextGetShouldSmoothFonts(CGContextRef ctx)
+{
+  return false;
 }
 
 void CGContextSetAllowsFontSmoothing(CGContextRef ctx, bool allowsFontSmoothing)
@@ -772,7 +792,11 @@ void CGContextAddPath(CGContextRef ctx, CGPathRef path)
 void CGContextAddEllipseInRect(CGContextRef ctx, CGRect rect)
 {
   OPLOGCALL("ctx /*%p*/, CGRectMake(%g, %g, %g, %g)", ctx, rect.origin.x, rect.origin.y,
-            rect.size.width, rect.size.height)
+            rect.size.width, rect.size.height);
+  CGPathRef path = CGPathCreateMutable();
+  CGPathAddEllipseInRect(path, NULL, rect);
+  CGContextAddPath(ctx, path);
+  CGPathRelease(path);
   OPRESTORELOGGING()
 }
 
@@ -951,6 +975,20 @@ void CGContextClearRect(CGContextRef ctx, CGRect rect)
   CGContextAddRect(ctx, rect);
   CGContextClearPath(ctx);
   OPRESTORELOGGING()
+}
+
+void CGContextFillEllipseInRect(CGContextRef ctx, CGRect rect)
+{
+  CGContextBeginPath(ctx);
+  CGContextAddEllipseInRect(ctx, rect);
+  CGContextFillPath(ctx);
+}
+
+void CGContextStrokeEllipseInRect(CGContextRef ctx, CGRect rect)
+{
+  CGContextBeginPath(ctx);
+  CGContextAddEllipseInRect(ctx, rect);
+  CGContextStrokePath(ctx);
 }
 
 void CGContextStrokeLineSegments(
@@ -1526,8 +1564,11 @@ void CGContextDrawRadialGradient(
 
 void CGContextDrawShading(
   CGContextRef ctx,
-  CGShadingRef shading
-);
+  CGShadingRef shading)
+{
+  // FIXME: unimplemented
+  return;
+}
 
 void CGContextSetFont(CGContextRef ctx, CGFontRef font)
 {
@@ -1954,6 +1995,47 @@ CGRect CGContextConvertRectToUserSpace(CGContextRef ctx, CGRect rect)
 {
   return CGRectApplyAffineTransform(rect, 
     CGAffineTransformInvert(CGContextGetUserSpaceToDeviceSpaceTransform(ctx)));
+}
+
+CGContextType CGContextGetType(CGContextRef ctx)
+{
+  // NOTE: This is not wrong, since Opal does not currently seem to support
+  // any other context type.
+  return kCGContextTypeBitmap;
+}
+
+CGAffineTransform CGContextGetBaseCTM(CGContextRef ctx)
+{
+  // FIXME: unimplemented
+  return (CGAffineTransform){0, 0, 0, 0, 0, 0};
+}
+
+void CGContextSetBaseCTM(CGContextRef ctx, CGAffineTransform m)
+{
+  // FIXME: unimplemented
+}
+
+CGColorSpaceRef CGContextCopyDeviceColorSpace(CGContextRef ctx)
+{
+  // FIXME: unimplemented
+  return NULL;
+}
+
+void CGContextSetShouldAntialiasFonts(CGContextRef ctx, bool shouldAntialiasFonts)
+{
+  // FIXME: unimplemented
+}
+
+bool CGDisplayUsesInvertedPolarity(void)
+{
+  // FIXME: unimplemented
+  return false;
+}
+
+bool CGDisplayUsesForceToGray(void)
+{
+  // FIXME: unimplemented
+  return false;
 }
 
 void OpalContextSetScaleFactor(CGContextRef ctx, CGFloat scale)

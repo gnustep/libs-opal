@@ -351,3 +351,15 @@ CGGlyph OPFontGetGlyphWithCharacter(CGFontRef font, unichar character)
 {
   return [font glyphWithCharacter: character];
 }
+
+bool CGFontGetGlyphAdvancesForStyle(
+  CGFontRef font,
+  const CGAffineTransform *m,
+  int renderingStyle,
+  const CGGlyph glyphs[],
+  size_t count,
+  CGSize advances[])
+{
+  // FIXME: unimplemented
+  return false;
+}

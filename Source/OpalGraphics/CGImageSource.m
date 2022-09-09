@@ -38,6 +38,15 @@ const CFStringRef kCGImageSourceCreateThumbnailFromImageAlways = @"kCGImageSourc
 const CFStringRef kCGImageSourceThumbnailMaxPixelSize = @"kCGImageSourceThumbnailMaxPixelSize";
 const CFStringRef kCGImageSourceCreateThumbnailWithTransform = @"kCGImageSourceCreateThumbnailWithTransform";
 
+const CFStringRef kCGImageSourceShouldPreferRGB32 =
+  @"kCGImageSourceShouldPreferRGB32";
+const CFStringRef kCGImageSourceSkipMetadata =
+  @"kCGImageSourceSkipMetadata";
+const CFStringRef kCGImageSourceSubsampleFactor =
+  @"kCGImageSourceSubsampleFactor";
+const CFStringRef kCGImageSourceShouldCacheImmediately =
+  @"kCGImageSourceShouldCacheImmediately";
+
 
 static NSMutableArray *sourceClasses = nil;
 
@@ -352,6 +361,15 @@ CGImageSourceStatus CGImageSourceGetStatusAtIndex(
 CFStringRef CGImageSourceGetType(CGImageSourceRef source)
 {
   return [source type];
+}
+
+CFStringRef CGImageSourceGetTypeWithData(
+  CFDataRef data,
+  CFStringRef string,
+  bool* result)
+{
+  // FIXME: unimplemented
+  return NULL;
 }
 
 void CGImageSourceUpdateData(

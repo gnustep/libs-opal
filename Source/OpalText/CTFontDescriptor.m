@@ -177,3 +177,8 @@ CFTypeID CTFontDescriptorGetTypeID()
   return (CFTypeID)[OPFontDescriptor class];
 }
 
+bool CTFontDescriptorIsSystemUIFont(CTFontDescriptorRef desc)
+{
+  // FIXME: unimplemented
+  return false;
+}
