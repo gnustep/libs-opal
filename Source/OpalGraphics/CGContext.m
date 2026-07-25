@@ -112,6 +112,8 @@ static void end_shadow(CGContextRef ctx, CGRect bounds);
     CGColorRelease(ctadd->shadow_color);
     cairo_pattern_destroy(ctadd->shadow_cp);
     CGFontRelease(ctadd->font);
+    CGColorSpaceRelease(ctadd->fill_cs);
+    CGColorSpaceRelease(ctadd->stroke_cs);
     next = ctadd->next;
     free(ctadd);
     ctadd = next;
@@ -338,6 +340,8 @@ void CGContextSaveGState(CGContextRef ctx)
   cairo_pattern_reference(ctadd->fill_cp);
   CGColorRetain(ctadd->stroke_color);
   cairo_pattern_reference(ctadd->stroke_cp);
+  CGColorSpaceRetain(ctadd->fill_cs);
+  CGColorSpaceRetain(ctadd->stroke_cs);
   ctadd->next = ctx->add;
   ctx->add = ctadd;
   OPRESTORELOGGING()
@@ -362,6 +366,8 @@ void CGContextRestoreGState(CGContextRef ctx)
   cairo_pattern_destroy(ctx->add->fill_cp);
   CGColorRelease(ctx->add->stroke_color);
   cairo_pattern_destroy(ctx->add->stroke_cp);
+  CGColorSpaceRelease(ctx->add->fill_cs);
+  CGColorSpaceRelease(ctx->add->stroke_cs);
   ctadd = ctx->add->next;
   free(ctx->add);
   ctx->add = ctadd;
@@ -463,11 +469,11 @@ void CGContextSetPatternPhase (CGContextRef ctx, CGSize phase)
 }
 
 /* Build a repeating Cairo source pattern from a CGPattern by drawing one cell
-   into an offscreen surface and tiling it.  Only colored patterns are handled;
-   an uncolored pattern would need its cell tinted with the caller's colour
-   components, which requires the pattern colour space's base space. */
+   into an offscreen surface and tiling it.  For an uncolored pattern cellColor
+   is the colour (in the pattern's base space) that the cell is drawn with; for
+   a colored pattern it is NULL and the cell draws its own colours. */
 static cairo_pattern_t *opal_CreatePatternSource(CGContextRef ctx,
-  CGPatternRef pattern)
+  CGPatternRef pattern, CGColorRef cellColor)
 {
   const CGRect bounds = OPPatternGetBounds(pattern);
   CGFloat xStep = OPPatternGetXStep(pattern);
@@ -485,6 +491,11 @@ static cairo_pattern_t *opal_CreatePatternSource(CGContextRef ctx,
   cairo_surface_t *cell = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, cw, ch);
   CGContextRef cellCtx = opal_new_CGContext(cell, CGSizeMake(cw, ch));
   CGContextTranslateCTM(cellCtx, -bounds.origin.x, -bounds.origin.y);
+  if (cellColor != NULL)
+    {
+      CGContextSetFillColorWithColor(cellCtx, cellColor);
+      CGContextSetStrokeColorWithColor(cellCtx, cellColor);
+    }
   OPPatternDrawInContext(pattern, cellCtx);
   CGContextFlush(cellCtx);
 
@@ -504,6 +515,30 @@ static cairo_pattern_t *opal_CreatePatternSource(CGContextRef ctx,
   return pat;
 }
 
+/* For an uncolored pattern, build the colour its cell should be drawn with
+   from the caller's components in the pattern colour space's base space.
+   Returns NULL (caller draws its own colours) for a colored pattern or when no
+   pattern colour space with a base is in effect.  The returned colour, if any,
+   must be released by the caller. */
+static CGColorRef opal_PatternCellColor(CGColorSpaceRef pcs,
+  CGPatternRef pattern, const CGFloat components[])
+{
+  if (OPPatternIsColored(pattern) || components == NULL || pcs == NULL)
+    {
+      return NULL;
+    }
+  if (CGColorSpaceGetModel(pcs) != kCGColorSpaceModelPattern)
+    {
+      return NULL;
+    }
+  CGColorSpaceRef base = CGColorSpaceGetBaseColorSpace(pcs);
+  if (base == NULL)
+    {
+      return NULL;
+    }
+  return CGColorCreate(base, components);
+}
+
 void CGContextSetFillPattern(
   CGContextRef ctx,
   CGPatternRef pattern,
@@ -512,11 +547,14 @@ void CGContextSetFillPattern(
   OPLOGCALL("ctx /*%p*/, <pattern>, <components>", ctx)
   if (pattern != NULL)
     {
+      CGColorRef cellColor =
+        opal_PatternCellColor(ctx->add->fill_cs, pattern, components);
       if (ctx->add->fill_cp)
         {
           cairo_pattern_destroy(ctx->add->fill_cp);
         }
-      ctx->add->fill_cp = opal_CreatePatternSource(ctx, pattern);
+      ctx->add->fill_cp = opal_CreatePatternSource(ctx, pattern, cellColor);
+      CGColorRelease(cellColor);
     }
   OPRESTORELOGGING()
 }
@@ -529,11 +567,14 @@ void CGContextSetStrokePattern(
   OPLOGCALL("ctx /*%p*/, <pattern>, <components>", ctx)
   if (pattern != NULL)
     {
+      CGColorRef cellColor =
+        opal_PatternCellColor(ctx->add->stroke_cs, pattern, components);
       if (ctx->add->stroke_cp)
         {
           cairo_pattern_destroy(ctx->add->stroke_cp);
         }
-      ctx->add->stroke_cp = opal_CreatePatternSource(ctx, pattern);
+      ctx->add->stroke_cp = opal_CreatePatternSource(ctx, pattern, cellColor);
+      CGColorRelease(cellColor);
     }
   OPRESTORELOGGING()
 }
@@ -1279,6 +1320,22 @@ void CGContextSetFillColorSpace(CGContextRef ctx, CGColorSpaceRef colorspace)
   CGColorRef color;
   size_t nc;
 
+  if (ctx && ctx->add)
+    {
+      CGColorSpaceRetain(colorspace);
+      CGColorSpaceRelease(ctx->add->fill_cs);
+      ctx->add->fill_cs = colorspace;
+    }
+
+  /* A pattern colour space carries no colour of its own; the fill colour is
+     supplied later by CGContextSetFillPattern. */
+  if (colorspace != NULL
+      && CGColorSpaceGetModel(colorspace) == kCGColorSpaceModelPattern)
+    {
+      OPRESTORELOGGING()
+      return;
+    }
+
   nc = CGColorSpaceGetNumberOfComponents(colorspace);
   components = calloc(nc+1, sizeof(CGFloat));
   if (components) {
@@ -1300,6 +1357,22 @@ void CGContextSetStrokeColorSpace(CGContextRef ctx, CGColorSpaceRef colorspace)
   CGFloat *components;
   CGColorRef color;
   size_t nc;
+
+  if (ctx && ctx->add)
+    {
+      CGColorSpaceRetain(colorspace);
+      CGColorSpaceRelease(ctx->add->stroke_cs);
+      ctx->add->stroke_cs = colorspace;
+    }
+
+  /* A pattern colour space carries no colour of its own; the stroke colour is
+     supplied later by CGContextSetStrokePattern. */
+  if (colorspace != NULL
+      && CGColorSpaceGetModel(colorspace) == kCGColorSpaceModelPattern)
+    {
+      OPRESTORELOGGING()
+      return;
+    }
 
   nc = CGColorSpaceGetNumberOfComponents(colorspace);
   components = calloc(nc+1, sizeof(CGFloat));

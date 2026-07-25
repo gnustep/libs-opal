@@ -1,8 +1,10 @@
-/* A colored CGPattern is drawn by tiling its cell over a fill.  A 4x4 cell that
-   paints one half green tiles with a period of 4 pixels; filling a 12x8 rect
-   repeats the green/clear stripes.  Green stroke/fill on a transparent
-   device-RGB bitmap; a pixel is "painted" when its alpha is non-zero.  The
-   tiling period, origin and orientation match Apple CoreGraphics (exact
+/* A CGPattern is drawn by tiling its cell over a fill.  A 4x4 cell that paints
+   one half tiles with a period of 4 pixels; filling a 12x8 rect repeats the
+   painted/clear stripes.  Colored patterns paint their own colours; uncolored
+   patterns are tinted with the caller's components (via the pattern colour
+   space's base space).  Transparent device-RGB bitmap; a pixel is "painted"
+   when its alpha is non-zero.  The tiling period, origin and orientation, and
+   the pattern colour space properties, match Apple CoreGraphics (exact
    antialiased edges are not compared - the cell edges are whole pixels here). */
 #include "Testing.h"
 
@@ -10,6 +12,7 @@
 #include <CoreGraphics/CGContext.h>
 #include <CoreGraphics/CGBitmapContext.h>
 #include <CoreGraphics/CGColorSpace.h>
+#include <CoreGraphics/CGColor.h>
 #include <stdlib.h>
 
 #define W 12
@@ -29,7 +32,14 @@ static void drawBottom(void *info, CGContextRef c)
   CGContextFillRect(c, CGRectMake(0, 0, 4, 2));
 }
 
+/* Cell painting its left half with the current (caller-supplied) colour. */
+static void drawLeftUncolored(void *info, CGContextRef c)
+{
+  CGContextFillRect(c, CGRectMake(0, 0, 2, 4));
+}
+
 static int A(unsigned char *d, int x, int y) { return d[(y*W + x)*4 + 3]; }
+static int chan(unsigned char *d, int x, int y, int i) { return d[(y*W + x)*4 + i]; }
 
 static CGContextRef fillWithPattern(unsigned char *buf, CGColorSpaceRef dev,
   CGPatternDrawPatternCallback draw)
@@ -87,6 +97,57 @@ int main(void)
   CGContextRelease(c); free(buf);
 
   END_SET("CGPattern vertical tiling")
+
+  START_SET("CGPattern colour space")
+
+  CGColorSpaceRef colored = CGColorSpaceCreatePattern(NULL);
+  PASS(colored != NULL, "a colored pattern colour space is created");
+  PASS(CGColorSpaceGetModel(colored) == kCGColorSpaceModelPattern,
+       "its model is the pattern model");
+  PASS(CGColorSpaceGetNumberOfComponents(colored) == 0,
+       "a colored pattern colour space has no components");
+  PASS(CGColorSpaceGetBaseColorSpace(colored) == NULL,
+       "a colored pattern colour space has no base");
+  CGColorSpaceRelease(colored);
+
+  CGColorSpaceRef uncolored = CGColorSpaceCreatePattern(dev);
+  PASS(CGColorSpaceGetModel(uncolored) == kCGColorSpaceModelPattern,
+       "an uncolored pattern colour space's model is the pattern model");
+  PASS(CGColorSpaceGetNumberOfComponents(uncolored) == 3,
+       "its component count comes from its base");
+  PASS(CGColorSpaceGetModel(CGColorSpaceGetBaseColorSpace(uncolored))
+         == kCGColorSpaceModelRGB,
+       "its base colour space is reported");
+  CGColorSpaceRelease(uncolored);
+
+  END_SET("CGPattern colour space")
+
+  START_SET("CGPattern uncolored")
+
+  unsigned char *buf = calloc(W*H*4, 1);
+  CGContextRef c = CGBitmapContextCreate(buf, W, H, 8, W*4, dev,
+    kCGImageAlphaPremultipliedLast);
+  CGPatternCallbacks cb = {0, drawLeftUncolored, NULL};
+  CGPatternRef pat = CGPatternCreate(NULL, CGRectMake(0, 0, 4, 4),
+    CGAffineTransformIdentity, 4, 4, kCGPatternTilingNoDistortion, 0, &cb);
+  CGColorSpaceRef pcs = CGColorSpaceCreatePattern(dev);
+  CGContextSetFillColorSpace(c, pcs);
+  CGFloat blue[] = {0, 0, 1, 1};
+  CGContextSetFillPattern(c, pat, blue);
+  CGContextFillRect(c, CGRectMake(0, 0, W, H));
+  unsigned char *d = (unsigned char *)CGBitmapContextGetData(c);
+  /* The cell is tinted with the caller's blue and tiled. */
+  PASS(A(d,1,4) > 0 && chan(d,1,4,2) > 200
+         && chan(d,1,4,0) < 60 && chan(d,1,4,1) < 60,
+       "an uncolored pattern is tinted with the caller's colour");
+  PASS(A(d,3,4) == 0, "the cell's clear half is left clear");
+  PASS(A(d,5,4) > 0 && chan(d,5,4,2) > 200,
+       "the tinted pattern repeats across the fill");
+  CGPatternRelease(pat);
+  CGColorSpaceRelease(pcs);
+  CGContextRelease(c); free(buf);
+
+  END_SET("CGPattern uncolored")
 
   CGColorSpaceRelease(dev);
   return 0;
