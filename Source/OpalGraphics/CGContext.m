@@ -489,6 +489,42 @@ void CGContextSetAllowsFontSmoothing(CGContextRef ctx, bool allowsFontSmoothing)
 void CGContextSetBlendMode(CGContextRef ctx, CGBlendMode mode)
 {
   OPLOGCALL("ctx /*%p*/, %d", ctx, mode)
+  cairo_operator_t op;
+  switch (mode)
+    {
+      /* Separable and non-separable blend modes. */
+      case kCGBlendModeMultiply:   op = CAIRO_OPERATOR_MULTIPLY; break;
+      case kCGBlendModeScreen:     op = CAIRO_OPERATOR_SCREEN; break;
+      case kCGBlendModeOverlay:    op = CAIRO_OPERATOR_OVERLAY; break;
+      case kCGBlendModeDarken:     op = CAIRO_OPERATOR_DARKEN; break;
+      case kCGBlendModeLighten:    op = CAIRO_OPERATOR_LIGHTEN; break;
+      case kCGBlendModeColorDodge: op = CAIRO_OPERATOR_COLOR_DODGE; break;
+      case kCGBlendModeColorBurn:  op = CAIRO_OPERATOR_COLOR_BURN; break;
+      case kCGBlendModeSoftLight:  op = CAIRO_OPERATOR_SOFT_LIGHT; break;
+      case kCGBlendModeHardLight:  op = CAIRO_OPERATOR_HARD_LIGHT; break;
+      case kCGBlendModeDifference: op = CAIRO_OPERATOR_DIFFERENCE; break;
+      case kCGBlendModeExclusion:  op = CAIRO_OPERATOR_EXCLUSION; break;
+      case kCGBlendModeHue:        op = CAIRO_OPERATOR_HSL_HUE; break;
+      case kCGBlendModeSaturation: op = CAIRO_OPERATOR_HSL_SATURATION; break;
+      case kCGBlendModeColor:      op = CAIRO_OPERATOR_HSL_COLOR; break;
+      case kCGBlendModeLuminosity: op = CAIRO_OPERATOR_HSL_LUMINOSITY; break;
+      /* Porter-Duff compositing modes. */
+      case kCGBlendModeClear:           op = CAIRO_OPERATOR_CLEAR; break;
+      case kCGBlendModeCopy:            op = CAIRO_OPERATOR_SOURCE; break;
+      case kCGBlendModeSourceIn:        op = CAIRO_OPERATOR_IN; break;
+      case kCGBlendModeSourceOut:       op = CAIRO_OPERATOR_OUT; break;
+      case kCGBlendModeSourceAtop:      op = CAIRO_OPERATOR_ATOP; break;
+      case kCGBlendModeDestinationOver: op = CAIRO_OPERATOR_DEST_OVER; break;
+      case kCGBlendModeDestinationIn:   op = CAIRO_OPERATOR_DEST_IN; break;
+      case kCGBlendModeDestinationOut:  op = CAIRO_OPERATOR_DEST_OUT; break;
+      case kCGBlendModeDestinationAtop: op = CAIRO_OPERATOR_DEST_ATOP; break;
+      case kCGBlendModeXOR:             op = CAIRO_OPERATOR_XOR; break;
+      case kCGBlendModePlusLighter:     op = CAIRO_OPERATOR_ADD; break;
+      /* kCGBlendModePlusDarker has no Cairo equivalent; fall back to normal. */
+      case kCGBlendModeNormal:
+      default:                          op = CAIRO_OPERATOR_OVER; break;
+    }
+  cairo_set_operator(ctx->ct, op);
   OPRESTORELOGGING()
 }
 
