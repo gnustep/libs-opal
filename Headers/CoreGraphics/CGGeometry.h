@@ -249,12 +249,12 @@ OP_GEOM_SCOPE CGFloat CGRectGetMaxY(CGRect rect)
 
 OP_GEOM_SCOPE CGFloat CGRectGetWidth(CGRect rect)
 {
-  return rect.size.width;
+  return (rect.size.width < 0) ? -rect.size.width : rect.size.width;
 }
 
 OP_GEOM_SCOPE CGFloat CGRectGetHeight(CGRect rect)
 {
-  return rect.size.height;
+  return (rect.size.height < 0) ? -rect.size.height : rect.size.height;
 }
 
 OP_GEOM_SCOPE int CGRectIsEmpty(CGRect rect)
@@ -279,8 +279,8 @@ OP_GEOM_SCOPE int CGRectContainsPoint(CGRect rect, CGPoint point)
   rect = CGRectStandardize(rect);
   return ((point.x >= rect.origin.x) &&
           (point.y >= rect.origin.y) &&
-          (point.x <= rect.origin.x + rect.size.width) &&
-          (point.y <= rect.origin.y + rect.size.height)) ? 1 : 0;
+          (point.x < rect.origin.x + rect.size.width) &&
+          (point.y < rect.origin.y + rect.size.height)) ? 1 : 0;
 }
 
 OP_GEOM_SCOPE int CGRectEqualToRect(CGRect rect1, CGRect rect2)
@@ -420,6 +420,8 @@ OP_GEOM_SCOPE CGRect CGRectInset(CGRect rect, CGFloat dx, CGFloat dy)
   rect.origin.y += dy;
   rect.size.width -= (2 * dx);
   rect.size.height -= (2 * dy);
+  if (rect.size.width < 0 || rect.size.height < 0)
+    return CGRectNull;
   return rect;
 }
 
