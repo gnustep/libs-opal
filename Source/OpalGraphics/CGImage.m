@@ -42,6 +42,18 @@ const CFStringRef kCGImagePropertyPixelHeight =
   OPALSTR("kCGImagePropertyPixelHeight");
 const CFStringRef kCGImagePropertyPixelWidth =
   OPALSTR("kCGImagePropertyPixelWidth");
+const CFStringRef kCGImagePropertyDepth =
+  OPALSTR("kCGImagePropertyDepth");
+const CFStringRef kCGImagePropertyHasAlpha =
+  OPALSTR("kCGImagePropertyHasAlpha");
+const CFStringRef kCGImagePropertyColorModel =
+  OPALSTR("kCGImagePropertyColorModel");
+const CFStringRef kCGImagePropertyColorModelRGB =
+  OPALSTR("RGB");
+const CFStringRef kCGImagePropertyColorModelGray =
+  OPALSTR("Gray");
+const CFStringRef kCGImagePropertyColorModelCMYK =
+  OPALSTR("CMYK");
 
 const CFStringRef kCGImagePropertyTIFFDictionary =
   OPALSTR("kCGImagePropertyTIFFDictionary");

@@ -145,12 +145,65 @@ static bool opal_has_png_header(CGDataProviderRef dp)
 
 - (NSDictionary*)propertiesWithOptions: (NSDictionary*)opts
 {
-  return [NSDictionary dictionary];
+  return [self propertiesWithOptions: opts atIndex: 0];
 }
 
 - (NSDictionary*)propertiesWithOptions: (NSDictionary*)opts atIndex: (size_t)index
 {
-  return [NSDictionary dictionary];  
+  NSMutableDictionary *props = [NSMutableDictionary dictionary];
+  png_structp png_struct = NULL;
+  png_infop png_info = NULL;
+
+  OPDataProviderRewind(dp);
+  NS_DURING
+  {
+    png_struct = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL,
+      opal_png_error_fn, opal_png_warning_fn);
+    if (png_struct)
+    {
+      png_info = png_create_info_struct(png_struct);
+    }
+    if (png_struct && png_info)
+    {
+      png_set_read_fn(png_struct, dp, opal_png_reader_func);
+      png_read_info(png_struct, png_info);
+
+      const png_uint_32 width = png_get_image_width(png_struct, png_info);
+      const png_uint_32 height = png_get_image_height(png_struct, png_info);
+      const int depth = png_get_bit_depth(png_struct, png_info);
+      const int type = png_get_color_type(png_struct, png_info);
+
+      [props setObject: [NSNumber numberWithUnsignedLong: width]
+               forKey: (NSString*)kCGImagePropertyPixelWidth];
+      [props setObject: [NSNumber numberWithUnsignedLong: height]
+               forKey: (NSString*)kCGImagePropertyPixelHeight];
+      [props setObject: [NSNumber numberWithInt: depth]
+               forKey: (NSString*)kCGImagePropertyDepth];
+
+      BOOL isGray = (type == PNG_COLOR_TYPE_GRAY
+                     || type == PNG_COLOR_TYPE_GRAY_ALPHA);
+      [props setObject: (NSString*)(isGray ? kCGImagePropertyColorModelGray
+                                           : kCGImagePropertyColorModelRGB)
+               forKey: (NSString*)kCGImagePropertyColorModel];
+
+      BOOL hasAlpha = (type & PNG_COLOR_MASK_ALPHA) != 0
+        || png_get_valid(png_struct, png_info, PNG_INFO_tRNS);
+      [props setObject: [NSNumber numberWithBool: hasAlpha]
+               forKey: (NSString*)kCGImagePropertyHasAlpha];
+    }
+  }
+  NS_HANDLER
+  {
+    /* fall through with whatever was collected */
+  }
+  NS_ENDHANDLER
+
+  if (png_struct)
+  {
+    png_destroy_read_struct(&png_struct, png_info ? &png_info : NULL, NULL);
+  }
+  OPDataProviderRewind(dp);
+  return props;
 }
 
 - (size_t)count

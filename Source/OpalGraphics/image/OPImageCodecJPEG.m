@@ -366,12 +366,50 @@ static void gs_jpeg_memory_dest_destroy (j_compress_ptr cinfo)
   
 - (NSDictionary*)propertiesWithOptions: (NSDictionary*)opts
 {
-  return [NSDictionary dictionary];
+  return [self propertiesWithOptions: opts atIndex: 0];
 }
 
 - (NSDictionary*)propertiesWithOptions: (NSDictionary*)opts atIndex: (size_t)index
 {
-  return [NSDictionary dictionary];  
+  NSMutableDictionary *props = [NSMutableDictionary dictionary];
+  struct jpeg_decompress_struct cinfo;
+  struct gs_jpeg_error_mgr jerrMgr;
+
+  memset((void*)&cinfo, 0, sizeof(struct jpeg_decompress_struct));
+  gs_jpeg_error_mgr_create((j_common_ptr)&cinfo, &jerrMgr);
+  jpeg_create_decompress(&cinfo);
+  OPDataProviderRewind(dp);
+  gs_jpeg_memory_src_create(&cinfo, dp);
+
+  NS_DURING
+  {
+    jpeg_read_header(&cinfo, TRUE);
+
+    [props setObject: [NSNumber numberWithUnsignedInt: cinfo.image_width]
+             forKey: (NSString*)kCGImagePropertyPixelWidth];
+    [props setObject: [NSNumber numberWithUnsignedInt: cinfo.image_height]
+             forKey: (NSString*)kCGImagePropertyPixelHeight];
+    [props setObject: [NSNumber numberWithInt: cinfo.data_precision]
+             forKey: (NSString*)kCGImagePropertyDepth];
+
+    CFStringRef model = kCGImagePropertyColorModelRGB;
+    if (cinfo.num_components == 1)
+      model = kCGImagePropertyColorModelGray;
+    else if (cinfo.num_components == 4)
+      model = kCGImagePropertyColorModelCMYK;
+    [props setObject: (NSString*)model
+             forKey: (NSString*)kCGImagePropertyColorModel];
+  }
+  NS_HANDLER
+  {
+    /* fall through with whatever was collected */
+  }
+  NS_ENDHANDLER
+
+  gs_jpeg_memory_src_destroy(&cinfo);
+  jpeg_destroy_decompress(&cinfo);
+  OPDataProviderRewind(dp);
+  return props;
 }
 
 - (size_t)count
