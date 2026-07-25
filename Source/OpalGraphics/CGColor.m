@@ -76,7 +76,8 @@ static CGColorRef _clearColor;
   int nc = CGColorSpaceGetNumberOfComponents(self->cspace);
 
   if (![self->cspace isEqual: otherColor->cspace]) return NO;
-  if (![self->pattern isEqual: otherColor->pattern]) return NO;
+  if (self->pattern != otherColor->pattern
+      && ![self->pattern isEqual: otherColor->pattern]) return NO;
   
   for (int i = 0; i <= nc; i++) {
     if (self->comps[i] != otherColor->comps[i])
@@ -272,7 +273,7 @@ CGColorRef CGColorGetConstantColor(CFStringRef name)
 
 size_t CGColorGetNumberOfComponents(CGColorRef clr)
 {
-  return CGColorSpaceGetNumberOfComponents(clr->cspace);
+  return CGColorSpaceGetNumberOfComponents(clr->cspace) + 1;
 }
 
 CGPatternRef CGColorGetPattern(CGColorRef clr)
