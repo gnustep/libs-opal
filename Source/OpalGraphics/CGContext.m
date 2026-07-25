@@ -817,8 +817,8 @@ static void fill_path(CGContextRef ctx, int eorule, int preserve)
     {
       NSLog(@"null %s%s%s in %s",
             !ctx ? "ctx" : "",
-            (!ctx && !ctx->add) ? " and " : "", 
-            !ctx->add ? "ctx->add" : "",
+            (ctx && !ctx->add) ? "ctx->add" : "",
+            "",
             __PRETTY_FUNCTION__);
       return;
     }
@@ -1085,8 +1085,8 @@ CGFloat OPContextGetAlpha(CGContextRef ctx)
     {
       NSLog(@"null %s%s%s in %s",
             !ctx ? "ctx" : "",
-            (!ctx && !ctx->add) ? " and " : "", 
-            !ctx->add ? "ctx->add" : "",
+            (ctx && !ctx->add) ? "ctx->add" : "",
+            "",
             __PRETTY_FUNCTION__);
       return 0;
     }
@@ -1147,8 +1147,8 @@ void CGContextSetFillColorWithColor(CGContextRef ctx, CGColorRef color)
     {
       NSLog(@"null %s%s%s in %s",
             !ctx ? "ctx" : "",
-            (!ctx && !ctx->add) ? " and " : "", 
-            !ctx->add ? "ctx->add" : "",
+            (ctx && !ctx->add) ? "ctx->add" : "",
+            "",
             __PRETTY_FUNCTION__);
       OPRESTORELOGGING()
       return;
@@ -1168,8 +1168,8 @@ void CGContextSetStrokeColorWithColor(CGContextRef ctx, CGColorRef color)
     {
       NSLog(@"null %s%s%s in %s",
             !ctx ? "ctx" : "",
-            (!ctx && !ctx->add) ? " and " : "", 
-            !ctx->add ? "ctx->add" : "",
+            (ctx && !ctx->add) ? "ctx->add" : "",
+            "",
             __PRETTY_FUNCTION__);
       OPRESTORELOGGING()
       return;
@@ -1189,8 +1189,8 @@ void CGContextSetAlpha(CGContextRef ctx, CGFloat alpha)
     {
       NSLog(@"null %s%s%s in %s", 
             !ctx ? "ctx" : "",
-            (!ctx && !ctx->add) ? " and " : "", 
-            !ctx->add ? "ctx->add" : "",
+            (ctx && !ctx->add) ? "ctx->add" : "",
+            "",
             __PRETTY_FUNCTION__);
       OPRESTORELOGGING()
       return;
