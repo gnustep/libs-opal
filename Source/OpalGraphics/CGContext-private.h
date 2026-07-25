@@ -47,6 +47,7 @@ struct ct_additions
   CGFloat font_size;
   CGFloat char_spacing;
   CGTextDrawingMode text_mode;
+  CGSize pattern_phase;
 };
 
 @interface CGContext : NSObject

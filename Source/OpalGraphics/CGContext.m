@@ -30,9 +30,14 @@
 
 #import "CGContext-private.h"
 #import "CGGradient-private.h"
+#import "CGPattern-private.h"
 #import "CGColor-private.h"
 #import "cairo/CairoFont.h"
 #import "OPLogging.h"
+
+#include <math.h>
+
+extern CGContextRef opal_new_CGContext(cairo_surface_t *target, CGSize device_size);
 
 /* The default (opaque black) color in a Cairo context,
  * used if no other color is set on the context yet */
@@ -453,7 +458,50 @@ void CGContextSetInterpolationQuality(
 void CGContextSetPatternPhase (CGContextRef ctx, CGSize phase)
 {
   OPLOGCALL("ctx /*%p*/, CGSizeMake(%g, %g)", ctx, phase.width, phase.height)
+  ctx->add->pattern_phase = phase;
   OPRESTORELOGGING()
+}
+
+/* Build a repeating Cairo source pattern from a CGPattern by drawing one cell
+   into an offscreen surface and tiling it.  Only colored patterns are handled;
+   an uncolored pattern would need its cell tinted with the caller's colour
+   components, which requires the pattern colour space's base space. */
+static cairo_pattern_t *opal_CreatePatternSource(CGContextRef ctx,
+  CGPatternRef pattern)
+{
+  const CGRect bounds = OPPatternGetBounds(pattern);
+  CGFloat xStep = OPPatternGetXStep(pattern);
+  CGFloat yStep = OPPatternGetYStep(pattern);
+  if (xStep <= 0) xStep = bounds.size.width;
+  if (yStep <= 0) yStep = bounds.size.height;
+
+  int cw = (int)ceil(xStep);
+  int ch = (int)ceil(yStep);
+  if (cw < 1) cw = 1;
+  if (ch < 1) ch = 1;
+
+  /* Draw one cell into an offscreen surface using a temporary context that
+     shares Opal's flipped coordinate convention. */
+  cairo_surface_t *cell = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, cw, ch);
+  CGContextRef cellCtx = opal_new_CGContext(cell, CGSizeMake(cw, ch));
+  CGContextTranslateCTM(cellCtx, -bounds.origin.x, -bounds.origin.y);
+  OPPatternDrawInContext(pattern, cellCtx);
+  CGContextFlush(cellCtx);
+
+  cairo_pattern_t *pat = cairo_pattern_create_for_surface(cell);
+  cairo_pattern_set_extend(pat, CAIRO_EXTEND_REPEAT);
+
+  /* The cell surface is stored top-down while the drawing context is flipped;
+     flip the pattern back and apply the phase so tiles line up with the fill
+     origin. */
+  const CGSize phase = ctx->add->pattern_phase;
+  cairo_matrix_t m;
+  cairo_matrix_init(&m, 1, 0, 0, -1, -phase.width, ch + phase.height);
+  cairo_pattern_set_matrix(pat, &m);
+
+  CGContextRelease(cellCtx);
+  cairo_surface_destroy(cell);
+  return pat;
 }
 
 void CGContextSetFillPattern(
@@ -462,6 +510,14 @@ void CGContextSetFillPattern(
   const CGFloat components[])
 {
   OPLOGCALL("ctx /*%p*/, <pattern>, <components>", ctx)
+  if (pattern != NULL)
+    {
+      if (ctx->add->fill_cp)
+        {
+          cairo_pattern_destroy(ctx->add->fill_cp);
+        }
+      ctx->add->fill_cp = opal_CreatePatternSource(ctx, pattern);
+    }
   OPRESTORELOGGING()
 }
 
@@ -471,6 +527,14 @@ void CGContextSetStrokePattern(
   const CGFloat components[])
 {
   OPLOGCALL("ctx /*%p*/, <pattern>, <components>", ctx)
+  if (pattern != NULL)
+    {
+      if (ctx->add->stroke_cp)
+        {
+          cairo_pattern_destroy(ctx->add->stroke_cp);
+        }
+      ctx->add->stroke_cp = opal_CreatePatternSource(ctx, pattern);
+    }
   OPRESTORELOGGING()
 }
 
