@@ -1500,6 +1500,12 @@ void opal_draw_surface_in_rect(CGContextRef ctxt, CGRect rect, cairo_surface_t *
   // Do the drawing
 
   cairo_t *destCairo = ctxt->ct;
+
+  /* Render into a group so an active clip mask can be applied afterwards, in
+     the untranslated user space the mask was set up in. */
+  const bool masked = (ctxt->add->clip_mask != NULL);
+  if (masked) cairo_push_group(destCairo);
+
   cairo_save(destCairo);
 
   cairo_set_operator(destCairo, CAIRO_OPERATOR_OVER);
@@ -1515,6 +1521,12 @@ void opal_draw_surface_in_rect(CGContextRef ctxt, CGRect rect, cairo_surface_t *
   cairo_paint_with_alpha(destCairo, ctxt->add->alpha);
 
   cairo_restore(destCairo);
+
+  if (masked)
+    {
+      cairo_pop_group_to_source(destCairo);
+      cairo_mask(destCairo, ctxt->add->clip_mask);
+    }
 }
 
 void CGContextDrawImage(CGContextRef ctx, CGRect rect, CGImageRef image)
@@ -1588,11 +1600,13 @@ void CGContextDrawLinearGradient(
             startPoint.x, startPoint.y, endPoint.x, endPoint.y, options)
   cairo_pattern_t *pat = cairo_pattern_create_linear(startPoint.x, startPoint.y, endPoint.x, endPoint.y);
   opal_AddStops(pat, gradient);
-  
+
+  opal_mask_begin(ctx);
   cairo_set_source(ctx->ct, pat);
   // FIXME: respect CGGradientDrawingOptions
   cairo_paint(ctx->ct);
-  
+  opal_mask_end(ctx);
+
   cairo_pattern_destroy(pat);
   OPRESTORELOGGING()
 }
@@ -1612,11 +1626,13 @@ void CGContextDrawRadialGradient(
   cairo_pattern_t *pat = cairo_pattern_create_radial(startCenter.x, startCenter.y, startRadius,
     endCenter.x, endCenter.y, endRadius);
   opal_AddStops(pat, gradient);
-  
+
+  opal_mask_begin(ctx);
   cairo_set_source(ctx->ct, pat);
   // FIXME: respect CGGradientDrawingOptions
   cairo_paint(ctx->ct);
-  
+  opal_mask_end(ctx);
+
   cairo_pattern_destroy(pat);
   OPRESTORELOGGING()
 }
@@ -1754,6 +1770,7 @@ void CGContextShowText(CGContextRef ctx, const char *string, size_t length)
 
   cairo_set_font_matrix(ctx->ct, &cairotextmatrix);
 
+  opal_mask_begin(ctx);
   if(ctx->add->fill_cp)
     cairo_set_source(ctx->ct, ctx->add->fill_cp);
   else
@@ -1761,12 +1778,14 @@ void CGContextShowText(CGContextRef ctx, const char *string, size_t length)
 
   cairo_show_text(ctx->ct, cString);
 
-
-  // Update the opal text matrix with the distance the current point moved
+  // Update the opal text matrix with the distance the current point moved.
+  // Read it before applying any clip mask, which restores the graphics state.
 
   double dx, dy;
   cairo_get_current_point(ctx->ct, &dx, &dy);
-  
+
+  opal_mask_end(ctx);
+
   CGPoint textPos = CGContextGetTextPosition(ctx);
   CGContextSetTextPosition(ctx, textPos.x + dx, textPos.y + dy);
   // FXIME: scaled?
@@ -1896,17 +1915,19 @@ void CGContextShowGlyphsAtPositions(
 
   // Show the glpyhs
 
+  opal_mask_begin(ctx);
   if(ctx->add->fill_cp)
     cairo_set_source(ctx->ct, ctx->add->fill_cp);
   else
     cairo_set_source(ctx->ct, default_cp);
-  
+
   // FIXME: Report this as a cairo bug.. the following places the glyphs after the first one incorrectly
   //cairo_show_glyphs(ctx->ct, cairoGlyphs, count);
   // WORKAROUND:
   for (int i=0; i<count; i++) {
     cairo_show_glyphs(ctx->ct, &(cairoGlyphs[i]), 1);
   }
+  opal_mask_end(ctx);
   OPRESTORELOGGING()
 }
 

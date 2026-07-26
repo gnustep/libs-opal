@@ -9,7 +9,9 @@
 #include <CoreGraphics/CGContext.h>
 #include <CoreGraphics/CGBitmapContext.h>
 #include <CoreGraphics/CGColorSpace.h>
+#include <CoreGraphics/CGColor.h>
 #include <CoreGraphics/CGImage.h>
+#include <CoreGraphics/CGGradient.h>
 #include <CoreGraphics/CGDataProvider.h>
 #include <stdlib.h>
 
@@ -75,6 +77,75 @@ int main(void)
   PASS(t > 0 && b == 0, "the image mask orientation is correct vertically");
 
   END_SET("CGContextClipToMask image")
+
+  START_SET("CGContextClipToMask limits an image")
+
+  /* Left half of the mask paints (black), right half does not. */
+  unsigned char *ib = calloc(W*W*4, 1);
+  CGContextRef ic = CGBitmapContextCreate(ib, W, W, 8, W*4, dev,
+    kCGImageAlphaPremultipliedLast);
+  CGContextClipToMask(ic, CGRectMake(0, 0, W, W), halfMask(0, 255, 1, 0, gray));
+  CGContextRef gimgCtx = CGBitmapContextCreate(NULL, W, W, 8, W*4, dev,
+    kCGImageAlphaPremultipliedLast);
+  CGContextSetRGBFillColor(gimgCtx, 0, 1, 0, 1);
+  CGContextFillRect(gimgCtx, CGRectMake(0, 0, W, W));
+  CGImageRef gimg = CGBitmapContextCreateImage(gimgCtx);
+  CGContextDrawImage(ic, CGRectMake(0, 0, W, W), gimg);
+  unsigned char *idata = (unsigned char *)CGBitmapContextGetData(ic);
+  PASS(A(idata,2,4) > 0 && A(idata,6,4) == 0, "a drawn image is limited by the mask");
+  CGContextRelease(ic); CGContextRelease(gimgCtx); free(ib);
+
+  END_SET("CGContextClipToMask limits an image")
+
+  START_SET("CGContextClipToMask limits a gradient")
+
+  unsigned char *gb = calloc(W*W*4, 1);
+  CGContextRef gc = CGBitmapContextCreate(gb, W, W, 8, W*4, dev,
+    kCGImageAlphaPremultipliedLast);
+  CGContextClipToMask(gc, CGRectMake(0, 0, W, W), halfMask(0, 255, 1, 0, gray));
+  CGFloat comps[] = {1,0,0,1, 0,0,1,1};
+  CGFloat locs[] = {0, 1};
+  CGGradientRef grad = CGGradientCreateWithColorComponents(dev, comps, locs, 2);
+  CGContextDrawLinearGradient(gc, grad, CGPointMake(0,0), CGPointMake(W,0), 0);
+  unsigned char *gd = (unsigned char *)CGBitmapContextGetData(gc);
+  PASS(A(gd,2,4) > 0 && A(gd,6,4) == 0, "a gradient is limited by the mask");
+  CGContextRelease(gc); free(gb);
+
+  END_SET("CGContextClipToMask limits a gradient")
+
+  START_SET("CGContextClipToMask limits text")
+
+  /* Count painted pixels in the right half with and without a left-half mask;
+     the mask must suppress the right half.  Needs a font. */
+  int rightNoMask = 0, rightMasked = 0, leftMasked = 0;
+  for (int pass = 0; pass < 2; pass++)
+    {
+      unsigned char *tb = calloc(W*W*4, 1);
+      CGContextRef tc = CGBitmapContextCreate(tb, W, W, 8, W*4, dev,
+        kCGImageAlphaPremultipliedLast);
+      if (pass == 1)
+        CGContextClipToMask(tc, CGRectMake(0,0,W,W), halfMask(0,255,1,0,gray));
+      CGContextSelectFont(tc, "DejaVu Sans", 10, kCGEncodingMacRoman);
+      CGContextSetRGBFillColor(tc, 0, 1, 0, 1);
+      CGContextShowTextAtPoint(tc, 0, 2, "MM", 2);
+      unsigned char *td = (unsigned char *)CGBitmapContextGetData(tc);
+      for (int y = 0; y < W; y++)
+        for (int x = 0; x < W; x++)
+          {
+            if (A(td,x,y) > 0)
+              {
+                if (x >= W/2) { if (pass) rightMasked++; else rightNoMask++; }
+                else if (pass) leftMasked++;
+              }
+          }
+      CGContextRelease(tc); free(tb);
+    }
+  if (rightNoMask == 0)
+    SKIP("no font available to draw text")
+  PASS(rightMasked == 0 && leftMasked > 0,
+       "text is limited by the mask (suppressed in the masked-out half)");
+
+  END_SET("CGContextClipToMask limits text")
 
   START_SET("CGContextClipToMask does not affect unmasked contexts")
 
