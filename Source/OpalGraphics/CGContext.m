@@ -31,8 +31,11 @@
 #import "CGContext-private.h"
 #import "CGGradient-private.h"
 #import "CGColor-private.h"
+#import "CGDataProvider-private.h"
 #import "cairo/CairoFont.h"
 #import "OPLogging.h"
+
+#include <math.h>
 
 /* The default (opaque black) color in a Cairo context,
  * used if no other color is set on the context yet */
@@ -40,6 +43,9 @@ static cairo_pattern_t *default_cp;
 
 extern cairo_surface_t *opal_CGImageGetSurfaceForImage(CGImageRef img, cairo_surface_t *contextSurface);
 extern CGRect opal_CGImageGetSourceRect(CGImageRef image);
+
+static void opal_mask_begin(CGContextRef ctx);
+static void opal_mask_end(CGContextRef ctx);
 
 static inline void set_color(cairo_pattern_t **cp, CGColorRef clr, double alpha);
 static void start_shadow(CGContextRef ctx);
@@ -107,6 +113,7 @@ static void end_shadow(CGContextRef ctx, CGRect bounds);
     CGColorRelease(ctadd->shadow_color);
     cairo_pattern_destroy(ctadd->shadow_cp);
     CGFontRelease(ctadd->font);
+    if (ctadd->clip_mask) cairo_pattern_destroy(ctadd->clip_mask);
     next = ctadd->next;
     free(ctadd);
     ctadd = next;
@@ -333,6 +340,7 @@ void CGContextSaveGState(CGContextRef ctx)
   cairo_pattern_reference(ctadd->fill_cp);
   CGColorRetain(ctadd->stroke_color);
   cairo_pattern_reference(ctadd->stroke_cp);
+  if (ctadd->clip_mask) cairo_pattern_reference(ctadd->clip_mask);
   ctadd->next = ctx->add;
   ctx->add = ctadd;
   OPRESTORELOGGING()
@@ -357,6 +365,7 @@ void CGContextRestoreGState(CGContextRef ctx)
   cairo_pattern_destroy(ctx->add->fill_cp);
   CGColorRelease(ctx->add->stroke_color);
   cairo_pattern_destroy(ctx->add->stroke_cp);
+  if (ctx->add->clip_mask) cairo_pattern_destroy(ctx->add->clip_mask);
   ctadd = ctx->add->next;
   free(ctx->add);
   ctx->add = ctadd;
@@ -791,13 +800,15 @@ void CGContextStrokePath(CGContextRef ctx)
     start_shadow(ctx);
   }
 
+  opal_mask_begin(ctx);
   if(ctx->add->stroke_cp)
     cairo_set_source(ctx->ct, ctx->add->stroke_cp);
   else
     cairo_set_source(ctx->ct, default_cp);
 
   cairo_stroke(ctx->ct);
-  
+  opal_mask_end(ctx);
+
   if (ctx->add->shadow_cp) {
     end_shadow(ctx, CGRectMake(0,0,500,500)); //FIXME
   }
@@ -826,6 +837,7 @@ static void fill_path(CGContextRef ctx, int eorule, int preserve)
   if (ctx->add->shadow_cp) {
     start_shadow(ctx);
   }
+  opal_mask_begin(ctx);
   if (ctx->add->fill_cp)
     cairo_set_source(ctx->ct, ctx->add->fill_cp);
   else
@@ -836,6 +848,7 @@ static void fill_path(CGContextRef ctx, int eorule, int preserve)
     cairo_set_fill_rule(ctx->ct, CAIRO_FILL_RULE_WINDING);
 
   cairo_fill_preserve(ctx->ct);
+  opal_mask_end(ctx);
 
   if (!preserve) cairo_new_path(ctx->ct);
   
@@ -1062,18 +1075,102 @@ void CGContextClipToRects(CGContextRef ctx, const CGRect rects[], size_t count)
   OPRESTORELOGGING()
 }
 
+/* Build an alpha (A8) coverage pattern from a mask image, mapped into rect.
+   For an image mask a sample of 0 paints fully and 255 not at all; for a normal
+   image the alpha channel (or the luminance, if there is no alpha) is the
+   coverage. */
+static cairo_pattern_t *opal_CreateMaskPattern(CGRect rect, CGImageRef mask)
+{
+  const size_t mw = CGImageGetWidth(mask);
+  const size_t mh = CGImageGetHeight(mask);
+  const size_t sbpr = CGImageGetBytesPerRow(mask);
+  const size_t sbpp = CGImageGetBitsPerPixel(mask) / 8;
+  const bool isMask = CGImageIsMask(mask);
+  const CGImageAlphaInfo alpha = CGImageGetAlphaInfo(mask);
+  const bool hasAlpha = !isMask
+    && (alpha == kCGImageAlphaPremultipliedLast || alpha == kCGImageAlphaLast
+        || alpha == kCGImageAlphaPremultipliedFirst || alpha == kCGImageAlphaFirst);
+  const bool alphaFirst = (alpha == kCGImageAlphaPremultipliedFirst
+                           || alpha == kCGImageAlphaFirst);
+
+  const unsigned char *src = OPDataProviderGetBytePointer(CGImageGetDataProvider(mask));
+  if (src == NULL || mw == 0 || mh == 0)
+    {
+      return NULL;
+    }
+
+  cairo_surface_t *asurf = cairo_image_surface_create(CAIRO_FORMAT_A8, mw, mh);
+  cairo_surface_flush(asurf);
+  unsigned char *adata = cairo_image_surface_get_data(asurf);
+  const int astride = cairo_image_surface_get_stride(asurf);
+
+  for (size_t y = 0; y < mh; y++)
+    {
+      for (size_t x = 0; x < mw; x++)
+        {
+          const unsigned char *pixel = src + y * sbpr + x * sbpp;
+          unsigned char sample;
+          if (hasAlpha)
+            sample = alphaFirst ? pixel[0] : pixel[sbpp - 1];
+          else
+            sample = pixel[0]; /* image mask or single-component image */
+          adata[y * astride + x] = isMask ? (255 - sample) : sample;
+        }
+    }
+  cairo_surface_mark_dirty(asurf);
+
+  cairo_pattern_t *pat = cairo_pattern_create_for_surface(asurf);
+  cairo_surface_destroy(asurf);
+
+  /* Map user space to the mask's pixels: the mask covers rect, flipped because
+     the surface is top-down while the context is y-up. */
+  cairo_matrix_t m;
+  cairo_matrix_init_identity(&m);
+  cairo_matrix_scale(&m, mw / rect.size.width, mh / rect.size.height);
+  cairo_matrix_translate(&m, -rect.origin.x, -rect.origin.y);
+  cairo_matrix_scale(&m, 1, -1);
+  cairo_matrix_translate(&m, 0, -rect.size.height);
+  cairo_pattern_set_matrix(pat, &m);
+
+  return pat;
+}
+
+/* If a clip mask is active, redirect drawing to a temporary group. */
+static void opal_mask_begin(CGContextRef ctx)
+{
+  if (ctx->add->clip_mask)
+    {
+      cairo_push_group(ctx->ct);
+    }
+}
+
+/* If a clip mask is active, composite the group through the mask. */
+static void opal_mask_end(CGContextRef ctx)
+{
+  if (ctx->add->clip_mask)
+    {
+      cairo_pop_group_to_source(ctx->ct);
+      cairo_mask(ctx->ct, ctx->add->clip_mask);
+    }
+}
+
 void CGContextClipToMask(CGContextRef ctx, CGRect rect, CGImageRef mask)
 {
-  OPLOGCALL("ctx /*%p*/, CGRectMake(%g, %g, %g, %g), <mask>", ctx, 
+  OPLOGCALL("ctx /*%p*/, CGRectMake(%g, %g, %g, %g), <mask>", ctx,
             rect.origin.x, rect.origin.y,
             rect.size.width, rect.size.height)
-  /* Attach a temporay image mask to the surface.
-     Then, all drawing needs a: 
-       push_group()
-       do the drawing
-       pop_group_to_source();
-       mask()
-  */
+  if (mask != NULL && rect.size.width > 0 && rect.size.height > 0)
+    {
+      cairo_pattern_t *pat = opal_CreateMaskPattern(rect, mask);
+      if (pat)
+        {
+          if (ctx->add->clip_mask)
+            {
+              cairo_pattern_destroy(ctx->add->clip_mask);
+            }
+          ctx->add->clip_mask = pat;
+        }
+    }
   OPRESTORELOGGING()
 }
 
@@ -1410,7 +1507,7 @@ void opal_draw_surface_in_rect(CGContextRef ctxt, CGRect rect, cairo_surface_t *
 
   cairo_set_source(destCairo, pattern);
   cairo_pattern_destroy(pattern);
-  
+
   // FIXME: What is the fastest way to draw? cairo_paint? clip? fill a rect?
   cairo_rectangle(destCairo, 0, 0,
     rect.size.width, rect.size.height);
