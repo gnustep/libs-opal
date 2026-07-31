@@ -241,9 +241,12 @@ void CGContextConcatCTM(CGContextRef ctx, CGAffineTransform transform)
     transform.b, transform.c, transform.d, transform.tx, transform.ty)
   cairo_matrix_t cmat;
 
+  /* cairo takes x' = xx*x + xy*y + x0 and y' = yx*x + yy*y + y0, so b belongs
+     in yx and c in xy, the way round the conversions in CGContextGetCTM and
+     CGContextGetUserSpaceToDeviceSpaceTransform already read them. */
   cmat.xx = transform.a;
-  cmat.xy = transform.b;
-  cmat.yx = transform.c;
+  cmat.yx = transform.b;
+  cmat.xy = transform.c;
   cmat.yy = transform.d;
   cmat.x0 = transform.tx;
   cmat.y0 = transform.ty;
