@@ -450,6 +450,10 @@ void CGContextSetInterpolationQuality(
   CGInterpolationQuality quality)
 {
   OPLOGCALL("ctx /*%p*/, %d", ctx, quality)
+  if (ctx && ctx->add)
+    {
+      ctx->add->interpolation = quality;
+    }
   OPRESTORELOGGING()
 }
 
@@ -1439,7 +1443,29 @@ void opal_draw_surface_in_rect(CGContextRef ctxt, CGRect rect, cairo_surface_t *
   cairo_matrix_translate(&patternMatrix, 0, -rect.size.height);
 
   cairo_pattern_set_matrix(pattern, &patternMatrix);
-  
+
+  if (ctxt->add != NULL)
+    {
+      switch (ctxt->add->interpolation)
+        {
+          case kCGInterpolationNone:
+            cairo_pattern_set_filter(pattern, CAIRO_FILTER_NEAREST);
+            break;
+          case kCGInterpolationLow:
+            cairo_pattern_set_filter(pattern, CAIRO_FILTER_FAST);
+            break;
+          case kCGInterpolationMedium:
+            cairo_pattern_set_filter(pattern, CAIRO_FILTER_GOOD);
+            break;
+          case kCGInterpolationHigh:
+            cairo_pattern_set_filter(pattern, CAIRO_FILTER_BEST);
+            break;
+          case kCGInterpolationDefault:
+          default:
+            break;
+        }
+    }
+
   // FIXME: do we always want this?
   cairo_pattern_set_extend(pattern, CAIRO_EXTEND_PAD);
 
