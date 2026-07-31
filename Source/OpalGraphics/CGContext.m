@@ -241,9 +241,12 @@ void CGContextConcatCTM(CGContextRef ctx, CGAffineTransform transform)
     transform.b, transform.c, transform.d, transform.tx, transform.ty)
   cairo_matrix_t cmat;
 
+  /* cairo takes x' = xx*x + xy*y + x0 and y' = yx*x + yy*y + y0, so b belongs
+     in yx and c in xy, the way round the conversions in CGContextGetCTM and
+     CGContextGetUserSpaceToDeviceSpaceTransform already read them. */
   cmat.xx = transform.a;
-  cmat.xy = transform.b;
-  cmat.yx = transform.c;
+  cmat.yx = transform.b;
+  cmat.xy = transform.c;
   cmat.yy = transform.d;
   cmat.x0 = transform.tx;
   cmat.y0 = transform.ty;
@@ -447,6 +450,10 @@ void CGContextSetInterpolationQuality(
   CGInterpolationQuality quality)
 {
   OPLOGCALL("ctx /*%p*/, %d", ctx, quality)
+  if (ctx && ctx->add)
+    {
+      ctx->add->interpolation = quality;
+    }
   OPRESTORELOGGING()
 }
 
@@ -486,9 +493,49 @@ void CGContextSetAllowsFontSmoothing(CGContextRef ctx, bool allowsFontSmoothing)
   OPRESTORELOGGING()
 }
 
+/* kCGBlendModePlusDarker has no cairo operator: it saturates at zero rather
+   than wrapping, which none of the cairo set does. It keeps the normal
+   operator so that it draws rather than drawing nothing. */
+static cairo_operator_t opal_cairo_operator(CGBlendMode mode)
+{
+  switch (mode)
+    {
+      case kCGBlendModeMultiply:       return CAIRO_OPERATOR_MULTIPLY;
+      case kCGBlendModeScreen:         return CAIRO_OPERATOR_SCREEN;
+      case kCGBlendModeOverlay:        return CAIRO_OPERATOR_OVERLAY;
+      case kCGBlendModeDarken:         return CAIRO_OPERATOR_DARKEN;
+      case kCGBlendModeLighten:        return CAIRO_OPERATOR_LIGHTEN;
+      case kCGBlendModeColorDodge:     return CAIRO_OPERATOR_COLOR_DODGE;
+      case kCGBlendModeColorBurn:      return CAIRO_OPERATOR_COLOR_BURN;
+      case kCGBlendModeSoftLight:      return CAIRO_OPERATOR_SOFT_LIGHT;
+      case kCGBlendModeHardLight:      return CAIRO_OPERATOR_HARD_LIGHT;
+      case kCGBlendModeDifference:     return CAIRO_OPERATOR_DIFFERENCE;
+      case kCGBlendModeExclusion:      return CAIRO_OPERATOR_EXCLUSION;
+      case kCGBlendModeHue:            return CAIRO_OPERATOR_HSL_HUE;
+      case kCGBlendModeSaturation:     return CAIRO_OPERATOR_HSL_SATURATION;
+      case kCGBlendModeColor:          return CAIRO_OPERATOR_HSL_COLOR;
+      case kCGBlendModeLuminosity:     return CAIRO_OPERATOR_HSL_LUMINOSITY;
+      case kCGBlendModeClear:          return CAIRO_OPERATOR_CLEAR;
+      case kCGBlendModeCopy:           return CAIRO_OPERATOR_SOURCE;
+      case kCGBlendModeSourceIn:       return CAIRO_OPERATOR_IN;
+      case kCGBlendModeSourceOut:      return CAIRO_OPERATOR_OUT;
+      case kCGBlendModeSourceAtop:     return CAIRO_OPERATOR_ATOP;
+      case kCGBlendModeDestinationOver:return CAIRO_OPERATOR_DEST_OVER;
+      case kCGBlendModeDestinationIn:  return CAIRO_OPERATOR_DEST_IN;
+      case kCGBlendModeDestinationOut: return CAIRO_OPERATOR_DEST_OUT;
+      case kCGBlendModeDestinationAtop:return CAIRO_OPERATOR_DEST_ATOP;
+      case kCGBlendModeXOR:            return CAIRO_OPERATOR_XOR;
+      case kCGBlendModePlusLighter:    return CAIRO_OPERATOR_ADD;
+      case kCGBlendModeNormal:
+      case kCGBlendModePlusDarker:
+      default:                         return CAIRO_OPERATOR_OVER;
+    }
+}
+
 void CGContextSetBlendMode(CGContextRef ctx, CGBlendMode mode)
 {
   OPLOGCALL("ctx /*%p*/, %d", ctx, mode)
+  cairo_set_operator(ctx->ct, opal_cairo_operator(mode));
   OPRESTORELOGGING()
 }
 
@@ -1396,7 +1443,29 @@ void opal_draw_surface_in_rect(CGContextRef ctxt, CGRect rect, cairo_surface_t *
   cairo_matrix_translate(&patternMatrix, 0, -rect.size.height);
 
   cairo_pattern_set_matrix(pattern, &patternMatrix);
-  
+
+  if (ctxt->add != NULL)
+    {
+      switch (ctxt->add->interpolation)
+        {
+          case kCGInterpolationNone:
+            cairo_pattern_set_filter(pattern, CAIRO_FILTER_NEAREST);
+            break;
+          case kCGInterpolationLow:
+            cairo_pattern_set_filter(pattern, CAIRO_FILTER_FAST);
+            break;
+          case kCGInterpolationMedium:
+            cairo_pattern_set_filter(pattern, CAIRO_FILTER_GOOD);
+            break;
+          case kCGInterpolationHigh:
+            cairo_pattern_set_filter(pattern, CAIRO_FILTER_BEST);
+            break;
+          case kCGInterpolationDefault:
+          default:
+            break;
+        }
+    }
+
   // FIXME: do we always want this?
   cairo_pattern_set_extend(pattern, CAIRO_EXTEND_PAD);
 
