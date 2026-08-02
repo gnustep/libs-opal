@@ -283,6 +283,10 @@ static FcPattern *opal_FcPatternCacheLookup(const char *name)
 - (int) ascent;
 {
   FT_Face ft_face = cairo_ft_scaled_font_lock_face(self->cairofont);
+  /* The typographic ascender, which is the measure -descent below reports the
+     other half of.  The bounding box top used here before is a different
+     thing: the highest point reached by any glyph in the face, which exceeds
+     the em for many fonts.  -fontBBox already reports that. */
   int result = ft_face->ascender;
   cairo_ft_scaled_font_unlock_face(self->cairofont);
   return result;
