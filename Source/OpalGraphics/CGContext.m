@@ -30,6 +30,8 @@
 
 #import "CGContext-private.h"
 #import "CGGradient-private.h"
+#import "CGShading-private.h"
+#import "CGFunction-private.h"
 #import "CGColor-private.h"
 #import "cairo/CairoFont.h"
 #import "OPLogging.h"
@@ -1593,10 +1595,86 @@ void CGContextDrawRadialGradient(
   OPRESTORELOGGING()
 }
 
+/* Sample the shading's function along the axis and add one Cairo colour stop
+   per sample, so that Cairo's linear interpolation approximates the (possibly
+   non-linear) function. */
+static void opal_AddShadingStops(cairo_pattern_t *pat, CGShadingRef shading)
+{
+  // FIXME: support other colorspaces by converting to deviceRGB
+  if (![CGColorSpaceCreateDeviceRGB() isEqual: OPShadingGetColorSpace(shading)])
+  {
+    NSLog(@"%s: Only DeviceRGB supported for shadings", __PRETTY_FUNCTION__);
+    return;
+  }
+
+  CGFunctionRef function = OPShadingGetFunction(shading);
+  const size_t numColorComps = 3; // DeviceRGB
+  const size_t rangeDim = OPFunctionGetRangeDimension(function);
+  const CGFloat *domain = OPFunctionGetDomain(function);
+  const CGFloat t0 = domain ? domain[0] : 0.0;
+  const CGFloat t1 = domain ? domain[1] : 1.0;
+
+  const int samples = 64;
+  for (int i = 0; i <= samples; i++)
+  {
+    CGFloat offset = (CGFloat)i / samples;
+    CGFloat in = t0 + offset * (t1 - t0);
+    CGFloat out[16] = {0};
+    OPFunctionEvaluate(function, &in, out);
+
+    /* A function whose range includes alpha supplies it last, otherwise the
+       colour is opaque. */
+    CGFloat alpha = (rangeDim > numColorComps) ? out[numColorComps] : 1.0;
+    cairo_pattern_add_color_stop_rgba(pat, offset, out[0], out[1], out[2], alpha);
+  }
+}
+
 void CGContextDrawShading(
   CGContextRef ctx,
-  CGShadingRef shading
-);
+  CGShadingRef shading)
+{
+  OPLOGCALL("ctx /*%p*/, <shading>", ctx)
+  if (!shading)
+  {
+    OPRESTORELOGGING()
+    return;
+  }
+
+  CGPoint start = OPShadingGetStart(shading);
+  CGPoint end = OPShadingGetEnd(shading);
+  cairo_pattern_t *pat;
+
+  if (OPShadingIsRadial(shading))
+  {
+    pat = cairo_pattern_create_radial(start.x, start.y,
+      OPShadingGetStartRadius(shading), end.x, end.y,
+      OPShadingGetEndRadius(shading));
+  }
+  else
+  {
+    pat = cairo_pattern_create_linear(start.x, start.y, end.x, end.y);
+  }
+
+  opal_AddShadingStops(pat, shading);
+
+  /* Without extension the area beyond the shading is left untouched; with it
+     the end colours fill outward.  Cairo only offers a symmetric choice, so
+     pad only when both ends extend. */
+  if (OPShadingGetExtendStart(shading) && OPShadingGetExtendEnd(shading))
+  {
+    cairo_pattern_set_extend(pat, CAIRO_EXTEND_PAD);
+  }
+  else
+  {
+    cairo_pattern_set_extend(pat, CAIRO_EXTEND_NONE);
+  }
+
+  cairo_set_source(ctx->ct, pat);
+  cairo_paint(ctx->ct);
+
+  cairo_pattern_destroy(pat);
+  OPRESTORELOGGING()
+}
 
 void CGContextSetFont(CGContextRef ctx, CGFontRef font)
 {
