@@ -285,8 +285,16 @@ NSString *OPFontVariationAxisNameKey = @"NSCTFontVariationAxisName";
 
 - (CGFloat) pointSize
 {
-  // NOTE: 0 is returned if point size is not defined
-  return [[self objectForKey: OPFontSizeAttribute] doubleValue];
+  /* A descriptor built through CoreText carries the size under the CoreText
+     key, one built through the OPFont attributes under the OPFont key.
+     NOTE: 0 is returned if point size is not defined */
+  id size = [self objectForKey: (id)kCTFontSizeAttribute];
+
+  if (nil == size)
+  {
+    size = [self objectForKey: OPFontSizeAttribute];
+  }
+  return [size doubleValue];
 }
 
 - (NSString *) postscriptName
