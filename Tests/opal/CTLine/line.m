@@ -11,7 +11,13 @@
 #import <Foundation/NSArray.h>
 
 #include <CoreText/CoreText.h>
+#include <CoreGraphics/CGBitmapContext.h>
+#include <CoreGraphics/CGColorSpace.h>
+#include <CoreGraphics/CGContext.h>
 #include <stdlib.h>
+
+#define W 200
+#define H 60
 
 static NSAttributedString *styled(NSString *text, CGFloat size)
 {
@@ -85,6 +91,42 @@ int main(void)
   [(id)line release];
 
   END_SET("a line of two runs")
+
+  START_SET("drawing a line")
+
+  CGColorSpaceRef space = CGColorSpaceCreateDeviceRGB();
+  unsigned char *buffer = calloc(W * H * 4, 1);
+  CGContextRef c = CGBitmapContextCreate(buffer, W, H, 8, W * 4, space,
+                                         kCGImageAlphaPremultipliedLast);
+  NSAttributedString *as = styled(@"Hi", 24);
+  CTLineRef line;
+  unsigned char *drawn;
+  int i, painted = 0;
+
+  CGColorSpaceRelease(space);
+  if (as == nil)
+    SKIP("no usable font available to typeset with")
+
+  CGContextSetRGBFillColor(c, 1, 1, 1, 1);
+  CGContextSetTextPosition(c, 10, 20);
+  line = CTLineCreateWithAttributedString((CFAttributedStringRef)as);
+  CTLineDraw(line, c);
+
+  /* The data accessor flushes what cairo drew into the buffer; the buffer
+     itself is not written until then. */
+  drawn = (unsigned char *)CGBitmapContextGetData(c);
+  for (i = 0; i < W * H; i++)
+    if (drawn[i * 4] || drawn[i * 4 + 1] || drawn[i * 4 + 2]
+        || drawn[i * 4 + 3])
+      painted++;
+  PASS(painted > 0,
+       "a line draws glyphs without the caller selecting a font first");
+
+  [(id)line release];
+  CGContextRelease(c);
+  free(buffer);
+
+  END_SET("drawing a line")
 
   return 0;
 }

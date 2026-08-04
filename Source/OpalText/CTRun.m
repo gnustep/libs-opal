@@ -160,6 +160,8 @@
 
 - (void)drawRange: (CFRange)range onContext: (CGContextRef)ctx
 {
+  CTFontRef font = [_attributes objectForKey: (id)kCTFontAttributeName];
+
   if (range.length == 0)
   {
     range.length = _count;
@@ -167,8 +169,23 @@
 
   if (range.location > _count || (range.location + range.length) > _count)
   {
-    NSLog(@"CTRunDraw range out of bounds"); 
+    NSLog(@"CTRunDraw range out of bounds");
     return;
+  }
+
+  /* The run carries the font it was laid out with, so the caller does not
+     have to select one on the context first.  Nothing is drawn while the
+     context's font size is zero, so that is set either way. */
+  if (font != NULL)
+  {
+    CGFontRef graphicsFont = CTFontCopyGraphicsFont(font, NULL);
+
+    if (graphicsFont != NULL)
+    {
+      CGContextSetFont(ctx, graphicsFont);
+      CGFontRelease(graphicsFont);
+    }
+    CGContextSetFontSize(ctx, CTFontGetSize(font));
   }
 
   CGContextShowGlyphsAtPositions(ctx, _glyphs + range.location, _positions, range.length);
