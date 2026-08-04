@@ -579,6 +579,30 @@ static const NSString *kOPFreeTypeLibrary = @"OPFreeTypeLibrary";
   }
 }
 
+- (CGFontRef)graphicsFontWithDescriptor: (OPFontDescriptor**)descriptorOut
+{
+  /* The descriptor answers the family it resolved to, which is the name a
+     graphics font is built from. */
+  NSString *name = [_descriptor objectForKey:
+			 (NSString *)kCTFontFamilyNameAttribute];
+
+  if (nil == name)
+  {
+    name = [_descriptor objectForKey: (NSString *)kCTFontNameAttribute];
+  }
+
+  if (descriptorOut != NULL)
+  {
+    *descriptorOut = _descriptor;
+  }
+
+  if (nil == name)
+  {
+    return NULL;
+  }
+  return CGFontCreateWithFontName((CFStringRef)name);
+}
+
 - (bool)getGraphicsGlyphsForCharacters: (const unichar *)characters
                         graphicsGlyphs: (const CGGlyph *)glyphs
                                  count: (CFIndex)count
