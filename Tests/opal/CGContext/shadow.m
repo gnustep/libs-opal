@@ -68,6 +68,24 @@ static Box boxOf(unsigned char *d, int w, int h, int fromX, int toX)
   return b;
 }
 
+/* Pixels of the white shadow within the columns given.  Safe only where the
+   radius is 0: a blurred shadow fades out to an alpha of 1, where the
+   premultiplied colour rounds to zero and reads as black. */
+static int whiteCount(unsigned char *d, int w, int h, int fromX, int toX)
+{
+  int x, y, count = 0;
+
+  for (y = 0; y < h; y++)
+    for (x = fromX; x < toX; x++)
+      {
+        unsigned char *p = d + (y * w + x) * 4;
+
+        if (p[3] > 0 && p[0] == p[3] && p[1] == p[3] && p[2] == p[3])
+          count++;
+      }
+  return count;
+}
+
 static void black(CGContextRef ctx, CGColorSpaceRef dev)
 {
   CGFloat c[] = { 0, 0, 0, 1 };
@@ -212,6 +230,81 @@ int main(void)
   PASS(shadow.count == 0, "a shadow given no colour is not drawn");
   CGContextRelease(ctx);
   free(data);
+
+  /* A transparency layer is composited using the context's shadow, so what
+     it holds casts one shadow between them rather than one apiece.  Here a
+     second rect is drawn to the right of the first and the offset carries the
+     first one's shadow over it: drawn plainly that shadow lands on top of the
+     second rect, and out of a transparency layer it does not, because the
+     rect it would fall on is part of the same composite. */
+  {
+    int strip0 = 145, strip1 = 175;
+
+    ctx = makeCtx(dev, 200, 200, &data);
+    black(ctx, dev);
+    CGContextSetShadowWithColor(ctx, CGSizeMake(OFFSET, 0), 0, white);
+    CGContextFillRect(ctx, CGRectMake(140, 70, 40, 40));
+    CGContextFillRect(ctx, CGRectMake(70, 70, 40, 40));
+    PASS(whiteCount(pixels(ctx), 200, 200, strip0, strip1) > 0,
+         "drawn plainly, one shadow falls over what was drawn before it");
+    CGContextRelease(ctx);
+    free(data);
+
+    ctx = makeCtx(dev, 200, 200, &data);
+    black(ctx, dev);
+    CGContextSetShadowWithColor(ctx, CGSizeMake(OFFSET, 0), 0, white);
+    CGContextBeginTransparencyLayer(ctx, NULL);
+    CGContextFillRect(ctx, CGRectMake(140, 70, 40, 40));
+    CGContextFillRect(ctx, CGRectMake(70, 70, 40, 40));
+    CGContextEndTransparencyLayer(ctx);
+    /* The gap between the two rects, where the first one's shadow lands and
+       neither rect covers it. */
+    PASS(whiteCount(pixels(ctx), 200, 200, 130, 139) > 0,
+         "a transparency layer casts a shadow");
+    PASS(whiteCount(pixels(ctx), 200, 200, strip0, strip1) == 0,
+         "and casts one for everything in it rather than one apiece");
+    CGContextRelease(ctx);
+    free(data);
+  }
+
+  /* The global alpha reaches that shadow too, the layer being composited
+     with it. */
+  {
+    int x, y, plainPeak = 0, fadedPeak = 0;
+    unsigned char *p;
+
+    ctx = makeCtx(dev, 200, 200, &data);
+    black(ctx, dev);
+    CGContextSetShadowWithColor(ctx, CGSizeMake(OFFSET, OFFSET), 0, white);
+    CGContextBeginTransparencyLayer(ctx, NULL);
+    CGContextFillRect(ctx, CGRectMake(70, 70, 40, 40));
+    CGContextEndTransparencyLayer(ctx);
+    p = pixels(ctx);
+    for (y = 0; y < 200; y++)
+      for (x = 120; x < 200; x++)
+        if (p[(y * 200 + x) * 4 + 3] > plainPeak)
+          plainPeak = p[(y * 200 + x) * 4 + 3];
+    CGContextRelease(ctx);
+    free(data);
+
+    ctx = makeCtx(dev, 200, 200, &data);
+    black(ctx, dev);
+    CGContextSetAlpha(ctx, 0.5);
+    CGContextSetShadowWithColor(ctx, CGSizeMake(OFFSET, OFFSET), 0, white);
+    CGContextBeginTransparencyLayer(ctx, NULL);
+    CGContextFillRect(ctx, CGRectMake(70, 70, 40, 40));
+    CGContextEndTransparencyLayer(ctx);
+    p = pixels(ctx);
+    for (y = 0; y < 200; y++)
+      for (x = 120; x < 200; x++)
+        if (p[(y * 200 + x) * 4 + 3] > fadedPeak)
+          fadedPeak = p[(y * 200 + x) * 4 + 3];
+    CGContextRelease(ctx);
+    free(data);
+
+    PASS(plainPeak == 255 && fadedPeak >= 126 && fadedPeak <= 130,
+         "a global alpha of one half halves that shadow");
+  }
 
   END_SET("CGContext shadow")
 

@@ -46,6 +46,8 @@ extern CGRect opal_CGImageGetSourceRect(CGImageRef image);
 static inline void set_color(cairo_pattern_t **cp, CGColorRef clr, double alpha);
 static void start_shadow(CGContextRef ctx);
 static void end_shadow(CGContextRef ctx);
+static void paint_with_shadow(CGContextRef ctx, cairo_pattern_t *pattern,
+                              double alpha);
 
 
 @implementation CGContext
@@ -2054,15 +2056,24 @@ void CGContextEndTransparencyLayer(CGContextRef ctx)
 {
   OPLOGCALL("ctx /*%p*/", ctx)
   cairo_pattern_t *group = cairo_pop_group(ctx->ct);
-  
+
   // Now undo the change to alpha and shadow state
   CGContextRestoreGState(ctx);
-  
-  // Paint the contents of the transparency layer.
-  cairo_set_source(ctx->ct, group);
+
+  /* Paint the contents of the transparency layer, composited using the
+     global alpha and the shadow the context carries, so that what the layer
+     holds casts one shadow between it rather than one apiece. */
+  if (ctx->add->shadow_cp)
+    {
+      paint_with_shadow(ctx, group, ctx->add->alpha);
+    }
+  else
+    {
+      cairo_set_source(ctx->ct, group);
+      cairo_paint_with_alpha(ctx->ct, ctx->add->alpha);
+    }
   cairo_pattern_destroy(group);
-  cairo_paint_with_alpha(ctx->ct, ctx->add->alpha);
-  
+
   // Undo the clipping (if any)
   cairo_restore(ctx->ct);
   OPRESTORELOGGING()
@@ -2206,9 +2217,9 @@ static void start_shadow(CGContextRef ctx)
  * CTM, so the mask is placed with the matrix set aside; base space has y
  * running up where cairo's device space has it running down.
  */
-static void end_shadow(CGContextRef ctx)
+static void paint_with_shadow(CGContextRef ctx, cairo_pattern_t *pattern,
+                              double alpha)
 {
-  cairo_pattern_t *pattern = cairo_pop_group(ctx->ct);
   cairo_surface_t *alphaSurface;
   cairo_matrix_t matrix, shift;
   cairo_t *alphaCt;
@@ -2261,7 +2272,15 @@ static void end_shadow(CGContextRef ctx)
 
       cairo_save(ctx->ct);
       cairo_identity_matrix(ctx->ct);
-      cairo_set_source(ctx->ct, ctx->add->shadow_cp);
+      /* The colour carries the alpha the content is painted with, there
+         being no alpha to give cairo_mask_surface. */
+      {
+        double red = 0, green = 0, blue = 0, shadowAlpha = 1;
+
+        cairo_pattern_get_rgba(ctx->add->shadow_cp, &red, &green, &blue,
+                               &shadowAlpha);
+        cairo_set_source_rgba(ctx->ct, red, green, blue, shadowAlpha * alpha);
+      }
       cairo_mask_surface(ctx->ct, alphaSurface,
                          x + ctx->add->shadow_offset.width,
                          y - ctx->add->shadow_offset.height);
@@ -2272,6 +2291,17 @@ static void end_shadow(CGContextRef ctx)
 
   // Draw the actual content
   cairo_set_source(ctx->ct, pattern);
-  cairo_paint(ctx->ct);
+  cairo_paint_with_alpha(ctx->ct, alpha);
+}
+
+/**
+ * Draws everything between the last start_shadow call and this function
+ * with a shadow.
+ */
+static void end_shadow(CGContextRef ctx)
+{
+  cairo_pattern_t *pattern = cairo_pop_group(ctx->ct);
+
+  paint_with_shadow(ctx, pattern, 1.0);
   cairo_pattern_destroy(pattern);
 }
