@@ -47,6 +47,9 @@ struct ct_additions
   CGFloat font_size;
   CGFloat char_spacing;
   CGTextDrawingMode text_mode;
+  CGSize pattern_phase;
+  CGColorSpaceRef fill_cs;
+  CGColorSpaceRef stroke_cs;
   CGInterpolationQuality interpolation;
 };
 

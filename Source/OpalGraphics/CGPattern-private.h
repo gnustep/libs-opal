@@ -1,4 +1,4 @@
-/** <title>CGShading-private</title>
+/** <title>CGPattern-private</title>
 
  <abstract>C Interface to graphics drawing library</abstract>
 
@@ -22,22 +22,13 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#include "CoreGraphics/CGShading.h"
+#include "CoreGraphics/CGPattern.h"
 
-/* YES for a radial shading, NO for an axial one. */
-bool OPShadingIsRadial(CGShadingRef shading);
+CGRect OPPatternGetBounds(CGPatternRef pattern);
+CGAffineTransform OPPatternGetMatrix(CGPatternRef pattern);
+CGFloat OPPatternGetXStep(CGPatternRef pattern);
+CGFloat OPPatternGetYStep(CGPatternRef pattern);
+bool OPPatternIsColored(CGPatternRef pattern);
 
-CGColorSpaceRef OPShadingGetColorSpace(CGShadingRef shading);
-CGFunctionRef OPShadingGetFunction(CGShadingRef shading);
-
-/* The axis endpoints (axial) or the two circle centres (radial). */
-CGPoint OPShadingGetStart(CGShadingRef shading);
-CGPoint OPShadingGetEnd(CGShadingRef shading);
-
-/* The two circle radii (radial only; zero for an axial shading). */
-CGFloat OPShadingGetStartRadius(CGShadingRef shading);
-CGFloat OPShadingGetEndRadius(CGShadingRef shading);
-
-/* Whether to fill beyond the start/end of the shading with its end colours. */
-bool OPShadingGetExtendStart(CGShadingRef shading);
-bool OPShadingGetExtendEnd(CGShadingRef shading);
+/* Run the pattern's draw callback, drawing one cell into ctx. */
+void OPPatternDrawInContext(CGPatternRef pattern, CGContextRef ctx);
