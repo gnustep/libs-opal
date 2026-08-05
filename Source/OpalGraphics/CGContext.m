@@ -30,7 +30,8 @@
 
 #import "CGContext-private.h"
 #import "CGGradient-private.h"
-#import "CGPattern-private.h"
+#import "CGShading-private.h"
+#import "CGFunction-private.h"
 #import "CGColor-private.h"
 #import "cairo/CairoFont.h"
 #import "OPLogging.h"
@@ -248,9 +249,12 @@ void CGContextConcatCTM(CGContextRef ctx, CGAffineTransform transform)
     transform.b, transform.c, transform.d, transform.tx, transform.ty)
   cairo_matrix_t cmat;
 
+  /* cairo takes x' = xx*x + xy*y + x0 and y' = yx*x + yy*y + y0, so b belongs
+     in yx and c in xy, the way round the conversions in CGContextGetCTM and
+     CGContextGetUserSpaceToDeviceSpaceTransform already read them. */
   cmat.xx = transform.a;
-  cmat.xy = transform.b;
-  cmat.yx = transform.c;
+  cmat.yx = transform.b;
+  cmat.xy = transform.c;
   cmat.yy = transform.d;
   cmat.x0 = transform.tx;
   cmat.y0 = transform.ty;
@@ -458,6 +462,10 @@ void CGContextSetInterpolationQuality(
   CGInterpolationQuality quality)
 {
   OPLOGCALL("ctx /*%p*/, %d", ctx, quality)
+  if (ctx && ctx->add)
+    {
+      ctx->add->interpolation = quality;
+    }
   OPRESTORELOGGING()
 }
 
@@ -591,9 +599,49 @@ void CGContextSetAllowsFontSmoothing(CGContextRef ctx, bool allowsFontSmoothing)
   OPRESTORELOGGING()
 }
 
+/* kCGBlendModePlusDarker has no cairo operator: it saturates at zero rather
+   than wrapping, which none of the cairo set does. It keeps the normal
+   operator so that it draws rather than drawing nothing. */
+static cairo_operator_t opal_cairo_operator(CGBlendMode mode)
+{
+  switch (mode)
+    {
+      case kCGBlendModeMultiply:       return CAIRO_OPERATOR_MULTIPLY;
+      case kCGBlendModeScreen:         return CAIRO_OPERATOR_SCREEN;
+      case kCGBlendModeOverlay:        return CAIRO_OPERATOR_OVERLAY;
+      case kCGBlendModeDarken:         return CAIRO_OPERATOR_DARKEN;
+      case kCGBlendModeLighten:        return CAIRO_OPERATOR_LIGHTEN;
+      case kCGBlendModeColorDodge:     return CAIRO_OPERATOR_COLOR_DODGE;
+      case kCGBlendModeColorBurn:      return CAIRO_OPERATOR_COLOR_BURN;
+      case kCGBlendModeSoftLight:      return CAIRO_OPERATOR_SOFT_LIGHT;
+      case kCGBlendModeHardLight:      return CAIRO_OPERATOR_HARD_LIGHT;
+      case kCGBlendModeDifference:     return CAIRO_OPERATOR_DIFFERENCE;
+      case kCGBlendModeExclusion:      return CAIRO_OPERATOR_EXCLUSION;
+      case kCGBlendModeHue:            return CAIRO_OPERATOR_HSL_HUE;
+      case kCGBlendModeSaturation:     return CAIRO_OPERATOR_HSL_SATURATION;
+      case kCGBlendModeColor:          return CAIRO_OPERATOR_HSL_COLOR;
+      case kCGBlendModeLuminosity:     return CAIRO_OPERATOR_HSL_LUMINOSITY;
+      case kCGBlendModeClear:          return CAIRO_OPERATOR_CLEAR;
+      case kCGBlendModeCopy:           return CAIRO_OPERATOR_SOURCE;
+      case kCGBlendModeSourceIn:       return CAIRO_OPERATOR_IN;
+      case kCGBlendModeSourceOut:      return CAIRO_OPERATOR_OUT;
+      case kCGBlendModeSourceAtop:     return CAIRO_OPERATOR_ATOP;
+      case kCGBlendModeDestinationOver:return CAIRO_OPERATOR_DEST_OVER;
+      case kCGBlendModeDestinationIn:  return CAIRO_OPERATOR_DEST_IN;
+      case kCGBlendModeDestinationOut: return CAIRO_OPERATOR_DEST_OUT;
+      case kCGBlendModeDestinationAtop:return CAIRO_OPERATOR_DEST_ATOP;
+      case kCGBlendModeXOR:            return CAIRO_OPERATOR_XOR;
+      case kCGBlendModePlusLighter:    return CAIRO_OPERATOR_ADD;
+      case kCGBlendModeNormal:
+      case kCGBlendModePlusDarker:
+      default:                         return CAIRO_OPERATOR_OVER;
+    }
+}
+
 void CGContextSetBlendMode(CGContextRef ctx, CGBlendMode mode)
 {
   OPLOGCALL("ctx /*%p*/, %d", ctx, mode)
+  cairo_set_operator(ctx->ct, opal_cairo_operator(mode));
   OPRESTORELOGGING()
 }
 
@@ -1533,7 +1581,29 @@ void opal_draw_surface_in_rect(CGContextRef ctxt, CGRect rect, cairo_surface_t *
   cairo_matrix_translate(&patternMatrix, 0, -rect.size.height);
 
   cairo_pattern_set_matrix(pattern, &patternMatrix);
-  
+
+  if (ctxt->add != NULL)
+    {
+      switch (ctxt->add->interpolation)
+        {
+          case kCGInterpolationNone:
+            cairo_pattern_set_filter(pattern, CAIRO_FILTER_NEAREST);
+            break;
+          case kCGInterpolationLow:
+            cairo_pattern_set_filter(pattern, CAIRO_FILTER_FAST);
+            break;
+          case kCGInterpolationMedium:
+            cairo_pattern_set_filter(pattern, CAIRO_FILTER_GOOD);
+            break;
+          case kCGInterpolationHigh:
+            cairo_pattern_set_filter(pattern, CAIRO_FILTER_BEST);
+            break;
+          case kCGInterpolationDefault:
+          default:
+            break;
+        }
+    }
+
   // FIXME: do we always want this?
   cairo_pattern_set_extend(pattern, CAIRO_EXTEND_PAD);
 
@@ -1661,10 +1731,86 @@ void CGContextDrawRadialGradient(
   OPRESTORELOGGING()
 }
 
+/* Sample the shading's function along the axis and add one Cairo colour stop
+   per sample, so that Cairo's linear interpolation approximates the (possibly
+   non-linear) function. */
+static void opal_AddShadingStops(cairo_pattern_t *pat, CGShadingRef shading)
+{
+  // FIXME: support other colorspaces by converting to deviceRGB
+  if (![CGColorSpaceCreateDeviceRGB() isEqual: OPShadingGetColorSpace(shading)])
+  {
+    NSLog(@"%s: Only DeviceRGB supported for shadings", __PRETTY_FUNCTION__);
+    return;
+  }
+
+  CGFunctionRef function = OPShadingGetFunction(shading);
+  const size_t numColorComps = 3; // DeviceRGB
+  const size_t rangeDim = OPFunctionGetRangeDimension(function);
+  const CGFloat *domain = OPFunctionGetDomain(function);
+  const CGFloat t0 = domain ? domain[0] : 0.0;
+  const CGFloat t1 = domain ? domain[1] : 1.0;
+
+  const int samples = 64;
+  for (int i = 0; i <= samples; i++)
+  {
+    CGFloat offset = (CGFloat)i / samples;
+    CGFloat in = t0 + offset * (t1 - t0);
+    CGFloat out[16] = {0};
+    OPFunctionEvaluate(function, &in, out);
+
+    /* A function whose range includes alpha supplies it last, otherwise the
+       colour is opaque. */
+    CGFloat alpha = (rangeDim > numColorComps) ? out[numColorComps] : 1.0;
+    cairo_pattern_add_color_stop_rgba(pat, offset, out[0], out[1], out[2], alpha);
+  }
+}
+
 void CGContextDrawShading(
   CGContextRef ctx,
-  CGShadingRef shading
-);
+  CGShadingRef shading)
+{
+  OPLOGCALL("ctx /*%p*/, <shading>", ctx)
+  if (!shading)
+  {
+    OPRESTORELOGGING()
+    return;
+  }
+
+  CGPoint start = OPShadingGetStart(shading);
+  CGPoint end = OPShadingGetEnd(shading);
+  cairo_pattern_t *pat;
+
+  if (OPShadingIsRadial(shading))
+  {
+    pat = cairo_pattern_create_radial(start.x, start.y,
+      OPShadingGetStartRadius(shading), end.x, end.y,
+      OPShadingGetEndRadius(shading));
+  }
+  else
+  {
+    pat = cairo_pattern_create_linear(start.x, start.y, end.x, end.y);
+  }
+
+  opal_AddShadingStops(pat, shading);
+
+  /* Without extension the area beyond the shading is left untouched; with it
+     the end colours fill outward.  Cairo only offers a symmetric choice, so
+     pad only when both ends extend. */
+  if (OPShadingGetExtendStart(shading) && OPShadingGetExtendEnd(shading))
+  {
+    cairo_pattern_set_extend(pat, CAIRO_EXTEND_PAD);
+  }
+  else
+  {
+    cairo_pattern_set_extend(pat, CAIRO_EXTEND_NONE);
+  }
+
+  cairo_set_source(ctx->ct, pat);
+  cairo_paint(ctx->ct);
+
+  cairo_pattern_destroy(pat);
+  OPRESTORELOGGING()
+}
 
 void CGContextSetFont(CGContextRef ctx, CGFontRef font)
 {

@@ -483,11 +483,15 @@ bool CGImageIsMask(CGImageRef image)
 
 size_t CGImageGetWidth(CGImageRef image)
 {
+  if (!CGRectIsNull(image->crop))
+    return image->crop.size.width;
   return image->width;
 }
 
 size_t CGImageGetHeight(CGImageRef image)
 {
+  if (!CGRectIsNull(image->crop))
+    return image->crop.size.height;
   return image->height;
 }
 
@@ -558,8 +562,8 @@ cairo_surface_t *opal_CGImageGetSurfaceForImage(CGImageRef img, cairo_surface_t 
   if (NULL == img->surf)
   {
     cairo_surface_t *memSurf = cairo_image_surface_create(CAIRO_FORMAT_ARGB32,
-                                           CGImageGetWidth(img),
-                                           CGImageGetHeight(img));
+                                           img->width,
+                                           img->height);
     if (cairo_surface_status(memSurf) != CAIRO_STATUS_SUCCESS)
     {
       NSLog(@"Cairo error creating image\n");
@@ -569,8 +573,8 @@ cairo_surface_t *opal_CGImageGetSurfaceForImage(CGImageRef img, cairo_surface_t 
     cairo_surface_flush(memSurf); // going to modify the surface outside of cairo
 
     const unsigned char *srcData = OPDataProviderGetBytePointer(img->dp);
-    const size_t srcWidth = CGImageGetWidth(img);
-    const size_t srcHeight = CGImageGetHeight(img);
+    const size_t srcWidth = img->width;
+    const size_t srcHeight = img->height;
     const size_t srcBitsPerComponent = CGImageGetBitsPerComponent(img);
     const size_t srcBitsPerPixel = CGImageGetBitsPerPixel(img);
     const size_t srcBytesPerRow = CGImageGetBytesPerRow(img);

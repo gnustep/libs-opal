@@ -349,7 +349,10 @@ CGFloat CTFontGetAscent(CTFontRef font)
 
 CGFloat CTFontGetDescent(CTFontRef font)
 {
-  return [font descender];
+  /* CoreText reports the descent as a positive distance below the baseline,
+     where the font's own descender is negative.  CGFontGetDescent keeps the
+     negative value, which is the one CoreGraphics reports. */
+  return -[font descender];
 }
 
 CGFloat CTFontGetCapHeight(CTFontRef font)

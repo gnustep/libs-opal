@@ -50,6 +50,7 @@ struct ct_additions
   CGSize pattern_phase;
   CGColorSpaceRef fill_cs;
   CGColorSpaceRef stroke_cs;
+  CGInterpolationQuality interpolation;
 };
 
 @interface CGContext : NSObject

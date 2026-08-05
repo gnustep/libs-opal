@@ -157,7 +157,28 @@ double CTLineGetTypographicBounds(
 	CGFloat* descent,
 	CGFloat* leading)
 {
-  return 0;
+  NSArray *runs = [line glyphRuns];
+  NSUInteger i, count = [runs count];
+  CGFloat maxAscent = 0, maxDescent = 0, maxLeading = 0;
+  double width = 0;
+
+  /* The line is as wide as its runs together, and as tall as the tallest of
+     them. */
+  for (i = 0; i < count; i++)
+  {
+    CTRunRef run = [runs objectAtIndex: i];
+    CGFloat a = 0, d = 0, l = 0;
+
+    width += CTRunGetTypographicBounds(run, CFRangeMake(0, 0), &a, &d, &l);
+    if (a > maxAscent) maxAscent = a;
+    if (d > maxDescent) maxDescent = d;
+    if (l > maxLeading) maxLeading = l;
+  }
+
+  if (ascent) *ascent = maxAscent;
+  if (descent) *descent = maxDescent;
+  if (leading) *leading = maxLeading;
+  return width;
 }
 
 double CTLineGetTrailingWhitespaceWidth(CTLineRef line)
