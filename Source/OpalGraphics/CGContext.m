@@ -33,6 +33,7 @@
 #import "CGShading-private.h"
 #import "CGFunction-private.h"
 #import "CGColor-private.h"
+#import "CGPattern-private.h"
 #import "cairo/CairoFont.h"
 #import "OPLogging.h"
 
