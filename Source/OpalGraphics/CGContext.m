@@ -1402,7 +1402,7 @@ void CGContextSetFillColorSpace(CGContextRef ctx, CGColorSpaceRef colorspace)
 
   nc = CGColorSpaceGetNumberOfComponents(colorspace);
   components = calloc(nc+1, sizeof(CGFloat));
-  if (components) {
+  if (!components) {
     NSLog(@"%s: calloc failed", __PRETTY_FUNCTION__);
     return;
   }
@@ -1440,7 +1440,7 @@ void CGContextSetStrokeColorSpace(CGContextRef ctx, CGColorSpaceRef colorspace)
 
   nc = CGColorSpaceGetNumberOfComponents(colorspace);
   components = calloc(nc+1, sizeof(CGFloat));
-  if (components) {
+  if (!components) {
     NSLog(@"%s: calloc failed", __PRETTY_FUNCTION__);
     return;
   }
