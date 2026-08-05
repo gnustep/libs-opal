@@ -2,10 +2,10 @@
 
    <abstract>C Interface to graphics drawing library</abstract>
 
-   Copyright <copy>(C) 2010 Free Software Foundation, Inc.</copy>
+   Copyright <copy>(C) 2026 Free Software Foundation, Inc.</copy>
 
-   Author: Eric Wasylishen <ewasylishen@gmail.com>
-   Date: July, 2010
+   Author: Todd White <todd.white@thalion.global>
+   Date: July 2026
 
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
