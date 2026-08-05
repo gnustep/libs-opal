@@ -45,7 +45,7 @@ extern CGRect opal_CGImageGetSourceRect(CGImageRef image);
 
 static inline void set_color(cairo_pattern_t **cp, CGColorRef clr, double alpha);
 static void start_shadow(CGContextRef ctx);
-static void end_shadow(CGContextRef ctx, CGRect bounds);
+static void end_shadow(CGContextRef ctx);
 
 
 @implementation CGContext
@@ -338,6 +338,8 @@ void CGContextSaveGState(CGContextRef ctx)
   cairo_pattern_reference(ctadd->fill_cp);
   CGColorRetain(ctadd->stroke_color);
   cairo_pattern_reference(ctadd->stroke_cp);
+  CGColorRetain(ctadd->shadow_color);
+  cairo_pattern_reference(ctadd->shadow_cp);
   ctadd->next = ctx->add;
   ctx->add = ctadd;
   OPRESTORELOGGING()
@@ -362,6 +364,8 @@ void CGContextRestoreGState(CGContextRef ctx)
   cairo_pattern_destroy(ctx->add->fill_cp);
   CGColorRelease(ctx->add->stroke_color);
   cairo_pattern_destroy(ctx->add->stroke_cp);
+  CGColorRelease(ctx->add->shadow_color);
+  cairo_pattern_destroy(ctx->add->shadow_cp);
   ctadd = ctx->add->next;
   free(ctx->add);
   ctx->add = ctadd;
@@ -586,7 +590,7 @@ void CGContextSetShadow(
 {  
   OPLOGCALL("ctx /*%p*/, CGSizeMake(%g, %g), %g", ctx, offset.width, offset.height,
             radius)
-  CGColorRef defaultShadowColor = CGColorCreateGenericGray(0, 0.3);
+  CGColorRef defaultShadowColor = CGColorCreateGenericGray(0, 1.0 / 3.0);
   CGContextSetShadowWithColor(ctx, offset, radius, defaultShadowColor);
   CGColorRelease(defaultShadowColor);
   OPRESTORELOGGING()
@@ -603,10 +607,19 @@ void CGContextSetShadowWithColor(
   CGColorRelease(ctx->add->shadow_color);
   ctx->add->shadow_color = color;
   CGColorRetain(color);
-  
+
   ctx->add->shadow_offset = offset;
   ctx->add->shadow_radius = radius;
-  set_color(&ctx->add->shadow_cp, color, 1.0);
+  if (color)
+    {
+      set_color(&ctx->add->shadow_cp, color, 1.0);
+    }
+  else
+    {
+      /* A NULL color turns the shadow off. */
+      cairo_pattern_destroy(ctx->add->shadow_cp);
+      ctx->add->shadow_cp = NULL;
+    }
   OPRESTORELOGGING()
 }
 
@@ -848,7 +861,7 @@ void CGContextStrokePath(CGContextRef ctx)
   cairo_stroke(ctx->ct);
   
   if (ctx->add->shadow_cp) {
-    end_shadow(ctx, CGRectMake(0,0,500,500)); //FIXME
+    end_shadow(ctx);
   }
   
   cret = cairo_status(ctx->ct);
@@ -889,7 +902,7 @@ static void fill_path(CGContextRef ctx, int eorule, int preserve)
   if (!preserve) cairo_new_path(ctx->ct);
   
   if (ctx->add->shadow_cp) {
-    end_shadow(ctx, CGRectMake(0,0,500,500)); //FIXME
+    end_shadow(ctx);
   }
   
   cret = cairo_status(ctx->ct);
@@ -2126,7 +2139,7 @@ static inline void blur_1D(unsigned char *input, unsigned char *output,
     sum += input[stride * MAX(0,MIN(width-1,i))];
   }
   for (i = 0; i < width; i++) {
-    output[stride * i] = (sum / ((2*radius) + 1));
+    output[stride * i] = (sum + radius) / ((2*radius) + 1);
     sum += input[stride * MAX(0,MIN(width-1, i+1+radius))];
     sum -= input[stride * MAX(0,MIN(width-1, i-radius))];
   }
@@ -2140,24 +2153,39 @@ static void blur_alpha_image_surface(cairo_surface_t *surface, float radius)
   int stride = cairo_image_surface_get_stride(surface);
   int intRadius = (int)radius;
   unsigned char *data = cairo_image_surface_get_data(surface);
-  unsigned char *buf = malloc(stride * imageHeight);
+  unsigned char *buf;
+  /* Three box blurs stand in for a Gaussian.  Each spreads an edge by its
+     own radius, so the three radii add up to the one that was asked for. */
+  int radii[3];
 
   if (intRadius < 1)
     return;
 
   if (cairo_image_surface_get_format(surface) != CAIRO_FORMAT_A8)
     return;
- 
+
+  radii[0] = (intRadius + 2) / 3;
+  radii[1] = (intRadius + 1) / 3;
+  radii[2] = intRadius / 3;
+
+  buf = malloc(stride * imageHeight);
+  if (!buf)
+    return;
+
   for (iteration = 0; iteration < 3; iteration++)
     {
+      if (radii[iteration] < 1)
+        continue;
+
       // Horizontal blur
       for (y = 0; y < imageHeight; y++)
-        blur_1D(data + (y*stride), buf + (y*stride), 1, imageWidth, intRadius);
+        blur_1D(data + (y*stride), buf + (y*stride), 1, imageWidth,
+                radii[iteration]);
       memcpy(data, buf, stride*imageHeight);
 
       // Vertical blur
       for (x = 0; x < imageWidth; x++)
-        blur_1D(data + x, buf + x, stride, imageHeight, intRadius);
+        blur_1D(data + x, buf + x, stride, imageHeight, radii[iteration]);
       memcpy(data, buf, stride*imageHeight);
     }
   free(buf);
@@ -2171,41 +2199,79 @@ static void start_shadow(CGContextRef ctx)
 /**
  * Draws everything between the last start_shadow call and this function
  * with a shadow.
+ *
+ * The mask holds the area that can be drawn into, in device pixels, grown by
+ * the blur radius so the blur is not cut off at its own edges.  The offset is
+ * in the base coordinate space of the context and does not go through the
+ * CTM, so the mask is placed with the matrix set aside; base space has y
+ * running up where cairo's device space has it running down.
  */
-static void end_shadow(CGContextRef ctx, CGRect bounds)
+static void end_shadow(CGContextRef ctx)
 {
   cairo_pattern_t *pattern = cairo_pop_group(ctx->ct);
-  
- // writeOut(pattern);
-  
-  cairo_save(ctx->ct);
-  
-  //#if 0
-  // Create the shadow mask
-  cairo_surface_t *alphaSurface = 
-    cairo_image_surface_create(CAIRO_FORMAT_A8, 500, 250);
-                                 //ceil(bounds.size.width + 2*radius),
-                                 //ceil(bounds.size.height + 2*radius)); 
-  cairo_t *alphaCt = cairo_create(alphaSurface);
-  //cairo_surface_set_device_offset(alphaSurface, 0, 250); 
-  //cairo_scale(alphaCt, 1.0, -1.0);
-  
-  cairo_set_source(alphaCt, pattern);
-  cairo_paint(alphaCt);
-  cairo_surface_flush(alphaSurface);
-  blur_alpha_image_surface(alphaSurface, ctx->add->shadow_radius);
-  
-  // Draw the shadow
-  // cairo_set_source(ctx->ct, ctx->add->shadow_cp);
-  cairo_set_source_rgba(ctx->ct, 0, 0, 0, 0.3); // FIXME hardcoded
-  
-  // FIXME: the offset is not supposed to be affected by the CTM
-  cairo_mask_surface(ctx->ct, alphaSurface, ctx->add->shadow_offset.width, 
-                                            ctx->add->shadow_offset.height);
-  
+  cairo_surface_t *alphaSurface;
+  cairo_matrix_t matrix, shift;
+  cairo_t *alphaCt;
+  double corners[4][2];
+  double minX, minY, maxX, maxY;
+  double x1, y1, x2, y2;
+  int grow = (int)ceil(ctx->add->shadow_radius) + 1;
+  int i, x, y, w, h;
+
+  cairo_clip_extents(ctx->ct, &x1, &y1, &x2, &y2);
+  corners[0][0] = x1; corners[0][1] = y1;
+  corners[1][0] = x2; corners[1][1] = y1;
+  corners[2][0] = x1; corners[2][1] = y2;
+  corners[3][0] = x2; corners[3][1] = y2;
+  for (i = 0; i < 4; i++)
+    cairo_user_to_device(ctx->ct, &corners[i][0], &corners[i][1]);
+
+  minX = maxX = corners[0][0];
+  minY = maxY = corners[0][1];
+  for (i = 1; i < 4; i++)
+    {
+      if (corners[i][0] < minX) minX = corners[i][0];
+      if (corners[i][0] > maxX) maxX = corners[i][0];
+      if (corners[i][1] < minY) minY = corners[i][1];
+      if (corners[i][1] > maxY) maxY = corners[i][1];
+    }
+  x = (int)floor(minX) - grow;
+  y = (int)floor(minY) - grow;
+  w = (int)ceil(maxX) + grow - x;
+  h = (int)ceil(maxY) + grow - y;
+
+  if (w > 0 && h > 0)
+    {
+      alphaSurface = cairo_image_surface_create(CAIRO_FORMAT_A8, w, h);
+      alphaCt = cairo_create(alphaSurface);
+
+      /* Draw into the mask through the same transform, moved so that device
+         point (x, y) is the mask's first pixel. */
+      cairo_get_matrix(ctx->ct, &matrix);
+      cairo_matrix_init_translate(&shift, -x, -y);
+      cairo_matrix_multiply(&matrix, &matrix, &shift);
+      cairo_set_matrix(alphaCt, &matrix);
+      cairo_set_source(alphaCt, pattern);
+      cairo_paint(alphaCt);
+      cairo_destroy(alphaCt);
+
+      cairo_surface_flush(alphaSurface);
+      blur_alpha_image_surface(alphaSurface, ctx->add->shadow_radius);
+      cairo_surface_mark_dirty(alphaSurface);
+
+      cairo_save(ctx->ct);
+      cairo_identity_matrix(ctx->ct);
+      cairo_set_source(ctx->ct, ctx->add->shadow_cp);
+      cairo_mask_surface(ctx->ct, alphaSurface,
+                         x + ctx->add->shadow_offset.width,
+                         y - ctx->add->shadow_offset.height);
+      cairo_restore(ctx->ct);
+
+      cairo_surface_destroy(alphaSurface);
+    }
+
   // Draw the actual content
   cairo_set_source(ctx->ct, pattern);
   cairo_paint(ctx->ct);
-  
-  cairo_restore(ctx->ct);
+  cairo_pattern_destroy(pattern);
 }
