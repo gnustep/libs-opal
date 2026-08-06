@@ -51,6 +51,7 @@ struct ct_additions
   CGColorSpaceRef fill_cs;
   CGColorSpaceRef stroke_cs;
   CGInterpolationQuality interpolation;
+  cairo_pattern_t *clip_mask;
 };
 
 @interface CGContext : NSObject
