@@ -461,7 +461,10 @@ static const NSString *kOPFreeTypeLibrary = @"OPFreeTypeLibrary";
     return NSMakeSize(0, 0);
   }
   [fontFaceLock lock];
-  FT_Load_Glyph(fontFace, glyph, FT_LOAD_DEFAULT);
+  /* REAL_SIZE scales font units by the point size, so the advance has to
+     come back in font units rather than in fractional pixels of a size the
+     face was never set to. */
+  FT_Load_Glyph(fontFace, glyph, FT_LOAD_LINEAR_DESIGN);
   NSSize size = NSMakeSize(REAL_SIZE(fontFace->glyph->linearHoriAdvance),
     REAL_SIZE(fontFace->glyph->linearVertAdvance));
   [fontFaceLock unlock];
@@ -574,6 +577,103 @@ static const NSString *kOPFreeTypeLibrary = @"OPFreeTypeLibrary";
       *rects = [self boundingRectForGlyph: *glyphs];
     }
   }
+}
+
+- (CGFontRef)graphicsFontWithDescriptor: (OPFontDescriptor**)descriptorOut
+{
+  /* The descriptor answers the family it resolved to, which is the name a
+     graphics font is built from. */
+  NSString *name = [_descriptor objectForKey:
+			 (NSString *)kCTFontFamilyNameAttribute];
+
+  if (nil == name)
+  {
+    name = [_descriptor objectForKey: (NSString *)kCTFontNameAttribute];
+  }
+
+  if (descriptorOut != NULL)
+  {
+    *descriptorOut = _descriptor;
+  }
+
+  if (nil == name)
+  {
+    return NULL;
+  }
+  return CGFontCreateWithFontName((CFStringRef)name);
+}
+
+- (bool)getGraphicsGlyphsForCharacters: (const unichar *)characters
+                        graphicsGlyphs: (const CGGlyph *)glyphs
+                                 count: (CFIndex)count
+{
+  /* The glyph buffer is an out parameter, in spite of the const the
+     protocol declares it with. */
+  CGGlyph *out = (CGGlyph *)glyphs;
+  bool complete = true;
+  CFIndex i;
+
+  if ((NULL == characters) || (NULL == out))
+  {
+    return false;
+  }
+
+  [fontFaceLock lock];
+  for (i = 0; i < count; i++)
+  {
+    /* FIXME: one character to one glyph, so surrogate pairs and clusters
+       are not handled. */
+    FT_UInt glyph = FT_Get_Char_Index(fontFace, characters[i]);
+
+    if (0 == glyph)
+    {
+      complete = false;
+    }
+    out[i] = (CGGlyph)glyph;
+  }
+  [fontFaceLock unlock];
+
+  return complete;
+}
+
+- (double)getAdvancesForGraphicsGlyphs: (const CGGlyph *)glyphs
+                              advances: (CGSize*)advances
+                           orientation: (CTFontOrientation)orientation
+                                 count: (CFIndex)count
+{
+  double total = 0;
+  CFIndex i;
+
+  if (NULL == glyphs)
+  {
+    return 0;
+  }
+
+  for (i = 0; i < count; i++)
+  {
+    NSSize advancement = [self advancementForGlyph: (NSGlyph)glyphs[i]];
+    CGSize advance;
+
+    /* A horizontal run advances along x and a vertical one along y; the
+       other component is zero either way. */
+    if (kCTFontVerticalOrientation == orientation)
+    {
+      advance = CGSizeMake(0, advancement.height);
+      total += advancement.height;
+    }
+    else
+    {
+      advance = CGSizeMake(advancement.width, 0);
+      total += advancement.width;
+    }
+
+    if (advances != NULL)
+    {
+      advances[i] = advance;
+    }
+  }
+
+  return total;
 }
 
 - (NSGlyph)glyphWithName: (NSString*)name

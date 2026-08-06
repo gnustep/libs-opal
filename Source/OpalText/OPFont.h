@@ -154,6 +154,7 @@ typedef union _OPAffineTransform
 //
 // CTFont private
 //
++ (Class) fontClass;
 + (OPFont*) fontWithDescriptor: (OPFontDescriptor*)descriptor
                        options: (CTFontOptions)options;
 + (OPFont*) UIFontWithType: (CTFontUIFontType)type
