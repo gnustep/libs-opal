@@ -152,6 +152,8 @@ CFTypeRef CTFontDescriptorCopyLocalizedAttribute(
 
 CFTypeID CTFontDescriptorGetTypeID();
 
+bool CTFontDescriptorIsSystemUIFont(CTFontDescriptorRef);
+
 #ifdef __cplusplus
 }
 #endif

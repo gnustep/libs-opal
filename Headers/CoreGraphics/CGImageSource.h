@@ -50,6 +50,11 @@ const extern CFStringRef kCGImageSourceCreateThumbnailFromImageAlways;
 const extern CFStringRef kCGImageSourceThumbnailMaxPixelSize;
 const extern CFStringRef kCGImageSourceCreateThumbnailWithTransform;
 
+const extern CFStringRef kCGImageSourceShouldPreferRGB32;
+const extern CFStringRef kCGImageSourceSkipMetadata;
+const extern CFStringRef kCGImageSourceSubsampleFactor;
+const extern CFStringRef kCGImageSourceShouldCacheImmediately;
+
 /* Data Types */
 
 #ifdef INTERNAL_BUILD_OBJC
@@ -138,6 +143,10 @@ void CGImageSourceUpdateDataProvider(
 );
 
 CFTypeID CGImageSourceGetTypeID();
+
+/* Private APIs */
+
+CFStringRef CGImageSourceGetTypeWithData(CFDataRef, CFStringRef, bool*);
 
 #ifdef __cplusplus
 }

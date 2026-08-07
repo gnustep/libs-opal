@@ -74,6 +74,12 @@ CFIndex CTTypesetterSuggestLineBreak(
 
 CFTypeID CTTypesetterGetTypeID();
 
+CTTypesetterRef CTTypesetterCreateWithUniCharProviderAndOptions(
+  CTUniCharProviderCallback provide,
+  CTUniCharDisposeCallback dispose,
+  void* refCon,
+  CFDictionaryRef options);
+
 #ifdef __cplusplus
 }
 #endif

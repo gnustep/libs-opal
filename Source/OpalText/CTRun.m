@@ -308,3 +308,17 @@ CFTypeID CTRunGetTypeID()
   return (CFTypeID)[CTRun class];
 }
 
+CGSize CTRunGetInitialAdvance(CTRunRef run)
+{
+  // FIXME: unimplemented
+  return CGSizeZero;
+}
+
+void CTRunGetBaseAdvancesAndOrigins(
+  CTRunRef run,
+  CFRange range,
+  CGSize baseAdvances[],
+  CGPoint origins[])
+{
+  // FIXME: unimplemented
+}

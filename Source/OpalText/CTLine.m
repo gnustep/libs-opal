@@ -212,3 +212,11 @@ CGRect CTLineGetBoundsWithOptions(
 {
   return CGRectZero;
 }
+
+CTLineRef CTLineCreateWithUniCharProvider(
+  CTUniCharProviderCallback provide,
+  CTUniCharDisposeCallback dispose,
+  void* refCon)
+{
+  return NULL;
+}

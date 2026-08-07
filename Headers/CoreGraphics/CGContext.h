@@ -138,6 +138,22 @@ enum {
 };
 typedef int CGTextEncoding;
 
+// NOTE: This `typedef enum` in opposition to defining enum constants and
+// their types as integers is here to maintain compatibility with the original
+// CoreGraphics API, although this is *NOT* an ideal way to define these types.
+typedef enum {
+  kCGContextTypeUnknown,
+  kCGContextTypePDF,
+  kCGContextTypePostScript,
+  kCGContextTypeWindow,
+  kCGContextTypeBitmap,
+  kCGContextTypeGL,
+  kCGContextTypeDisplayList,
+  kCGContextTypeKSeparation,
+  kCGContextTypeIOSurface,
+  kCGContextTypeCount
+} CGContextType;
+
 /* Functions */
 
 /* Managing Graphics Contexts */
@@ -562,6 +578,31 @@ CGRect CGContextConvertRectToDeviceSpace(CGContextRef ctx, CGRect rect);
 
 CGRect CGContextConvertRectToUserSpace(CGContextRef ctx, CGRect rect);
 
+bool CGContextPathContainsPoint(CGContextRef c,
+    CGPoint point, CGPathDrawingMode mode);
+
+/* CoreGraphics Private APIs */
+
+bool CGContextGetShouldSmoothFonts(CGContextRef ctx);
+
+bool CGContextGetShouldAntialias(CGContextRef ctx);
+
+CGContextType CGContextGetType(CGContextRef ctx);
+
+void CGContextSetCTM(CGContextRef ctx, CGAffineTransform m);
+
+CGAffineTransform CGContextGetBaseCTM(CGContextRef);
+
+void CGContextSetBaseCTM(CGContextRef, CGAffineTransform);
+
+CGColorSpaceRef CGContextCopyDeviceColorSpace(CGContextRef);
+
+void CGContextSetShouldAntialiasFonts(CGContextRef, bool shouldAntialiasFonts);
+
+bool CGDisplayUsesInvertedPolarity(void);
+
+bool CGDisplayUsesForceToGray(void);
+
 /* Opal Extensions */
 
 // FIXME: Move extensions to a separate header?
@@ -582,9 +623,6 @@ void OPContextSetCairoDeviceOffset(CGContextRef ctx,
 OPGStateRef OPContextCopyGState(CGContextRef ctx);
 
 void OPContextSetGState(CGContextRef ctx, OPGStateRef gstate);
-
-bool CGContextPathContainsPoint(CGContextRef c,
-    CGPoint point, CGPathDrawingMode mode);
 
 #ifdef __cplusplus
 }
