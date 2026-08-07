@@ -34,7 +34,7 @@ else
 ADDITIONAL_OBJC_LIBS += -lgdi32
 endif
 
-ADDITIONAL_OBJCFLAGS += -Wall -g -O0 -std=gnu99
+ADDITIONAL_OBJCFLAGS += -Wall -g -O0 -std=gnu99 -Wno-error=int-conversion
 ADDITIONAL_CFLAGS += -Wall -g -O0 -std=gnu99
 ADDITIONAL_LDFLAGS += -L../Source/obj 
 ADDITIONAL_TOOL_LIBS = -lopal

@@ -334,7 +334,7 @@ static void OPTIFFUnmapProc(thandle_t handle, tdata_t data, toff_t size)
 {
   self = [super init];
   
-  if ([type isEqualToString: @"public.tiff"] || count != 1)
+  if (![type isEqualToString: @"public.tiff"] || count != 1)
   {
     [self release];
     return nil;

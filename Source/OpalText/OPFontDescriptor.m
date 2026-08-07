@@ -39,6 +39,30 @@
 #include <CoreText/CTFontDescriptor.h>
 #import "OPFontDescriptor.h"
 
+// FIXME: Duplicate code, copied from libs-gui externs.m
+NSString *OPFontFamilyAttribute = @"NSFontFamilyAttribute";
+NSString *OPFontNameAttribute = @"NSFontNameAttribute";
+NSString *OPFontFaceAttribute = @"NSFontFaceAttribute";
+NSString *OPFontSizeAttribute = @"NSFontSizeAttribute"; 
+NSString *OPFontVisibleNameAttribute = @"NSFontVisibleNameAttribute"; 
+NSString *OPFontColorAttribute = @"NSFontColorAttribute";
+NSString *OPFontMatrixAttribute = @"NSFontMatrixAttribute";
+NSString *OPFontVariationAttribute = @"NSCTFontVariationAttribute";
+NSString *OPFontCharacterSetAttribute = @"NSCTFontCharacterSetAttribute";
+NSString *OPFontCascadeListAttribute = @"NSCTFontCascadeListAttribute";
+NSString *OPFontTraitsAttribute = @"NSCTFontTraitsAttribute";
+NSString *OPFontFixedAdvanceAttribute = @"NSCTFontFixedAdvanceAttribute";
+
+NSString *OPFontSymbolicTrait = @"NSCTFontSymbolicTrait";
+NSString *OPFontWeightTrait = @"NSCTFontWeightTrait";
+NSString *OPFontWidthTrait = @"NSCTFontProportionTrait";
+NSString *OPFontSlantTrait = @"NSCTFontSlantTrait";
+
+NSString *OPFontVariationAxisIdentifierKey = @"NSCTFontVariationAxisIdentifier";
+NSString *OPFontVariationAxisMinimumValueKey = @"NSCTFontVariationAxisMinimumValue";
+NSString *OPFontVariationAxisMaximumValueKey = @"NSCTFontVariationAxisMaximumValue";
+NSString *OPFontVariationAxisDefaultValueKey = @"NSCTFontVariationAxisDefaultValue";
+NSString *OPFontVariationAxisNameKey = @"NSCTFontVariationAxisName";
 
 @implementation OPFontDescriptor
 
@@ -261,8 +285,16 @@
 
 - (CGFloat) pointSize
 {
-  // NOTE: 0 is returned if point size is not defined
-  return [[self objectForKey: OPFontSizeAttribute] doubleValue];
+  /* A descriptor built through CoreText carries the size under the CoreText
+     key, one built through the OPFont attributes under the OPFont key.
+     NOTE: 0 is returned if point size is not defined */
+  id size = [self objectForKey: (id)kCTFontSizeAttribute];
+
+  if (nil == size)
+  {
+    size = [self objectForKey: OPFontSizeAttribute];
+  }
+  return [size doubleValue];
 }
 
 - (NSString *) postscriptName

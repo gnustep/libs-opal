@@ -85,7 +85,7 @@
   dashes_count = cairo_get_dash_count(aCairo);
   if (dashes_count > 0)
   {
-    dashes = malloc(dashes_count);
+    dashes = malloc(dashes_count * sizeof(double));
     
     if (dashes != NULL)
   	{

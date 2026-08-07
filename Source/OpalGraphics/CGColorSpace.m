@@ -30,6 +30,7 @@
 
 #import "CGColorSpace-private.h"
 #import "OPColorSpaceIndexed.h"
+#import "OPColorSpacePattern.h"
 
 const CFStringRef kCGColorSpaceGenericGray = @"kCGColorSpaceGenericGray";
 const CFStringRef kCGColorSpaceGenericRGB = @"kCGColorSpaceGenericRGB";
@@ -164,8 +165,7 @@ CGColorSpaceRef CGColorSpaceCreateLab(
 
 CGColorSpaceRef CGColorSpaceCreatePattern(CGColorSpaceRef baseSpace)
 {
-  // FIXME: implement
-  return nil;
+  return [[OPColorSpacePattern alloc] initWithBaseSpace: baseSpace];
 }
 
 CGColorSpaceRef CGColorSpaceCreateWithICCProfile(CFDataRef data)

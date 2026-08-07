@@ -268,7 +268,17 @@ CGContextRef CGBitmapContextCreateWithData(
             "<callback>, <releaseinfo>",
             data, width, height, bitsPerComponent, bytesPerRow)
   cairo_format_t format = CAIRO_FORMAT_INVALID;
-  cairo_surface_t *surf;  
+  cairo_surface_t *surf;
+
+  // A zero bytesPerRow means "compute it from the width and pixel format".
+  if (bytesPerRow == 0)
+  {
+      size_t colorComps = CGColorSpaceGetNumberOfComponents(cs);
+      size_t alphaComps =
+        ((info & kCGBitmapAlphaInfoMask) != kCGImageAlphaNone) ? 1 : 0;
+      size_t bitsPerPixel = bitsPerComponent * (colorComps + alphaComps);
+      bytesPerRow = (width * bitsPerPixel + 7) / 8;
+  }
 
   // Create the user requested buffer
   if (data == NULL)

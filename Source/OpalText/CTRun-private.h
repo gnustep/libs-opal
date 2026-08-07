@@ -40,6 +40,11 @@
   CGAffineTransform _matrix;
 }
 
+- (id)initWithGlyphs: (const CGGlyph *)glyphs
+            advances: (const CGSize *)advances
+               count: (size_t)count
+          attributes: (NSDictionary *)attributes
+         stringRange: (CFRange)stringRange;
 - (CFIndex)glyphCount;
 - (NSDictionary*)attributes;
 - (CTRunStatus)status;

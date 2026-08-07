@@ -34,6 +34,7 @@ extern "C" {
 
 /* Data Types */
 
+#ifndef CF_DEFINES_CG_TYPES
 typedef struct CGAffineTransform
 {
   CGFloat a;
@@ -43,6 +44,7 @@ typedef struct CGAffineTransform
   CGFloat tx;
   CGFloat ty;
 } CGAffineTransform;
+#endif /* CF_DEFINES_CG_TYPES */
 
 /* Constants */
 
@@ -239,7 +241,7 @@ GS_AFTR_SCOPE bool CGAffineTransformEqualToTransform(CGAffineTransform t1, CGAff
 
 GS_AFTR_SCOPE bool CGAffineTransformIsIdentity(CGAffineTransform t)
 {
-  return t.a && !t.b && !t.c && t.d && !t.tx && !t.ty;
+  return t.a == 1 && t.b == 0 && t.c == 0 && t.d == 1 && t.tx == 0 && t.ty == 0;
 }
 
 GS_AFTR_SCOPE CGPoint CGPointApplyAffineTransform(

@@ -32,7 +32,28 @@
 // for off_t
 #include <sys/types.h>
 
+// Import Foundation first in ObjC mode so CoreFoundation.h inline functions
+// can resolve NSObject method signatures (-hash, -isEqual:, etc.)
+#ifdef __OBJC__
+#import <Foundation/NSObject.h>
+#endif
+
 #import <CoreFoundation/CoreFoundation.h>
+
+/* Fallback CF type stubs - only needed if libs-corebase is not installed.
+   When libs-corebase is present, CoreFoundation.h already defines these. */
+#ifndef __COREFOUNDATION_CFNUMBER_H__
+/* libs-corebase not available, define stub types */
+typedef const void * CFNumberRef;
+typedef const void * CFSetRef;
+typedef void * CFMutableSetRef;
+typedef const void * CFDateRef;
+typedef CFIndex CFComparisonResult;
+typedef const void * CFCharacterSetRef;
+typedef const void * CFAttributedStringRef;
+typedef void * CFMutableAttributedStringRef;
+typedef const void * CFErrorRef;
+#endif
 
 // Note: GNUstep Foundation defines CGFloat
 #ifdef __OBJC__

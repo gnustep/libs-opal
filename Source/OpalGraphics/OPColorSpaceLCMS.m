@@ -22,8 +22,6 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
    */
 
-#include <lcms.h>
-
 #include "CoreGraphics/CGColorSpace.h"
 
 #import "OPColorSpaceLCMS.h"
@@ -164,7 +162,24 @@ static OPColorSpaceLCMS *colorSpaceGenericGrayGamma2_2;
 
 - (NSString*)name
 {
-  return [NSString stringWithUTF8String: cmsTakeProductName(self->profile)];
+  cmsUInt32Number size;
+  char *buf = NULL;
+  NSString *name = nil;
+
+  size = cmsGetProfileInfoASCII(self->profile, cmsInfoModel,
+                                "en", "US", NULL, 0);
+  if (size > 0)
+    {
+      buf = (char *)malloc(size + 1);
+      size = cmsGetProfileInfoASCII(self->profile, cmsInfoModel,
+                                    "en", "US", buf, size);
+      if (size > 0)
+        name = [NSString stringWithUTF8String: buf];
+
+      free(buf);
+    }
+
+  return name;
 }
 
 static inline cmsCIExyY CIExyzToCIExyY(const CGFloat point[3])
@@ -190,10 +205,10 @@ static inline cmsCIExyY CIEXYZToCIExyY(const CGFloat point[3])
 
   // NOTE: we ignore the black point; LCMS computes it on its own
 
-  LPGAMMATABLE table = cmsBuildGamma(256, gamma);
+  cmsToneCurve *table = cmsBuildGamma(NULL, gamma);
   cmsCIExyY whiteCIExyY = CIEXYZToCIExyY(whiteCIEXYZ);
   self->profile = cmsCreateGrayProfile(&whiteCIExyY, table);
-  cmsFreeGamma(table);
+  cmsFreeToneCurve(table);
 
   return self;
 }
@@ -205,9 +220,9 @@ static inline cmsCIExyY CIEXYZToCIExyY(const CGFloat point[3])
 {
   self = [super init];
 
-  LPGAMMATABLE tables[3] = {cmsBuildGamma(256, gamma),
-                            cmsBuildGamma(256, gamma),
-                            cmsBuildGamma(256, gamma)};
+  cmsToneCurve *tables[3] = {cmsBuildGamma(NULL, gamma),
+                             cmsBuildGamma(NULL, gamma),
+                             cmsBuildGamma(NULL, gamma)};
   cmsCIExyY whitePoint = {white[0], white[1], 1.0};
   cmsCIExyYTRIPLE primaries = {
     {red[0], red[1], 1.0},
@@ -217,9 +232,9 @@ static inline cmsCIExyY CIEXYZToCIExyY(const CGFloat point[3])
 
   self->profile = cmsCreateRGBProfile(&whitePoint, &primaries, tables);
 
-  cmsFreeGamma(tables[0]);
-  cmsFreeGamma(tables[1]);
-  cmsFreeGamma(tables[2]);
+  cmsFreeToneCurve(tables[0]);
+  cmsFreeToneCurve(tables[1]);
+  cmsFreeToneCurve(tables[2]);
   
   return self;
 }
@@ -232,9 +247,9 @@ static inline cmsCIExyY CIEXYZToCIExyY(const CGFloat point[3])
 
   // NOTE: we ignore the black point; LCMS computes it on its own
 
-  LPGAMMATABLE tables[3] = {cmsBuildGamma(256, gamma[0]),
-                            cmsBuildGamma(256, gamma[1]),
-                            cmsBuildGamma(256, gamma[2])};
+  cmsToneCurve *tables[3] = {cmsBuildGamma(NULL, gamma[0]),
+                             cmsBuildGamma(NULL, gamma[1]),
+                             cmsBuildGamma(NULL, gamma[2])};
 
   // FIXME: I'm not 100% sure this is the correct interpretation of matrix
 
@@ -250,9 +265,9 @@ static inline cmsCIExyY CIEXYZToCIExyY(const CGFloat point[3])
 
   self->profile = cmsCreateRGBProfile(&whitePointCIExyY, &primaries, tables);
 
-  cmsFreeGamma(tables[0]);
-  cmsFreeGamma(tables[1]);
-  cmsFreeGamma(tables[2]);
+  cmsFreeToneCurve(tables[0]);
+  cmsFreeToneCurve(tables[1]);
+  cmsFreeToneCurve(tables[2]);
   
   return self;
 }
@@ -274,7 +289,7 @@ static inline cmsCIExyY CIEXYZToCIExyY(const CGFloat point[3])
 {
   self = [super init];
   self->data = [profileData retain];
-	self->profile = cmsOpenProfileFromMem((LPVOID)[profileData bytes], [profileData length]);
+	self->profile = cmsOpenProfileFromMem((const void*)[profileData bytes], [profileData length]);
   return self;
 }
 
@@ -284,17 +299,17 @@ static inline cmsCIExyY CIEXYZToCIExyY(const CGFloat point[3])
 	return nil;
 }
 
-static CGColorSpaceModel CGColorSpaceModelForSignature(icColorSpaceSignature sig)
+static CGColorSpaceModel CGColorSpaceModelForSignature(cmsColorSpaceSignature sig)
 {
   switch (sig)
   {
-    case icSigGrayData:
+    case cmsSigGrayData:
       return kCGColorSpaceModelMonochrome;
-    case icSigRgbData:
+    case cmsSigRgbData:
       return kCGColorSpaceModelRGB;
-    case icSigCmykData:
+    case cmsSigCmykData:
       return kCGColorSpaceModelCMYK;
-    case icSigLabData:
+    case cmsSigLabData:
       return kCGColorSpaceModelLab;
     default:
       return kCGColorSpaceModelUnknown;
@@ -308,7 +323,7 @@ static CGColorSpaceModel CGColorSpaceModelForSignature(icColorSpaceSignature sig
 }
 - (size_t) numberOfComponents
 {
-  return _cmsChannelsOf(cmsGetColorSpace(profile));
+  return cmsChannelsOf(cmsGetColorSpace(profile));
 }
 
 - (id<OPColorTransform>) colorTransformTo: (id<CGColorSpace>)aColorSpace

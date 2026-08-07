@@ -77,16 +77,52 @@ const CFStringRef kCTTypesetterOptionForcedEmbeddingLevel = @"kCTTypesetterOptio
 
 - (CTLineRef)createLineWithRange: (CFRange)range
 {
-  // FIXME: This should do the core typesetting stuff:
-  // - divide the attributed string into runs with the same attributes.
-  // - run the bidirectional algorithm if needed
-  // - call the shaper on each run
-  
-  NSArray *runs = [NSMutableArray array];
-  
-  CTLineRef line = [[CTLine alloc] initWithRuns: runs];
-  
-  return line;
+  // FIXME: run the bidirectional algorithm if needed
+
+  NSMutableArray *runs = [NSMutableArray array];
+  OPSimpleLayoutEngine *engine = [[OPSimpleLayoutEngine new] autorelease];
+  NSUInteger length = [_as length];
+  NSUInteger location = range.location;
+  NSUInteger limit;
+
+  /* A range of no length means the whole of the string. */
+  limit = (range.length == 0) ? length : range.location + range.length;
+  if (limit > length)
+  {
+    limit = length;
+  }
+
+  /* One run for each stretch of the string with the same attributes. */
+  while (location < limit)
+  {
+    NSRange effective;
+    NSDictionary *attributes = [_as attributesAtIndex: location
+				       effectiveRange: &effective];
+    NSUInteger end = effective.location + effective.length;
+    NSRange piece;
+    CTRunRef run;
+
+    if (end > limit)
+    {
+      end = limit;
+    }
+    if (end <= location)
+    {
+      /* Nothing was consumed, so stop rather than spin. */
+      break;
+    }
+
+    piece = NSMakeRange(location, end - location);
+    run = [engine layoutString: [[_as string] substringWithRange: piece]
+		withAttributes: attributes];
+    if (run != NULL)
+    {
+      [runs addObject: (id)run];
+    }
+    location = end;
+  }
+
+  return [[CTLine alloc] initWithRuns: runs];
 }
 - (CFIndex)suggestClusterBreakAtIndex: (CFIndex)start
                                 width: (double)width

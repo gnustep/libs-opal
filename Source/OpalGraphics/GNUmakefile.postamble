@@ -1,0 +1,6 @@
+# GNUmakefile.postamble
+
+after-install::
+	cp -r ../../Headers/ImageIO $(shell gnustep-config --variable=GNUSTEP_SYSTEM_HEADERS)/ImageIO
+	cp ../../Headers/CoreGraphics/CGImageSource.h $(shell gnustep-config --variable=GNUSTEP_SYSTEM_HEADERS)/ImageIO
+	cp ../../Headers/CoreGraphics/CGImageDestination.h $(shell gnustep-config --variable=GNUSTEP_SYSTEM_HEADERS)/ImageIO

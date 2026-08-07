@@ -22,8 +22,6 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
    */
 
-#include <lcms.h>
-
 #include "CoreGraphics/CGColorSpace.h"
 
 #import "CGColorSpace-private.h"
@@ -72,9 +70,9 @@ static int LcmsPixelTypeForCGColorSpaceModel(CGColorSpaceModel model)
   }
 }
  
-static DWORD LcmsFormatForOPImageFormat(OPImageFormat opalFormat, CGColorSpaceRef colorSpace)
+static cmsUInt32Number LcmsFormatForOPImageFormat(OPImageFormat opalFormat, CGColorSpaceRef colorSpace)
 {    
-  DWORD cmsFormat = 0;
+  cmsUInt32Number cmsFormat = 0;
   
   switch (opalFormat.compFormat)
   {
@@ -92,7 +90,7 @@ static DWORD LcmsFormatForOPImageFormat(OPImageFormat opalFormat, CGColorSpaceRe
 			break;
   }
   
-  cmsFormat |= CHANNELS_SH((DWORD)opalFormat.colorComponents);
+  cmsFormat |= CHANNELS_SH((cmsUInt32Number)opalFormat.colorComponents);
  
   if (opalFormat.hasAlpha)
   {
