@@ -1660,6 +1660,36 @@ void CGContextDrawTiledImage(CGContextRef ctx, CGRect rect, CGImageRef image)
 {
   OPLOGCALL("ctx /*%p*/, CGRectMake(%g, %g, %g, %g), <image>", ctx, rect.origin.x,
             rect.origin.y, rect.size.width, rect.size.height)
+
+  const double tw = rect.size.width;
+  const double th = rect.size.height;
+  if (tw <= 0 || th <= 0)
+    {
+      OPRESTORELOGGING()
+      return;
+    }
+
+  cairo_surface_t *surface =
+    opal_CGImageGetSurfaceForImage(image, cairo_get_target(ctx->ct));
+  CGRect srcRect = opal_CGImageGetSourceRect(image);
+
+  /* Tile across the current clip region.  Each tile is rect.size big, one tile
+     is anchored at rect.origin, and the pattern repeats in both directions. */
+  double cx1, cy1, cx2, cy2;
+  cairo_clip_extents(ctx->ct, &cx1, &cy1, &cx2, &cy2);
+
+  const double startX = rect.origin.x + floor((cx1 - rect.origin.x) / tw) * tw;
+  const double startY = rect.origin.y + floor((cy1 - rect.origin.y) / th) * th;
+
+  for (double y = startY; y < cy2; y += th)
+    {
+      for (double x = startX; x < cx2; x += tw)
+        {
+          opal_draw_surface_in_rect(ctx, CGRectMake(x, y, tw, th),
+            surface, srcRect);
+        }
+    }
+
   OPRESTORELOGGING()
 }
 
