@@ -62,4 +62,16 @@
 - (CGAffineTransform)matrix;
 - (void)drawRange: (CFRange)range onContext: (CGContextRef)ctx;
 
+/**
+ * Lays the run's glyphs out from x, keeping their advances.  A run's positions
+ * are relative to the origin of the line holding it, so a line places each of
+ * its runs after the one before it.
+ */
+- (void)placeAtX: (CGFloat)x;
+
+/**
+ * A run holding count glyphs of this one, starting at index.
+ */
+- (CTRun *)runWithGlyphsFrom: (CFIndex)index count: (CFIndex)count;
+
 @end
