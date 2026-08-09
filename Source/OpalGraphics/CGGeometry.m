@@ -23,6 +23,9 @@
    */
 
 #import <Foundation/NSObject.h>
+#import <Foundation/NSDictionary.h>
+#import <Foundation/NSValue.h>
+#import <Foundation/NSString.h>
 
 /* Define IN_CGGEOMETRY_C so that the header can provide non-inline
  * versions of the function implementations for us.
@@ -185,38 +188,83 @@ CGRect CGRectUnion(CGRect r1, CGRect r2)
   return rect;
 }
 
+/* The geometry structures serialise to flat dictionaries keyed by "X"/"Y"/
+   "Width"/"Height", matching CoreGraphics. */
+
+static NSNumber *numberForKey(NSDictionary *dict, NSString *key)
+{
+  id value = [dict objectForKey: key];
+  return [value isKindOfClass: [NSNumber class]] ? value : nil;
+}
+
 CFDictionaryRef CGPointCreateDictionaryRepresentation(CGPoint point)
 {
-  // FIXME: implement
-  return nil;
-}  
+  return (CFDictionaryRef)[[NSDictionary alloc] initWithObjectsAndKeys:
+    [NSNumber numberWithDouble: point.x], @"X",
+    [NSNumber numberWithDouble: point.y], @"Y",
+    nil];
+}
 
 bool CGPointMakeWithDictionaryRepresentation(CFDictionaryRef dict, CGPoint *point)
 {
-  // FIXME: implement
-  return false;
+  NSDictionary *d = (NSDictionary *)dict;
+  NSNumber *x = numberForKey(d, @"X");
+  NSNumber *y = numberForKey(d, @"Y");
+  if (point == NULL || x == nil || y == nil)
+    {
+      return false;
+    }
+  point->x = [x doubleValue];
+  point->y = [y doubleValue];
+  return true;
 }
 
 CFDictionaryRef CGSizeCreateDictionaryRepresentation(CGSize size)
 {
-  // FIXME: implement
-  return nil;
+  return (CFDictionaryRef)[[NSDictionary alloc] initWithObjectsAndKeys:
+    [NSNumber numberWithDouble: size.width], @"Width",
+    [NSNumber numberWithDouble: size.height], @"Height",
+    nil];
 }
 
 bool CGSizeMakeWithDictionaryRepresentation(CFDictionaryRef dict, CGSize *size)
 {
-  // FIXME: implement
-  return false;
+  NSDictionary *d = (NSDictionary *)dict;
+  NSNumber *w = numberForKey(d, @"Width");
+  NSNumber *h = numberForKey(d, @"Height");
+  if (size == NULL || w == nil || h == nil)
+    {
+      return false;
+    }
+  size->width = [w doubleValue];
+  size->height = [h doubleValue];
+  return true;
 }
 
 CFDictionaryRef CGRectCreateDictionaryRepresentation(CGRect rect)
 {
-  // FIXME: implement
-  return nil;
+  return (CFDictionaryRef)[[NSDictionary alloc] initWithObjectsAndKeys:
+    [NSNumber numberWithDouble: rect.origin.x], @"X",
+    [NSNumber numberWithDouble: rect.origin.y], @"Y",
+    [NSNumber numberWithDouble: rect.size.width], @"Width",
+    [NSNumber numberWithDouble: rect.size.height], @"Height",
+    nil];
 }
 
 bool CGRectMakeWithDictionaryRepresentation(CFDictionaryRef dict, CGRect *rect)
 {
-  // FIXME: implement
-  return false;
+  NSDictionary *d = (NSDictionary *)dict;
+  NSNumber *x = numberForKey(d, @"X");
+  NSNumber *y = numberForKey(d, @"Y");
+  NSNumber *w = numberForKey(d, @"Width");
+  NSNumber *h = numberForKey(d, @"Height");
+  if (rect == NULL || x == nil || y == nil || w == nil || h == nil)
+    {
+      return false;
+    }
+  rect->origin.x = [x doubleValue];
+  rect->origin.y = [y doubleValue];
+  rect->size.width = [w doubleValue];
+  rect->size.height = [h doubleValue];
+  return true;
 }
