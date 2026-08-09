@@ -125,6 +125,20 @@ CGRect CTLineGetBoundsWithOptions(
   CTLineRef line,
   CTLineBoundsOptions options);
 
+/* Private APIs */
+
+typedef const UniChar* (*CTUniCharProviderCallback)(
+  CFIndex stringIndex,
+  CFIndex* charCount,
+  CFDictionaryRef* attributes,
+  void* refCon);
+typedef void (*CTUniCharDisposeCallback)(const UniChar* chars, void* refCon);
+
+CTLineRef CTLineCreateWithUniCharProvider(
+  CTUniCharProviderCallback provide,
+  CTUniCharDisposeCallback dispose,
+  void* refCon);
+
 #ifdef __cplusplus
 }
 #endif

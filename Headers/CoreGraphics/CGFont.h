@@ -35,6 +35,7 @@ typedef struct CGFont* CGFontRef;
 #endif
 
 #include <CoreGraphics/CGBase.h>
+#include <CoreGraphics/CGAffineTransform.h>
 #include <CoreGraphics/CGGeometry.h>
 #include <CoreGraphics/CGDataProvider.h>
 
@@ -153,6 +154,16 @@ CFTypeID CGFontGetTypeID();
 CGFontRef CGFontRetain(CGFontRef font);
 
 void CGFontRelease(CGFontRef font);
+
+/* Private Functions */
+
+bool CGFontGetGlyphAdvancesForStyle(
+  CGFontRef,
+  const CGAffineTransform*,
+  int,
+  const CGGlyph[],
+  size_t count,
+  CGSize advances[]);
 
 /* Extensions */
 

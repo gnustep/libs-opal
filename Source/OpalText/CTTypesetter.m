@@ -179,3 +179,12 @@ CFTypeID CTTypesetterGetTypeID()
   return (CFTypeID)[CTTypesetter class];
 }
 
+CTTypesetterRef CTTypesetterCreateWithUniCharProviderAndOptions(
+  CTUniCharProviderCallback provide,
+  CTUniCharDisposeCallback dispose,
+  void* refCon,
+  CFDictionaryRef options)
+{
+  // FIXME: unimplemented
+  return NULL;
+}
