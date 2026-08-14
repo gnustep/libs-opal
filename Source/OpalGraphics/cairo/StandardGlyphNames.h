@@ -25,4 +25,4 @@
 /**
  * Standatd glyph names 0-257
  */   
-const char * const StandardGlyphNames[258];
+extern const char * const StandardGlyphNames[258];
