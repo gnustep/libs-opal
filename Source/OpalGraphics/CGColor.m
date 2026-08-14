@@ -29,9 +29,9 @@
 #import "CGColorSpace-private.h"
 #import "OPImageConversion.h"
 
-const CFStringRef kCGColorWhite = @"kCGColorWhite";
-const CFStringRef kCGColorBlack = @"kCGColorBlack";
-const CFStringRef kCGColorClear = @"kCGColorClear";
+const CFStringRef kCGColorWhite = (CFStringRef)@"kCGColorWhite";
+const CFStringRef kCGColorBlack = (CFStringRef)@"kCGColorBlack";
+const CFStringRef kCGColorClear = (CFStringRef)@"kCGColorClear";
 
 static CGColorRef _whiteColor;
 static CGColorRef _blackColor;
@@ -244,7 +244,7 @@ const CGFloat *CGColorGetComponents(CGColorRef clr)
 
 CGColorRef CGColorGetConstantColor(CFStringRef name)
 {
-  if ([name isEqual: kCGColorWhite])
+  if ([(id)name isEqual: (id)kCGColorWhite])
   {
     if (nil == _whiteColor)
     {
@@ -252,7 +252,7 @@ CGColorRef CGColorGetConstantColor(CFStringRef name)
     }
     return  _whiteColor;
   }
-  else if ([name isEqual: kCGColorBlack])
+  else if ([(id)name isEqual: (id)kCGColorBlack])
   {
     if (nil == _blackColor)
     {
@@ -260,7 +260,7 @@ CGColorRef CGColorGetConstantColor(CFStringRef name)
     }
     return _blackColor;
   }
-  else if ([name isEqual: kCGColorClear])
+  else if ([(id)name isEqual: (id)kCGColorClear])
   {
     if (nil == _clearColor)
     {
