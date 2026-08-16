@@ -89,6 +89,12 @@ extern const CFStringRef kCGImagePropertyOrientation;
 
 extern const CFStringRef kCGImagePropertyPixelHeight;
 extern const CFStringRef kCGImagePropertyPixelWidth;
+extern const CFStringRef kCGImagePropertyDepth;
+extern const CFStringRef kCGImagePropertyHasAlpha;
+extern const CFStringRef kCGImagePropertyColorModel;
+extern const CFStringRef kCGImagePropertyColorModelRGB;
+extern const CFStringRef kCGImagePropertyColorModelGray;
+extern const CFStringRef kCGImagePropertyColorModelCMYK;
 
 extern const CFStringRef kCGImagePropertyTIFFDictionary;
 extern const CFStringRef kCGImagePropertyGIFDictionary;
