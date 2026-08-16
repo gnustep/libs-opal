@@ -47,6 +47,11 @@ struct ct_additions
   CGFloat font_size;
   CGFloat char_spacing;
   CGTextDrawingMode text_mode;
+  CGSize pattern_phase;
+  CGColorSpaceRef fill_cs;
+  CGColorSpaceRef stroke_cs;
+  CGInterpolationQuality interpolation;
+  cairo_pattern_t *clip_mask;
 };
 
 @interface CGContext : NSObject

@@ -119,6 +119,16 @@ void CTRunDraw(
 
 CFTypeID CTRunGetTypeID();
 
+/* Private APIs */
+
+CGSize CTRunGetInitialAdvance(CTRunRef run);
+
+void CTRunGetBaseAdvancesAndOrigins(
+  CTRunRef,
+  CFRange,
+  CGSize baseAdvances[],
+  CGPoint origins[]);
+
 #ifdef __cplusplus
 }
 #endif

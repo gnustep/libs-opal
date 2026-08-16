@@ -24,6 +24,7 @@
 
 
 #import "OPSimpleLayoutEngine.h"
+#import "CTRun-private.h"
 #import <CoreText/CTFont.h>
 #import <CoreText/CTStringAttributes.h>
 
@@ -33,34 +34,69 @@
 	   withAttributes: (NSDictionary*)attribs
 {
   const NSUInteger length = [chars length];
-  CGGlyph *glyphs = malloc(sizeof(CGGlyph) * length);
-  unichar *characters = malloc(sizeof(unichar) * length);
-  CGSize *advances = malloc(sizeof(CGSize) * length);
+  CGGlyph *glyphs;
+  unichar *characters;
+  CGSize *advances;
+  CTFontRef font = [attribs objectForKey: (id)kCTFontAttributeName];
+  CTRun *run = nil;
 
-  CTFontRef font = [attribs objectForKey: kCTFontAttributeName]; 
+  if (length == 0)
+  {
+    return nil;
+  }
+
   if (font == nil)
   {
-    NSLog(@"OPSimpleLayoutEngine: Error, layoutString:withAttributes: called without a font");
+    /* A string with no font of its own is set in the face and size the
+       typesetter falls back to. */
+    font = CTFontCreateWithName((CFStringRef)@"Helvetica", 12, NULL);
   }
   else
   {
-    bool success = CTFontGetGlyphsForCharacters(font,
-						characters,
-						glyphs,
-						length);
-
-    double total = CTFontGetAdvancesForGlyphs(font,
-					      kCTFontDefaultOrientation,
-					      glyphs, 
-					      advances,
-					      length);
+    [(id)font retain];
   }
+  if (font == nil)
+  {
+    NSLog(@"OPSimpleLayoutEngine: no font to lay the string out with");
+    return nil;
+  }
+
+  glyphs = malloc(sizeof(CGGlyph) * length);
+  characters = malloc(sizeof(unichar) * length);
+  advances = malloc(sizeof(CGSize) * length);
+  if (glyphs != NULL && characters != NULL && advances != NULL)
+  {
+    [chars getCharacters: characters range: NSMakeRange(0, length)];
+
+    if (CTFontGetGlyphsForCharacters(font, characters, glyphs, length))
+    {
+      NSMutableDictionary *used = (attribs == nil)
+	? [NSMutableDictionary dictionary]
+	: [[attribs mutableCopy] autorelease];
+
+      CTFontGetAdvancesForGlyphs(font,
+				 kCTFontDefaultOrientation,
+				 glyphs,
+				 advances,
+				 length);
+
+      /* The run keeps the font it was laid out with, which is the one the
+	 caller asked for or the fallback chosen above. */
+      [used setObject: (id)font forKey: (id)kCTFontAttributeName];
+      run = [[[CTRun alloc] initWithGlyphs: glyphs
+				  advances: advances
+				     count: length
+				attributes: used
+			       stringRange: CFRangeMake(0, length)]
+	      autorelease];
+    }
+  }
+
   free(glyphs);
   free(characters);
   free(advances);
-
-  // FIXME: create a CTRun with the glyphs & advances
-  return nil;
+  [(id)font release];
+  return run;
 }
 
 @end

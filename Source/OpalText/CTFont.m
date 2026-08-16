@@ -66,6 +66,13 @@ const CFStringRef kCTFontFeatureSelectorSettingKey = @"kCTFontFeatureSelectorSet
 const CFStringRef kCTFontOpenTypeFeatureTag = (CFStringRef)@"kCTFontOpenTypeFeatureTag";
 const CFStringRef kCTFontOpenTypeFeatureValue = (CFStringRef)@"kCTFontOpenTypeFeatureValue";
 
+const CFStringRef kCTFontReferenceURLAttribute =
+  @"kCTFontReferenceURLAttribute";
+const CFStringRef kCTFontOpticalSizeAttribute =
+  @"kCTFontOpticalSizeAttribute";
+const CFStringRef kCTFontPostScriptNameAttribute =
+  @"kCTFontPostScriptNameAttribute";
+
 /* Classes */
 
 
@@ -349,7 +356,10 @@ CGFloat CTFontGetAscent(CTFontRef font)
 
 CGFloat CTFontGetDescent(CTFontRef font)
 {
-  return [font descender];
+  /* CoreText reports the descent as a positive distance below the baseline,
+     where the font's own descender is negative.  CGFontGetDescent keeps the
+     negative value, which is the one CoreGraphics reports. */
+  return -[font descender];
 }
 
 CGFloat CTFontGetCapHeight(CTFontRef font)
@@ -548,6 +558,48 @@ void CTFontDrawGlyphs(
 
 CTFontDescriptorRef CTFontManagerCreateFontDescriptorFromData(
   CFDataRef data)
+{
+  // FIXME: unimplemented
+  return NULL;
+}
+
+bool CTFontGetVerticalGlyphsForCharacters(
+  CTFontRef font,
+  const UniChar characters[],
+  CGGlyph glyphs[],
+  CFIndex count)
+{
+  // FIXME: unimplemented
+  return false;
+}
+
+bool CTFontTransformGlyphs(
+  CTFontRef font,
+  CGGlyph glyphs[],
+  CGSize advances[],
+  CFIndex count,
+  int options)
+{
+  // FIXME: unimplemented
+  return false;
+}
+
+CTFontRef CTFontCreateForCSS(
+  CFStringRef name,
+  uint16_t weight,
+  CTFontSymbolicTraits traits,
+  CGFloat size)
+{
+  // FIXME: unimplemented
+  return NULL;
+}
+
+CTFontRef CTFontCreateForCharactersWithLanguage(
+  CTFontRef currentFont,
+  const UTF16Char *characters,
+  CFIndex length,
+  CFStringRef language,
+  CFIndex *coveredLength)
 {
   // FIXME: unimplemented
   return NULL;

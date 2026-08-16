@@ -24,9 +24,50 @@
 
 #import "CTRun-private.h"
 
+#import <CoreText/CTFont.h>
+#import <CoreText/CTStringAttributes.h>
+
 /* Classes */
 
 @implementation CTRun
+
+- (id)initWithGlyphs: (const CGGlyph *)glyphs
+            advances: (const CGSize *)advances
+               count: (size_t)count
+          attributes: (NSDictionary *)attributes
+         stringRange: (CFRange)stringRange
+{
+  if ((self = [super init]))
+  {
+    CGFloat x = 0;
+    size_t i;
+
+    _count = count;
+    _glyphs = malloc(sizeof(CGGlyph) * count);
+    _advances = malloc(sizeof(CGSize) * count);
+    _positions = malloc(sizeof(CGPoint) * count);
+    if (_glyphs == NULL || _advances == NULL || _positions == NULL)
+    {
+      [self release];
+      return nil;
+    }
+    memcpy(_glyphs, glyphs, sizeof(CGGlyph) * count);
+    memcpy(_advances, advances, sizeof(CGSize) * count);
+
+    /* Each glyph sits where the ones before it left off. */
+    for (i = 0; i < count; i++)
+    {
+      _positions[i] = CGPointMake(x, 0);
+      x += advances[i].width;
+    }
+
+    _attributes = [attributes retain];
+    _stringRange = stringRange;
+    _status = 0;
+    _matrix = CGAffineTransformIdentity;
+  }
+  return self;
+}
 
 - (void)dealloc
 {
@@ -77,7 +118,34 @@
 			    descent: (CGFloat*)descent
 			    leading: (CGFloat*)leading
 {
-  return 0;
+  CTFontRef font = [_attributes objectForKey: (id)kCTFontAttributeName];
+  double width = 0;
+  size_t first, limit, i;
+
+  first = range.location;
+  limit = (range.length == 0) ? _count : range.location + range.length;
+  if (limit > _count)
+  {
+    limit = _count;
+  }
+  for (i = first; i < limit; i++)
+  {
+    width += _advances[i].width;
+  }
+
+  if (ascent)
+  {
+    *ascent = font ? CTFontGetAscent(font) : 0;
+  }
+  if (descent)
+  {
+    *descent = font ? CTFontGetDescent(font) : 0;
+  }
+  if (leading)
+  {
+    *leading = font ? CTFontGetLeading(font) : 0;
+  }
+  return width;
 }
 - (CGRect)imageBoundsForRange: (CFRange)range
 		  withContext: (CGContextRef)context
@@ -92,6 +160,8 @@
 
 - (void)drawRange: (CFRange)range onContext: (CGContextRef)ctx
 {
+  CTFontRef font = [_attributes objectForKey: (id)kCTFontAttributeName];
+
   if (range.length == 0)
   {
     range.length = _count;
@@ -99,8 +169,23 @@
 
   if (range.location > _count || (range.location + range.length) > _count)
   {
-    NSLog(@"CTRunDraw range out of bounds"); 
+    NSLog(@"CTRunDraw range out of bounds");
     return;
+  }
+
+  /* The run carries the font it was laid out with, so the caller does not
+     have to select one on the context first.  Nothing is drawn while the
+     context's font size is zero, so that is set either way. */
+  if (font != NULL)
+  {
+    CGFontRef graphicsFont = CTFontCopyGraphicsFont(font, NULL);
+
+    if (graphicsFont != NULL)
+    {
+      CGContextSetFont(ctx, graphicsFont);
+      CGFontRelease(graphicsFont);
+    }
+    CGContextSetFontSize(ctx, CTFontGetSize(font));
   }
 
   CGContextShowGlyphsAtPositions(ctx, _glyphs + range.location, _positions, range.length);
@@ -223,3 +308,17 @@ CFTypeID CTRunGetTypeID()
   return (CFTypeID)[CTRun class];
 }
 
+CGSize CTRunGetInitialAdvance(CTRunRef run)
+{
+  // FIXME: unimplemented
+  return CGSizeZero;
+}
+
+void CTRunGetBaseAdvancesAndOrigins(
+  CTRunRef run,
+  CFRange range,
+  CGSize baseAdvances[],
+  CGPoint origins[])
+{
+  // FIXME: unimplemented
+}

@@ -42,6 +42,18 @@ const CFStringRef kCGImagePropertyPixelHeight =
   OPALSTR("kCGImagePropertyPixelHeight");
 const CFStringRef kCGImagePropertyPixelWidth =
   OPALSTR("kCGImagePropertyPixelWidth");
+const CFStringRef kCGImagePropertyDepth =
+  OPALSTR("kCGImagePropertyDepth");
+const CFStringRef kCGImagePropertyHasAlpha =
+  OPALSTR("kCGImagePropertyHasAlpha");
+const CFStringRef kCGImagePropertyColorModel =
+  OPALSTR("kCGImagePropertyColorModel");
+const CFStringRef kCGImagePropertyColorModelRGB =
+  OPALSTR("RGB");
+const CFStringRef kCGImagePropertyColorModelGray =
+  OPALSTR("Gray");
+const CFStringRef kCGImagePropertyColorModelCMYK =
+  OPALSTR("CMYK");
 
 const CFStringRef kCGImagePropertyTIFFDictionary =
   OPALSTR("kCGImagePropertyTIFFDictionary");
@@ -340,7 +352,8 @@ CGImageRef CGImageCreateCopyWithColorSpace(
 {
   CGImageRef new;
 
-  // FIXME: is this supposed to convert pixel data?
+  /* This re-tags the image with a new colour space of the same number of
+     components; it does not convert the pixel data, matching CoreGraphics. */
 
   if (image->ismask ||
     CGColorSpaceGetNumberOfComponents(image->cspace)
@@ -483,11 +496,15 @@ bool CGImageIsMask(CGImageRef image)
 
 size_t CGImageGetWidth(CGImageRef image)
 {
+  if (!CGRectIsNull(image->crop))
+    return image->crop.size.width;
   return image->width;
 }
 
 size_t CGImageGetHeight(CGImageRef image)
 {
+  if (!CGRectIsNull(image->crop))
+    return image->crop.size.height;
   return image->height;
 }
 
@@ -558,8 +575,8 @@ cairo_surface_t *opal_CGImageGetSurfaceForImage(CGImageRef img, cairo_surface_t 
   if (NULL == img->surf)
   {
     cairo_surface_t *memSurf = cairo_image_surface_create(CAIRO_FORMAT_ARGB32,
-                                           CGImageGetWidth(img),
-                                           CGImageGetHeight(img));
+                                           img->width,
+                                           img->height);
     if (cairo_surface_status(memSurf) != CAIRO_STATUS_SUCCESS)
     {
       NSLog(@"Cairo error creating image\n");
@@ -569,8 +586,8 @@ cairo_surface_t *opal_CGImageGetSurfaceForImage(CGImageRef img, cairo_surface_t 
     cairo_surface_flush(memSurf); // going to modify the surface outside of cairo
 
     const unsigned char *srcData = OPDataProviderGetBytePointer(img->dp);
-    const size_t srcWidth = CGImageGetWidth(img);
-    const size_t srcHeight = CGImageGetHeight(img);
+    const size_t srcWidth = img->width;
+    const size_t srcHeight = img->height;
     const size_t srcBitsPerComponent = CGImageGetBitsPerComponent(img);
     const size_t srcBitsPerPixel = CGImageGetBitsPerPixel(img);
     const size_t srcBytesPerRow = CGImageGetBytesPerRow(img);

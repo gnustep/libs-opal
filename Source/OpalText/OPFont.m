@@ -39,6 +39,7 @@
 #import <Foundation/NSValue.h>
 
 #import "OPFont.h"
+#import <CoreText/CTFontDescriptor.h>
 
 const CGFloat *OPFontIdentityMatrix;
 
@@ -88,7 +89,15 @@ const CGFloat *OPFontIdentityMatrix;
 
 - (CGFloat) pointSize
 {
-  return [[[self fontDescriptor] objectForKey: OPFontSizeAttribute] doubleValue];
+  /* A descriptor built through CoreText carries the size under the CoreText
+     key, one built through the OPFont attributes under the OPFont key. */
+  id size = [[self fontDescriptor] objectForKey: (id)kCTFontSizeAttribute];
+
+  if (nil == size)
+  {
+    size = [[self fontDescriptor] objectForKey: OPFontSizeAttribute];
+  }
+  return [size doubleValue];
 }
 - (OPFont*) printerFont
 {
@@ -193,12 +202,20 @@ const CGFloat *OPFontIdentityMatrix;
 //
 // CTFont private
 //
++ (Class) fontClass
+{
+  /* The concrete font is whichever platform class was built in; without one
+     there is only the abstract font, which has no glyphs. */
+  Class platform = NSClassFromString(@"OPFreeTypeFont");
+
+  return (Nil == platform) ? [OPFont class] : platform;
+}
+
 + (OPFont*) fontWithDescriptor: (OPFontDescriptor*)descriptor
                        options: (CTFontOptions)options
 {
-  // FIXME: placeholder code.
-  return [[[OPFont alloc] _initWithDescriptor: descriptor
-                                      options: options] autorelease];
+  return [[[[self fontClass] alloc] _initWithDescriptor: descriptor
+                                                options: options] autorelease];
 }
 
 + (OPFont*) fontWithGraphicsFont: (CGFontRef)graphics

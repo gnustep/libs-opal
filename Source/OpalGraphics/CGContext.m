@@ -30,9 +30,17 @@
 
 #import "CGContext-private.h"
 #import "CGGradient-private.h"
+#import "CGShading-private.h"
+#import "CGFunction-private.h"
 #import "CGColor-private.h"
+#import "CGDataProvider-private.h"
+#import "CGPattern-private.h"
 #import "cairo/CairoFont.h"
 #import "OPLogging.h"
+
+#include <math.h>
+
+extern CGContextRef opal_new_CGContext(cairo_surface_t *target, CGSize device_size);
 
 /* The default (opaque black) color in a Cairo context,
  * used if no other color is set on the context yet */
@@ -41,9 +49,14 @@ static cairo_pattern_t *default_cp;
 extern cairo_surface_t *opal_CGImageGetSurfaceForImage(CGImageRef img, cairo_surface_t *contextSurface);
 extern CGRect opal_CGImageGetSourceRect(CGImageRef image);
 
+static void opal_mask_begin(CGContextRef ctx);
+static void opal_mask_end(CGContextRef ctx);
+
 static inline void set_color(cairo_pattern_t **cp, CGColorRef clr, double alpha);
 static void start_shadow(CGContextRef ctx);
-static void end_shadow(CGContextRef ctx, CGRect bounds);
+static void end_shadow(CGContextRef ctx);
+static void paint_with_shadow(CGContextRef ctx, cairo_pattern_t *pattern,
+                              double alpha);
 
 
 @implementation CGContext
@@ -107,6 +120,9 @@ static void end_shadow(CGContextRef ctx, CGRect bounds);
     CGColorRelease(ctadd->shadow_color);
     cairo_pattern_destroy(ctadd->shadow_cp);
     CGFontRelease(ctadd->font);
+    CGColorSpaceRelease(ctadd->fill_cs);
+    CGColorSpaceRelease(ctadd->stroke_cs);
+    if (ctadd->clip_mask) cairo_pattern_destroy(ctadd->clip_mask);
     next = ctadd->next;
     free(ctadd);
     ctadd = next;
@@ -241,9 +257,12 @@ void CGContextConcatCTM(CGContextRef ctx, CGAffineTransform transform)
     transform.b, transform.c, transform.d, transform.tx, transform.ty)
   cairo_matrix_t cmat;
 
+  /* cairo takes x' = xx*x + xy*y + x0 and y' = yx*x + yy*y + y0, so b belongs
+     in yx and c in xy, the way round the conversions in CGContextGetCTM and
+     CGContextGetUserSpaceToDeviceSpaceTransform already read them. */
   cmat.xx = transform.a;
-  cmat.xy = transform.b;
-  cmat.yx = transform.c;
+  cmat.yx = transform.b;
+  cmat.xy = transform.c;
   cmat.yy = transform.d;
   cmat.x0 = transform.tx;
   cmat.y0 = transform.ty;
@@ -290,6 +309,16 @@ CGAffineTransform CGContextGetCTM(CGContextRef ctx)
   return CGAffineTransformMake(result.xx, result.yx, result.xy, result.yy, result.x0, result.y0);
 }
 
+void CGContextSetCTM(CGContextRef ctx, CGAffineTransform m)
+{
+  // FIXME: it looks like we do not need to do anything related to the
+  // flip transformation here like in GetCTM() above, but we may be wrong
+  // here.
+  cairo_matrix_t cairoMatrix;
+  cairo_matrix_init(&cairoMatrix, m.a, m.b, m.c, m.d, m.tx, m.ty);
+  cairo_set_matrix(ctx->ct, &cairoMatrix);
+}
+
 void OPContextSetCairoDeviceOffset(CGContextRef ctx, CGFloat x, CGFloat y)
 {
   OPLOGCALL("ctx /*%p*/, %g, %g", ctx, x, y)
@@ -333,6 +362,11 @@ void CGContextSaveGState(CGContextRef ctx)
   cairo_pattern_reference(ctadd->fill_cp);
   CGColorRetain(ctadd->stroke_color);
   cairo_pattern_reference(ctadd->stroke_cp);
+  CGColorRetain(ctadd->shadow_color);
+  cairo_pattern_reference(ctadd->shadow_cp);
+  CGColorSpaceRetain(ctadd->fill_cs);
+  CGColorSpaceRetain(ctadd->stroke_cs);
+  if (ctadd->clip_mask) cairo_pattern_reference(ctadd->clip_mask);
   ctadd->next = ctx->add;
   ctx->add = ctadd;
   OPRESTORELOGGING()
@@ -357,6 +391,11 @@ void CGContextRestoreGState(CGContextRef ctx)
   cairo_pattern_destroy(ctx->add->fill_cp);
   CGColorRelease(ctx->add->stroke_color);
   cairo_pattern_destroy(ctx->add->stroke_cp);
+  CGColorRelease(ctx->add->shadow_color);
+  cairo_pattern_destroy(ctx->add->shadow_cp);
+  CGColorSpaceRelease(ctx->add->fill_cs);
+  CGColorSpaceRelease(ctx->add->stroke_cs);
+  if (ctx->add->clip_mask) cairo_pattern_destroy(ctx->add->clip_mask);
   ctadd = ctx->add->next;
   free(ctx->add);
   ctx->add = ctadd;
@@ -375,6 +414,11 @@ void CGContextSetShouldAntialias(CGContextRef ctx, int shouldAntialias)
   cairo_set_antialias(ctx->ct,
     (shouldAntialias ? CAIRO_ANTIALIAS_DEFAULT : CAIRO_ANTIALIAS_NONE));
   OPRESTORELOGGING()
+}
+
+bool CGContextGetShouldAntialias(CGContextRef ctx)
+{
+  return cairo_get_antialias(ctx->ct) != CAIRO_ANTIALIAS_NONE;
 }
 
 void CGContextSetLineWidth(CGContextRef ctx, CGFloat width)
@@ -447,13 +491,89 @@ void CGContextSetInterpolationQuality(
   CGInterpolationQuality quality)
 {
   OPLOGCALL("ctx /*%p*/, %d", ctx, quality)
+  if (ctx && ctx->add)
+    {
+      ctx->add->interpolation = quality;
+    }
   OPRESTORELOGGING()
 }
 
 void CGContextSetPatternPhase (CGContextRef ctx, CGSize phase)
 {
   OPLOGCALL("ctx /*%p*/, CGSizeMake(%g, %g)", ctx, phase.width, phase.height)
+  ctx->add->pattern_phase = phase;
   OPRESTORELOGGING()
+}
+
+/* Build a repeating Cairo source pattern from a CGPattern by drawing one cell
+   into an offscreen surface and tiling it.  For an uncolored pattern cellColor
+   is the colour (in the pattern's base space) that the cell is drawn with; for
+   a colored pattern it is NULL and the cell draws its own colours. */
+static cairo_pattern_t *opal_CreatePatternSource(CGContextRef ctx,
+  CGPatternRef pattern, CGColorRef cellColor)
+{
+  const CGRect bounds = OPPatternGetBounds(pattern);
+  CGFloat xStep = OPPatternGetXStep(pattern);
+  CGFloat yStep = OPPatternGetYStep(pattern);
+  if (xStep <= 0) xStep = bounds.size.width;
+  if (yStep <= 0) yStep = bounds.size.height;
+
+  int cw = (int)ceil(xStep);
+  int ch = (int)ceil(yStep);
+  if (cw < 1) cw = 1;
+  if (ch < 1) ch = 1;
+
+  /* Draw one cell into an offscreen surface using a temporary context that
+     shares Opal's flipped coordinate convention. */
+  cairo_surface_t *cell = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, cw, ch);
+  CGContextRef cellCtx = opal_new_CGContext(cell, CGSizeMake(cw, ch));
+  CGContextTranslateCTM(cellCtx, -bounds.origin.x, -bounds.origin.y);
+  if (cellColor != NULL)
+    {
+      CGContextSetFillColorWithColor(cellCtx, cellColor);
+      CGContextSetStrokeColorWithColor(cellCtx, cellColor);
+    }
+  OPPatternDrawInContext(pattern, cellCtx);
+  CGContextFlush(cellCtx);
+
+  cairo_pattern_t *pat = cairo_pattern_create_for_surface(cell);
+  cairo_pattern_set_extend(pat, CAIRO_EXTEND_REPEAT);
+
+  /* The cell surface is stored top-down while the drawing context is flipped;
+     flip the pattern back and apply the phase so tiles line up with the fill
+     origin. */
+  const CGSize phase = ctx->add->pattern_phase;
+  cairo_matrix_t m;
+  cairo_matrix_init(&m, 1, 0, 0, -1, -phase.width, ch + phase.height);
+  cairo_pattern_set_matrix(pat, &m);
+
+  CGContextRelease(cellCtx);
+  cairo_surface_destroy(cell);
+  return pat;
+}
+
+/* For an uncolored pattern, build the colour its cell should be drawn with
+   from the caller's components in the pattern colour space's base space.
+   Returns NULL (caller draws its own colours) for a colored pattern or when no
+   pattern colour space with a base is in effect.  The returned colour, if any,
+   must be released by the caller. */
+static CGColorRef opal_PatternCellColor(CGColorSpaceRef pcs,
+  CGPatternRef pattern, const CGFloat components[])
+{
+  if (OPPatternIsColored(pattern) || components == NULL || pcs == NULL)
+    {
+      return NULL;
+    }
+  if (CGColorSpaceGetModel(pcs) != kCGColorSpaceModelPattern)
+    {
+      return NULL;
+    }
+  CGColorSpaceRef base = CGColorSpaceGetBaseColorSpace(pcs);
+  if (base == NULL)
+    {
+      return NULL;
+    }
+  return CGColorCreate(base, components);
 }
 
 void CGContextSetFillPattern(
@@ -462,6 +582,17 @@ void CGContextSetFillPattern(
   const CGFloat components[])
 {
   OPLOGCALL("ctx /*%p*/, <pattern>, <components>", ctx)
+  if (pattern != NULL)
+    {
+      CGColorRef cellColor =
+        opal_PatternCellColor(ctx->add->fill_cs, pattern, components);
+      if (ctx->add->fill_cp)
+        {
+          cairo_pattern_destroy(ctx->add->fill_cp);
+        }
+      ctx->add->fill_cp = opal_CreatePatternSource(ctx, pattern, cellColor);
+      CGColorRelease(cellColor);
+    }
   OPRESTORELOGGING()
 }
 
@@ -471,6 +602,17 @@ void CGContextSetStrokePattern(
   const CGFloat components[])
 {
   OPLOGCALL("ctx /*%p*/, <pattern>, <components>", ctx)
+  if (pattern != NULL)
+    {
+      CGColorRef cellColor =
+        opal_PatternCellColor(ctx->add->stroke_cs, pattern, components);
+      if (ctx->add->stroke_cp)
+        {
+          cairo_pattern_destroy(ctx->add->stroke_cp);
+        }
+      ctx->add->stroke_cp = opal_CreatePatternSource(ctx, pattern, cellColor);
+      CGColorRelease(cellColor);
+    }
   OPRESTORELOGGING()
 }
 
@@ -480,15 +622,60 @@ void CGContextSetShouldSmoothFonts(CGContextRef ctx, int shouldSmoothFonts)
   OPRESTORELOGGING()
 }
 
+bool CGContextGetShouldSmoothFonts(CGContextRef ctx)
+{
+  return false;
+}
+
 void CGContextSetAllowsFontSmoothing(CGContextRef ctx, bool allowsFontSmoothing)
 {
   OPLOGCALL("ctx /*%p*/, %s", ctx, allowsFontSmoothing ? "true" : "false")
   OPRESTORELOGGING()
 }
 
+/* kCGBlendModePlusDarker has no cairo operator: it saturates at zero rather
+   than wrapping, which none of the cairo set does. It keeps the normal
+   operator so that it draws rather than drawing nothing. */
+static cairo_operator_t opal_cairo_operator(CGBlendMode mode)
+{
+  switch (mode)
+    {
+      case kCGBlendModeMultiply:       return CAIRO_OPERATOR_MULTIPLY;
+      case kCGBlendModeScreen:         return CAIRO_OPERATOR_SCREEN;
+      case kCGBlendModeOverlay:        return CAIRO_OPERATOR_OVERLAY;
+      case kCGBlendModeDarken:         return CAIRO_OPERATOR_DARKEN;
+      case kCGBlendModeLighten:        return CAIRO_OPERATOR_LIGHTEN;
+      case kCGBlendModeColorDodge:     return CAIRO_OPERATOR_COLOR_DODGE;
+      case kCGBlendModeColorBurn:      return CAIRO_OPERATOR_COLOR_BURN;
+      case kCGBlendModeSoftLight:      return CAIRO_OPERATOR_SOFT_LIGHT;
+      case kCGBlendModeHardLight:      return CAIRO_OPERATOR_HARD_LIGHT;
+      case kCGBlendModeDifference:     return CAIRO_OPERATOR_DIFFERENCE;
+      case kCGBlendModeExclusion:      return CAIRO_OPERATOR_EXCLUSION;
+      case kCGBlendModeHue:            return CAIRO_OPERATOR_HSL_HUE;
+      case kCGBlendModeSaturation:     return CAIRO_OPERATOR_HSL_SATURATION;
+      case kCGBlendModeColor:          return CAIRO_OPERATOR_HSL_COLOR;
+      case kCGBlendModeLuminosity:     return CAIRO_OPERATOR_HSL_LUMINOSITY;
+      case kCGBlendModeClear:          return CAIRO_OPERATOR_CLEAR;
+      case kCGBlendModeCopy:           return CAIRO_OPERATOR_SOURCE;
+      case kCGBlendModeSourceIn:       return CAIRO_OPERATOR_IN;
+      case kCGBlendModeSourceOut:      return CAIRO_OPERATOR_OUT;
+      case kCGBlendModeSourceAtop:     return CAIRO_OPERATOR_ATOP;
+      case kCGBlendModeDestinationOver:return CAIRO_OPERATOR_DEST_OVER;
+      case kCGBlendModeDestinationIn:  return CAIRO_OPERATOR_DEST_IN;
+      case kCGBlendModeDestinationOut: return CAIRO_OPERATOR_DEST_OUT;
+      case kCGBlendModeDestinationAtop:return CAIRO_OPERATOR_DEST_ATOP;
+      case kCGBlendModeXOR:            return CAIRO_OPERATOR_XOR;
+      case kCGBlendModePlusLighter:    return CAIRO_OPERATOR_ADD;
+      case kCGBlendModeNormal:
+      case kCGBlendModePlusDarker:
+      default:                         return CAIRO_OPERATOR_OVER;
+    }
+}
+
 void CGContextSetBlendMode(CGContextRef ctx, CGBlendMode mode)
 {
   OPLOGCALL("ctx /*%p*/, %d", ctx, mode)
+  cairo_set_operator(ctx->ct, opal_cairo_operator(mode));
   OPRESTORELOGGING()
 }
 
@@ -537,7 +724,7 @@ void CGContextSetShadow(
 {  
   OPLOGCALL("ctx /*%p*/, CGSizeMake(%g, %g), %g", ctx, offset.width, offset.height,
             radius)
-  CGColorRef defaultShadowColor = CGColorCreateGenericGray(0, 0.3);
+  CGColorRef defaultShadowColor = CGColorCreateGenericGray(0, 1.0 / 3.0);
   CGContextSetShadowWithColor(ctx, offset, radius, defaultShadowColor);
   CGColorRelease(defaultShadowColor);
   OPRESTORELOGGING()
@@ -554,10 +741,19 @@ void CGContextSetShadowWithColor(
   CGColorRelease(ctx->add->shadow_color);
   ctx->add->shadow_color = color;
   CGColorRetain(color);
-  
+
   ctx->add->shadow_offset = offset;
   ctx->add->shadow_radius = radius;
-  set_color(&ctx->add->shadow_cp, color, 1.0);
+  if (color)
+    {
+      set_color(&ctx->add->shadow_cp, color, 1.0);
+    }
+  else
+    {
+      /* A NULL color turns the shadow off. */
+      cairo_pattern_destroy(ctx->add->shadow_cp);
+      ctx->add->shadow_cp = NULL;
+    }
   OPRESTORELOGGING()
 }
 
@@ -772,7 +968,11 @@ void CGContextAddPath(CGContextRef ctx, CGPathRef path)
 void CGContextAddEllipseInRect(CGContextRef ctx, CGRect rect)
 {
   OPLOGCALL("ctx /*%p*/, CGRectMake(%g, %g, %g, %g)", ctx, rect.origin.x, rect.origin.y,
-            rect.size.width, rect.size.height)
+            rect.size.width, rect.size.height);
+  CGPathRef path = CGPathCreateMutable();
+  CGPathAddEllipseInRect(path, NULL, rect);
+  CGContextAddPath(ctx, path);
+  CGPathRelease(path);
   OPRESTORELOGGING()
 }
 
@@ -791,15 +991,17 @@ void CGContextStrokePath(CGContextRef ctx)
     start_shadow(ctx);
   }
 
+  opal_mask_begin(ctx);
   if(ctx->add->stroke_cp)
     cairo_set_source(ctx->ct, ctx->add->stroke_cp);
   else
     cairo_set_source(ctx->ct, default_cp);
 
   cairo_stroke(ctx->ct);
-  
+  opal_mask_end(ctx);
+
   if (ctx->add->shadow_cp) {
-    end_shadow(ctx, CGRectMake(0,0,500,500)); //FIXME
+    end_shadow(ctx);
   }
   
   cret = cairo_status(ctx->ct);
@@ -826,6 +1028,7 @@ static void fill_path(CGContextRef ctx, int eorule, int preserve)
   if (ctx->add->shadow_cp) {
     start_shadow(ctx);
   }
+  opal_mask_begin(ctx);
   if (ctx->add->fill_cp)
     cairo_set_source(ctx->ct, ctx->add->fill_cp);
   else
@@ -836,11 +1039,12 @@ static void fill_path(CGContextRef ctx, int eorule, int preserve)
     cairo_set_fill_rule(ctx->ct, CAIRO_FILL_RULE_WINDING);
 
   cairo_fill_preserve(ctx->ct);
+  opal_mask_end(ctx);
 
   if (!preserve) cairo_new_path(ctx->ct);
   
   if (ctx->add->shadow_cp) {
-    end_shadow(ctx, CGRectMake(0,0,500,500)); //FIXME
+    end_shadow(ctx);
   }
   
   cret = cairo_status(ctx->ct);
@@ -953,6 +1157,20 @@ void CGContextClearRect(CGContextRef ctx, CGRect rect)
   OPRESTORELOGGING()
 }
 
+void CGContextFillEllipseInRect(CGContextRef ctx, CGRect rect)
+{
+  CGContextBeginPath(ctx);
+  CGContextAddEllipseInRect(ctx, rect);
+  CGContextFillPath(ctx);
+}
+
+void CGContextStrokeEllipseInRect(CGContextRef ctx, CGRect rect)
+{
+  CGContextBeginPath(ctx);
+  CGContextAddEllipseInRect(ctx, rect);
+  CGContextStrokePath(ctx);
+}
+
 void CGContextStrokeLineSegments(
   CGContextRef ctx,
   const CGPoint points[],
@@ -1062,18 +1280,102 @@ void CGContextClipToRects(CGContextRef ctx, const CGRect rects[], size_t count)
   OPRESTORELOGGING()
 }
 
+/* Build an alpha (A8) coverage pattern from a mask image, mapped into rect.
+   For an image mask a sample of 0 paints fully and 255 not at all; for a normal
+   image the alpha channel (or the luminance, if there is no alpha) is the
+   coverage. */
+static cairo_pattern_t *opal_CreateMaskPattern(CGRect rect, CGImageRef mask)
+{
+  const size_t mw = CGImageGetWidth(mask);
+  const size_t mh = CGImageGetHeight(mask);
+  const size_t sbpr = CGImageGetBytesPerRow(mask);
+  const size_t sbpp = CGImageGetBitsPerPixel(mask) / 8;
+  const bool isMask = CGImageIsMask(mask);
+  const CGImageAlphaInfo alpha = CGImageGetAlphaInfo(mask);
+  const bool hasAlpha = !isMask
+    && (alpha == kCGImageAlphaPremultipliedLast || alpha == kCGImageAlphaLast
+        || alpha == kCGImageAlphaPremultipliedFirst || alpha == kCGImageAlphaFirst);
+  const bool alphaFirst = (alpha == kCGImageAlphaPremultipliedFirst
+                           || alpha == kCGImageAlphaFirst);
+
+  const unsigned char *src = OPDataProviderGetBytePointer(CGImageGetDataProvider(mask));
+  if (src == NULL || mw == 0 || mh == 0)
+    {
+      return NULL;
+    }
+
+  cairo_surface_t *asurf = cairo_image_surface_create(CAIRO_FORMAT_A8, mw, mh);
+  cairo_surface_flush(asurf);
+  unsigned char *adata = cairo_image_surface_get_data(asurf);
+  const int astride = cairo_image_surface_get_stride(asurf);
+
+  for (size_t y = 0; y < mh; y++)
+    {
+      for (size_t x = 0; x < mw; x++)
+        {
+          const unsigned char *pixel = src + y * sbpr + x * sbpp;
+          unsigned char sample;
+          if (hasAlpha)
+            sample = alphaFirst ? pixel[0] : pixel[sbpp - 1];
+          else
+            sample = pixel[0]; /* image mask or single-component image */
+          adata[y * astride + x] = isMask ? (255 - sample) : sample;
+        }
+    }
+  cairo_surface_mark_dirty(asurf);
+
+  cairo_pattern_t *pat = cairo_pattern_create_for_surface(asurf);
+  cairo_surface_destroy(asurf);
+
+  /* Map user space to the mask's pixels: the mask covers rect, flipped because
+     the surface is top-down while the context is y-up. */
+  cairo_matrix_t m;
+  cairo_matrix_init_identity(&m);
+  cairo_matrix_scale(&m, mw / rect.size.width, mh / rect.size.height);
+  cairo_matrix_translate(&m, -rect.origin.x, -rect.origin.y);
+  cairo_matrix_scale(&m, 1, -1);
+  cairo_matrix_translate(&m, 0, -rect.size.height);
+  cairo_pattern_set_matrix(pat, &m);
+
+  return pat;
+}
+
+/* If a clip mask is active, redirect drawing to a temporary group. */
+static void opal_mask_begin(CGContextRef ctx)
+{
+  if (ctx->add->clip_mask)
+    {
+      cairo_push_group(ctx->ct);
+    }
+}
+
+/* If a clip mask is active, composite the group through the mask. */
+static void opal_mask_end(CGContextRef ctx)
+{
+  if (ctx->add->clip_mask)
+    {
+      cairo_pop_group_to_source(ctx->ct);
+      cairo_mask(ctx->ct, ctx->add->clip_mask);
+    }
+}
+
 void CGContextClipToMask(CGContextRef ctx, CGRect rect, CGImageRef mask)
 {
-  OPLOGCALL("ctx /*%p*/, CGRectMake(%g, %g, %g, %g), <mask>", ctx, 
+  OPLOGCALL("ctx /*%p*/, CGRectMake(%g, %g, %g, %g), <mask>", ctx,
             rect.origin.x, rect.origin.y,
             rect.size.width, rect.size.height)
-  /* Attach a temporay image mask to the surface.
-     Then, all drawing needs a: 
-       push_group()
-       do the drawing
-       pop_group_to_source();
-       mask()
-  */
+  if (mask != NULL && rect.size.width > 0 && rect.size.height > 0)
+    {
+      cairo_pattern_t *pat = opal_CreateMaskPattern(rect, mask);
+      if (pat)
+        {
+          if (ctx->add->clip_mask)
+            {
+              cairo_pattern_destroy(ctx->add->clip_mask);
+            }
+          ctx->add->clip_mask = pat;
+        }
+    }
   OPRESTORELOGGING()
 }
 
@@ -1215,9 +1517,25 @@ void CGContextSetFillColorSpace(CGContextRef ctx, CGColorSpaceRef colorspace)
   CGColorRef color;
   size_t nc;
 
+  if (ctx && ctx->add)
+    {
+      CGColorSpaceRetain(colorspace);
+      CGColorSpaceRelease(ctx->add->fill_cs);
+      ctx->add->fill_cs = colorspace;
+    }
+
+  /* A pattern colour space carries no colour of its own; the fill colour is
+     supplied later by CGContextSetFillPattern. */
+  if (colorspace != NULL
+      && CGColorSpaceGetModel(colorspace) == kCGColorSpaceModelPattern)
+    {
+      OPRESTORELOGGING()
+      return;
+    }
+
   nc = CGColorSpaceGetNumberOfComponents(colorspace);
   components = calloc(nc+1, sizeof(CGFloat));
-  if (components) {
+  if (!components) {
     NSLog(@"%s: calloc failed", __PRETTY_FUNCTION__);
     return;
   }
@@ -1237,9 +1555,25 @@ void CGContextSetStrokeColorSpace(CGContextRef ctx, CGColorSpaceRef colorspace)
   CGColorRef color;
   size_t nc;
 
+  if (ctx && ctx->add)
+    {
+      CGColorSpaceRetain(colorspace);
+      CGColorSpaceRelease(ctx->add->stroke_cs);
+      ctx->add->stroke_cs = colorspace;
+    }
+
+  /* A pattern colour space carries no colour of its own; the stroke colour is
+     supplied later by CGContextSetStrokePattern. */
+  if (colorspace != NULL
+      && CGColorSpaceGetModel(colorspace) == kCGColorSpaceModelPattern)
+    {
+      OPRESTORELOGGING()
+      return;
+    }
+
   nc = CGColorSpaceGetNumberOfComponents(colorspace);
   components = calloc(nc+1, sizeof(CGFloat));
-  if (components) {
+  if (!components) {
     NSLog(@"%s: calloc failed", __PRETTY_FUNCTION__);
     return;
   }
@@ -1396,13 +1730,41 @@ void opal_draw_surface_in_rect(CGContextRef ctxt, CGRect rect, cairo_surface_t *
   cairo_matrix_translate(&patternMatrix, 0, -rect.size.height);
 
   cairo_pattern_set_matrix(pattern, &patternMatrix);
-  
+
+  if (ctxt->add != NULL)
+    {
+      switch (ctxt->add->interpolation)
+        {
+          case kCGInterpolationNone:
+            cairo_pattern_set_filter(pattern, CAIRO_FILTER_NEAREST);
+            break;
+          case kCGInterpolationLow:
+            cairo_pattern_set_filter(pattern, CAIRO_FILTER_FAST);
+            break;
+          case kCGInterpolationMedium:
+            cairo_pattern_set_filter(pattern, CAIRO_FILTER_GOOD);
+            break;
+          case kCGInterpolationHigh:
+            cairo_pattern_set_filter(pattern, CAIRO_FILTER_BEST);
+            break;
+          case kCGInterpolationDefault:
+          default:
+            break;
+        }
+    }
+
   // FIXME: do we always want this?
   cairo_pattern_set_extend(pattern, CAIRO_EXTEND_PAD);
 
   // Do the drawing
 
   cairo_t *destCairo = ctxt->ct;
+
+  /* Render into a group so an active clip mask can be applied afterwards, in
+     the untranslated user space the mask was set up in. */
+  const bool masked = (ctxt->add->clip_mask != NULL);
+  if (masked) cairo_push_group(destCairo);
+
   cairo_save(destCairo);
 
   cairo_set_operator(destCairo, CAIRO_OPERATOR_OVER);
@@ -1410,7 +1772,7 @@ void opal_draw_surface_in_rect(CGContextRef ctxt, CGRect rect, cairo_surface_t *
 
   cairo_set_source(destCairo, pattern);
   cairo_pattern_destroy(pattern);
-  
+
   // FIXME: What is the fastest way to draw? cairo_paint? clip? fill a rect?
   cairo_rectangle(destCairo, 0, 0,
     rect.size.width, rect.size.height);
@@ -1418,6 +1780,12 @@ void opal_draw_surface_in_rect(CGContextRef ctxt, CGRect rect, cairo_surface_t *
   cairo_paint_with_alpha(destCairo, ctxt->add->alpha);
 
   cairo_restore(destCairo);
+
+  if (masked)
+    {
+      cairo_pop_group_to_source(destCairo);
+      cairo_mask(destCairo, ctxt->add->clip_mask);
+    }
 }
 
 void CGContextDrawImage(CGContextRef ctx, CGRect rect, CGImageRef image)
@@ -1437,6 +1805,36 @@ void CGContextDrawTiledImage(CGContextRef ctx, CGRect rect, CGImageRef image)
 {
   OPLOGCALL("ctx /*%p*/, CGRectMake(%g, %g, %g, %g), <image>", ctx, rect.origin.x,
             rect.origin.y, rect.size.width, rect.size.height)
+
+  const double tw = rect.size.width;
+  const double th = rect.size.height;
+  if (tw <= 0 || th <= 0)
+    {
+      OPRESTORELOGGING()
+      return;
+    }
+
+  cairo_surface_t *surface =
+    opal_CGImageGetSurfaceForImage(image, cairo_get_target(ctx->ct));
+  CGRect srcRect = opal_CGImageGetSourceRect(image);
+
+  /* Tile across the current clip region.  Each tile is rect.size big, one tile
+     is anchored at rect.origin, and the pattern repeats in both directions. */
+  double cx1, cy1, cx2, cy2;
+  cairo_clip_extents(ctx->ct, &cx1, &cy1, &cx2, &cy2);
+
+  const double startX = rect.origin.x + floor((cx1 - rect.origin.x) / tw) * tw;
+  const double startY = rect.origin.y + floor((cy1 - rect.origin.y) / th) * th;
+
+  for (double y = startY; y < cy2; y += th)
+    {
+      for (double x = startX; x < cx2; x += tw)
+        {
+          opal_draw_surface_in_rect(ctx, CGRectMake(x, y, tw, th),
+            surface, srcRect);
+        }
+    }
+
   OPRESTORELOGGING()
 }
 
@@ -1491,11 +1889,13 @@ void CGContextDrawLinearGradient(
             startPoint.x, startPoint.y, endPoint.x, endPoint.y, options)
   cairo_pattern_t *pat = cairo_pattern_create_linear(startPoint.x, startPoint.y, endPoint.x, endPoint.y);
   opal_AddStops(pat, gradient);
-  
+
+  opal_mask_begin(ctx);
   cairo_set_source(ctx->ct, pat);
   // FIXME: respect CGGradientDrawingOptions
   cairo_paint(ctx->ct);
-  
+  opal_mask_end(ctx);
+
   cairo_pattern_destroy(pat);
   OPRESTORELOGGING()
 }
@@ -1515,19 +1915,97 @@ void CGContextDrawRadialGradient(
   cairo_pattern_t *pat = cairo_pattern_create_radial(startCenter.x, startCenter.y, startRadius,
     endCenter.x, endCenter.y, endRadius);
   opal_AddStops(pat, gradient);
-  
+
+  opal_mask_begin(ctx);
   cairo_set_source(ctx->ct, pat);
   // FIXME: respect CGGradientDrawingOptions
   cairo_paint(ctx->ct);
-  
+  opal_mask_end(ctx);
+
   cairo_pattern_destroy(pat);
   OPRESTORELOGGING()
 }
 
+/* Sample the shading's function along the axis and add one Cairo colour stop
+   per sample, so that Cairo's linear interpolation approximates the (possibly
+   non-linear) function. */
+static void opal_AddShadingStops(cairo_pattern_t *pat, CGShadingRef shading)
+{
+  // FIXME: support other colorspaces by converting to deviceRGB
+  if (![CGColorSpaceCreateDeviceRGB() isEqual: OPShadingGetColorSpace(shading)])
+  {
+    NSLog(@"%s: Only DeviceRGB supported for shadings", __PRETTY_FUNCTION__);
+    return;
+  }
+
+  CGFunctionRef function = OPShadingGetFunction(shading);
+  const size_t numColorComps = 3; // DeviceRGB
+  const size_t rangeDim = OPFunctionGetRangeDimension(function);
+  const CGFloat *domain = OPFunctionGetDomain(function);
+  const CGFloat t0 = domain ? domain[0] : 0.0;
+  const CGFloat t1 = domain ? domain[1] : 1.0;
+
+  const int samples = 64;
+  for (int i = 0; i <= samples; i++)
+  {
+    CGFloat offset = (CGFloat)i / samples;
+    CGFloat in = t0 + offset * (t1 - t0);
+    CGFloat out[16] = {0};
+    OPFunctionEvaluate(function, &in, out);
+
+    /* A function whose range includes alpha supplies it last, otherwise the
+       colour is opaque. */
+    CGFloat alpha = (rangeDim > numColorComps) ? out[numColorComps] : 1.0;
+    cairo_pattern_add_color_stop_rgba(pat, offset, out[0], out[1], out[2], alpha);
+  }
+}
+
 void CGContextDrawShading(
   CGContextRef ctx,
-  CGShadingRef shading
-);
+  CGShadingRef shading)
+{
+  OPLOGCALL("ctx /*%p*/, <shading>", ctx)
+  if (!shading)
+  {
+    OPRESTORELOGGING()
+    return;
+  }
+
+  CGPoint start = OPShadingGetStart(shading);
+  CGPoint end = OPShadingGetEnd(shading);
+  cairo_pattern_t *pat;
+
+  if (OPShadingIsRadial(shading))
+  {
+    pat = cairo_pattern_create_radial(start.x, start.y,
+      OPShadingGetStartRadius(shading), end.x, end.y,
+      OPShadingGetEndRadius(shading));
+  }
+  else
+  {
+    pat = cairo_pattern_create_linear(start.x, start.y, end.x, end.y);
+  }
+
+  opal_AddShadingStops(pat, shading);
+
+  /* Without extension the area beyond the shading is left untouched; with it
+     the end colours fill outward.  Cairo only offers a symmetric choice, so
+     pad only when both ends extend. */
+  if (OPShadingGetExtendStart(shading) && OPShadingGetExtendEnd(shading))
+  {
+    cairo_pattern_set_extend(pat, CAIRO_EXTEND_PAD);
+  }
+  else
+  {
+    cairo_pattern_set_extend(pat, CAIRO_EXTEND_NONE);
+  }
+
+  cairo_set_source(ctx->ct, pat);
+  cairo_paint(ctx->ct);
+
+  cairo_pattern_destroy(pat);
+  OPRESTORELOGGING()
+}
 
 void CGContextSetFont(CGContextRef ctx, CGFontRef font)
 {
@@ -1657,6 +2135,7 @@ void CGContextShowText(CGContextRef ctx, const char *string, size_t length)
 
   cairo_set_font_matrix(ctx->ct, &cairotextmatrix);
 
+  opal_mask_begin(ctx);
   if(ctx->add->fill_cp)
     cairo_set_source(ctx->ct, ctx->add->fill_cp);
   else
@@ -1664,12 +2143,14 @@ void CGContextShowText(CGContextRef ctx, const char *string, size_t length)
 
   cairo_show_text(ctx->ct, cString);
 
-
-  // Update the opal text matrix with the distance the current point moved
+  // Update the opal text matrix with the distance the current point moved.
+  // Read it before applying any clip mask, which restores the graphics state.
 
   double dx, dy;
   cairo_get_current_point(ctx->ct, &dx, &dy);
-  
+
+  opal_mask_end(ctx);
+
   CGPoint textPos = CGContextGetTextPosition(ctx);
   CGContextSetTextPosition(ctx, textPos.x + dx, textPos.y + dy);
   // FXIME: scaled?
@@ -1799,17 +2280,19 @@ void CGContextShowGlyphsAtPositions(
 
   // Show the glpyhs
 
+  opal_mask_begin(ctx);
   if(ctx->add->fill_cp)
     cairo_set_source(ctx->ct, ctx->add->fill_cp);
   else
     cairo_set_source(ctx->ct, default_cp);
-  
+
   // FIXME: Report this as a cairo bug.. the following places the glyphs after the first one incorrectly
   //cairo_show_glyphs(ctx->ct, cairoGlyphs, count);
   // WORKAROUND:
   for (int i=0; i<count; i++) {
     cairo_show_glyphs(ctx->ct, &(cairoGlyphs[i]), 1);
   }
+  opal_mask_end(ctx);
   OPRESTORELOGGING()
 }
 
@@ -1894,15 +2377,24 @@ void CGContextEndTransparencyLayer(CGContextRef ctx)
 {
   OPLOGCALL("ctx /*%p*/", ctx)
   cairo_pattern_t *group = cairo_pop_group(ctx->ct);
-  
+
   // Now undo the change to alpha and shadow state
   CGContextRestoreGState(ctx);
-  
-  // Paint the contents of the transparency layer.
-  cairo_set_source(ctx->ct, group);
+
+  /* Paint the contents of the transparency layer, composited using the
+     global alpha and the shadow the context carries, so that what the layer
+     holds casts one shadow between it rather than one apiece. */
+  if (ctx->add->shadow_cp)
+    {
+      paint_with_shadow(ctx, group, ctx->add->alpha);
+    }
+  else
+    {
+      cairo_set_source(ctx->ct, group);
+      cairo_paint_with_alpha(ctx->ct, ctx->add->alpha);
+    }
   cairo_pattern_destroy(group);
-  cairo_paint_with_alpha(ctx->ct, ctx->add->alpha);
-  
+
   // Undo the clipping (if any)
   cairo_restore(ctx->ct);
   OPRESTORELOGGING()
@@ -1956,6 +2448,47 @@ CGRect CGContextConvertRectToUserSpace(CGContextRef ctx, CGRect rect)
     CGAffineTransformInvert(CGContextGetUserSpaceToDeviceSpaceTransform(ctx)));
 }
 
+CGContextType CGContextGetType(CGContextRef ctx)
+{
+  // NOTE: This is not wrong, since Opal does not currently seem to support
+  // any other context type.
+  return kCGContextTypeBitmap;
+}
+
+CGAffineTransform CGContextGetBaseCTM(CGContextRef ctx)
+{
+  // FIXME: unimplemented
+  return (CGAffineTransform){0, 0, 0, 0, 0, 0};
+}
+
+void CGContextSetBaseCTM(CGContextRef ctx, CGAffineTransform m)
+{
+  // FIXME: unimplemented
+}
+
+CGColorSpaceRef CGContextCopyDeviceColorSpace(CGContextRef ctx)
+{
+  // FIXME: unimplemented
+  return NULL;
+}
+
+void CGContextSetShouldAntialiasFonts(CGContextRef ctx, bool shouldAntialiasFonts)
+{
+  // FIXME: unimplemented
+}
+
+bool CGDisplayUsesInvertedPolarity(void)
+{
+  // FIXME: unimplemented
+  return false;
+}
+
+bool CGDisplayUsesForceToGray(void)
+{
+  // FIXME: unimplemented
+  return false;
+}
+
 void OpalContextSetScaleFactor(CGContextRef ctx, CGFloat scale)
 {
   if (scale == 0)
@@ -1979,7 +2512,7 @@ static inline void blur_1D(unsigned char *input, unsigned char *output,
     sum += input[stride * MAX(0,MIN(width-1,i))];
   }
   for (i = 0; i < width; i++) {
-    output[stride * i] = (sum / ((2*radius) + 1));
+    output[stride * i] = (sum + radius) / ((2*radius) + 1);
     sum += input[stride * MAX(0,MIN(width-1, i+1+radius))];
     sum -= input[stride * MAX(0,MIN(width-1, i-radius))];
   }
@@ -1993,24 +2526,39 @@ static void blur_alpha_image_surface(cairo_surface_t *surface, float radius)
   int stride = cairo_image_surface_get_stride(surface);
   int intRadius = (int)radius;
   unsigned char *data = cairo_image_surface_get_data(surface);
-  unsigned char *buf = malloc(stride * imageHeight);
+  unsigned char *buf;
+  /* Three box blurs stand in for a Gaussian.  Each spreads an edge by its
+     own radius, so the three radii add up to the one that was asked for. */
+  int radii[3];
 
   if (intRadius < 1)
     return;
 
   if (cairo_image_surface_get_format(surface) != CAIRO_FORMAT_A8)
     return;
- 
+
+  radii[0] = (intRadius + 2) / 3;
+  radii[1] = (intRadius + 1) / 3;
+  radii[2] = intRadius / 3;
+
+  buf = malloc(stride * imageHeight);
+  if (!buf)
+    return;
+
   for (iteration = 0; iteration < 3; iteration++)
     {
+      if (radii[iteration] < 1)
+        continue;
+
       // Horizontal blur
       for (y = 0; y < imageHeight; y++)
-        blur_1D(data + (y*stride), buf + (y*stride), 1, imageWidth, intRadius);
+        blur_1D(data + (y*stride), buf + (y*stride), 1, imageWidth,
+                radii[iteration]);
       memcpy(data, buf, stride*imageHeight);
 
       // Vertical blur
       for (x = 0; x < imageWidth; x++)
-        blur_1D(data + x, buf + x, stride, imageHeight, intRadius);
+        blur_1D(data + x, buf + x, stride, imageHeight, radii[iteration]);
       memcpy(data, buf, stride*imageHeight);
     }
   free(buf);
@@ -2024,41 +2572,98 @@ static void start_shadow(CGContextRef ctx)
 /**
  * Draws everything between the last start_shadow call and this function
  * with a shadow.
+ *
+ * The mask holds the area that can be drawn into, in device pixels, grown by
+ * the blur radius so the blur is not cut off at its own edges.  The offset is
+ * in the base coordinate space of the context and does not go through the
+ * CTM, so the mask is placed with the matrix set aside; base space has y
+ * running up where cairo's device space has it running down.
  */
-static void end_shadow(CGContextRef ctx, CGRect bounds)
+static void paint_with_shadow(CGContextRef ctx, cairo_pattern_t *pattern,
+                              double alpha)
 {
-  cairo_pattern_t *pattern = cairo_pop_group(ctx->ct);
-  
- // writeOut(pattern);
-  
-  cairo_save(ctx->ct);
-  
-  //#if 0
-  // Create the shadow mask
-  cairo_surface_t *alphaSurface = 
-    cairo_image_surface_create(CAIRO_FORMAT_A8, 500, 250);
-                                 //ceil(bounds.size.width + 2*radius),
-                                 //ceil(bounds.size.height + 2*radius)); 
-  cairo_t *alphaCt = cairo_create(alphaSurface);
-  //cairo_surface_set_device_offset(alphaSurface, 0, 250); 
-  //cairo_scale(alphaCt, 1.0, -1.0);
-  
-  cairo_set_source(alphaCt, pattern);
-  cairo_paint(alphaCt);
-  cairo_surface_flush(alphaSurface);
-  blur_alpha_image_surface(alphaSurface, ctx->add->shadow_radius);
-  
-  // Draw the shadow
-  // cairo_set_source(ctx->ct, ctx->add->shadow_cp);
-  cairo_set_source_rgba(ctx->ct, 0, 0, 0, 0.3); // FIXME hardcoded
-  
-  // FIXME: the offset is not supposed to be affected by the CTM
-  cairo_mask_surface(ctx->ct, alphaSurface, ctx->add->shadow_offset.width, 
-                                            ctx->add->shadow_offset.height);
-  
+  cairo_surface_t *alphaSurface;
+  cairo_matrix_t matrix, shift;
+  cairo_t *alphaCt;
+  double corners[4][2];
+  double minX, minY, maxX, maxY;
+  double x1, y1, x2, y2;
+  int grow = (int)ceil(ctx->add->shadow_radius) + 1;
+  int i, x, y, w, h;
+
+  cairo_clip_extents(ctx->ct, &x1, &y1, &x2, &y2);
+  corners[0][0] = x1; corners[0][1] = y1;
+  corners[1][0] = x2; corners[1][1] = y1;
+  corners[2][0] = x1; corners[2][1] = y2;
+  corners[3][0] = x2; corners[3][1] = y2;
+  for (i = 0; i < 4; i++)
+    cairo_user_to_device(ctx->ct, &corners[i][0], &corners[i][1]);
+
+  minX = maxX = corners[0][0];
+  minY = maxY = corners[0][1];
+  for (i = 1; i < 4; i++)
+    {
+      if (corners[i][0] < minX) minX = corners[i][0];
+      if (corners[i][0] > maxX) maxX = corners[i][0];
+      if (corners[i][1] < minY) minY = corners[i][1];
+      if (corners[i][1] > maxY) maxY = corners[i][1];
+    }
+  x = (int)floor(minX) - grow;
+  y = (int)floor(minY) - grow;
+  w = (int)ceil(maxX) + grow - x;
+  h = (int)ceil(maxY) + grow - y;
+
+  if (w > 0 && h > 0)
+    {
+      alphaSurface = cairo_image_surface_create(CAIRO_FORMAT_A8, w, h);
+      alphaCt = cairo_create(alphaSurface);
+
+      /* Draw into the mask through the same transform, moved so that device
+         point (x, y) is the mask's first pixel. */
+      cairo_get_matrix(ctx->ct, &matrix);
+      cairo_matrix_init_translate(&shift, -x, -y);
+      cairo_matrix_multiply(&matrix, &matrix, &shift);
+      cairo_set_matrix(alphaCt, &matrix);
+      cairo_set_source(alphaCt, pattern);
+      cairo_paint(alphaCt);
+      cairo_destroy(alphaCt);
+
+      cairo_surface_flush(alphaSurface);
+      blur_alpha_image_surface(alphaSurface, ctx->add->shadow_radius);
+      cairo_surface_mark_dirty(alphaSurface);
+
+      cairo_save(ctx->ct);
+      cairo_identity_matrix(ctx->ct);
+      /* The colour carries the alpha the content is painted with, there
+         being no alpha to give cairo_mask_surface. */
+      {
+        double red = 0, green = 0, blue = 0, shadowAlpha = 1;
+
+        cairo_pattern_get_rgba(ctx->add->shadow_cp, &red, &green, &blue,
+                               &shadowAlpha);
+        cairo_set_source_rgba(ctx->ct, red, green, blue, shadowAlpha * alpha);
+      }
+      cairo_mask_surface(ctx->ct, alphaSurface,
+                         x + ctx->add->shadow_offset.width,
+                         y - ctx->add->shadow_offset.height);
+      cairo_restore(ctx->ct);
+
+      cairo_surface_destroy(alphaSurface);
+    }
+
   // Draw the actual content
   cairo_set_source(ctx->ct, pattern);
-  cairo_paint(ctx->ct);
-  
-  cairo_restore(ctx->ct);
+  cairo_paint_with_alpha(ctx->ct, alpha);
+}
+
+/**
+ * Draws everything between the last start_shadow call and this function
+ * with a shadow.
+ */
+static void end_shadow(CGContextRef ctx)
+{
+  cairo_pattern_t *pattern = cairo_pop_group(ctx->ct);
+
+  paint_with_shadow(ctx, pattern, 1.0);
+  cairo_pattern_destroy(pattern);
 }
