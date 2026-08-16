@@ -352,7 +352,8 @@ CGImageRef CGImageCreateCopyWithColorSpace(
 {
   CGImageRef new;
 
-  // FIXME: is this supposed to convert pixel data?
+  /* This re-tags the image with a new colour space of the same number of
+     components; it does not convert the pixel data, matching CoreGraphics. */
 
   if (image->ismask ||
     CGColorSpaceGetNumberOfComponents(image->cspace)
