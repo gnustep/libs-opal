@@ -180,38 +180,33 @@ CGPoint CGPathGetCurrentPoint(CGPathRef path)
 
   NSUInteger count = [path count];
   CGPoint points[3];
+  CGPathElementType type = [path elementTypeAtIndex: count - 1 points: points];
 
-  // A closed subpath leaves the current point at the start of that subpath,
-  // which is its most recent move-to.
-  if ([path elementTypeAtIndex: count - 1 points: points]
-        == kCGPathElementCloseSubpath)
+  switch (type)
   {
-    for (NSUInteger i = count - 1; i < count; i--)
+    case kCGPathElementMoveToPoint:
+    case kCGPathElementAddLineToPoint:
+      return points[0];
+    case kCGPathElementAddQuadCurveToPoint:
+      return points[1];
+    case kCGPathElementAddCurveToPoint:
+      return points[2];
+    case kCGPathElementCloseSubpath:
     {
-      if ([path elementTypeAtIndex: i points: points]
-            == kCGPathElementMoveToPoint)
-        return points[0];
-    }
-    return CGPointZero;
-  }
+      // A closed subpath leaves the current point at the start of that
+      // subpath, which is its most recent move-to.
+      NSUInteger i = count - 1;
 
-  for (NSUInteger i=(count-1); i>=0 && i<count; i--)
-  {
-    CGPathElementType type =[path elementTypeAtIndex: i points: points];
-
-    switch (type)
-    {
-      case kCGPathElementMoveToPoint:
-      case kCGPathElementAddLineToPoint:
-        return points[0];
-      case kCGPathElementAddQuadCurveToPoint:
-        return points[1];
-      case kCGPathElementAddCurveToPoint:
-        return points[2];
-      case kCGPathElementCloseSubpath:
-      default:
-        break;
+      while (i-- > 0)
+      {
+        if ([path elementTypeAtIndex: i points: points]
+              == kCGPathElementMoveToPoint)
+          return points[0];
+      }
+      break;
     }
+    default:
+      break;
   }
   return CGPointZero;
 }
