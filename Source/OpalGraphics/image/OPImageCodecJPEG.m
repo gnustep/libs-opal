@@ -39,6 +39,7 @@
 #import "CGImageDestination-private.h"
 #import "CGDataProvider-private.h"
 #import "CGDataConsumer-private.h"
+#import "OPImageConversion.h"
 
 #include <jerror.h>
 #if defined(__MINGW32__)
@@ -734,16 +735,40 @@ static void gs_jpeg_memory_dest_destroy (j_compress_ptr cinfo)
 
     }*/
 
-    unsigned char *rowdata = malloc(row_stride);
+    /* libjpeg expects packed samples with one byte per colour component and
+       no alpha channel, but the image may carry alpha or a wider layout.  Read
+       each source row and convert it to that packed form before writing. */
+    const CGColorSpaceRef srcColorSpace = CGImageGetColorSpace(img);
+    const int srcBitsPerComponent = CGImageGetBitsPerComponent(img);
+    const int srcBitsPerPixel = CGImageGetBitsPerPixel(img);
+    const CGBitmapInfo srcBitmapInfo = CGImageGetBitmapInfo(img);
+    const CGColorRenderingIntent srcIntent = CGImageGetRenderingIntent(img);
+
+    const int dstComponents = cinfo.input_components;
+    const size_t dstBytesPerRow = dstComponents * cinfo.image_width;
+    const CGBitmapInfo dstBitmapInfo = kCGBitmapByteOrderDefault | kCGImageAlphaNone;
+
+    unsigned char *srcdata = malloc(row_stride);
+    unsigned char *rowdata = malloc(dstBytesPerRow);
     JSAMPROW row_pointer[1] = {rowdata};
     CGDataProviderRef dp = CGImageGetDataProvider(img);
     OPDataProviderRewind(dp);
     while (cinfo.next_scanline < cinfo.image_height)
     {
-      // FIXME: strip alpha
-      OPDataProviderGetBytes(dp, rowdata, row_stride);
+      OPDataProviderGetBytes(dp, srcdata, row_stride);
+
+      OPImageConvert(rowdata, srcdata,
+                     cinfo.image_width, 1,
+                     8, srcBitsPerComponent,
+                     8 * dstComponents, srcBitsPerPixel,
+                     dstBytesPerRow, row_stride,
+                     dstBitmapInfo, srcBitmapInfo,
+                     srcColorSpace, srcColorSpace,
+                     srcIntent);
+
       jpeg_write_scanlines(&cinfo, row_pointer, 1);
     }
+    free(srcdata);
     free(rowdata);
   
     jpeg_finish_compress(&cinfo);
