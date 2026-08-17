@@ -23,6 +23,7 @@
    */
 
 #import "CTLine-private.h"
+#import "CTRun-private.h"
 
 /* Classes */
 
@@ -32,7 +33,24 @@
 {
   if ((self = [super init]))
   {
+    const NSUInteger count = [runs count];
+    CGFloat x = 0;
+    NSUInteger i;
+
     _runs = [runs retain];
+
+    /* A run's positions are relative to the origin of the line holding it, so
+       each run is laid out where the one before it ended. */
+    for (i = 0; i < count; i++)
+    {
+      CTRun *run = [runs objectAtIndex: i];
+
+      [run placeAtX: x];
+      x += [run typographicBoundsForRange: CFRangeMake(0, 0)
+                                   ascent: NULL
+                                  descent: NULL
+                                  leading: NULL];
+    }
   }
   return self;
 }
@@ -69,11 +87,199 @@
   return _runs;
 }
 
+/* The advance width of every glyph in the line, in order.  The caller frees
+   the array. */
+- (CGFloat *)glyphWidthsCount: (CFIndex *)countOut
+{
+  const NSUInteger runsCount = [_runs count];
+  CFIndex total = [self glyphCount];
+  CGFloat *widths;
+  CFIndex at = 0;
+  NSUInteger i;
+
+  *countOut = total;
+  if (total == 0)
+  {
+    return NULL;
+  }
+
+  widths = malloc(sizeof(CGFloat) * total);
+  if (widths == NULL)
+  {
+    return NULL;
+  }
+
+  for (i = 0; i < runsCount; i++)
+  {
+    CTRun *run = [_runs objectAtIndex: i];
+    const CGSize *advances = [run advances];
+    CFIndex j, count = [run glyphCount];
+
+    for (j = 0; j < count && at < total; j++)
+    {
+      widths[at++] = advances[j].width;
+    }
+  }
+  return widths;
+}
+
+/* How many glyphs fit in room, counted from the start of the line or from its
+   end.  A glyph fits when the glyphs up to and including it are no wider than
+   room. */
+static CFIndex
+OPGlyphsFitting(const CGFloat *widths, CFIndex count, double room, BOOL fromEnd)
+{
+  double used = 0;
+  CFIndex kept = 0, i;
+
+  for (i = 0; i < count; i++)
+  {
+    CGFloat advance = widths[fromEnd ? count - 1 - i : i];
+
+    if (used + advance > room)
+    {
+      break;
+    }
+    used += advance;
+    kept++;
+  }
+  return kept;
+}
+
+/* The runs covering count glyphs of this line from index, trimming the runs
+   at either end where the range falls inside one. */
+- (NSArray *)runsForGlyphsFrom: (CFIndex)index count: (CFIndex)count
+{
+  NSMutableArray *kept = [NSMutableArray array];
+  const NSUInteger runsCount = [_runs count];
+  CFIndex at = 0;
+  NSUInteger i;
+
+  for (i = 0; i < runsCount && count > 0; i++)
+  {
+    CTRun *run = [_runs objectAtIndex: i];
+    CFIndex glyphs = [run glyphCount];
+    CFIndex first, take;
+
+    if (at + glyphs <= index)
+    {
+      at += glyphs;
+      continue;
+    }
+
+    first = (index > at) ? index - at : 0;
+    take = glyphs - first;
+    if (take > count)
+    {
+      take = count;
+    }
+    if (take > 0)
+    {
+      CTRun *piece = [run runWithGlyphsFrom: first count: take];
+
+      if (piece != nil)
+      {
+        [kept addObject: piece];
+      }
+      count -= take;
+    }
+    at += glyphs;
+  }
+  return kept;
+}
+
 - (CTLine*) truncatedLineWithWidth: (double)width
                     truncationType: (CTLineTruncationType)truncationType
                    truncationToken:	(CTLineRef)truncationToken
 {
-  return nil;
+  CFIndex total = 0;
+  CGFloat *widths = [self glyphWidthsCount: &total];
+  NSMutableArray *runs;
+  double whole = 0, tokenWidth = 0, room;
+  CFIndex head = 0, tail = 0, i;
+
+  if (widths == NULL)
+  {
+    return self;
+  }
+  for (i = 0; i < total; i++)
+  {
+    whole += widths[i];
+  }
+
+  /* A line that already fits is answered as it stands, which is what Apple
+     answers. */
+  if (whole <= width)
+  {
+    free(widths);
+    return self;
+  }
+
+  if (truncationToken != NULL)
+  {
+    tokenWidth = CTLineGetTypographicBounds(truncationToken, NULL, NULL, NULL);
+  }
+
+  /* Nothing can be drawn where even the token does not fit. */
+  room = width - tokenWidth;
+  if (room < 0)
+  {
+    free(widths);
+    return nil;
+  }
+
+  switch (truncationType)
+  {
+    case kCTLineTruncationStart:
+      tail = OPGlyphsFitting(widths, total, room, YES);
+      break;
+
+    case kCTLineTruncationMiddle:
+      head = OPGlyphsFitting(widths, total, room / 2.0, NO);
+      tail = OPGlyphsFitting(widths, total, room / 2.0, YES);
+      if (head + tail > total)
+      {
+        tail = total - head;
+      }
+      break;
+
+    case kCTLineTruncationEnd:
+    default:
+      head = OPGlyphsFitting(widths, total, room, NO);
+      break;
+  }
+  free(widths);
+
+  runs = [NSMutableArray array];
+  if (head > 0)
+  {
+    [runs addObjectsFromArray: [self runsForGlyphsFrom: 0 count: head]];
+  }
+  if (truncationToken != NULL)
+  {
+    /* The token's own runs belong to the token's line, which keeps them, so
+       the truncated line takes copies to lay out for itself. */
+    NSArray *tokenRuns = [(CTLine *)truncationToken glyphRuns];
+    NSUInteger j;
+
+    for (j = 0; j < [tokenRuns count]; j++)
+    {
+      CTRun *run = [tokenRuns objectAtIndex: j];
+      CTRun *copy = [run runWithGlyphsFrom: 0 count: [run glyphCount]];
+
+      if (copy != nil)
+      {
+        [runs addObject: copy];
+      }
+    }
+  }
+  if (tail > 0)
+  {
+    [runs addObjectsFromArray: [self runsForGlyphsFrom: total - tail
+                                                 count: tail]];
+  }
+
+  return [[[CTLine alloc] initWithRuns: runs] autorelease];
 }
 
 - (double)penOffset

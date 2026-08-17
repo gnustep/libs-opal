@@ -158,6 +158,33 @@
   return _matrix;
 }
 
+- (void)placeAtX: (CGFloat)x
+{
+  size_t i;
+
+  for (i = 0; i < _count; i++)
+  {
+    _positions[i] = CGPointMake(x, 0);
+    x += _advances[i].width;
+  }
+}
+
+- (CTRun *)runWithGlyphsFrom: (CFIndex)index count: (CFIndex)count
+{
+  if (index < 0 || count < 0 || (size_t)(index + count) > _count)
+  {
+    return nil;
+  }
+
+  return [[[CTRun alloc] initWithGlyphs: _glyphs + index
+                               advances: _advances + index
+                                  count: count
+                             attributes: _attributes
+                            stringRange:
+                              CFRangeMake(_stringRange.location + index,
+                                          count)] autorelease];
+}
+
 - (void)drawRange: (CFRange)range onContext: (CGContextRef)ctx
 {
   CTFontRef font = [_attributes objectForKey: (id)kCTFontAttributeName];
