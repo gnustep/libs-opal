@@ -215,7 +215,11 @@
     CGContextSetFontSize(ctx, CTFontGetSize(font));
   }
 
-  CGContextShowGlyphsAtPositions(ctx, _glyphs + range.location, _positions, range.length);
+  /* Each glyph keeps the position it was laid out at, so a range starting
+     part way through the run draws from that glyph's position and not from
+     the start of the run. */
+  CGContextShowGlyphsAtPositions(ctx, _glyphs + range.location,
+                                 _positions + range.location, range.length);
 }
 
 @end
