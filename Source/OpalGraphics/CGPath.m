@@ -179,25 +179,34 @@ CGPoint CGPathGetCurrentPoint(CGPathRef path)
   }
 
   NSUInteger count = [path count];
-  // FIXME: ugly loop
-  for (NSUInteger i=(count-1); i>=0 && i<count; i--)
-  {
-    CGPoint points[3];
-    CGPathElementType type =[path elementTypeAtIndex: i points: points];
+  CGPoint points[3];
+  CGPathElementType type = [path elementTypeAtIndex: count - 1 points: points];
 
-    switch (type)
+  switch (type)
+  {
+    case kCGPathElementMoveToPoint:
+    case kCGPathElementAddLineToPoint:
+      return points[0];
+    case kCGPathElementAddQuadCurveToPoint:
+      return points[1];
+    case kCGPathElementAddCurveToPoint:
+      return points[2];
+    case kCGPathElementCloseSubpath:
     {
-      case kCGPathElementMoveToPoint:
-      case kCGPathElementAddLineToPoint:
-        return points[0];
-      case kCGPathElementAddQuadCurveToPoint:
-        return points[1];
-      case kCGPathElementAddCurveToPoint:
-        return points[2];
-      case kCGPathElementCloseSubpath:
-      default:
-        break;
+      // A closed subpath leaves the current point at the start of that
+      // subpath, which is its most recent move-to.
+      NSUInteger i = count - 1;
+
+      while (i-- > 0)
+      {
+        if ([path elementTypeAtIndex: i points: points]
+              == kCGPathElementMoveToPoint)
+          return points[0];
+      }
+      break;
     }
+    default:
+      break;
   }
   return CGPointZero;
 }
