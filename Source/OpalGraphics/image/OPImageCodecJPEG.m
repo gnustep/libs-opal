@@ -56,7 +56,21 @@ typedef int jpeg_boolean;
 #endif
 #endif // __MINGW32__
 
+/* basetyps.h defines `interface` and Foundation undefines it, but
+ * shlwapi.h, which jmorecfg.h includes here, still needs it.  It is
+ * withdrawn again below, because while it stands `@interface` in this
+ * file expands to `@struct`.
+ */
+#if defined(__MINGW32__) && !defined(interface)
+#define interface struct
+#define OPAL_UNDEF_INTERFACE 1
+#endif
 #include <jpeglib.h>
+#if defined(OPAL_UNDEF_INTERFACE)
+#undef interface
+#undef OPAL_UNDEF_INTERFACE
+#endif
+
 
 
 
