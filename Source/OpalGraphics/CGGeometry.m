@@ -183,8 +183,10 @@ CGRect CGRectUnion(CGRect r1, CGRect r2)
   r2 = CGRectStandardize(r2);
   rect.origin.x = MIN(r1.origin.x, r2.origin.x);
   rect.origin.y = MIN(r1.origin.y, r2.origin.y);
-  rect.size.width = MAX(r1.origin.x + r1.size.width, r2.origin.x + r2.size.width);
-  rect.size.height = MAX(r1.origin.y + r1.size.height, r2.origin.y + r2.size.height);
+  rect.size.width = MAX(r1.origin.x + r1.size.width,
+                        r2.origin.x + r2.size.width) - rect.origin.x;
+  rect.size.height = MAX(r1.origin.y + r1.size.height,
+                         r2.origin.y + r2.size.height) - rect.origin.y;
   return rect;
 }
 
