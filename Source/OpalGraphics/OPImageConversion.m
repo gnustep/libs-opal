@@ -77,7 +77,7 @@ void OPImageFormatLog(OPImageFormat fmt, NSString *msg)
 		msg, compFormatString, fmt.colorComponents, fmt.hasAlpha, fmt.isAlphaPremultiplied, fmt.isAlphaLast);
 }
 
-static inline uint64_t swap64(uint64_t val)
+static inline uint64_t opal_swap64(uint64_t val)
 {
   char out[8];
   char *in = (char *)(&val);
@@ -112,12 +112,12 @@ _set_bit_value(unsigned char *base, size_t msb_off, size_t bit_width,
     uint64_t value = val;
     value &= ((1 << bit_width) - 1);
     value <<= shift;
-    value = swap64(value); // if little endian
+    value = opal_swap64(value); // if little endian
 
     uint64_t mask = ((1 << bit_width) - 1);
     mask <<= shift;
     mask = ~mask;
-    mask = swap64(mask);   // if little endian
+    mask = opal_swap64(mask);   // if little endian
 
     *((uint64_t*)(base + byte1)) &= mask;
     *((uint64_t*)(base + byte1)) |= value;
@@ -165,7 +165,7 @@ _get_bit_value(const unsigned char *base, size_t msb_off, size_t bit_width)
     }
 
     uint64_t value = *((uint64_t*)chars);
-    value = swap64(value); // if little endian
+    value = opal_swap64(value); // if little endian
     value >>= shift;
     value &= ((1<<bit_width)-1);
   
