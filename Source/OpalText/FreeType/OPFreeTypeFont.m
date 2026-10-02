@@ -464,7 +464,7 @@ static const NSString *kOPFreeTypeLibrary = @"OPFreeTypeLibrary";
   /* REAL_SIZE scales font units by the point size, so the advance has to
      come back in font units rather than in fractional pixels of a size the
      face was never set to. */
-  FT_Load_Glyph(fontFace, glyph, FT_LOAD_LINEAR_DESIGN);
+  FT_Load_Glyph(fontFace, glyph, FT_LOAD_NO_SCALE | FT_LOAD_LINEAR_DESIGN);
   NSSize size = NSMakeSize(REAL_SIZE(fontFace->glyph->linearHoriAdvance),
     REAL_SIZE(fontFace->glyph->linearVertAdvance));
   [fontFaceLock unlock];
